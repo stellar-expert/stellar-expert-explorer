@@ -1,0 +1,92 @@
+.search-box {
+  position: relative;
+  display: block;
+  max-width: 36em;
+  margin: auto;
+
+  .icon-search {
+    position: absolute;
+    line-height: 2.4em;
+    right: 0.5em;
+    z-index: 3;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  &.shrinkable {
+    width: 13rem;
+    z-index: 2;
+    overflow: visible;
+    float: right;
+    padding-left: 0;
+
+    input {
+      width: 100%;
+      max-width: 12rem;
+      overflow: visible;
+      position: absolute;
+      right: 0;
+
+      &::placeholder {
+        color: transparent;
+      }
+
+      &:focus {
+        width: 36em;
+        max-width: 60vw;
+        box-shadow: 0 0 4px var(--color-bg);
+
+        &::placeholder {
+          color: #999;
+        }
+      }
+    }
+  }
+
+  .dropdown {
+    font-size: 1.4rem;
+    display: block;
+    min-width: 100%;
+    position: absolute;
+    z-index: 1;
+    background: var(--color-bg);
+    border: 1px solid var(--color-contrast-border);
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    border-radius: $border-radius-input;
+    top: 3em;
+
+    a {
+      display: block;
+      color: inherit;
+      padding: 0 0.8em;
+      line-height: 2em;
+      white-space: nowrap;
+
+      &:hover, &.active {
+        background: rgba(0, 0, 0, .03);
+      }
+    }
+  }
+}
+
+@media all and (max-width: $responsive-mobile-browser-width) {
+  .search-box {
+    &.shrinkable {
+      width: 100%;
+      float: none;
+
+      input {
+        right: 0;
+        max-width: 100%;
+        overflow: visible;
+        width: 100%;
+        position: relative;
+
+        &:focus {
+          width: 100%;
+          box-shadow: none;
+        }
+      }
+    }
+  }
+}

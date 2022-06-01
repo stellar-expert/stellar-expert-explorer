@@ -1,0 +1,35 @@
+.op-filters {
+  display: flex;
+  align-items: center;
+}
+
+.op-filter-container {
+  display: flex;
+  justify-content: flex-start;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-contrast-border);
+  border-radius: $border-radius-input;
+  color: var(--color-text);
+  height: 4rem;
+  padding: 0.2rem 1rem;
+  width: 100%;
+
+  &:focus {
+    border-color: var(--color-highlight);
+  }
+}
+
+.op-filter-condition {
+  border: 1px solid var(--color-primary);
+  height: 3rem;
+  border-radius: $border-radius-input;
+
+  &:hover {
+    border-color: var(--color-highlight);
+  }
+
+  .icon-cancel {
+    margin-left: 0.4em;
+    border-left: 1px solid var(--color-primary);
+  }
+}

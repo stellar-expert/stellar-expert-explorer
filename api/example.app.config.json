@@ -1,0 +1,36 @@
+{
+  "port": 3000,
+  "apiCacheDisabled": false,
+  "networks": {
+    "public": {
+      "db": "mongodb://127.0.0.1:39039/stellar_history_public",
+      "horizon": "https://horizon.stellar.org",
+      "network": "PUBLIC",
+      "demolisherSecret": "S..."
+    },
+    "testnet": {
+      "db": "mongodb://127.0.0.1:39039/stellar_history_testnet",
+      "horizon": "https://horizon-testnet.stellar.org",
+      "network": "TESTNET",
+      "demolisherSecret": "S..."
+    }
+  },
+  "directory": {
+    "repository": "{owner}/{repository}",
+    "accessToken": "{bot_access_token_secret}",
+    "admins": [
+      "orbitlens"
+    ]
+  },
+  "oauth": {
+    "github": {
+      "clientId": "{oauth_client_id}",
+      "secret": "{oauth_secret}"
+    }
+  },
+  "corsWhitelist": [
+    "http://localhost:3000",
+    "http://localhost:9001"
+  ],
+  "proxyValidationKey": ""
+}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-US" data-theme="day">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+    <meta name="fragment" content="!">
+    <title>StellarExpert | Stellar XLM block explorer and analytics platform</title>
+    <meta name="description"
+          content="Explore detailed stats, price history, and analytic reports for all assets on Stellar Network. View comprehensive account history, search transactions and payments, examine well-known accounts, analyze XLM and Stellar Network performance.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="referrer" content="no-referrer">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        #pre-loader {
+            width: 100%;
+            height: 100%;
+            color: #07A2CC;
+            font-size: 2.5rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+        }
+
+        .loader {
+            display: block;
+            background: url(/static/img/stellar-expert-blue.svg) no-repeat center center;
+            background-size: auto 2em;
+            width: 2em;
+            height: 2em;
+            font-size: 18px;
+            margin: 2em auto;
+            padding: 1em;
+            position: relative;
+            transform: translateZ(0);
+            animation: loader-appear 0.5s;
+            box-sizing: border-box;
+        }
+
+        .loader.large {
+            font-size: 24px;
+        }
+
+        .loader:before,
+        .loader:after {
+            content: '';
+            border-radius: 50%;
+            width: 2em;
+            height: 2em;
+            animation-fill-mode: both;
+            animation: loader-animation 1.8s infinite;
+            position: absolute;
+            margin-top: -0.6em;
+            left: 0;
+            top: 0;
+            border: 0.08em solid transparent;
+            border-top-color: #08B5E5;
+            box-sizing: border-box;
+        }
+
+        .loader:before {
+            animation-delay: -0.32s;
+            margin-top: -0.3em;
+            width: 1.4em;
+            height: 1.4em;
+            left: 0.33em;
+        }
+
+        @keyframes loader-appear {
+            0%,
+            80% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes loader-animation {
+            0%,
+            80%,
+            100% {
+                opacity: 0;
+            }
+            40% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<noscript>StellarExpert requires JavaScript turned on. Please enable JavaScript or use another browser.</noscript>
+<div id="pre-loader">
+    <div class="loader large page-center"></div>
+</div>
+</body>
+</html>

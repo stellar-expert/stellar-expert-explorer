@@ -1,0 +1,1 @@
+//TODO: search for entries sponsored by a given account (with paging)

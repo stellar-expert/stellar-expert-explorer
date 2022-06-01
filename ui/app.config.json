@@ -1,0 +1,28 @@
+{
+  "apiEndpoint": "http://localhost:3000",
+  "networks": {
+    "public": {
+      "title": "public",
+      "horizon": "https://horizon.stellar.org",
+      "passphrase": "Public Global Stellar Network ; September 2015",
+      "demolisher": "GBLHEWM4JUJDIDBPSHRNIF43SCJZ2SRPIJYKNRV3T57A6UGLMBB3QSIN"
+    },
+    "testnet": {
+      "title": "testnet",
+      "horizon": "https://horizon-testnet.stellar.org",
+      "passphrase": "Test SDF Network ; September 2015",
+      "demolisher": "GBLHEWM4JUJDIDBPSHRNIF43SCJZ2SRPIJYKNRV3T57A6UGLMBB3QSIN"
+    }
+  },
+  "directoryAdmins": [
+    "orbitlens",
+    "tomerweller",
+    "rice2000",
+    "stellarjohn"
+  ],
+  "oauth": {
+    "github": {
+      "clientId": "40b33b22410d95480eb2"
+    }
+  }
+}

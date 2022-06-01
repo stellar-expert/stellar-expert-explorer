@@ -1,0 +1,16 @@
+.sparkline-container .highcharts-container {
+  text-align: right !important;
+  margin: 0 0 0 auto;
+}
+
+.highcharts-tooltip{
+  font-size: $font-size-base;
+}
+
+@media all and (max-width: $responsive-mobile-browser-width) {
+  .sparkline-container .highcharts-container {
+    text-align: left !important;
+    margin: 0;
+  }
+}
+

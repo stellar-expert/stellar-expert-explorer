@@ -1,0 +1,17 @@
+.inline-tag {
+  border-radius: $border-radius-input;
+  background: var(--color-alt-bg);
+  margin: 0.2em 0.4em 0.2em 0;
+  padding: 0.2em 0.4em 0.1em;
+  line-height: 1.2;
+  display: inline-block;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &.active {
+    background: var(--color-primary);
+    color: var(--color-bg);
+  }
+}

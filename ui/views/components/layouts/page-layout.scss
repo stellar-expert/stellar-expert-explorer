@@ -1,0 +1,20 @@
+.page-container {
+  background: var(--color-dashboard-bg);
+  padding: 1rem 0 2rem;
+  min-height: calc(100vh - 20rem);
+}
+
+.footer {
+  font-size: 1.4rem;
+  padding: 1.2rem 0 1.2rem;
+  line-height: 2;
+  border-top: 1px solid var(--color-contrast-border);
+
+  a {
+    color: var(--color-dimmed);
+    @media all and (max-width: $responsive-mobile-browser-width) {
+      margin: 0.4em 0;
+    }
+  }
+}
+

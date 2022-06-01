@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /explorer/public/op/
+Disallow: /explorer/public/tx/
+Disallow: /explorer/public/ledger/
+Disallow: /explorer/testnet/op/
+Disallow: /explorer/testnet/tx/
+Disallow: /explorer/testnet/ledger/
+Disallow: /explorer/testnet/account/
+Disallow: /widget/
+
+Sitemap: https://stellar.expert/sitemap.xml

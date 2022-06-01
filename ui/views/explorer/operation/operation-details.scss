@@ -1,0 +1,8 @@
+.op-view {
+  padding: 0.5em .3em;
+  border-left: 3px solid transparent;
+  &.highlighted {
+    background: var(--color-alt-bg);
+    border-left-color: var(--color-highlight);
+  }
+}

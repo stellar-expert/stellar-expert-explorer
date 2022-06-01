@@ -1,0 +1,52 @@
+@use "~@stellar-expert/ui-framework/basic-styles/variables.scss";
+
+.all-account-balances {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: $space-standard;
+  margin-left: -$space-micro;
+  margin-right: -$space-micro;
+
+  & > div {
+    flex: 0 0 33%;
+    width: 100%;
+    max-width: 33%;
+    display: block;
+    margin-left: 0;
+    padding: 0 1rem;
+  }
+
+  .account-balance {
+    display: block;
+    width: 100%;
+    background: var(--color-highlight);
+    color: var(--color-bg);
+    padding: $space-micro 0 0.8*$space-micro;
+    margin-top: $space-standard;
+    text-align: center;
+    font-size: 1.15em;
+
+    *, *:hover {
+      color: var(--color-bg);
+    }
+
+    .text-tiny {
+      opacity: 0.8;
+    }
+  }
+
+  @media (max-width: $responsive-mobile-browser-width) {
+    margin-left: 0;
+    margin-right: 0;
+    & > div {
+      flex: 0 0 100%;
+      max-width: 100%;
+      padding: 0;
+    }
+    .account-balance {
+      margin-top: $space-micro;
+    }
+  }
+}

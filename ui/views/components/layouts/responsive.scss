@@ -1,0 +1,29 @@
+@media (max-width: $responsive-mobile-browser-width) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-left {
+    text-align: left !important;
+  }
+  .mobile-center {
+    text-align: center !important;
+  }
+  .mobile-right {
+    text-align: right !important;
+  }
+}
+
+@media (min-width: $responsive-mobile-browser-width) {
+  .mobile-only {
+    display: none !important;
+  }
+  .desktop-left {
+    text-align: left !important;
+  }
+  .desktop-center {
+    text-align: center !important;
+  }
+  .desktop-right {
+    text-align: right !important;
+  }
+}
