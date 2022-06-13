@@ -10,7 +10,7 @@ for [Stellar Network](https://stellar.org).
   developers (the data from Open Directory API is publicly available for
   developers and users, free of charge)
 - 📩 [Request](https://github.com/stellar-expert/stellar-expert-explorer/issues)
-- new features, submit bug reports, and vote for issues
+  new features, submit bug reports, and vote for issues
 - 🏷️Request [Directory listing](https://stellar.expert/directory/add) for a
   service account or asset issuer address
 - ⚠️[Report](https://stellar.expert/directory/blocked-domains/add) a fraudulent
