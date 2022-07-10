@@ -13,8 +13,7 @@ const connections = {
                     keepAlive: true,
                     useNewUrlParser: true,
                     useUnifiedTopology: true,
-                    authSource: 'admin', //authenticate against "admin" db
-                    poolSize: 30 // Maintain up to 30 socket connections
+                    poolSize: 30 // maintain up to 30 socket connections
                 }
                 if (network.replicaSet) {
                     options.replicaSet = network.replicaSet

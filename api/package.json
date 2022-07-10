@@ -13,8 +13,9 @@
     "url": "https://github.com/orbitlens/stellar-expert.git"
   },
   "dependencies": {
-    "@google-cloud/firestore": "^4.15.1",
+    "bignumber.js": "^4.0.0",
     "body-parser": "^1.19.0",
+    "bson": "^1.1.6",
     "cors": "^2.8.5",
     "dayjs": "^1.8.25",
     "express": "^4.17.1",
@@ -22,6 +23,6 @@
     "mongodb": "^3.7.2",
     "morgan": "^1.10.0",
     "simple-git": "^3.7.1",
-    "stellar-sdk": "^9.0.1"
+    "stellar-sdk": "^10.1.2"
   }
 }
