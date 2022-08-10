@@ -4,7 +4,8 @@ const db = require('../../connectors/mongodb-connector'),
     {validateNetwork} = require('../api-helpers'),
     {generateEffectId} = require('../../utils/generic-id-utils'),
     errors = require('../errors'),
-    {formatPercentage, formatAmount, adjustAmount, formatWithPrecision} = require('../../utils/formatter')
+    {formatPercentage, formatAmount, adjustAmount, formatWithPrecision} = require('../../utils/formatter'),
+    {unixNow} = require('../../utils/date-utils')
 
 async function queryAssetTicker(network, symbol) {
     validateNetwork(network)
@@ -13,7 +14,7 @@ async function queryAssetTicker(network, symbol) {
     const [baseAsset, quoteAsset] = symbol.split('_')
     if (!baseAsset || !quoteAsset) throw errors.badRequest('Invalid market symbol: ' + symbol)
 
-    const dateNow = Math.floor(new Date() / 1000),
+    const dateNow = unixNow(),
         dateFrom = dateNow - 24 * 60 * 60 //last 24h
 
     //find first op that matches dateFrom timestamp

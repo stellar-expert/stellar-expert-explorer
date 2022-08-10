@@ -8,6 +8,8 @@ const ms = 1,
 
 const timeUnits = {ms, second, minute, hour, day, week, month}
 
+const maxUnixTime = 2147483647
+
 /**
  * Parse raw serialized date.
  * @param  {String|Number} ts - Raw date.
@@ -32,7 +34,28 @@ function parseDate(ts) {
         ts = new Date(ts)
     }
     if (!(ts instanceof Date) || isNaN(ts.valueOf())) return null
-    return Math.floor(ts.getTime() / 1000)
+    return toUnixTime(ts)
+}
+
+/**
+ * Convert DateTime to Unix timestamp
+ * @param {Date|Number} ts - Date object or number of milliseconds
+ */
+function toUnixTime(ts) {
+    if (ts instanceof Date) {
+        ts = ts.getTime()
+    }
+    if (typeof ts !== 'number')
+        throw new Error('Invalid date: ' + ts)
+    return Math.floor(ts / 1000)
+}
+
+/**
+ * Get current Unix timestamp
+ * @return {Number}
+ */
+function unixNow() {
+    return toUnixTime(new Date())
 }
 
 /**
@@ -48,6 +71,9 @@ function trimDate(date, hours = 1) {
 
 module.exports = {
     timeUnits,
+    maxUnixTime,
     parseDate,
-    trimDate
+    trimDate,
+    toUnixTime,
+    unixNow
 }

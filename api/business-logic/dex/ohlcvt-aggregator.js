@@ -1,0 +1,244 @@
+const {Long, ObjectId} = require('bson')
+const db = require('../../connectors/mongodb-connector')
+const {normalizeOrder} = require('../api-helpers')
+const {formatWithPrecision} = require('../../utils/formatter')
+const {maxUnixTime, unixNow, timeUnits, trimDate} = require('../../utils/date-utils')
+const errors = require('../errors')
+
+const standardResolutions = [
+    300, //5 minutes
+    900, //15 minutes
+    1800, //15 minutes
+    3600, //1 hour
+    7200, //2 hours
+    14400, //4 hours
+    43200, //12 hours
+    86400, //1 day
+    259200, //3 days
+    604800, //1 week
+    1209600 //2 weeks
+]
+
+const OHLCVT = {
+    TIMESTAMP: 0,
+    OPEN: 1,
+    HIGH: 2,
+    LOW: 3,
+    CLOSE: 4,
+    BASE_VOLUME: 5,
+    QUOTE_VOLUME: 6,
+    TRADES_COUNT: 7
+}
+
+/**
+ *
+ * @param {'public'|'testnet'} network
+ * @param {String} collection
+ * @param {1|-1} order
+ * @param {*} fromId
+ * @param {*} toId
+ * @param {Number} resolution
+ * @param {Boolean} reverse
+ * @return {Promise<[][]>}
+ */
+async function aggregateOhlcvt({network, collection, order, fromId, toId, resolution, reverse}) {
+    let data = await db[network].collection(collection).aggregate(
+        [
+            {
+                $match: {_id: {$gte: fromId, $lt: toId}}
+            },
+            {
+                $sort: {_id: 1}
+            },
+            {
+                $group: {
+                    _id: {$floor: {$divide: [{$arrayElemAt: ['$ohlcvt', OHLCVT.TIMESTAMP]}, resolution]}},
+                    o: {$first: {$arrayElemAt: ['$ohlcvt', OHLCVT.OPEN]}},
+                    h: {$max: {$arrayElemAt: ['$ohlcvt', OHLCVT.HIGH]}},
+                    l: {$min: {$arrayElemAt: ['$ohlcvt', OHLCVT.LOW]}},
+                    c: {$last: {$arrayElemAt: ['$ohlcvt', OHLCVT.CLOSE]}},
+                    vb: {$sum: {$arrayElemAt: ['$ohlcvt', OHLCVT.BASE_VOLUME]}},
+                    vq: {$sum: {$arrayElemAt: ['$ohlcvt', OHLCVT.QUOTE_VOLUME]}},
+                    t: {$sum: {$arrayElemAt: ['$ohlcvt', OHLCVT.TRADES_COUNT]}}
+                }
+            },
+            {
+                $sort: {_id: order}
+            },
+            {
+                $project: {
+                    _id: 0,
+                    r: {
+                        $map: {
+                            input: {$objectToArray: '$$ROOT'}, as: 'record', in: '$$record.v'
+                        }
+                    }
+                }
+            }
+        ]
+    ).toArray()
+    data = data.map(({r}) => {
+        r[OHLCVT.TIMESTAMP] *= resolution
+        if (reverse) return reverseRecordSides(r)
+        return r
+    })
+    return data
+}
+
+/**
+ * @param {String} network
+ * @param {Number} assetId
+ * @return {Promise<Number[]>}
+ */
+async function aggregateAssetSparkline(network, assetId) {
+    const fromTs = trimDate(unixNow() - timeUnits.week, 24)
+    const from = encodeAssetOhlcvtId(assetId, fromTs)
+    let data = await db[network].collection('asset_ohlcvt').aggregate(
+        [
+            {
+                $match: {_id: {$gte: from}}
+            },
+            {
+                $sort: {_id: 1}
+            },
+            {
+                $group: {
+                    _id: {$floor: {$divide: [{$arrayElemAt: ['$ohlcvt', 0]}, 14400]}}, //4 hours resolution
+                    p: {$last: {$arrayElemAt: ['$ohlcvt', OHLCVT.CLOSE]}},
+                    v: {$sum: {$arrayElemAt: ['$ohlcvt', OHLCVT.BASE_VOLUME]}},
+                }
+            }
+        ]
+    ).toArray()
+    return data.map(({_id, p}) => p)
+}
+
+
+/**
+ * @param {String} network
+ * @param {Number[]} assets
+ * @return {Promise<Object.<Number, Number[]>[]>}
+ */
+async function aggregateMultiAssetSparkline(network, assets) {
+    const now = unixNow()
+    const fromTs = trimDate(unixNow() - timeUnits.week, 24)
+    const ranges = assets.map(assetId => ({
+        _id: {
+            $gte: encodeAssetOhlcvtId(assetId, fromTs),
+            $lte: encodeAssetOhlcvtId(assetId, now)
+        }
+    }))
+    let data = await db[network].collection('asset_ohlcvt').aggregate(
+        [
+            {
+                $match: {$or: ranges}
+            },
+            {
+                $sort: {_id: 1}
+            },
+            {
+                $group: {
+                    _id: {
+                        a: {$floor: {$divide: [{$arrayElemAt: ['$ohlcvt', 0]}, 4294967296]}},
+                        p: {$floor: {$divide: [{$arrayElemAt: ['$ohlcvt', 0]}, 14400]}}  //4 hours resolution
+                    },
+                    p: {$last: {$arrayElemAt: ['$ohlcvt', OHLCVT.CLOSE]}}
+                }
+            }
+        ]
+    ).toArray()
+    const res = {}
+    for (let {_id, p} of data) {
+        let bucket = res[_id.a]
+        if (!bucket) {
+            bucket = res[_id.a] = []
+        }
+        bucket.push(p)
+    }
+    return res
+}
+
+function reverseRecordSides(record) {
+    return [
+        record[OHLCVT.TIMESTAMP],
+        parseFloat(formatWithPrecision(1 / record[OHLCVT.OPEN], 6)),
+        parseFloat(formatWithPrecision(1 / record[OHLCVT.LOW], 6)), //swap high and low
+        parseFloat(formatWithPrecision(1 / record[OHLCVT.HIGH], 6)),
+        parseFloat(formatWithPrecision(1 / record[OHLCVT.CLOSE], 6)),
+        record[OHLCVT.QUOTE_VOLUME],
+        record[OHLCVT.BASE_VOLUME],
+        record[OHLCVT.TRADES_COUNT]
+    ]
+}
+
+/**
+ * @param {Number} from
+ * @param {Number} to
+ * @param {Number|String} originalResolution
+ * @return {Number}
+ */
+function optimizeResolution(from, to, originalResolution) {
+    const span = to - from
+    if (originalResolution && originalResolution !== 'auto') {
+        originalResolution = parseInt(originalResolution)
+        if (standardResolutions.includes(originalResolution)) {
+            if (span / originalResolution <= 200)
+                return originalResolution
+            if (standardResolutions[standardResolutions.length - 1] === originalResolution)
+                return originalResolution
+        }
+    }
+    const optimal = span / 200
+    let res = standardResolutions.find(v => v >= optimal)
+    return res || standardResolutions[standardResolutions.length - 1]
+}
+
+/**
+ * @param {Number|String} from
+ * @param {Number|String} to
+ * @param {Number|String} resolution
+ * @param {Number|String} order
+ * @return {{from: Number, to: Number, order: Number, resolution: Number}}
+ */
+function parseBoundaries({from = 0, to = maxUnixTime, resolution = 'auto', order}) {
+    from = parseInt(from)
+    to = parseInt(to)
+    if (isNaN(from) || from < 0 || from > maxUnixTime)
+        throw errors.validationError('from')
+    if (isNaN(to) || to < 0 || to > 2147483647)
+        throw errors.validationError('to')
+    if (to <= from)
+        throw errors.badRequest('Parameter "to" should be larger than "from".')
+
+    order = normalizeOrder(order, 1)
+    resolution = optimizeResolution(from, to, resolution)
+    return {from, to, order, resolution}
+}
+
+
+/**
+ * Generate OHLCVT collection id from asset id and timestamp
+ * @param {Number} assetId
+ * @param {Number} timestamp
+ * @return {Long}
+ */
+function encodeAssetOhlcvtId(assetId, timestamp) {
+    return new Long(timestamp, assetId)
+}
+
+
+/**
+ * Generate OHLCVT collection id from two asset ids that designate the market and timestamp
+ * @param {Number[]} assetIds
+ * @param {Number} timestamp
+ * @return {ObjectId}
+ */
+function encodeMarketOhlcvtId(assetIds, timestamp) {
+    const raw = Buffer.allocUnsafe(12)
+    raw.writeUInt32BE(assetIds[1], 0)
+    raw.writeUInt32BE(assetIds[0], 4)
+    raw.writeUInt32BE(timestamp, 8)
+    return new ObjectId(raw)
+}
+
+module.exports = {aggregateOhlcvt, optimizeResolution, parseBoundaries, encodeAssetOhlcvtId, encodeMarketOhlcvtId}

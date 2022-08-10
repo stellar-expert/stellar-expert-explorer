@@ -2,8 +2,7 @@ const db = require('../../connectors/mongodb-connector'),
     QueryBuilder = require('../query-builder'),
     {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset} = require('../api-helpers'),
     {resolveAccountId} = require('../account/account-resolver'),
-    {validateNetwork, isValidAccountAddress} = require('../validators'),
-    errors = require('../errors')
+    {validateNetwork, isValidAccountAddress} = require('../validators')
 
 const supportedFeaturesSearch = [{
     terms: ['SEP3', 'SEP0003', 'SEP-0003', 'AUTH_SERVER'],
@@ -30,7 +29,7 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
 
     const q = new QueryBuilder({asset: {$ne: 0}, payments: {$gt: 0}})
         .setSkip(calculateSequenceOffset(skip, limit, cursor, order))
-        .setLimit(limit)
+        .setLimit(limit, 50)
 
     let sortOrder
     //order is ignored for assets rating

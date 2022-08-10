@@ -50,11 +50,14 @@ function formatAmount(numeric, precision = 7) {
  */
 function formatWithPrecision(numeric, precision = 8) {
     numeric = normalizeNumber(numeric)
+    let res
     //avoid exponential numerics
-    if (numeric > 10 ** precision) {
-        precision = Math.log10(numeric) + 2
+    if (numeric > 10 ** (precision + 1)) {
+        res = Math.round(numeric).toString()
+    } else {
+        res = numeric.toPrecision(precision)
     }
-    return trimZeros(numeric.toPrecision(precision))
+    return trimZeros(res)
 }
 
 function formatPercentage(value) {

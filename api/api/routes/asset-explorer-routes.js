@@ -1,15 +1,16 @@
-const {registerRoute} = require('../router'),
-    {queryAllAssets} = require('../../business-logic/asset/asset-list'),
-    {queryAssetsOverallStats} = require('../../business-logic/asset/asset-stats-list'),
-    {queryAssetStats} = require('../../business-logic/asset/asset-stats'),
-    {queryAssetRating} = require('../../business-logic/asset/asset-rating'),
-    {queryAssetStatsHistory} = require('../../business-logic/asset/asset-stats-history'),
-    {queryAssetSupply} = require('../../business-logic/asset/asset-supply'),
-    {queryAssetTradingPairs} = require('../../business-logic/asset/asset-trading-pairs'),
-    {queryAssetsMeta} = require('../../business-logic/asset/asset-meta'),
-    {queryAssetTrades} = require('../../business-logic/dex/trades'),
-    {queryAssetOperations} = require('../../business-logic/operation/operations'),
-    {queryAssetHolders, queryHolderPosition, queryAssetDistribution} = require('../../business-logic/asset/asset-holders')
+const {registerRoute} = require('../router')
+const {queryAllAssets} = require('../../business-logic/asset/asset-list')
+const {queryAssetsOverallStats} = require('../../business-logic/asset/asset-stats-list')
+const {queryAssetStats} = require('../../business-logic/asset/asset-stats')
+const {queryAssetRating} = require('../../business-logic/asset/asset-rating')
+const {queryAssetStatsHistory} = require('../../business-logic/asset/asset-stats-history')
+const {queryAssetSupply} = require('../../business-logic/asset/asset-supply')
+const {queryAssetTradingPairs} = require('../../business-logic/asset/asset-trading-pairs')
+const {queryAssetsMeta} = require('../../business-logic/asset/asset-meta')
+const {queryAssetTrades} = require('../../business-logic/dex/trades')
+const {queryAssetOperations} = require('../../business-logic/operation/operations')
+const {queryAssetHolders, queryHolderPosition, queryAssetDistribution} = require('../../business-logic/asset/asset-holders')
+const {aggregateAssetPriceCandlesData} = require('../../business-logic/asset/asset-ohlcvt')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -52,11 +53,6 @@ module.exports = function (app) {
         })
 
     registerRoute(app,
-        'asset/:asset/rating',
-        {cache: 'stats'},
-        ({params}) => queryAssetRating(params.network, params.asset))
-
-    registerRoute(app,
         'asset/:asset/holders',
         {cache: 'stats'},
         ({params, query, path}) => queryAssetHolders(params.network, params.asset, path, query))
@@ -80,4 +76,9 @@ module.exports = function (app) {
         'asset/:asset/supply',
         {cache: 'stats', cors: 'open', headers: {'content-type': 'text/plain'}},
         ({params}) => queryAssetSupply(params.network, params.asset))
+
+    registerRoute(app,
+        'asset/:asset/candles',
+        {cache: 'stats'},
+        ({params, query}) => aggregateAssetPriceCandlesData(params.network, params.asset, query))
 }

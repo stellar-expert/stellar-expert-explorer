@@ -1,4 +1,5 @@
 const db = require('../../connectors/mongodb-connector')
+const {unixNow} = require('../../utils/date-utils')
 
 let firstTs = {}
 
@@ -16,7 +17,7 @@ async function getFirstLedgerTimestamp(network) {
  * @return {Promise<undefined|*>}
  */
 async function resolveSequenceFromTimestamp(network, ts) {
-    if (ts > new Date().getTime() / 1000 - 1) return undefined
+    if (ts > unixNow() - 1) return undefined
     const ledger = await db[network].collection('ledgers')
         .findOne({ts: {$lte: ts}}, {sort: {ts: -1}, projection: {_id: 1}})
 

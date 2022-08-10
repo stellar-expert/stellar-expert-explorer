@@ -1,11 +1,11 @@
 const path = require('path')
-const pkgInfo = require('./package.json')
 const webpack = require('webpack')
 const CopyPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const {DuplicatesPlugin} = require('inspectpack/plugin')
-const {webpackExcludeNodeModulesExcept} = require('@stellar-expert/webpack-utils')
+//const {DuplicatesPlugin} = require('inspectpack/plugin')
+//const {webpackExcludeNodeModulesExcept} = require('@stellar-expert/webpack-utils')
+const pkgInfo = require('./package.json')
 
 module.exports = function (env, argv) {
     const mode = argv.mode || 'development'
@@ -23,7 +23,7 @@ module.exports = function (env, argv) {
         output: {
             path: path.join(__dirname, './public/'),
             filename: pathData => {
-                if (['app'].includes(pathData.chunk.name)) return '[name].js'
+                //if (['app'].includes(pathData.chunk.name)) return '[name].js'
                 return `${pathData.runtime}.${pathData.hash}.js`
             },
             chunkFilename: pathData => {
@@ -92,6 +92,7 @@ module.exports = function (env, argv) {
         ],
         resolve: {
             symlinks: true,
+            modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
             fallback: {
                 util: false,
                 http: false,
@@ -102,8 +103,7 @@ module.exports = function (env, argv) {
                 events: false,
                 buffer: require.resolve('buffer/'),
                 stream: require.resolve('stream-browserify')
-            },
-            modules: [path.resolve(__dirname, './node_modules'), 'node_modules']
+            }
         },
         optimization: {
             moduleIds: 'deterministic'
@@ -143,11 +143,11 @@ module.exports = function (env, argv) {
             new CssMinimizerPlugin()]
 
     }
-    /*const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
     settings.plugins.push(new BundleAnalyzerPlugin({
         analyzerMode: 'static',
         reportFilename: 'bundle-stats.html',
         openAnalyzer: false
-    }))*/
+    }))
     return settings
 }

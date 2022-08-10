@@ -11,11 +11,10 @@ export default function AssetStatsHistoryView({asset}) {
                 <AssetSupplyChart asset={asset}/>
             </div>
         </div>
-        {!isXlm &&
         <div className="space column column-50">
             <div className="card">
                 <AssetsPriceChart asset={asset}/>
             </div>
-        </div>}
+        </div>
     </>
 }
