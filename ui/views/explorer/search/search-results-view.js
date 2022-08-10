@@ -11,7 +11,7 @@ import LedgerSearchResultsView from './ledger-search-results-view'
 import OperationSearchResultsView from './operation-search-results-view'
 import TransactionSearchResultsView from './transaction-search-results-view'
 import OfferSearchResultsView from './offer-search-results-view'
-import {loadStellarToml} from '../../../../../../stellar-expert-ui-framework/toml/stellar-toml-loader'
+import {loadStellarToml} from '@stellar-expert/ui-framework/toml/stellar-toml-loader'
 import {resolvePath} from '../../../business-logic/path'
 import './search.scss'
 

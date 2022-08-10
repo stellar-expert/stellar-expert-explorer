@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {getAccountLockStatus} from '../../../../../../stellar-expert-ui-framework/horizon/horizon-account-helpers'
+import {getAccountLockStatus} from '@stellar-expert/ui-framework'
 import Info from '../../components/info-tooltip'
 
 export default function AccountLockStatusView({accountInfo, forAsset = false}) {
