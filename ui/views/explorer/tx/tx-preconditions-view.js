@@ -3,7 +3,9 @@ import {AccountAddress} from '@stellar-expert/ui-framework'
 import Info from '../../components/info-tooltip'
 
 function formatDateUTC(date) {
-    return new Date(date * 1000)
+    const parseDate = new Date(date * 1000)
+    if (isNaN(parseDate.valueOf())) return '∞'
+    return parseDate
         .toISOString()
         .replace(/(T|\.\d+Z)/g, ' ') // make it more human friendly
         .trim()
