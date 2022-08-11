@@ -14,7 +14,7 @@ export default function AccountSearchResultsView({term, onLoaded}) {
     if (StrKey.isValidMed25519PublicKey(term)) {
         accountAddress = parseMuxedAccount(term).address
     }
-    const response = useExplorerApi({path: 'account', query: {search: accountAddress}})
+    const response = useExplorerApi('account?search=' + encodeURIComponent(accountAddress))
     if (!response.loaded) return null
     const {records} = response?.data?._embedded || {}
     //onLoaded(response.data)
@@ -27,7 +27,7 @@ export default function AccountSearchResultsView({term, onLoaded}) {
         return {
             link: resolvePath(`account/${address}`),
             title: <>Account <AccountAddress account={address} link={false} chars={12}/>{deleted &&
-            <span className="details">(deleted)</span>}</>,
+                <span className="details">(deleted)</span>}</>,
             description: <>
                 {created > 0 ? <>Created&nbsp;<UtcTimestamp date={created} dateOnly/></> : <>Signing key</>}{' | '}
                 {formatPrice(payments)}&nbsp;payments{', '}

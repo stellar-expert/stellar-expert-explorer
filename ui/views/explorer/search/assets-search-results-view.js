@@ -7,11 +7,11 @@ import {resolvePath} from '../../../business-logic/path'
 const limit = 20
 
 export default function AssetSearchResultsView({term, onLoaded}) {
-    const response = useExplorerApi({path: 'asset', query: {search: term, limit}})
+    const response = useExplorerApi(`asset?search=${encodeURIComponent(term)}&limit=${limit}`)
     if (!response.loaded) return null
     const results = []
     let more
-    if (term.toLowerCase()==='xlm') {
+    if (term.toLowerCase() === 'xlm') {
         results.push({
             link: resolvePath(`asset/XLM`),
             title: <>Asset <AssetLink asset="XLM" link={false} displayIssuer={true}/></>,
