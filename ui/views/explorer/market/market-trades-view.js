@@ -4,6 +4,7 @@ import {Amount, ElapsedTime, useDeepEffect, useDependantState, streamMarketTrade
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {formatPrice} from '@stellar-expert/formatter'
 import {resolvePath} from '../../../business-logic/path'
+import {formatWithAutoPrecision} from '@stellar-expert/formatter/src/numeric-format'
 
 function processTrade({id, base_amount, counter_amount, price, ledger_close_time, base_is_seller}) {
     return {
@@ -48,8 +49,8 @@ export default function MarketTradesView({baseAsset, counterAsset}) {
             <tbody>
             {trades.map(({id, baseAmount, counterAmount, price, revert, ts}) => {
                 const amounts = [
-                    <Amount amount={baseAmount} asset={baseAsset} decimals="auto"/>,
-                    <Amount amount={counterAmount} asset={counterAsset} decimals="auto"/>
+                    <Amount amount={baseAmount} asset={baseAsset} decimals="auto" issuer={false}/>,
+                    <Amount amount={counterAmount} asset={counterAsset} decimals="auto" issuer={false}/>
                 ]
                 if (revert) {
                     amounts.reverse()
@@ -58,7 +59,7 @@ export default function MarketTradesView({baseAsset, counterAsset}) {
                     <td className="collapsing">
                         <a href={resolvePath(`op/${id.split('-').shift()}`)}>
                                     <span
-                                        className={revert ? 'trend-up' : 'trend-down'}>{formatPrice(price)}</span>
+                                        className={revert ? 'trend-up' : 'trend-down'}>{formatWithAutoPrecision(price)}</span>
                             &nbsp;
                             <span className="dimmed">{counterAsset.toCurrency()}/{baseAsset.toCurrency()}</span>
                         </a>
