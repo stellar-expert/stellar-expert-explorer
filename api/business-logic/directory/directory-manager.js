@@ -166,6 +166,10 @@ const directoryManager = {
     }
 }
 
+function notifyBot(category, extInfo) {
+    //empty
+}
+
 module.exports = directoryManager
 
 /**
