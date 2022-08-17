@@ -241,4 +241,4 @@ function encodeMarketOhlcvtId(assetIds, timestamp) {
     return new ObjectId(raw)
 }
 
-module.exports = {aggregateOhlcvt, optimizeResolution, parseBoundaries, encodeAssetOhlcvtId, encodeMarketOhlcvtId}
+module.exports = {aggregateOhlcvt, optimizeResolution, parseBoundaries, encodeAssetOhlcvtId, encodeMarketOhlcvtId, OHLCVT}

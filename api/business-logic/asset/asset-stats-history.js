@@ -1,21 +1,52 @@
-const db = require('../../connectors/mongodb-connector'),
-    {validateNetwork, validateAssetName} = require('../validators'),
-    AssetDescriptor = require('./asset-descriptor'),
-    errors = require('../errors')
+const db = require('../../connectors/mongodb-connector')
+const priceTracker = require('../../business-logic/ticker/price-tracker')
+const {aggregateOhlcvt, encodeAssetOhlcvtId, OHLCVT} = require('../dex/ohlcvt-aggregator')
+const {resolveAssetId} = require('./asset-resolver')
+const {validateNetwork, validateAssetName} = require('../validators')
+const {unixNow} = require('../../utils/date-utils')
+const errors = require('../errors')
 
 async function queryAssetStatsHistory(network, asset) {
     validateNetwork(network)
     validateAssetName(asset)
 
-    const assetInfo = await db[network].collection('assets')
-        .findOne({name: new AssetDescriptor(asset).toFQAN()}, {projection: {_id: 1}})
-
-    if (!assetInfo) throw errors.notFound('Asset statistics were not found on the ledger. Check if you specified the asset correctly.')
+    const assetId = await resolveAssetId(network, asset)
+    if (assetId === null)
+        throw errors.notFound('Asset statistics not found on the ledger. Check if you specified the asset identifier correctly.')
 
     const stats = await db[network].collection('asset_history')
-        .find({asset: assetInfo._id, _id: {$gt: 0}})
+        .find({asset: assetId, _id: {$gt: 0}})
         .sort({_id: 1})
         .toArray()
+
+    //TODO: temporary patch, remove this once all downstream clients switch to the new format
+    const newFormatSwitchTimestamp = 1659916800
+    const patchFromIndex = stats.findIndex(s => s.ts >= newFormatSwitchTimestamp)
+
+    if (patchFromIndex >= 0) {
+        const ohlcvtData = await aggregateOhlcvt({
+            network,
+            collection: 'asset_ohlcvt',
+            order: 1,
+            resolution: 86400, //1 day
+            fromId: encodeAssetOhlcvtId(assetId, newFormatSwitchTimestamp),
+            toId: encodeAssetOhlcvtId(assetId, unixNow() + 10)
+        })
+
+        for (let i = patchFromIndex; i < stats.length; i++) {
+            const stat = stats[i]
+            const ohlcvt = ohlcvtData.find(prices => prices[OHLCVT.TIMESTAMP] === stat.ts)
+            if (!ohlcvt) {
+                stat.price = []
+                stat.trades = 0
+                stat.tradedAmount = 0
+            } else {
+                stat.price = ohlcvt.slice(OHLCVT.OPEN, OHLCVT.CLOSE + 1).map(v => v / priceTracker.getPrice(stat.ts))
+                stat.trades = ohlcvt[OHLCVT.TRADES_COUNT]
+                stat.tradedAmount = ohlcvt[OHLCVT.BASE_VOLUME]
+            }
+        }
+    }
 
     let lastReserve = 0
     const history = stats.map(stat => {
@@ -33,7 +64,7 @@ async function queryAssetStatsHistory(network, asset) {
             tick.trustlines.authorized = 0
         }
 
-        if (assetInfo._id > 0) {
+        if (assetId > 0) {
             Object.assign(tick, {
                 price: stat.price,
                 volume: stat.volume
@@ -48,7 +79,7 @@ async function queryAssetStatsHistory(network, asset) {
         return tick
     })
 
-    if (assetInfo._id === 0) {
+    if (assetId === 0) {
         //fetch historical fee pool data for XLM
         const poolHistory = await db[network].collection('network_stats')
             .find({_id: {$gt: 0}})
