@@ -1,18 +1,8 @@
 import React from 'react'
-import Bignumber from 'bignumber.js'
-import {AssetLink} from '@stellar-expert/ui-framework'
+import {AssetLink, calculateAvailableBalance} from '@stellar-expert/ui-framework'
 import {stripTrailingZeros, formatWithPrecision} from '@stellar-expert/formatter'
 import {parseAssetFromObject} from '@stellar-expert/asset-descriptor'
 import './account-balances.scss'
-
-function calculateAvailableBalance(account, balance) {
-    let available = new Bignumber(balance.balance).minus(new Bignumber(balance.selling_liabilities))
-    if (balance.asset_type === 'native') {
-        const reserves = 2 + account.subentry_count + account.num_sponsoring - account.num_sponsored
-        available = available.minus(new Bignumber(reserves).multipliedBy(new Bignumber(0.5)))
-    }
-    return available.toString()
-}
 
 function AccountBalanceView({account, balance}) {
     const asset = parseAssetFromObject(balance),
