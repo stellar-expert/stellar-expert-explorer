@@ -38,7 +38,7 @@
     "@stellar-expert/ui-framework": "github:stellar-expert/ui-framework#v1.2.10",
     "@stellar-expert/webpack-utils": "github:stellar-expert/webpack-utils",
     "babel-loader": "^8.2.5",
-    "bignumber.js": ">=4",
+    "bignumber.js": "^4.0.0",
     "buffer": "^6.0.3",
     "classnames": "^2.3.1",
     "copy-webpack-plugin": "^11.0.0",
