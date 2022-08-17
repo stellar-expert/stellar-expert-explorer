@@ -30,8 +30,10 @@ class AppSettings {
 
     get networkSettings() {
         const networkName = getCurrentStellarNetwork()
-        const res = this.networks[networkName]
-        if (!res) throw new Error('Unknown network: ' + networkName)
+        let res = this.networks[networkName]
+        if (!res) {
+            res = this.networks.public
+        }
         return res
     }
 

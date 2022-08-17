@@ -48,7 +48,7 @@ function OfferDetailsView({offer}) {
                         </dd>
                         {offer.deleted && <>
                             <dt>Removed:</dt>
-                            <dd><UtcTimestamp date={offer.deleted}/>
+                            <dd><UtcTimestamp date={offer.updated}/>
                                 <Info>When the offer was removed (cancelled or fully executed).</Info>
                             </dd>
                         </>}
