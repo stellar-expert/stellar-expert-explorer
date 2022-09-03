@@ -79,6 +79,8 @@ async function aggregateOhlcvt({network, collection, order, fromId, toId, resolu
     ).toArray()
     data = data.map(({r}) => {
         r[OHLCVT.TIMESTAMP] *= resolution
+        r[OHLCVT.QUOTE_VOLUME] = Math.floor(r[OHLCVT.QUOTE_VOLUME])
+        r[OHLCVT.BASE_VOLUME] = Math.floor(r[OHLCVT.BASE_VOLUME])
         if (reverse) return reverseRecordSides(r)
         return r
     })
