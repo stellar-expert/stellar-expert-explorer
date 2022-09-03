@@ -9,7 +9,7 @@ function locateParentGrid() {
     return document.getElementsByClassName('exportable')[0]
 }
 
-function GridDataActions({model, allowExport = true, allowJump = true}) {
+function GridDataActions({model, allowExport = true, allowJump = false}) {
     const [jumpPages, setJumpPages] = useState(10)
 
     function updatePagesInput(e) {

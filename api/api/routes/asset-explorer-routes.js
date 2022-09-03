@@ -64,7 +64,7 @@ module.exports = function (app) {
 
     registerRoute(app,
         'asset/:asset/position/:account',
-        {cache: 'stats'},
+        {cache: 'stats', cors: 'open'},
         ({params, query, path}) => queryHolderPosition(params.network, params.asset, params.account))
 
     registerRoute(app,
