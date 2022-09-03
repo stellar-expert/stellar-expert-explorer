@@ -1,73 +1,139 @@
-const {Long} = require('bson'),
-    db = require('../../connectors/mongodb-connector'),
-    QueryBuilder = require('../query-builder'),
-    {resolveAssetId} = require('./asset-resolver'),
-    {resolveAccountId} = require('../account/account-resolver'),
-    {AccountAddressJSONResolver} = require('../account/account-resolver'),
-    {normalizeOrder, preparePagedData} = require('../api-helpers'),
-    {validateNetwork, validateAssetName, validateAccountAddress} = require('../validators'),
-    errors = require('../errors')
+const {Long} = require('bson')
+const db = require('../../connectors/mongodb-connector')
+const {resolveAssetId} = require('./asset-resolver')
+const {resolveAccountId} = require('../account/account-resolver')
+const {AccountAddressJSONResolver} = require('../account/account-resolver')
+const {normalizeOrder, preparePagedData, normalizeLimit} = require('../api-helpers')
+const {validateNetwork, validateAssetName, validateAccountAddress} = require('../validators')
+const QueryBuilder = require('../query-builder')
+const errors = require('../errors')
 
-async function queryAssetHolders(network, asset, basePath, {sort, order, cursor, limit}) {
-    validateNetwork(network)
-    validateAssetName(asset)
+/**
+ * Encode generic paging token for asset holders list query
+ * @param {Number} account
+ * @param {Long} balance
+ * @return {String}
+ * @internal
+ */
+function encodeAssetHoldersCursor(account, balance) {
+    const buf = Buffer.allocUnsafe(12)
+    //encode balance value
+    buf.writeInt32BE(balance.getHighBits(), 0)
+    buf.writeInt32BE(balance.getLowBits(), 4)
+    //encode current account id
+    buf.writeInt32BE(account, 8)
+    return buf.toString('base64')
+}
 
-    const assetId = await resolveAssetId(network, asset)
-
-    if (assetId === null) throw errors.notFound()
-
-    const normalizedOrder = normalizeOrder(order, 1)
-
-    const q = new QueryBuilder({balance: {$gt: 0}})
-        .forAsset(assetId)
-        .setLimit(limit)
-        .setSort({balance: -1})
-
-    if (cursor) {
-        cursor = parseInt(cursor)
-        if (isNaN(cursor) || cursor < 0) {
-            cursor = undefined
-        } else {
-            q.setSkip(cursor)
-        }
+/**
+ * Decode generic paging token for asset holders list query
+ * @param {String} cursor
+ * @return {{account, balance}}
+ * @internal
+ */
+function decodeAssetHoldersCursor(cursor) {
+    const buf = Buffer.from(cursor, 'base64')
+    if (buf.length !== 12)
+        throw new TypeError('Invalid cursor format')
+    return {
+        balance: new Long(buf.readUInt32BE(4), buf.readUInt32BE(0)),
+        account: buf.readUInt32BE(8)
     }
-    if (normalizedOrder === -1) {
-        q.setSkip(q.skip - limit - 1)
-        if (q.skip < 0) {
-            q.setLimit(limit - q.skip)
-            q.setSkip(0)
-        }
-    }
+}
 
+/**
+ * Retrieve a portion of asset holders for a given query condition
+ * @param {String} network
+ * @param {QueryBuilder} query
+ * @param {[]} [existingRecords]
+ * @return {Promise<{}[]>}
+ * @internal
+ */
+async function fetchAssetHoldersBatch(network, query, existingRecords = []) {
+    let limit = query.limit
+    if (existingRecords.length) {
+        limit -= existingRecords.length
+        if (limit <= 0)
+            return existingRecords
+    }
     const records = await db[network].collection('trustlines')
-        .find(q.query)
-        .sort({balance: -1})
-        .skip(q.skip)
-        .limit(q.limit)
+        .find(query.query, {hint: {'asset': 1, 'balance': 1, 'account': 1}})
+        .sort(query.sort)
+        .limit(limit)
         .project({
             _id: 0,
             account: 1,
             balance: 1
         })
         .toArray()
-
-    for (let i = 0; i < records.length; i++) {
-        let record = records[i]
-        record.position = record.paging_token = q.skip + i + 1
-    }
-
-    if (normalizedOrder === -1) {
-        records.reverse()
-    }
-
-    const accountResolver = new AccountAddressJSONResolver(network)
-    accountResolver.map(records, 'account')
-
-    await accountResolver.fetchAll()
-
-    return preparePagedData(basePath, {sort, order: normalizedOrder, cursor, limit: q.limit}, records)
+    return existingRecords.length ?
+        existingRecords.concat(records) :
+        records
 }
 
+/**
+ * Query all account addresses holding a specific asset
+ */
+async function queryAssetHolders(network, asset, basePath, {sort, order, cursor, limit}) {
+    validateNetwork(network)
+    validateAssetName(asset)
+
+    //normalize input
+    const normalizedOrder = normalizeOrder(order, 1)
+    limit = normalizeLimit(limit)
+
+    const assetId = await resolveAssetId(network, asset)
+
+    if (assetId === null)
+        throw errors.notFound()
+
+    function buildQuery(condition) {
+        return new QueryBuilder({asset: assetId, ...condition})
+            .setLimit(limit)
+            .setSort({asset: normalizedOrder, balance: normalizedOrder, account: normalizedOrder})
+    }
+
+    let records
+
+    if (cursor) {
+        //process Nth page response
+        try {
+            //retrieve paging conditions from the cursor
+            const {balance, account} = decodeAssetHoldersCursor(cursor)
+            //fetch holders with the same balance with regard to account cursor
+            records = await fetchAssetHoldersBatch(network, buildQuery({
+                balance,
+                account: {[normalizedOrder === 1 ? '$gt' : '$lt']: account}
+            }))
+            //add results for holders with lower/higher balance, account cursor ignored here
+            records = await fetchAssetHoldersBatch(network, buildQuery({
+                balance: {[normalizedOrder === 1 ? '$gt' : '$lt']: balance}
+            }), records)
+        } catch (e) {
+            throw errors.validationError('cursor', 'Invalid cursor format')
+        }
+    } else {
+        //get the first page
+        records = await fetchAssetHoldersBatch(network, buildQuery({balance: {$gt: 0}}))
+    }
+
+    for (let record of records) {
+        //set generic paging token based on account balance and id
+        record.paging_token = encodeAssetHoldersCursor(record.account, record.balance)
+    }
+    //resolve full account addresses
+    const accountResolver = new AccountAddressJSONResolver(network)
+    accountResolver.map(records, 'account')
+    await accountResolver.fetchAll()
+
+    //prepare paginated result
+    return preparePagedData(basePath, {sort, order: normalizedOrder, cursor, limit}, records)
+}
+
+
+/**
+ * Query balance position for a single account addresses holding a specific asset
+ */
 async function queryHolderPosition(network, asset, account) {
     validateNetwork(network)
     validateAssetName(asset)
@@ -114,6 +180,9 @@ const distributionThresholds = {
 
 const distributionBoundaries = Object.keys(distributionThresholds).map(v => Long.fromString(v))
 
+/**
+ * Retrieve data for an asset distribution chart based on the logarithmic scale
+ */
 async function queryAssetDistribution(network, asset) {
     validateNetwork(network)
     validateAssetName(asset)

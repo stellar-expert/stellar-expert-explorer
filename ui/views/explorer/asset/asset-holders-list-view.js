@@ -8,12 +8,12 @@ import AssetDistributionChartView from './charts/asset-distribution-chart-view'
 
 export default function AssetHoldersListView({asset}) {
     const assetId = asset.descriptor.toString(),
-        totalSupply = asset.stats?.supply,
+        totalSupply = asset.supply,
         holders = useExplorerPaginatedApi(`asset/${assetId}/holders`, {
             autoReverseRecordsOrder: true,
             limit: 50,
-            defaultSortOrder: 'asc',
-            defaultQueryParams: {order: 'asc'}
+            defaultSortOrder: 'desc',
+            defaultQueryParams: {order: 'desc'}
         }, [assetId])
 
     if (!holders.loaded) return <div className="loader"/>
@@ -26,7 +26,6 @@ export default function AssetHoldersListView({asset}) {
         <table className="table exportable space" data-export-prefix={assetId + '-holders'}>
             <thead>
             <tr>
-                <th className="collapsing text-right">Rank</th>
                 <th>Account</th>
                 <th className="text-right collapsing nowrap">Account balance</th>
             </tr>
@@ -48,12 +47,11 @@ export default function AssetHoldersListView({asset}) {
                 }
 
                 return <tr key={holder.position} style={rowStyle}>
-                    <td data-header="Rank: " className="text-right">{holder.position}</td>
                     <td data-header="Account: ">
                         <AccountAddress account={holder.account} chars="all"/>
                     </td>
                     <td data-header="Balance: " className="text-right nowrap">
-                        <Amount adjust round icon={false} amount={holder.balance} asset={asset.descriptor.toCurrency()}/>
+                        <Amount adjust icon={false} amount={holder.balance} asset={asset.descriptor.toCurrency()}/>
                         {share > 0 && <span className="dimmed text-small"> ({share}%)</span>}
                     </td>
                 </tr>

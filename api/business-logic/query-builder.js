@@ -78,6 +78,10 @@ class QueryBuilder {
     }
 
     setSort(sortField, order, defaultOrder = -1) {
+        if (typeof sortField === 'object') {
+            this.sort = Object.assign({}, this.sort, sortField)
+            return this
+        }
         this.sort = this.sort || {}
         this.sort[sortField] = normalizeOrder(order, defaultOrder)
         return this
