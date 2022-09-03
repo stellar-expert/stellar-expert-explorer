@@ -600,21 +600,80 @@ paths:
               example:
                 _links:
                   self:
-                    href: /explorer/public/asset/EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S/holders?order=asc&limit=2
+                    href: /explorer/public/asset/EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S/holders?order=desc&limit=2
                   prev:
-                    href: /explorer/public/asset/EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S/holders?order=desc&limit=2&cursor=1
+                    href: /explorer/public/asset/EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S/holders?order=asc&limit=2&cursor=AAAFOSpHRlQAeBsb
                   next:
-                    href: /explorer/public/asset/EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S/holders?order=asc&limit=2&cursor=2
+                    href: /explorer/public/asset/EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S/holders?order=desc&limit=2&cursor=AAACXn0v0QUAsZIb
                 _embedded:
                   records:
-                    - account: GC2BQYBXFOVPRDH35D5HT2AFVCDGXJM5YVTAF5THFSAISYOWAJQKRESK
-                      balance: "7503819210148"
-                      position: 1
-                      paging_token: 1
-                    - account: GDM7YBAOTTKIENGQWSJXUDPSROCFVBSRCUPHOQUCND3255TIQKBOYKGR
-                      balance: "1653046703189"
-                      position: 2
-                      paging_token: 2
+                    - account: GCWGHBQLVZ6QXV7OLHBCFHNPWOCSWGRZ7DTW44BN4IQ7QYVRX3JYPJ7E
+                      balance: "5965453988886"
+                      paging_token: "AAAFOSpHRlQAeBsb"
+                    - account: GAFBGZANI7JRXABPEERQGBTFS3AG67M4ZQTMT2VIMWZ6BY4K64QK3D3U
+                      balance: "2604850467077"
+                      paging_token: "AAACXn0v0QUAsZIb"
+        '400':
+          description: Invalid request parameters
+        '404':
+          description: Asset not found
+  /explorer/{network}/asset/{asset}/position:
+    get:
+      tags:
+        - 'Asset Info API'
+      summary: Asset holder rank
+      operationId: getAssetHolderPosition
+      description: >-
+        Retrieves a relative account balance position among all accounts holding a particular asset.
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: testnet
+        - name: asset
+          description: Asset used for rating calculation
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Asset'
+        - name: account
+          description: Account address to check
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/AccountAddress'
+      responses:
+        '200':
+          description: Asset holder rank info fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account:
+                    $ref: '#/components/schemas/AccountAddress'
+                    description: Account address to check
+                  asset:
+                    $ref: '#/components/schemas/Asset'
+                    description: Asset used for rating calculation
+                  balance:
+                    type: string
+                    description: Asset balance owned by the account
+                  position:
+                    type: integer
+                    description: Position among all accounts holding a particular asset
+                  total:
+                    type: integer
+                    description: Total number of accounts with non-zero balance
+              example:
+                account: "GDKIJJIKXLOM2NRMPNQZUUYK24ZPVFC6426GZAEP3KUK6KEJLACCWNMX"
+                asset: "XLM"
+                balance: "39065991792893022"
+                position: 3
+                total: 7159959
         '400':
           description: Invalid request parameters
         '404':
@@ -1021,12 +1080,9 @@ components:
         balance:
           description: Asset balance in stroops
           type: string
-        position:
-          description: Overal balance position in the "rich list"
-          type: integer
         paging_token:
           description: Paging token
-          type: integer
+          type: string
 tags:
   - name: 'Directory API'
   - name: 'Payment Locator API'
