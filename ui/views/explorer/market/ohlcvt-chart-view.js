@@ -14,7 +14,7 @@ function processData(data) {
     for (let record of data) {
         const ts = record[0] * 1000
         prices.push([ts, ...record.slice(1, 5)])
-        volumes.push([ts, parseFloat(formatWithAutoPrecision(record[5] / 10000000, ''))])
+        volumes.push([ts, parseFloat(formatWithAutoPrecision(record[6] / 10000000, ''))])
     }
     prices.push([new Date().getTime(), null, null, null, null])
     return {prices, volumes}
