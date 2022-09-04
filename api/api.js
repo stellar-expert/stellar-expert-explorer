@@ -2,7 +2,6 @@
     process.env.TZ = 'Etc/UTC'
 
     await require('./connectors/mongodb-connector').init()
-    await require('./business-logic/ticker/price-tracker').init()
 
     const {port} = require('./app.config'),
         express = require('express'),
