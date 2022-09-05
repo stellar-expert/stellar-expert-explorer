@@ -19,9 +19,12 @@ async function queryAssetStats(network, asset, {ts}) {
         trustlines: assetInfo.trustlines,
         payments: assetInfo.payments,
         payments_amount: assetInfo.paymentsAmount,
-        trades: assetInfo.trades,
-        traded_amount: assetInfo.tradedAmount
-
+        trades: assetInfo.totalTrades,
+        traded_amount: assetInfo.baseVolume,
+        price: assetInfo.lastPrice,
+        volume: assetInfo.quoteVolume,
+        volume7d: assetInfo.volume7d,
+        price7d: assetInfo.price7d
     }
 
     if (res.trustlines.authorized < 0) {
@@ -35,10 +38,6 @@ async function queryAssetStats(network, asset, {ts}) {
     if (assetInfo._id > 0) {
         Object.assign(res, {
             rating: assetInfo.rating,
-            price: assetInfo.price,
-            volume: assetInfo.volume,
-            volume7d: assetInfo.volume7d,
-            price7d: assetInfo.price7d
         })
     }
     if (assetInfo._id === 0) {

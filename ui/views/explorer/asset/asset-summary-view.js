@@ -98,7 +98,7 @@ export default function AssetSummaryView({asset}) {
         {(asset.volume || undefined) && <>
             <dt>Overall traded volume:</dt>
             <dd>
-                <Amount amount={asset.volume} round asset='XLM'/>
+                <Amount amount={asset.volume} round asset='USD'/>
                 <Info>Volume of all on-chain trading operations.</Info>
             </dd>
         </>}
@@ -106,7 +106,7 @@ export default function AssetSummaryView({asset}) {
             <dt>Current price:</dt>
             <dd>
                 <AssetPriceChange priceDynamic={asset.price_dynamic} digits={7}/>
-                <Info>Current indicative price.</Info>
+                <Info>Current indicative DEX price.</Info>
             </dd>
         </>}
         {history.loaded && <>

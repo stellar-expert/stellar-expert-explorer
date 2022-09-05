@@ -124,10 +124,25 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
 
     //remap "asset" field
 
-    assets = assets.map(({name, tradedAmount, paymentsAmount, ...other}) => ({
+    assets = assets.map(({
+                             name,
+                             tradedAmount,
+                             paymentsAmount,
+                             lastPrice,
+                             price,
+                             baseVolume,
+                             volume,
+                             quoteVolume,
+                             totalTrades,
+                             trades,
+                             ...other
+                         }) => ({
         asset: name,
         traded_amount: tradedAmount,
         payments_amount: paymentsAmount,
+        trades: totalTrades,
+        price: lastPrice,
+        volume: quoteVolume,
         ...other
     }))
 
