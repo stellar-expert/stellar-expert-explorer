@@ -1,8 +1,8 @@
 const db = require('../../connectors/mongodb-connector')
 const priceTracker = require('../../business-logic/ticker/price-tracker')
 const {aggregateOhlcvt, encodeAssetOhlcvtId, OHLCVT} = require('../dex/ohlcvt-aggregator')
-const {resolveAssetId} = require('./asset-resolver')
 const {validateNetwork, validateAssetName} = require('../validators')
+const {resolveAssetId} = require('./asset-resolver')
 const {unixNow} = require('../../utils/date-utils')
 const errors = require('../errors')
 
@@ -41,7 +41,8 @@ async function queryAssetStatsHistory(network, asset) {
                 stat.trades = 0
                 stat.tradedAmount = 0
             } else {
-                stat.price = ohlcvt.slice(OHLCVT.OPEN, OHLCVT.CLOSE + 1).map(v => v / priceTracker.getPrice(stat.ts))
+                const xlmPrice = await priceTracker.getPrice(stat.ts)
+                stat.price = ohlcvt.slice(OHLCVT.OPEN, OHLCVT.CLOSE + 1).map(v => v / xlmPrice)
                 stat.trades = ohlcvt[OHLCVT.TRADES_COUNT]
                 stat.tradedAmount = ohlcvt[OHLCVT.BASE_VOLUME]
             }

@@ -162,7 +162,7 @@ class PriceTracker {
         date = normalizeDate(date)
         const entry = this.prices.find(entry => entry[0] <= date)
         if (!entry) return 0 //price wasn't found
-        return entry.price
+        return entry[1]
     }
 
     /**
