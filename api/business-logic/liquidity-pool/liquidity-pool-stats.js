@@ -1,22 +1,11 @@
-const db = require('../../connectors/mongodb-connector'),
-    {validateNetwork, validatePoolId} = require('../validators'),
-    errors = require('../errors'),
-    {matchPoolAssets} = require('./liquidity-pool-asset-matcher'),
-    priceTracker = require('../ticker/price-tracker')
-
-function adjustPrice(value) {
-    if (!value) return 0
-    return Math.round(value * priceTracker.recentPrice)
-}
+const db = require('../../connectors/mongodb-connector')
+const {validateNetwork, validatePoolId} = require('../validators')
+const {matchPoolAssets} = require('./liquidity-pool-asset-matcher')
+const errors = require('../errors')
 
 async function queryLiquidityPoolStats(network, liquidityPool) {
     validateNetwork(network)
     validatePoolId(liquidityPool)
-
-    if (!priceTracker.initialized) {
-        await priceTracker.init()
-    }
-
     const pool = await db[network]
         .collection('liquidity_pools')
         .findOne({hash: liquidityPool})
@@ -25,7 +14,7 @@ async function queryLiquidityPoolStats(network, liquidityPool) {
 
     const poolAssets = await matchPoolAssets(network, pool)
 
-    const res = {
+    return {
         id: liquidityPool,
         paging_token: liquidityPool,
         assets: poolAssets.match(pool, (pa, i) => ({
@@ -51,24 +40,19 @@ async function queryLiquidityPoolStats(network, liquidityPool) {
             '7d': pool.volume7d[i],
             all_time: pool.volume[i]
         })),
-        total_value_locked: adjustPrice(pool.tvl),
+        total_value_locked: pool.tvl,
         volume_value: {
-            '1d': adjustPrice(pool.volumeValue24h),
-            '7d': adjustPrice(pool.volumeValue7d)
+            '1d': pool.volumeValue24h,
+            '7d': pool.volumeValue7d
         },
         earned_value: {
-            '1d': adjustPrice(pool.earnedValue24h),
-            '7d': adjustPrice(pool.earnedValue7d)
+            '1d': pool.earnedValue24h,
+            '7d': pool.earnedValue7d
         },
         created: pool.created,
         updated: pool.updated,
         deleted: pool.deleted
     }
-
-    return res
 }
-
-
-
 
 module.exports = {queryLiquidityPoolStats}
