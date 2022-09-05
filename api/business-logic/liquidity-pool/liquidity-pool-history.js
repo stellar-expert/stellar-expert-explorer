@@ -2,7 +2,6 @@ const db = require('../../connectors/mongodb-connector'),
     {Long} = require('bson'),
     {validateNetwork, validatePoolId} = require('../validators'),
     errors = require('../errors'),
-    priceTracker = require('../ticker/price-tracker'),
     {matchPoolAssets} = require('./liquidity-pool-asset-matcher'),
     QueryBuilder = require('../query-builder'),
     {preparePagedData} = require('../api-helpers')
@@ -12,10 +11,6 @@ const emptyReserves = ['0', '0']
 async function queryLiquidityPoolHistory(network, liquidityPool, path, {order, limit, from, to, cursor}) {
     validateNetwork(network)
     validatePoolId(liquidityPool)
-
-    if (!priceTracker.initialized) {
-        await priceTracker.init()
-    }
 
     const pool = await db[network]
         .collection('liquidity_pools')
@@ -54,11 +49,6 @@ async function queryLiquidityPoolHistory(network, liquidityPool, path, {order, l
     const res = history.map(entry => {
         const ts = entry._id.getHighBits()
 
-        function adjustPrice(value) {
-            if (!value) return 0
-            return Math.round(value * priceTracker.getPrice(ts))
-        }
-
         return {
             ts,
             paging_token: entry._id.toString(),
@@ -77,9 +67,9 @@ async function queryLiquidityPoolHistory(network, liquidityPool, path, {order, l
                 asset: pa.name,
                 amount: entry.volume[i]
             })),
-            total_value_locked: adjustPrice(entry.tvl),
-            earned_fees_value: adjustPrice(entry.ev),
-            volume_value: adjustPrice(entry.vv),
+            total_value_locked: entry.tvl,
+            earned_fees_value: entry.ev,
+            volume_value: entry.vv,
             deleted: entry.deleted
         }
     })

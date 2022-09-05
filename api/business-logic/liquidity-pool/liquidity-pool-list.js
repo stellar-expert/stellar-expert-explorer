@@ -1,21 +1,11 @@
-const db = require('../../connectors/mongodb-connector'),
-    {validateNetwork} = require('../validators'),
-    QueryBuilder = require('../query-builder'),
-    {calculateSequenceOffset, preparePagedData, addPagingToken, normalizeOrder} = require('../api-helpers'),
-    {matchPoolAssets} = require('./liquidity-pool-asset-matcher'),
-    priceTracker = require('../ticker/price-tracker')
-
-function adjustPrice(value) {
-    if (!value) return 0
-    return Math.round(value * priceTracker.recentPrice)
-}
+const db = require('../../connectors/mongodb-connector')
+const QueryBuilder = require('../query-builder')
+const {validateNetwork} = require('../validators')
+const {calculateSequenceOffset, preparePagedData, addPagingToken, normalizeOrder} = require('../api-helpers')
+const {matchPoolAssets} = require('./liquidity-pool-asset-matcher')
 
 async function queryAllLiquidityPools(network, basePath, {sort, order, cursor, limit}) {
     validateNetwork(network)
-
-    if (!priceTracker.initialized) {
-        await priceTracker.init()
-    }
 
     const q = new QueryBuilder({shares: {$gt: 0}})
         .setSkip(calculateSequenceOffset(0, limit, cursor, order))
@@ -85,14 +75,14 @@ async function queryAllLiquidityPools(network, basePath, {sort, order, cursor, l
             '7d': pool.volume7d[i],
             all_time: pool.volume[i]
         })),
-        total_value_locked: adjustPrice(pool.tvl),
+        total_value_locked: pool.tvl,
         volume_value: {
-            '1d': adjustPrice(pool.volumeValue24h),
-            '7d': adjustPrice(pool.volumeValue7d)
+            '1d': pool.volumeValue24h,
+            '7d': pool.volumeValue7d
         },
         earned_value: {
-            '1d': adjustPrice(pool.earnedValue24h),
-            '7d': adjustPrice(pool.earnedValue7d)
+            '1d': pool.earnedValue24h,
+            '7d': pool.earnedValue7d
         },
         created: pool.created,
         deleted: pool.deleted
