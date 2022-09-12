@@ -23,10 +23,11 @@ export function useAssetInfo(asset) {
                 }
                 return stats
             }
-            const xlmdynamic = stats.price7d || []
+            const {price7d = []} = stats
             delete stats.price7d
 
-            return Object.assign({}, stats, {
+            return {
+                ...stats,
                 descriptor,
                 supply: stats.supply,
                 payments_amount: denominate(stats.payments_amount),
@@ -34,15 +35,10 @@ export function useAssetInfo(asset) {
                 volume: denominate(stats.volume),
                 volume7d: denominate(stats.volume7d),
                 price: stats.price,
-                xlm_price_dynamic: xlmdynamic,
-                price_dynamic: adjustAssetPrices(xlmdynamic)
-            })
+                price_dynamic: price7d.map(([ts, price]) => [ts * 1000, price])
+            }
         }
     })
-}
-
-export function adjustAssetPrices(priceChangesHistory = []) {
-    return priceChangesHistory.map(([ts, price]) => [ts * 1000, price * getPrice(ts * 1000)])
 }
 
 /**

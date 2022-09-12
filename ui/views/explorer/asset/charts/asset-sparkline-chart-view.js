@@ -1,5 +1,5 @@
 import React from 'react'
-import {formatPrice} from '@stellar-expert/formatter'
+import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import Chart from '../../../components/chart-view'
 
 const defaultOptions = {
@@ -53,7 +53,7 @@ const defaultOptions = {
         shared: true,
         padding: 4,
         formatter: function () {
-            return `<span style="font-size: 10px;white-space: nowrap">${formatPrice(this.y, 3)} ${this.points[0].series.name}</span>`
+            return `<span style="font-size: 10px;white-space: nowrap">${formatWithAutoPrecision(this.y)} ${this.points[0].series.name}</span>`
         }
     },
     plotOptions: {
