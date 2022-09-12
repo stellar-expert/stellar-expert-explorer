@@ -1,6 +1,5 @@
 import {useDependantState, useExplorerApi, loadAccount} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
-import {getPrice} from './xlm-price-resolver'
 
 export function useAssetInfo(asset) {
     const [descriptor] = useDependantState(() => {
