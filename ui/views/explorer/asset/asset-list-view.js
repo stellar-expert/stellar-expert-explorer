@@ -67,7 +67,7 @@ export default function AssetListView({rows = 30, compact = false}) {
                 </tr>
             </thead>
             <tbody className="condensed">
-                {assets.data.map(({asset, supply, created, trustlines, payments, price7d}) => {
+                {assets.data.map(({asset, supply, created, trustlines, payments, price7d = []}) => {
                     const descriptor = AssetDescriptor.parse(asset)
                     const priceDynamic = price7d.map(([ts, price]) => [ts * 1000, price])
                     return <tr key={descriptor.toString()}>
