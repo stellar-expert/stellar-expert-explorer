@@ -7,15 +7,19 @@ class LiquidityPoolAssetMatcher {
 
     match(pool, callback) {
         return pool.asset.map((a, i) => {
-            const pa = a === 0 ? xlmMeta : this.assets.find(pa => pa._id === a)
+            const {_id, ...assetProps} = a === 0 ?
+                xlmMeta :
+                this.assets.find(pa => pa._id === a)
             if (!callback)
-                return pa
-            return callback(pa, i, pool)
+                return assetProps
+            return callback(assetProps, i, pool)
         })
     }
 }
 
 const xlmMeta = {
+    _id: 0,
+    asset: 'XLM',
     name: 'XLM',
     domain: 'stellar.org',
     toml_info: {
