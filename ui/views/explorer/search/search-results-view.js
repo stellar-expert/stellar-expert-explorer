@@ -1,9 +1,11 @@
 import React, {useState} from 'react'
-import {useDependantState, resolveAccountAddress} from '@stellar-expert/ui-framework'
+import {FederationServer} from 'stellar-sdk'
+import {useDependantState} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import appSettings from '../../../app-settings'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {detectSearchType} from '../../../business-logic/search'
+import {resolvePath} from '../../../business-logic/path'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import AssetSearchResultsView from './assets-search-results-view'
 import AccountSearchResultsView from './account-search-results-view'
@@ -11,8 +13,6 @@ import LedgerSearchResultsView from './ledger-search-results-view'
 import OperationSearchResultsView from './operation-search-results-view'
 import TransactionSearchResultsView from './transaction-search-results-view'
 import OfferSearchResultsView from './offer-search-results-view'
-import {loadStellarToml} from '@stellar-expert/ui-framework/toml/stellar-toml-loader'
-import {resolvePath} from '../../../business-logic/path'
 import './search.scss'
 
 /**
@@ -38,15 +38,11 @@ async function processSearchTerm(originalTerm) {
         let searchTypes = detectSearchType(originalTerm)
         //resolve federation address
         if (searchTypes[0] === 'federation') {
-            const [, , asFederationAddress] = /^(.+)\*([^.]+\..+)$/.exec(originalTerm) || []
-            const toml = await loadStellarToml(asFederationAddress)
-            if (toml && toml.data) {
-                term = await resolveAccountAddress(toml.data, originalTerm)
-                searchTypes = ['account']
-            }
+            const {account_id} = await FederationServer.resolve(originalTerm)
+            term = account_id
+            searchTypes = ['account']
         }
         return {term, originalTerm, searchTypes, error: null}
-
 
     } catch (e) {
         console.error(e)
@@ -54,22 +50,12 @@ async function processSearchTerm(originalTerm) {
     }
 }
 
-/*function onlyOnce(callback) {
-    let prevResult
-    return function () {
-        if (prevResult = undefined) {
-            prevResult = callback.apply(null, Array.prototype.slice(arguments, 1))
-        }
-        return prevResult
-    }
-}*/
-
 function SearchResults({term, searchTypes, originalTerm}) {
     const [notFound, setNotFound] = useState(null)
     const [componentsToRender] = useDependantState(() => {
-        const loading = [],
-            components = []
-        for (let {component} of searchTypesMapping.filter(st => st.keys.some(key => searchTypes.includes(key)))) {
+        const loading = []
+        const components = []
+        for (const {component} of searchTypesMapping.filter(st => st.keys.some(key => searchTypes.includes(key)))) {
             let onLoaded
             loading.push(new Promise(resolve => {
                 onLoaded = resolve
@@ -87,7 +73,7 @@ function SearchResults({term, searchTypes, originalTerm}) {
                         setNotFound(true)
                         break
                     case 1:
-                        navigation.navigate(nonEmpty[0].link) // navigate to the default result
+                        navigation.navigate(nonEmpty[0].link) //navigate to the default result
                         break
                     default:
                         setNotFound(false)
@@ -100,7 +86,7 @@ function SearchResults({term, searchTypes, originalTerm}) {
     return <div style={{minHeight: '40vh'}}>
         {componentsToRender}
         {typeof notFound !== 'boolean' && <div className="loader"/>}
-        {notFound && <div className="notfound text-center double-space dimmed">
+        {!!notFound && <div className="notfound text-center double-space dimmed">
             Not found "{originalTerm}"
         </div>}
     </div>
