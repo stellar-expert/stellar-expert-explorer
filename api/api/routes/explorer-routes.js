@@ -10,6 +10,7 @@ module.exports = function (app) {
     require('./asset-explorer-routes')(app)
     require('./liquidity-pool-explorer-routes')(app)
     require('./ledger-explorer-routes')(app)
+    require('./domain-meta-routes')(app)
     require('./offer-explorer-routes')(app)
     require('./market-explorer-routes')(app)
     require('./oauth-routes')(app)

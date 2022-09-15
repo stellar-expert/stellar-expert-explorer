@@ -1,7 +1,7 @@
 {
   "name": "api.stellar.expert",
   "private": true,
-  "version": "0.20.5",
+  "version": "0.21.0",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "api.js",
@@ -24,5 +24,8 @@
     "morgan": "^1.10.0",
     "simple-git": "^3.7.1",
     "stellar-sdk": "^10.1.2"
+  },
+  "devDependencies": {
+    "@stellar-expert/eslint-config-js": "github:stellar-expert/eslint-config-js"
   }
 }

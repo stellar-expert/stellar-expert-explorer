@@ -1,86 +1,38 @@
-import React, {useEffect, useState} from 'react'
-import {useTomlData, useTomlInteropInfo} from '@stellar-expert/ui-framework'
-import TomlInfoView from './toml-info-view'
+import React from 'react'
+import {useExplorerApi} from '@stellar-expert/ui-framework'
 import Tooltip from '../../components/tooltip'
+import {TomlWarningView} from './toml-warnings-view'
 
-function useDnsRecordValidator(domain) {
-    const [validated, setValidated] = useState(undefined)
-    useEffect(() => {
-        setValidated(undefined)
-        fetch('https://cloudflare-dns.com/dns-query?name=' + domain, {
-            headers: {accept: 'application/dns-json'}
-        })
-            .then(res => res.json())
-            .then(parsed => {
-                setValidated(parsed.Answer?.length > 0)
-            })
-            .catch(e => {
-                setValidated(false)
-            })
-    }, [domain])
-    return validated
+function scrollToTomlInfo() {
+    window.scrollTo(0, document.getElementById('toml-props').offsetTop)
 }
 
-export default function TomlValidatorView({address, domain, assetCode}) {
-    const isDnsValidated = useDnsRecordValidator(domain),
-        {loaded: tomlInfoLoaded, data: tomlInfo} = useTomlData(domain),
-        {loaded: interopInfoLoaded, data: interopInfo} = useTomlInteropInfo(tomlInfo),
-        issues = []
-    let validated = true
-    if (isDnsValidated === false) {
-        issues.push(`${domain} IP address not resolved`)
-    }
-    if (isDnsValidated === undefined) {
-        validated = false
-    }
-    if (tomlInfoLoaded) {
-        if (!tomlInfo) {
-            issues.push('Failed to load information from asset home domain')
-        }
-    } else {
-        validated = false
-    }
-
-    function showInfo() {
-        alert({
-            content: <div style={{margin: '-1em 0 0'}}>
-                <TomlInfoView account={address} homeDomain={domain} assetCode={assetCode} showRawCode showInteropInfo={false}
-                              title="TOML file information"/>
-            </div>,
-            actions: null,
-            header: 'TOML file information'
-        })
-    }
-
-    if (issues.length) {
+export default function TomlValidatorView({domain, asset}) {
+    const {loaded, data} = useExplorerApi('domain-meta?domain=' + encodeURIComponent(domain))
+    let {warnings = [], meta} = data || {}
+    const assetKey = asset.toString()
+    if (!loaded) return null
+    warnings = warnings.filter(w => !w.startsWith('currency_') && !w.startsWith('image_') || w.includes('|' + assetKey))
+    if (!warnings?.length && !meta)
         return <Tooltip trigger={<i className="icon icon-warning color-warning trigger" style={{verticalAlign: 'bottom'}}/>}
                         maxWidth="40em">
             <div className="micro-space">
-                {issues.map(issue => <div key={issue}>
-                    <i className="icon icon-block"/> {issue}
-                </div>)}
-            </div>
-            <div className="micro-space text-right">
-                {tomlInfo && <a href="#" onClick={showInfo}>Show TOML info details</a>}
+                <i className="icon icon-warning"/> No associated TOML file metadata found
             </div>
         </Tooltip>
-    } else if (validated) {
-        return <Tooltip trigger={<i className="icon icon-ok color-success trigger" style={{verticalAlign: 'bottom'}}/>} maxWidth="40em">
-            <div className="micro-space">
-                <div>
-                    <span className="color-success">🗸</span> Asset home domain exists
-                </div>
-                <div>
-                    <span className="color-success">🗸</span> TOML file format is valid
-                </div>
-                <div>
-                    <span className="color-success">🗸</span> Asset matches currency description
-                </div>
-            </div>
-            <div className="micro-space text-right">
-                <a href="#" onClick={showInfo}>Show TOML info details</a>
-            </div>
-        </Tooltip>
-    }
-    return null
+
+    if (!warnings?.length)
+        return null
+
+    return <Tooltip trigger={<i className="icon icon-warning color-warning trigger" style={{verticalAlign: 'bottom'}}/>} maxWidth="40em">
+        <div className="micro-space">
+            {warnings.slice(0, 4).map(warning => <TomlWarningView key={warning} warning={warning}/>)}
+            {warnings.length > 4 && <div className="text-tiny dimmed">
+                and {warnings.length - 5} more...
+            </div>}
+        </div>
+        <div className="micro-space text-right">
+            {!!meta && <a href="#toml-props" onClick={scrollToTomlInfo}>TOML info details</a>}
+        </div>
+    </Tooltip>
 }

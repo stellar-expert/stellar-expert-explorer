@@ -1,4 +1,4 @@
-const db = require('../../connectors/mongodb-connector')
+const {retrieveAssetsMetadata} = require('../asset/asset-meta-resolver')
 
 class LiquidityPoolAssetMatcher {
     constructor(assets) {
@@ -8,6 +8,8 @@ class LiquidityPoolAssetMatcher {
     match(pool, callback) {
         return pool.asset.map((a, i) => {
             const pa = a === 0 ? xlmMeta : this.assets.find(pa => pa._id === a)
+            if (!callback)
+                return pa
             return callback(pa, i, pool)
         })
     }
@@ -24,26 +26,21 @@ const xlmMeta = {
 }
 
 /**
- *
- * @param {String} network
- * @param {Array<LiquidityPool>|LiquidityPool} pool
+ * Retrieve assets for a given liquidity pool
+ * @param {String} network - Stellar network
+ * @param {Array<LiquidityPool>|LiquidityPool} pool - Pools to match
  * @return {Promise<LiquidityPoolAssetMatcher>}
  */
 async function matchPoolAssets(network, pool) {
-    let assetsToMatch = []
     if (!(pool instanceof Array)) {
         pool = [pool]
     }
-    for (let {asset} of pool) {
-        for (let a of asset)
-            if (a > 0 && !assetsToMatch.includes(a)) {
-                assetsToMatch.push(a)
-            }
+    const assetsToMatch = new Set()
+    for (const {asset} of pool) {
+        for (const a of asset)
+            assetsToMatch.add(a)
     }
-    const poolAssets = await db[network].collection('assets')
-        .find({_id: {$in: assetsToMatch}})
-        .project({name: 1, domain: 1, tomlInfo: 1})
-        .toArray()
+    const poolAssets = await retrieveAssetsMetadata(network, Array.from(assetsToMatch))
     return new LiquidityPoolAssetMatcher(poolAssets)
 }
 

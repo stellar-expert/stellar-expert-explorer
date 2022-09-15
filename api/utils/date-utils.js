@@ -11,8 +11,8 @@ const timeUnits = {ms, second, minute, hour, day, week, month}
 const maxUnixTime = 2147483647
 
 /**
- * Parse raw serialized date.
- * @param  {String|Number} ts - Raw date.
+ * Parse raw serialized date
+ * @param  {String|Number|Date} ts - Raw date
  * @return {Number} Date in UNIX format
  */
 function parseDate(ts) {
@@ -23,7 +23,7 @@ function parseDate(ts) {
             }
             ts = new Date(ts)
         } else {
-            ts = parseInt(ts)
+            ts = parseInt(ts, 10)
         }
     }
     if (typeof ts === 'number') {
@@ -33,13 +33,15 @@ function parseDate(ts) {
         }
         ts = new Date(ts)
     }
-    if (!(ts instanceof Date) || isNaN(ts.valueOf())) return null
+    if (!(ts instanceof Date) || isNaN(ts.valueOf()))
+        return null
     return toUnixTime(ts)
 }
 
 /**
  * Convert DateTime to Unix timestamp
  * @param {Date|Number} ts - Date object or number of milliseconds
+ * @return {Number}
  */
 function toUnixTime(ts) {
     if (ts instanceof Date) {

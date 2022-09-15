@@ -2,14 +2,15 @@ import React from 'react'
 import AssetHeader from './asset-header-view'
 import AssetRatingChart from './charts/asset-rating-chart-view'
 import AssetStatsHistoryView from './asset-stats-history-view'
-import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 import AssetSummaryView from './asset-summary-view'
+import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 
 export default function AssetDetailsView({asset}) {
     if (!asset || asset.loading) return <div className="loader"/>
     const {descriptor, rating} = asset
     return <>
         <AssetHeader asset={asset}/>
+        <div className="mobile-only space"/>
         <div className="row" style={{marginTop: '-0.3em'}}>
             <div className="space column column-50">
                 <div className="card">

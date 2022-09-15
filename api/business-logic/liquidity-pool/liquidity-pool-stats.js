@@ -17,12 +17,7 @@ async function queryLiquidityPoolStats(network, liquidityPool) {
     return {
         id: liquidityPool,
         paging_token: liquidityPool,
-        assets: poolAssets.match(pool, (pa, i) => ({
-            asset: pa.name,
-            amount: (pool.reserves || ['0', '0'])[i].toString(),
-            domain: pa.domain,
-            toml_info: pa.tomlInfo || pa.toml_info
-        })),
+        assets: poolAssets.match(pool, (pa, i) => ({amount: (pool.reserves || ['0', '0'])[i].toString(), ...pa})),
         type: pool.type,
         fee: pool.fee,
         shares: pool.shares || '0',

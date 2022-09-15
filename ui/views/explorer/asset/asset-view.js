@@ -1,17 +1,18 @@
 import React from 'react'
-import {getDirectoryEntry} from '@stellar-expert/ui-framework'
+import {getDirectoryEntry, useAssetMeta} from '@stellar-expert/ui-framework'
 import {useRouteMatch} from 'react-router'
-import AssetDetailsView from './asset-details-view'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
-import ErrorNotificationBlock from '../../components/error-notification-block'
 import {useAssetInfo, useAssetIssuerInfo} from '../../../business-logic/api/asset-api'
+import ErrorNotificationBlock from '../../components/error-notification-block'
 import TomlInfo from '../toml/toml-info-view'
+import AssetDetailsView from './asset-details-view'
 import AssetHistoryTabsView from './asset-history-tabs-view'
 
 export default function AssetView() {
     const {params} = useRouteMatch()
-    const {data: asset, loaded} = useAssetInfo(params.asset),
-        issuerInfo = useAssetIssuerInfo(asset?.descriptor)
+    const {data: asset, loaded} = useAssetInfo(params.asset)
+    const assetMeta = useAssetMeta(asset?.descriptor)
+    const issuerInfo = useAssetIssuerInfo(asset?.descriptor)
     if (!loaded) return <div className="loader"/>
     if (issuerInfo) {
         asset.issuerInfo = issuerInfo
@@ -30,8 +31,8 @@ export default function AssetView() {
         </ErrorNotificationBlock>
     }
 
-    const {code, issuer} = asset.descriptor,
-        title = !issuer ? 'Stellar Lumens' : `${code} by ${issuer}`
+    const {code, issuer} = asset.descriptor
+    const title = !issuer ? 'Stellar Lumens' : `${code} by ${issuer}`
     //TODO: fetch TOML metadata instead
     setPageMetadata({
         title,
@@ -53,7 +54,7 @@ export default function AssetView() {
     return <>
         <AssetDetailsView asset={asset}/>
         {!!issuerInfo?.home_domain &&
-        <TomlInfo homeDomain={issuerInfo.home_domain} assetCode={code} account={issuer} className="card space"/>}
+            <TomlInfo homeDomain={issuerInfo.home_domain} assetMeta={assetMeta} account={issuer} className="card space"/>}
         <AssetHistoryTabsView asset={asset}/>
     </>
 }

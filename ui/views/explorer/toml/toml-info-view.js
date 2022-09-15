@@ -1,59 +1,47 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import {Tabs, useTomlData, useTomlInteropInfo} from '@stellar-expert/ui-framework'
+import {Tabs, useExplorerApi} from '@stellar-expert/ui-framework'
 import TomlTransferServerView from './toml-transfer-server-view'
 import TomlPaymentServerView from './toml-payment-server-view'
 import TomlInteropView from './toml-interop-view'
 import TomlSection from './toml-section-view'
-import TomlCodeView from './toml-code-view'
+import TomlWarningsView from './toml-warnings-view'
+import TomlRawContentView from './toml-raw-content-view'
 
-export default function TomlInfoView({homeDomain, account, assetCode, className, showRawCode = false, showInteropInfo = true}) {
-    const {loaded: tomlInfoLoaded, data: tomlInfo, rawToml} = useTomlData(homeDomain),
-        {loaded: interopInfoLoaded, data: interopInfo} = useTomlInteropInfo(tomlInfo)
+export default function TomlInfoView({homeDomain, account, assetMeta, className, showInteropInfo = true}) {
+    const {loaded: tomlInfoLoaded, data: tomlInfo} = useExplorerApi('domain-meta?domain=' + encodeURIComponent(homeDomain))
+    //rawToml
 
     if (!homeDomain || !tomlInfoLoaded || !tomlInfo) return null
-
-    tomlInfo.interop = interopInfoLoaded ? interopInfo : {}
-    let assetTomlData
-    if (assetCode) {
-        assetTomlData = tomlInfo.currencies && tomlInfo.currencies.find(c => c.code === assetCode && c.issuer === account)
-    } else {
+    if (assetMeta && assetMeta.domain !== homeDomain) return null
+    const {meta, tomlCid, warnings} = tomlInfo
+    if (!assetMeta) {
         //check whether this account is mentioned anywhere in the TOML
-        if (tomlInfo.signing_key !== account //either signing key
-            && (tomlInfo.accounts && !tomlInfo.accounts.includes(account)) //or owned accounts list
-            && (tomlInfo.currencies && !tomlInfo.currencies.some(c => c.issuer === account)))
+        if (meta.SIGNING_KEY !== account //either signing key
+            && !meta.ACCOUNTS?.includes(account) //or owned accounts list
+            && !tomlInfo.CURRENCIES?.some(c => c.issuer === account)) //or asset issuer account
             return null //do not show TOML info as this account may just use a federation address,and not an official account
     }
 
-    if (assetCode && !assetTomlData) return null  //toml does not contain this asset
-
     const tabs = []
-    if (showRawCode){
-        tabs.push({
-            name: 'code',
-            title: 'Code',
-            render: () => <TomlCodeView data={rawToml}/>
-        })
-    }
-    if (tomlInfo.documentation) {
+    if (tomlInfo.meta.DOCUMENTATION) {
         tabs.push({
             name: 'organization',
             title: 'Organization',
-            render: () => <TomlSection data={tomlInfo.documentation}/>
+            render: () => <TomlSection data={tomlInfo.meta.DOCUMENTATION}/>
         })
     }
-    if (assetCode) {
+    if (assetMeta) {
         tabs.push({
             name: 'currency',
             title: 'Currency',
-            render: () => <TomlSection data={assetTomlData}/>
+            render: () => <TomlSection data={assetMeta.toml_info}/>
         })
     }
-    if (tomlInfo.principals) {
+    if (tomlInfo.meta.PRINCIPALS) {
         tabs.push({
             name: 'principals',
             title: 'Principals',
-            render: () => <TomlSection data={tomlInfo.principals}/>
+            render: () => <TomlSection data={tomlInfo.meta.PRINCIPALS}/>
         })
     }
     if (TomlInteropView.hasInteropServices(tomlInfo)) {
@@ -63,7 +51,8 @@ export default function TomlInfoView({homeDomain, account, assetCode, className,
             render: () => <TomlInteropView data={tomlInfo}/>
         })
     }
-    if (showInteropInfo) {
+    if (showInteropInfo && tomlInfo.interop) {
+        const assetCode = assetMeta.toml_info.code
         if (tomlInfo.interop.sep6) {
             tabs.push({
                 name: 'transferServer',
@@ -74,7 +63,7 @@ export default function TomlInfoView({homeDomain, account, assetCode, className,
                     homeDomain,
                     assetCode,
                     assetIssuer: account
-                }} />
+                }}/>
             })
         }
         if (tomlInfo.interop.sep24) {
@@ -87,24 +76,30 @@ export default function TomlInfoView({homeDomain, account, assetCode, className,
                     homeDomain,
                     assetCode,
                     assetIssuer: account
-                }} />
+                }}/>
             })
         }
         if (tomlInfo.interop.sep31) {
             tabs.push({
                 name: 'paymentServer',
                 title: 'SEP31',
-                render: () => <TomlPaymentServerView {...{tomlInfo, homeDomain, assetCode, assetIssuer: account}} />
+                render: () => <TomlPaymentServerView {...{tomlInfo, homeDomain, assetCode, assetIssuer: account}}/>
             })
         }
     }
+    tabs.push({
+        name: 'code',
+        title: 'TOML code',
+        render: () => <TomlRawContentView cid={tomlCid}/>
+    })
+    if (warnings) {
+        tabs.push({
+            name: 'warnings',
+            title: <><i className="icon icon-warning text-small"/>Warnings</>,
+            render: () => <TomlWarningsView warnings={warnings}/>
+        })
+    }
     if (!tabs.length) return null
 
-    return <Tabs tabs={tabs} className={className}/>
-}
-
-TomlInfoView.propTypes = {
-    homeDomain: PropTypes.string.isRequired,
-    account: PropTypes.string.isRequired,
-    assetCode: PropTypes.string
+    return <div id="toml-props"><Tabs tabs={tabs} className={className}/></div>
 }

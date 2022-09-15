@@ -1,5 +1,5 @@
 import React from 'react'
-import {ExternalLink, useDirectory, useAssetMeta, useTomlData} from '@stellar-expert/ui-framework'
+import {ExternalLink, useDirectory, useAssetMeta} from '@stellar-expert/ui-framework'
 import Info from '../../components/info-tooltip'
 import TomlValidatorView from '../toml/toml-validator-view'
 
@@ -13,10 +13,9 @@ function AssetIcon({asset}) {
 
 export default function AssetVerificationStatusView({asset}) {
     const {issuerInfo} = asset,
-        {loaded, data: tomlData} = useTomlData(issuerInfo?.home_domain),
         meta = useAssetMeta(asset.descriptor),
         directoryInfo = useDirectory(asset?.descriptor?.issuer)
-    if (issuerInfo === undefined) return null
+    if (issuerInfo === undefined || !meta) return null
 
     if (directoryInfo && (directoryInfo.tags || []).includes('malicious')) return <>
         <i className="icon icon-warning color-warning"/>
@@ -29,7 +28,7 @@ export default function AssetVerificationStatusView({asset}) {
     </>
     return <>
         <AssetIcon asset={meta}/>
-        {!!tomlData && <> <ExternalLink href={`https://${issuerInfo.home_domain}`}>{issuerInfo.home_domain}</ExternalLink></>}
-        <TomlValidatorView address={asset?.descriptor?.issuer} assetCode={asset?.descriptor?.code} domain={issuerInfo?.home_domain}/>
+        {!!meta.toml_info && <> <ExternalLink href={`https://${issuerInfo.home_domain}`}>{issuerInfo.home_domain}</ExternalLink></>}
+        <TomlValidatorView asset={asset?.descriptor} domain={issuerInfo?.home_domain}/>
     </>
 }

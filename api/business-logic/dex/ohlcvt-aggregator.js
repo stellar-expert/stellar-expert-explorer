@@ -87,79 +87,6 @@ async function aggregateOhlcvt({network, collection, order, fromId, toId, resolu
     return data
 }
 
-/**
- * @param {String} network
- * @param {Number} assetId
- * @return {Promise<Number[]>}
- */
-async function aggregateAssetSparkline(network, assetId) {
-    const fromTs = trimDate(unixNow() - timeUnits.week, 24)
-    const from = encodeAssetOhlcvtId(assetId, fromTs)
-    let data = await db[network].collection('asset_ohlcvt').aggregate(
-        [
-            {
-                $match: {_id: {$gte: from}}
-            },
-            {
-                $sort: {_id: 1}
-            },
-            {
-                $group: {
-                    _id: {$floor: {$divide: [{$arrayElemAt: ['$ohlcvt', 0]}, 14400]}}, //4 hours resolution
-                    p: {$last: {$arrayElemAt: ['$ohlcvt', OHLCVT.CLOSE]}},
-                    v: {$sum: {$arrayElemAt: ['$ohlcvt', OHLCVT.BASE_VOLUME]}},
-                }
-            }
-        ]
-    ).toArray()
-    return data.map(({_id, p}) => p)
-}
-
-
-/**
- * @param {String} network
- * @param {Number[]} assets
- * @return {Promise<Object.<Number, Number[]>[]>}
- */
-async function aggregateMultiAssetSparkline(network, assets) {
-    const now = unixNow()
-    const fromTs = trimDate(unixNow() - timeUnits.week, 24)
-    const ranges = assets.map(assetId => ({
-        _id: {
-            $gte: encodeAssetOhlcvtId(assetId, fromTs),
-            $lte: encodeAssetOhlcvtId(assetId, now)
-        }
-    }))
-    let data = await db[network].collection('asset_ohlcvt').aggregate(
-        [
-            {
-                $match: {$or: ranges}
-            },
-            {
-                $sort: {_id: 1}
-            },
-            {
-                $group: {
-                    _id: {
-                        a: {$floor: {$divide: [{$arrayElemAt: ['$ohlcvt', 0]}, 4294967296]}},
-                        p: {$floor: {$divide: [{$arrayElemAt: ['$ohlcvt', 0]}, 14400]}}  //4 hours resolution
-                    },
-                    p: {$last: {$arrayElemAt: ['$ohlcvt', OHLCVT.CLOSE]}}
-                }
-            }
-        ]
-    ).toArray()
-    const res = {}
-    for (let {_id, p} of data) {
-        let bucket = res[_id.a]
-        if (!bucket) {
-            bucket = res[_id.a] = []
-        }
-        bucket.push(p)
-    }
-    return res
-}
-
 function reverseRecordSides(record) {
     return [
         record[OHLCVT.TIMESTAMP],
@@ -231,14 +158,19 @@ function encodeAssetOhlcvtId(assetId, timestamp) {
 
 /**
  * Generate OHLCVT collection id from two asset ids that designate the market and timestamp
- * @param {Number[]} assetIds
+ * @param {Number[]|Long} assetIds
  * @param {Number} timestamp
  * @return {ObjectId}
  */
 function encodeMarketOhlcvtId(assetIds, timestamp) {
     const raw = Buffer.allocUnsafe(12)
-    raw.writeUInt32BE(assetIds[1], 0)
-    raw.writeUInt32BE(assetIds[0], 4)
+    if (assetIds instanceof Long) {
+        raw.writeUInt32BE(assetIds.getHighBits(), 0)
+        raw.writeUInt32BE(assetIds.getLowBits(), 4)
+    } else {
+        raw.writeUInt32BE(assetIds[1], 0)
+        raw.writeUInt32BE(assetIds[0], 4)
+    }
     raw.writeUInt32BE(timestamp, 8)
     return new ObjectId(raw)
 }
