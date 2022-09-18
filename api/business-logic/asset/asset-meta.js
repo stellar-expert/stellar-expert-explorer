@@ -77,6 +77,10 @@ async function queryAssetsMeta(network, basePath, query) {
     let foundAssets = await findAssets(network, assets)
     foundAssets = foundAssets.concat(foundPools)
 
+    for (const record of foundAssets) {
+        delete record._id
+    }
+
     return preparePagedData(basePath, {
         sort: 'name',
         order: 'asc'
