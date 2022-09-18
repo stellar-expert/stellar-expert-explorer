@@ -9,8 +9,6 @@ import TomlRawContentView from './toml-raw-content-view'
 
 export default function TomlInfoView({homeDomain, account, assetMeta, className, showInteropInfo = true}) {
     const {loaded: tomlInfoLoaded, data: tomlInfo} = useExplorerApi('domain-meta?domain=' + encodeURIComponent(homeDomain))
-    //rawToml
-
     if (!homeDomain || !tomlInfoLoaded || !tomlInfo) return null
     if (assetMeta && assetMeta.domain !== homeDomain) return null
     const {meta, tomlCid, warnings, interop} = tomlInfo
@@ -51,8 +49,9 @@ export default function TomlInfoView({homeDomain, account, assetMeta, className,
             render: () => <TomlInteropView data={tomlInfo}/>
         })
     }
-    if (showInteropInfo && interop) {
-        const assetCode = assetMeta.toml_info.code
+    const interopMeta = assetMeta?.toml_info || (meta.CURRENCIES || [])[0]
+    if (showInteropInfo && interop && interopMeta) {
+        const {code: assetCode, issuer: assetIssuer} = interopMeta
         if (interop.sep6) {
             tabs.push({
                 name: 'transferServer',
@@ -62,7 +61,7 @@ export default function TomlInfoView({homeDomain, account, assetMeta, className,
                     standard: 'sep6',
                     homeDomain,
                     assetCode,
-                    assetIssuer: account
+                    assetIssuer
                 }}/>
             })
         }
@@ -75,7 +74,7 @@ export default function TomlInfoView({homeDomain, account, assetMeta, className,
                     standard: 'sep24',
                     homeDomain,
                     assetCode,
-                    assetIssuer: account
+                    assetIssuer
                 }}/>
             })
         }
@@ -83,7 +82,12 @@ export default function TomlInfoView({homeDomain, account, assetMeta, className,
             tabs.push({
                 name: 'paymentServer',
                 title: 'SEP31',
-                render: () => <TomlPaymentServerView {...{tomlInfo, homeDomain, assetCode, assetIssuer: account}}/>
+                render: () => <TomlPaymentServerView {...{
+                    tomlInfo,
+                    homeDomain,
+                    assetCode,
+                    assetIssuer
+                }}/>
             })
         }
     }
