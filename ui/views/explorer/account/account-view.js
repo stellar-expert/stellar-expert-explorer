@@ -2,7 +2,6 @@ import React from 'react'
 import {useParams} from 'react-router'
 import {StrKey} from 'stellar-sdk'
 import {BlockSelect, AccountAddress, useDirectory, parseMuxedAccount} from '@stellar-expert/ui-framework'
-import appSettings from '../../../app-settings'
 import AccountInfoView from './account-info-view'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import ErrorNotificationBlock from '../../components/error-notification-block'
@@ -42,8 +41,7 @@ export default function AccountView() {
         muxedId = parsed.muxedId
     }
 
-    if (!StrKey.isValidEd25519PublicKey(address)) return <div
-        className="account-view">
+    if (!StrKey.isValidEd25519PublicKey(address)) return <div className="account-view">
         <h2 className="word-break condensed">{originalAddress}</h2>
         <ErrorNotificationBlock>
             Invalid Stellar account address. Make sure that you copied it correctly.

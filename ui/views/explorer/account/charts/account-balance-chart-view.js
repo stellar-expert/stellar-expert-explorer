@@ -1,8 +1,8 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
+import {AssetLink, Dropdown} from '@stellar-expert/ui-framework'
 import {AssetDescriptor, parseAssetFromObject} from '@stellar-expert/asset-descriptor'
-import {formatWithPrecision} from '@stellar-expert/formatter'
+import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {navigation} from '@stellar-expert/navigation'
-import Dropdown from '../../../components/dropdown'
 import Chart, {Highcharts} from '../../../components/chart-view'
 import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 import {useAccountStatsHistory} from '../../../../business-logic/api/account-api'
@@ -16,7 +16,10 @@ function getAllAssets(balanceHistory) {
             assets.add(assetBalance.asset)
         }
     }
-    return Array.from(assets).map(asset => ({title: AssetDescriptor.parse(asset).toCurrency(10), value: asset}))
+    return Array.from(assets).map(asset => ({
+        title: <AssetLink link={false} asset={AssetDescriptor.parse(asset)}/>,
+        value: asset
+    }))
 }
 
 function syncBalancesWithHorizon(balanceHistory, {ledgerData, deleted}) {
@@ -59,12 +62,11 @@ function syncBalancesWithHorizon(balanceHistory, {ledgerData, deleted}) {
 }
 
 function getChartData(balanceHistory, selectedAsset) {
-    const now = new Date().getTime() / 1000 | 0
-    let line = [],
-        maxBalance = 0,
-        prevBalances = []
-    for (let {ts, balances} of balanceHistory) {
-        for (let {balance, asset} of balances) {
+    const line = []
+    let maxBalance = 0
+    let prevBalances = []
+    for (const {ts, balances} of balanceHistory) {
+        for (const {balance, asset} of balances) {
             const pb = prevBalances.findIndex(b => b.asset === asset)
             if (pb >= 0) {
                 prevBalances.splice(pb, 1)
@@ -78,7 +80,7 @@ function getChartData(balanceHistory, selectedAsset) {
             }
         }
         //process trustlines with zero balance
-        for (let {asset} of prevBalances) {
+        for (const {asset} of prevBalances) {
             if (asset === selectedAsset) {
                 line.push([ts, 0])
             }
@@ -91,6 +93,7 @@ function getChartData(balanceHistory, selectedAsset) {
         //init with 0
         line.unshift([startTs, 0])
         /*//extend with current balance
+        const now = new Date().getTime() / 1000 | 0
         const last = line[line.length - 1]
         if (last[0] + timeframe < new Date().getTime()) {
             line.push([new Date().getTime(), last[1]])
@@ -110,19 +113,27 @@ function getChartData(balanceHistory, selectedAsset) {
     }
 }
 
-export default function AccountBalanceChartView({account, noTitle}) {
-    const [selectedAsset, setSelectedAsset] = useState(navigation.query.asset || 'XLM'),
-        [scale, setScale] = useState(navigation.query.scale || 'linear'),
-        {data: balanceHistory, loaded} = useAccountStatsHistory(account.address)
+function pointFormatter() {
+    return `<b>${formatWithAutoPrecision(this.y)} ${this.series.name}</b><br/>`
+}
+
+export default function AccountBalanceChartView({account, noTitle, externallySelectedAsset}) {
+    const [selectedAsset, setSelectedAsset] = useState(navigation.query.asset || externallySelectedAsset || 'XLM')
+    const [scale, setScale] = useState(navigation.query.scale || 'linear')
+    const {data: balanceHistory, loaded} = useAccountStatsHistory(account.address)
+
+    useEffect(() => {
+        if (externallySelectedAsset) {
+            setSelectedAsset(externallySelectedAsset)
+        }
+    }, [externallySelectedAsset])
 
     if (!loaded || !balanceHistory?.length) return null
     syncBalancesWithHorizon(balanceHistory, account)
-    const {series, max} = getChartData(balanceHistory, selectedAsset)
+    const {series} = getChartData(balanceHistory, selectedAsset)
     const options = {
         tooltip: {
-            pointFormatter: function () {
-                return `<b>${formatWithPrecision(this.y, 2)} ${this.series.name}</b><br/>`
-            }
+            pointFormatter
         },
         plotOptions: {
             series: {
@@ -144,20 +155,17 @@ export default function AccountBalanceChartView({account, noTitle}) {
     return <Chart type="StockChart" options={options} grouped range noLegend title={
         !noTitle && <>
             Balance History
-            <EmbedWidgetTrigger path={`account/balance-chart/${account.address}${query}`}
-                                title="Account Balance History"/>
+            <EmbedWidgetTrigger path={`account/balance-chart/${account.address}${query}`} title="Account Balance History"/>
         </>
     }>
         {!noTitle && <div className="flex-row">
             <div>
-                Asset: <Dropdown value={selectedAsset} options={getAllAssets(balanceHistory)}
-                                 onChange={(value) => setSelectedAsset(value)}/>
+                Asset: <Dropdown value={selectedAsset} options={getAllAssets(balanceHistory)} onChange={setSelectedAsset}/>
             </div>
             <div>
-                Scale: <Dropdown value={scale} options={['linear', 'logarithmic']}
-                                 onChange={(value) => setScale(value)}/>&emsp;
+                Scale: <Dropdown value={scale} options={['linear', 'logarithmic']} onChange={setScale}/>&emsp;
             </div>
         </div>}
-        {noTitle && <div>Asset: {AssetDescriptor.parse(selectedAsset).toCurrency()}</div>}
+        {!!noTitle && <div>Asset: {AssetDescriptor.parse(selectedAsset).toCurrency()}</div>}
     </Chart>
 }

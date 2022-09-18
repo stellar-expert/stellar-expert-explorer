@@ -1,5 +1,7 @@
 import React from 'react'
 import {Switch, Route} from 'react-router'
+import Loadable from '../components/loadable'
+import NotFoundView from '../pages/not-found-page-view'
 import ExplorerHomePageView from './pages/explorer-home-page-view'
 import AssetsDashboard from './asset/assets-dashboard-view'
 import Asset from './asset/asset-view'
@@ -12,12 +14,11 @@ import OfferView from './offer/offer-view'
 import OpRedirect from './operation/op-redirect-view'
 import NetworkActivity from './pages/network-activity-page-view'
 import SearchRedirect from './search/search-results-view'
-import Loadable from '../components/loadable'
-import NotFoundView from '../pages/not-found-page-view'
 import OperationsLiveStreamView from './operation/operations-live-stream-view'
 import DedicatedSearchBoxView from './search/dedicated-search-box-view'
 import LiquidityPoolView from './liquidity-pool/liquidity-pool-view'
 import AllLiquidityPoolsView from './liquidity-pool/all-liquidity-pools-view'
+import AccountClaimableBalancesView from './claimable-balance/account-claimable-balances-view'
 
 function ExplorerRouter({match}) {
     const {path, params} = match
@@ -26,6 +27,7 @@ function ExplorerRouter({match}) {
             <Route path={`${path}/asset/:asset`} component={Asset}/>
             <Route path={`${path}/asset`} component={AssetsDashboard}/>
             <Route path={`${path}/ledger/:sequence`} component={Ledger}/>
+            <Route path={`${path}/account/:id/claimable-balances`} component={AccountClaimableBalancesView}/>
             <Route path={`${path}/account/:id`} component={Account}/>
             <Route path={`${path}/tx/:id`} component={Tx}/>
             <Route path={`${path}/market/:selling/:buying`} component={MarketView}/>

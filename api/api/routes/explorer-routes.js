@@ -1,9 +1,9 @@
 const apiCache = require('../api-cache')
 
-apiCache.createBucket('operations', 5000, '10 seconds')
-apiCache.createBucket('stats', 5000, '2 minutes')
-apiCache.createBucket('global-stats', 5000, '5 minutes')
-apiCache.createBucket('search', 1000, '30 seconds')
+apiCache.createBucket('operations', 8000, '10 seconds')
+apiCache.createBucket('stats', 8000, '2 minutes')
+apiCache.createBucket('global-stats', 8000, '5 minutes')
+apiCache.createBucket('search', 2000, '30 seconds')
 
 module.exports = function (app) {
     require('./account-explorer-routes')(app)
@@ -13,5 +13,6 @@ module.exports = function (app) {
     require('./domain-meta-routes')(app)
     require('./offer-explorer-routes')(app)
     require('./market-explorer-routes')(app)
+    require('./claimable-balance-explorer-routes')(app)
     require('./oauth-routes')(app)
 }

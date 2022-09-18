@@ -1,15 +1,17 @@
-import OAuthProvider from './oauth-provider'
+import {fetchData} from '@stellar-expert/ui-framework'
 import appSettings from '../../app-settings'
+import OAuthProvider from './oauth-provider'
 
 class GithubOAuthProvider extends OAuthProvider {
     constructor(props) {
-        super(Object.assign({}, props, {
+        super({
+            ...props,
             name: 'github',
             clientId: appSettings.oauth.github.clientId,
             scope: 'read:user user:email',
             loginUrl: 'https://github.com/login/oauth/authorize',
             apiEndpoint: 'https://api.github.com'
-        }))
+        })
     }
 
     /**
@@ -32,8 +34,8 @@ class GithubOAuthProvider extends OAuthProvider {
     }
 
     processCallbackUrl(callbackUrl) {
-        const callbackParams = this.getQueryParams(callbackUrl),
-            {code, error_message: error, access_token: token} = callbackParams
+        const callbackParams = this.getQueryParams(callbackUrl)
+        const {code, error_message: error, access_token: token} = callbackParams
 
         if (error) {
             console.error(error)
@@ -41,10 +43,10 @@ class GithubOAuthProvider extends OAuthProvider {
             return true
         }
 
-        fetchExplorerApi(`oauth/github/exchange-token?client_id=${this.clientId}&code=${code}`)
+        fetchData(`oauth/github/exchange-token?client_id=${this.clientId}&code=${code}`)
             .then(res => {
-                if (res.access_token) {
-                    this.setAuthToken(res.access_token)
+                if (res.data?.access_token) {
+                    this.setAuthToken(res.data.access_token)
                     this.oAuthCallbackContext?.success()
                     return true
                 }
