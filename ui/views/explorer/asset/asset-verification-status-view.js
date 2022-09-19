@@ -12,12 +12,13 @@ function AssetIcon({asset}) {
 }
 
 export default function AssetVerificationStatusView({asset}) {
-    const {issuerInfo} = asset,
-        meta = useAssetMeta(asset.descriptor),
-        directoryInfo = useDirectory(asset?.descriptor?.issuer)
+    const {issuerInfo} = asset
+    const meta = useAssetMeta(asset.descriptor)
+    const directoryInfo = useDirectory(asset?.descriptor?.issuer)
+
     if (issuerInfo === undefined || !meta) return null
 
-    if (directoryInfo && (directoryInfo.tags || []).includes('malicious')) return <>
+    if (meta.blocked || directoryInfo && (directoryInfo.tags || []).includes('malicious')) return <>
         <i className="icon icon-warning color-warning"/>
         Warning: reported for illicit or fraudulent activity
     </>
