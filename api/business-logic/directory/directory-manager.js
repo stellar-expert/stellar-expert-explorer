@@ -158,7 +158,7 @@ const directoryManager = {
         } else {
             await createGithubWrapper().createIssue({
                 title: `Block domain ${domain}`,
-                body: `Domain: \`domain\`  \nRequested by @${githubUserInfo.name}  \n> ${reason}`
+                body: `Domain: \`${domain}\`  \nRequested by @${githubUserInfo.name}  \n> ${reason}`
             })
             notifyBot('requested', `${githubUserInfo.name} requested blocking domain ${domain}`)
         }
