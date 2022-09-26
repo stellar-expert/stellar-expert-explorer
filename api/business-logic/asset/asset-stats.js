@@ -2,6 +2,7 @@ const db = require('../../connectors/mongodb-connector'),
     {validateNetwork, validateAssetName} = require('../validators'),
     AssetDescriptor = require('./asset-descriptor'),
     errors = require('../errors')
+const {fetchAssetsSupply} = require('./asset-supply')
 
 async function queryAssetStats(network, asset, {ts}) {
     validateNetwork(network)
@@ -39,6 +40,8 @@ async function queryAssetStats(network, asset, {ts}) {
         Object.assign(res, {
             rating: assetInfo.rating,
         })
+        const s = await fetchAssetsSupply([assetInfo._id], network)
+        res.supply = s[assetInfo._id]
     }
     if (assetInfo._id === 0) {
         //fetch fee pool and reserve for XLM

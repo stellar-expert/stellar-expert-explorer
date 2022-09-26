@@ -1,8 +1,9 @@
-const db = require('../../connectors/mongodb-connector'),
-    QueryBuilder = require('../query-builder'),
-    {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset} = require('../api-helpers'),
-    {resolveAccountId} = require('../account/account-resolver'),
-    {validateNetwork, isValidAccountAddress} = require('../validators')
+const db = require('../../connectors/mongodb-connector')
+const QueryBuilder = require('../query-builder')
+const {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset} = require('../api-helpers')
+const {resolveAccountId} = require('../account/account-resolver')
+const {validateNetwork, isValidAccountAddress} = require('../validators')
+const {fetchAssetsSupply} = require('./asset-supply')
 
 const supportedFeaturesSearch = [{
     terms: ['SEP3', 'SEP0003', 'SEP-0003', 'AUTH_SERVER'],
@@ -60,7 +61,6 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
     sortOrder._id = 1
 
     const projection = {
-        _id: 0,
         name: 1,
         created: 1,
         trades: 1,
@@ -123,8 +123,11 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
     }
 
     //remap "asset" field
+    const supplies = await fetchAssetsSupply(assets.map(a => a._id).filter(a => a > 0), network)
 
     assets = assets.map(({
+                             _id,
+                             supply,
                              name,
                              tradedAmount,
                              paymentsAmount,
@@ -138,6 +141,7 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
                              ...other
                          }) => ({
         asset: name,
+        supply: supplies[_id] || supply,
         traded_amount: tradedAmount,
         payments_amount: paymentsAmount,
         trades: totalTrades,
