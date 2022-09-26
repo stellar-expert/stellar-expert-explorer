@@ -3,7 +3,7 @@ const db = require('../../connectors/mongodb-connector')
 const xlmMeta = {
     name: 'XLM',
     domain: 'stellar.org',
-    toml_info: {
+    tomlInfo: {
         image: 'https://stellar.expert/img/vendor/stellar.svg',
         orgName: 'Stellar',
         name: 'Lumen'
