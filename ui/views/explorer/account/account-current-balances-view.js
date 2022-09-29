@@ -48,7 +48,7 @@ function AccountBalanceView({account, balance, valueInfo, onClick}) {
                 </div>
                 <span className="text-small">
                     <AssetLink asset={asset} link={false} issuer={false} displayIssuer={false}/>
-                    {(balance.is_authorized === false && !isPoolShare) &&
+                    {(balance.is_authorized === false && !isPoolShare(balance)) &&
                         <i className="icon icon-lock" title={`Trustline to ${asset.toCurrency()} is not authorized by the asset issuer`}/>}
                 </span>
             </AssetLink>
