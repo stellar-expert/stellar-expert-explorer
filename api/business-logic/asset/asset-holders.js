@@ -156,6 +156,8 @@ async function queryHolderPosition(network, asset, account) {
                 }
             })
 
+    if (!entry)
+        throw  errors.notFound(`Trustline for account ${account} to asset ${asset} not found`)
     const position = await db[network].collection('trustlines')
         .countDocuments({asset: assetId, balance: {$gt: entry.balance}}) + 1
 
