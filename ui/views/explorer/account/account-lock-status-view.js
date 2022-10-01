@@ -1,12 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {getAccountLockStatus} from '@stellar-expert/ui-framework'
-import Info from '../../components/info-tooltip'
+import {getAccountLockStatus, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 
 export default function AccountLockStatusView({accountInfo, forAsset = false}) {
-    let status = getAccountLockStatus(accountInfo),
-        issuing = forAsset ? 'issuer ' : '',
-        description
+    const status = getAccountLockStatus(accountInfo)
+    const issuing = forAsset ? 'issuer ' : ''
+    let description
 
     switch (status) {
         case 'locked':
@@ -23,8 +22,7 @@ export default function AccountLockStatusView({accountInfo, forAsset = false}) {
     return <>
         <dt>{forAsset ? 'Issuer account' : 'Account'} lock status:</dt>
         <dd>{status !== 'unlocked' && <i className="icon lock"/>}{status}
-            <Info
-                link="https://www.stellar.org/developers/guides/concepts/operations.html#thresholds">{description}</Info>
+            <Info link="https://www.stellar.org/developers/guides/concepts/operations.html#thresholds">{description}</Info>
         </dd>
     </>
 }

@@ -1,6 +1,5 @@
 import React from 'react'
-import {BlockSelect} from '@stellar-expert/ui-framework'
-import Info from '../../components/info-tooltip'
+import {BlockSelect, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 import {resolvePath} from '../../../business-logic/path'

@@ -1,6 +1,5 @@
 import React, {useState} from 'react'
-import Info from '../../components/info-tooltip'
-import {AssetLink} from '@stellar-expert/ui-framework'
+import {AssetLink, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {useAccountIssuedAssets} from '../../../business-logic/api/account-api'
 

@@ -1,8 +1,9 @@
 import React, {useState} from 'react'
+import {InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import ErrorNotificationBlock from '../../components/error-notification-block'
-import Info from '../../components/info-tooltip'
 import TomlInfoView from '../toml/toml-info-view'
 import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
+import {AccountClaimableBalancesSection} from '../claimable-balance/account-claimable-balances-view'
 import AccountBasicPropertiesView from './account-basic-properties-view'
 import AccountIssuedAssets from './account-issued-assets-view'
 import AccountSignersView from './account-signers-view'
@@ -11,7 +12,6 @@ import AccountSponsoredInfoView from './account-sponsored-info-view'
 import AccountCurrentBalancesView from './account-current-balances-view'
 import AccountBalanceChart from './charts/account-balance-chart-view'
 import AccountHistoryTabs from './account-history-tabs-view'
-import {AccountClaimableBalancesSection} from '../claimable-balance/account-claimable-balances-view'
 
 export default function AccountInfoView({account}) {
     const [selectedAsset, setSelectedAsset] = useState()

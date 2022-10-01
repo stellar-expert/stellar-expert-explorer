@@ -1,8 +1,7 @@
 import React from 'react'
-import {Amount, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {Amount, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import AssetPriceChange from './asset-price-change'
-import Info from '../../components/info-tooltip'
 import AuthorizationFlags from '../account/account-authorization-flags-view'
 import LockStatus from '../account/account-lock-status-view'
 import {useAssetHistory} from '../../../business-logic/api/asset-api'
@@ -98,7 +97,7 @@ export default function AssetSummaryView({asset}) {
         {(asset.volume || undefined) && <>
             <dt>Overall traded volume:</dt>
             <dd>
-                <Amount amount={asset.volume} round asset='USD'/>
+                <Amount amount={asset.volume} round asset="USD"/>
                 <Info>Volume of all on-chain trading operations.</Info>
             </dd>
         </>}
@@ -108,20 +107,6 @@ export default function AssetSummaryView({asset}) {
                 <AssetPriceChange priceDynamic={asset.price_dynamic} digits={7}/>
                 <Info>Current indicative DEX price.</Info>
             </dd>
-        </>}
-        {history.loaded && <>
-            {!!history.data.stddev && <>
-                <dt>Standard price deviation:</dt>
-                <dd>{Math.round(history.data.stddev * 10000) / 100}%
-                    <Info>Standard deviation from the average price for the last 90 days.</Info>
-                </dd>
-            </>}
-            {!!history.data.volatility && <>
-                <dt>Yang-Zhang volatility:</dt>
-                <dd>{Math.round(history.data.volatility * 10000) / 100}%
-                    <Info>Yang-Zhang relative price volatility for the last 90 days.</Info>
-                </dd>
-            </>}
         </>}
         {!!issuerInfo && <AuthorizationFlags accountInfo={issuerInfo}/>}
         {!!issuerInfo && <LockStatus accountInfo={issuerInfo} forAsset/>}

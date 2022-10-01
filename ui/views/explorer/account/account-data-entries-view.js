@@ -1,6 +1,5 @@
 import React, {useState} from 'react'
-import {Spoiler} from '@stellar-expert/ui-framework'
-import Info from '../../components/info-tooltip'
+import {Spoiler, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 
 const limit = 10
 

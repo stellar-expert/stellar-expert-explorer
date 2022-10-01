@@ -1,7 +1,6 @@
 import React from 'react'
-import {AssetLink, AccountAddress} from '@stellar-expert/ui-framework'
+import {AssetLink, AccountAddress, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {parseAssetFromObject} from '@stellar-expert/asset-descriptor'
-import Info from '../../components/info-tooltip'
 
 function retrieveSponsoredInfo(ledgerData) {
     const res = []

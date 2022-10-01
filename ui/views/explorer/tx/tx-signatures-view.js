@@ -1,15 +1,21 @@
 import React from 'react'
 import {TransactionBuilder} from 'stellar-sdk'
 import {inspectTransactionSigners} from '@stellar-expert/tx-signers-inspector'
-import {BlockSelect, AccountAddress, useDependantState, findKeysBySignatureHint, signatureHintToMask} from '@stellar-expert/ui-framework'
-import Info from '../../components/info-tooltip'
+import {
+    BlockSelect,
+    AccountAddress,
+    InfoTooltip as Info,
+    useDependantState,
+    findKeysBySignatureHint,
+    signatureHintToMask
+} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 
 export default function TxSignaturesView({tx}) {
     const [{xdr, potentialSigners}, setPotentialSigners] = useDependantState(() => {
-        let parsedTx = TransactionBuilder.fromXDR(tx.envelope_xdr, appSettings.networkPassphrase),
-            sourceAccount = tx.source_account,
-            feeAccount = tx.fee_account
+        let parsedTx = TransactionBuilder.fromXDR(tx.envelope_xdr, appSettings.networkPassphrase)
+        const sourceAccount = tx.source_account
+        const feeAccount = tx.fee_account
 
         if (tx.inner_transaction && tx.inner_transaction.hash === tx.hash) { //inner tx inside fee bump tx
             parsedTx = parsedTx.innerTransaction

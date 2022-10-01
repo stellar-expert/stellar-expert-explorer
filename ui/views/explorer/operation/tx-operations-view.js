@@ -1,12 +1,11 @@
 import React, {useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
-import {Spoiler, loadTransactionOperations} from '@stellar-expert/ui-framework'
-import Info from '../../components/info-tooltip'
+import {Spoiler, InfoTooltip as Info, loadTransactionOperations} from '@stellar-expert/ui-framework'
 import OpDetails from '../operation/operation-details-view'
 
 export default function TxOperationsView({tx, embedded}) {
-    const [operations, setOperations] = useState(null),
-        [showOperations, setShowOperations] = useState(!embedded)
+    const [operations, setOperations] = useState(null)
+    const [showOperations, setShowOperations] = useState(!embedded)
 
     useEffect(() => {
         if (!showOperations || operations) return

@@ -42,8 +42,7 @@ function AccountBalanceView({account, balance, valueInfo, onClick}) {
                 <div className="text-tiny condensed">
                     {isPoolShare(balance) ?
                         <>pool shares</> :
-                        <>{stripTrailingZeros(formatWithPrecision(calculateAvailableBalance(account, balance)))} available</>
-                    }
+                        <>{stripTrailingZeros(formatWithPrecision(calculateAvailableBalance(account, balance)))} available</>}
                     {!!estimatedValue && <div>{estimatedValue}</div>}
                 </div>
                 <span className="text-small">

@@ -1,12 +1,11 @@
 import React from 'react'
-import {AssetLink, AccountAddress, BlockSelect, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {useRouteMatch} from 'react-router'
+import {AssetLink, AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {formatWithPrecision}  from '@stellar-expert/formatter'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import appSettings from '../../../app-settings'
-import Info from '../../components/info-tooltip'
-import OfferHistoryTabsView from './offer-history-tabs-view'
-import {useRouteMatch} from 'react-router'
 import {useDexOffer} from '../../../business-logic/api/offer-api'
+import OfferHistoryTabsView from './offer-history-tabs-view'
 
 function OfferDetailsView({offer}) {
     if (!offer) return <div className="loader"/>

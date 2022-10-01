@@ -1,8 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import cn from 'classnames'
+import {Tooltip} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
-import Tooltip from '../../components/tooltip'
 import WidgetCode from './embed-widget-code-view'
 import './embed-widget-trigger.scss'
 

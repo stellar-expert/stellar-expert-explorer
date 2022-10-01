@@ -1,7 +1,6 @@
 import React from 'react'
+import {AccountAddress, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import AssetVerificationStatusView from './asset-verification-status-view'
-import {AccountAddress} from '@stellar-expert/ui-framework'
-import Info from '../../components/info-tooltip'
 
 export default function AssetHeaderView({asset, subtitle}) {
     const {descriptor} = asset

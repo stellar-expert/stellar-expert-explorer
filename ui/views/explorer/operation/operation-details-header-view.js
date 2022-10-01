@@ -1,5 +1,5 @@
 import React from 'react'
-import Info from '../../components/info-tooltip'
+import {InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../../business-logic/path'
 
 function prepareOpData(op) {

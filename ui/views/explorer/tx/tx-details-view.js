@@ -1,13 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {BlockSelect, AccountAddress, Amount, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {BlockSelect, AccountAddress, Amount, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
-import Info from '../../components/info-tooltip'
-import TxSignaturesView from './tx-signatures-view'
+import {resolvePath} from '../../../business-logic/path'
 import TxOperationsView from '../operation/tx-operations-view'
+import TxSignaturesView from './tx-signatures-view'
 import TxMemoView from './tx-memo-view'
 import TxHeaderView from './tx-header-view'
-import {resolvePath} from '../../../business-logic/path'
 import TxPreconditionsView from './tx-preconditions-view'
 
 /**

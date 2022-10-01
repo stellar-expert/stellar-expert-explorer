@@ -1,6 +1,5 @@
 import React from 'react'
-import {AccountAddress} from '@stellar-expert/ui-framework'
-import Info from '../../components/info-tooltip'
+import {AccountAddress, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 
 function formatDateUTC(date) {
     const parseDate = new Date(date * 1000)

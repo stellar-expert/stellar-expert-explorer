@@ -1,17 +1,16 @@
 import React from 'react'
 import {useParams} from 'react-router'
 import {StrKey} from 'stellar-sdk'
-import {BlockSelect, AccountAddress, useDirectory, parseMuxedAccount} from '@stellar-expert/ui-framework'
-import AccountInfoView from './account-info-view'
+import {BlockSelect, AccountAddress, InfoTooltip as Info, useDirectory, parseMuxedAccount} from '@stellar-expert/ui-framework'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import ErrorNotificationBlock from '../../components/error-notification-block'
-import AccountDirectoryInfoView from './account-directory-info-view'
 import AccountQrCodeToggle from '../../components/account-qr-code-toggle'
-import Info from '../../components/info-tooltip'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {useCompositeAccountInfo} from '../../../business-logic/api/account-api'
 import {useGithubOAuth} from '../../../business-logic/oauth/oauth-hooks'
 import {isDirectoryAdmin} from '../../directory/is-directory-admin'
+import AccountInfoView from './account-info-view'
+import AccountDirectoryInfoView from './account-directory-info-view'
 
 function AccountDirectoryActionView({address}) {
     const directoryInfo = useDirectory(address),

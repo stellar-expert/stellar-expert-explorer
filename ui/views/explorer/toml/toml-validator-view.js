@@ -1,6 +1,5 @@
 import React from 'react'
-import {useExplorerApi} from '@stellar-expert/ui-framework'
-import Tooltip from '../../components/tooltip'
+import {useExplorerApi, Tooltip} from '@stellar-expert/ui-framework'
 import {TomlWarningView} from './toml-warnings-view'
 
 function scrollToTomlInfo() {

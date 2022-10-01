@@ -1,12 +1,11 @@
 import React from 'react'
-import {BlockSelect, Amount, UtcTimestamp, useDependantState, formatExplorerLink, loadLedger} from '@stellar-expert/ui-framework'
-import Transactions from './ledger-transactions-view'
-import Info from '../../components/info-tooltip'
-import Tracer from '../horizon-tracer/tracer-icon-view'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {BlockSelect, Amount, UtcTimestamp, InfoTooltip as Info, useDependantState, formatExplorerLink, loadLedger} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
-import ErrorNotificationBlock from '../../components/error-notification-block'
 import {resolvePath} from '../../../business-logic/path'
+import {setPageMetadata} from '../../../util/meta-tags-generator'
+import ErrorNotificationBlock from '../../components/error-notification-block'
+import Tracer from '../horizon-tracer/tracer-icon-view'
+import Transactions from './ledger-transactions-view'
 
 function formatTransactionsCount(ledger) {
     if (ledger.operation_count > 0) return <BlockSelect>

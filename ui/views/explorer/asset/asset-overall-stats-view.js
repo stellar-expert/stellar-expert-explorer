@@ -1,9 +1,8 @@
 import React from 'react'
-import {Amount, useExplorerApi} from '@stellar-expert/ui-framework'
+import {Amount, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import {useAssetOverallStats} from '../../../business-logic/api/asset-api'
 import {use24hLedgerStats} from '../../../business-logic/api/ledger-stats-api'
-import Info from '../../components/info-tooltip'
 
 export default function AssetsOverallStatsView() {
     const {data: assetStats, loaded: assetStatsLoaded} = useAssetOverallStats(),
@@ -28,7 +27,7 @@ export default function AssetsOverallStatsView() {
             </dd>
             <dt>Overall DEX volume:</dt>
             <dd>
-                <Amount amount={assetStats.volume} asset='XLM' adjust round/>
+                <Amount amount={assetStats.volume} asset="XLM" adjust round/>
                 <Info>Total volume of all on-chain trades in XLM.</Info>
             </dd>
         </> : <div className="loader"/>

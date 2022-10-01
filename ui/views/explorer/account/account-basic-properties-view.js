@@ -1,8 +1,7 @@
 import React from 'react'
-import {AccountAddress, BlockSelect, UtcTimestamp, useResolvedFederationName} from '@stellar-expert/ui-framework'
+import {AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info, useResolvedFederationName} from '@stellar-expert/ui-framework'
 import AccountAuthorizationFlags from './account-authorization-flags-view'
 import LockStatus from './account-lock-status-view'
-import Info from '../../components/info-tooltip'
 
 function ActivityIndexDescription() {
     return <>

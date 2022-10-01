@@ -1,8 +1,7 @@
 import React, {useRef} from 'react'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
-import {useDependantState} from '@stellar-expert/ui-framework'
-import Info from '../../components/info-tooltip'
+import {InfoTooltip as Info, useDependantState} from '@stellar-expert/ui-framework'
 import Dropdown from '../../components/dropdown'
 import {resolvePath} from '../../../business-logic/path'
 
@@ -83,7 +82,7 @@ export default function TxMemoView({memo, memoType, className}) {
     const memoWrapper = memoRef.current
     if (!memoWrapper.hasMemo) return null
     const formattedMemo = memoWrapper.format(encoding)
-    return <div className={cn("column", className)}>
+    return <div className={cn('column', className)}>
         <span className="dimmed">Memo ({memoWrapper.type.toUpperCase()}): </span>
         <span className={cn('word-break', {condensed: memoWrapper.isBinary})}>
         {memoWrapper.link ? <a href={memoWrapper.link}>{formattedMemo}</a> : formattedMemo}

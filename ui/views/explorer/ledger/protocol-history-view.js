@@ -1,7 +1,6 @@
 import React from 'react'
-import {Amount, UtcTimestamp, useExplorerApi} from '@stellar-expert/ui-framework'
+import {Amount, UtcTimestamp, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
-import Info from '../../components/info-tooltip'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 
 export default function ProtocolHistoryView() {

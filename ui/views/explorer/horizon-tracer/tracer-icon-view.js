@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Tooltip from '../../components/tooltip'
+import {Tooltip} from '@stellar-expert/ui-framework'
 
 function invokeTracer(endpoint, e) {
     e.preventDefault()

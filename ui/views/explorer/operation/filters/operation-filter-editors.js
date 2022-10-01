@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {StrKey} from 'stellar-sdk'
 import DropdownMenu from '../../../components/dropdown-menu'
-import DateSelector from '../../../components/date-selector'
+import {DateSelector} from '@stellar-expert/ui-framework'
 
 function parseTypeGroupOptions(value = '', options) {
     const res = []

@@ -1,6 +1,5 @@
 import React from 'react'
-import {ExternalLink, useDirectory, useAssetMeta} from '@stellar-expert/ui-framework'
-import Info from '../../components/info-tooltip'
+import {ExternalLink, InfoTooltip as Info, useDirectory, useAssetMeta} from '@stellar-expert/ui-framework'
 import TomlValidatorView from '../toml/toml-validator-view'
 
 function AssetIcon({asset}) {
