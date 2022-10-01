@@ -1,6 +1,6 @@
 const {StrKey} = require('stellar-sdk')
 const mongodbStorage = require('./storage/mongodb-directory-storage')
-const {validateUpdateEntryData, validateDeleterEntryData} = require('./directory-request-validators')
+const {validateUpdateEntryData, validateDeletedEntryData} = require('./directory-request-validators')
 const {createGithubWrapper, requestGithubUserDetails, generateAccountFileName, getRepoFileHash} = require('./directory-github-api-utils')
 const {formatRequestTitle, formatRequestBody, formatGithubAccountEntry} = require('./directory-github-text-formatter')
 const directoryTags = require('./directory-tags')
@@ -77,7 +77,7 @@ const directoryManager = {
         if (!isAdmin(githubUserInfo)) throw errors.forbidden()
         const changes = {address, notes, version, deleted: true, author: githubUserInfo.name}
 
-        validateDeleterEntryData(changes)
+        validateDeletedEntryData(changes)
         setTimestamp(changes)
 
         await checkVersion(changes)

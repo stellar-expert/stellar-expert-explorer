@@ -32,7 +32,7 @@ info:
 servers:
   - url: 'https://api.stellar.expert'
 paths:
-  /directory:
+  /explorer/directory:
     get:
       operationId: listDirectoryEntries
       summary: Directory entries
@@ -156,7 +156,7 @@ paths:
                         - custodian
         '400':
           description: Invalid request parameters
-  /directory/{address}:
+  /explorer/directory/{address}:
     get:
       tags:
         - 'Directory API'
@@ -191,7 +191,7 @@ paths:
           description: Invalid request parameters
         '404':
           description: Entry not found
-  /directory/tags:
+  /explorer/directory/tags:
     get:
       tags:
         - 'Directory API'
@@ -231,7 +231,7 @@ paths:
                   - name: airdrop
                     description: Airdrop distribution account
           description: Available Directory tags fetched
-  /directory/blocked-domains:
+  /explorer/directory/blocked-domains:
     get:
       operationId: listBlockedDomains
       summary: Blocked domains list
@@ -306,7 +306,7 @@ paths:
                       paging_token: airdrop-info.vwv.pw
         '400':
           description: Invalid request parameters
-  /directory/blocked-domains/{domain}:
+  /explorer/directory/blocked-domains/{domain}:
     get:
       tags:
         - 'Directory API'
@@ -713,6 +713,81 @@ paths:
               example: '1203229.6298700'
         '404':
           description: Asset not found
+  /explorer/{network}/ledger/sequence-from-timestamp:
+    get:
+      tags:
+        - 'Ledger Info API'
+      summary: Find sequence by timestamp
+      operationId: getSequenceFromTimestamp
+      description: >-
+        Resolves ledger sequence with a finalization time equal or less than a given timestamp.
+        If the timestamp indicates some time in the future or, vise versa, less than the closing time of the first ledger,
+        server returns 404 Not Found error.
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: public
+        - name: timestamp
+          description: Timestamp to search (UNIX time or RFC 3339 timestamp)
+          in: query
+          required: true
+          schema:
+            anyOf:
+              - type: string
+                format: date-time
+              - type: integer
+                minimum: 0
+          example: 1642597270
+      responses:
+        '200':
+          description: Ledger sequence resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerTimestampSequenceInfo'
+        '400':
+          description: Invalid timestamp
+        '404':
+          description: Ledger sequence cannot be resolved
+  /explorer/{network}/ledger/timestamp-from-sequence:
+    get:
+      tags:
+        - 'Ledger Info API'
+      summary: Find timestamp by sequence
+      operationId: getTimestampFromSequence
+      description: >-
+        Resolves ledger closing timestamp for a give ledger sequence.
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: public
+        - name: sequence
+          description: Ledger sequence
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 32590807
+      responses:
+        '200':
+          description: Timestamp resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerTimestampSequenceInfo'
+        '400':
+          description: Invalid sequence
+        '404':
+          description: Ledger with a given sequence cannot be found
   /explorer/{network}/payments?asset={asset}&memo={memo}&amount={amount}&account={account}:
     get:
       tags:
@@ -721,20 +796,20 @@ paths:
       summary: Payments
       description: >-
         Preforms payments lookup filtered by a single parameter or complex criteria, including
-
+  
         - transaction memo
-
+  
         - payment amount
-
+  
         - asset
-
+  
         - source/recipient account
-
-
+  
+  
         Supported [payment operations](https://developers.stellar.org/docs/start/list-of-operations/):
         `PAYMENT`, `PATH_PAYMENT_STRICT_SEND`, `PATH_PAYMENT_STRICT_RECEIVE`, `CREATE_ACCOUNT`, `MERGE_ACCOUNT`.
-
-
+  
+  
         Works even for deleted(merged) accounts.
       parameters:
         - name: network
@@ -1083,6 +1158,24 @@ components:
         paging_token:
           description: Paging token
           type: string
+    LedgerTimestampSequenceInfo:
+      description: Ledger sequence-timestamp pair
+      type: object
+      properties:
+        sequence:
+          description: Ledger sequence
+          type: integer
+        timestamp:
+          description: Ledger UNIX timestamp
+          $ref: '#/components/schemas/UnixTime'
+        date:
+          description: Ledger date
+          type: string
+          format: date-time
+      example:
+        sequence: 42431435
+        timestamp: 1661781078
+        date: '2022-08-29T13:51:18.000Z'
 tags:
   - name: 'Directory API'
   - name: 'Payment Locator API'

@@ -1,6 +1,7 @@
-const {registerRoute} = require('../router'),
-    {queryLedgerStats, query24HLedgerStats} = require('../../business-logic/ledger/ledger-stats'),
-    {queryProtocolHistory} = require('../../business-logic/ledger/protocol-versions')
+const {registerRoute} = require('../router')
+const {queryLedgerStats, query24HLedgerStats} = require('../../business-logic/ledger/ledger-stats')
+const {queryProtocolHistory} = require('../../business-logic/ledger/protocol-versions')
+const {queryTimestampFromSequence, querySequenceFromTimestamp} = require('../../business-logic/ledger/ledger-timestamp-resolver')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -17,4 +18,15 @@ module.exports = function (app) {
         'ledger/protocol-history',
         {cache: 'global-stats'},
         ({params, query}) => queryProtocolHistory(params.network, query))
+
+    registerRoute(app,
+        'ledger/timestamp-from-sequence',
+        {cache: 'stats', cors: 'open'},
+        ({params, query}) => queryTimestampFromSequence(params.network, query))
+
+    registerRoute(app,
+        'ledger/sequence-from-timestamp',
+        {cache: 'stats', cors: 'open'},
+        ({params, query}) => querySequenceFromTimestamp(params.network, query))
+
 }

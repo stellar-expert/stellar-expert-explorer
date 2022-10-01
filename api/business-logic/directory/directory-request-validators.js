@@ -1,4 +1,4 @@
-const {StrKey, Keypair} = require('stellar-sdk')
+const {StrKey} = require('stellar-sdk')
 const directoryTags = require('./directory-tags')
 const errors = require('../errors')
 
@@ -19,20 +19,20 @@ function validateUpdateEntryData({address, domain, name, tags, notes}) {
         if (!directoryTags.some(t => t.name === tag))
             throw errors.badRequest(`Invalid "tags" parameter value. Unknown tag: "${tag}".`)
     }
-    if (notes && (typeof notes !== 'string' || notes.length > 700))
+    if (notes && (typeof notes !== 'string' || notes.length > 1000))
         throw errors.badRequest('Invalid "notes" parameter value. Expected a string up to 700 characters.')
 }
 
-function validateDeleterEntryData({address, notes, version}) {
+function validateDeletedEntryData({address, notes, version}) {
     if (!StrKey.isValidEd25519PublicKey(address))
         throw errors.badRequest('Invalid "address" parameter value. Expected a valid Stellar public key.')
-    if (notes && (typeof notes !== 'string' || notes.length > 700))
+    if (notes && (typeof notes !== 'string' || notes.length > 1000))
         throw errors.badRequest('Invalid "notes" parameter value. Expected a string up to 700 characters.')
-    if (!(parseInt(version) > 0))
+    if (!(parseInt(version, 10) > 0))
         throw errors.badRequest('Invalid "version" parameter value. Expected a numeric revision version.')
 }
 
 module.exports = {
     validateUpdateEntryData,
-    validateDeleterEntryData
+    validateDeletedEntryData
 }
