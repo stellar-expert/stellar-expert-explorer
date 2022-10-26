@@ -18,6 +18,7 @@ function useClaimableBalances(account) {
     useEffect(() => {
         initHorizon().claimableBalances()
             .claimant(account)
+            .order('desc')
             .limit(limit)
             .call()
             .then(updateRecords)
