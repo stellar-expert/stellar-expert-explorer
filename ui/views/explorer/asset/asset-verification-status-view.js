@@ -26,9 +26,10 @@ export default function AssetVerificationStatusView({asset}) {
             domain was not set or matching <code>stellar.toml</code> file was not found on the domain specified in the
             issuer account settings.</Info>
     </>
+    const domain = issuerInfo?.home_domain && issuerInfo.home_domain.toLowerCase()
     return <>
         <AssetIcon asset={meta}/>
-        {!!meta.toml_info && <> <ExternalLink href={`https://${issuerInfo.home_domain}`}>{issuerInfo.home_domain}</ExternalLink></>}
-        <TomlValidatorView asset={asset?.descriptor} domain={issuerInfo?.home_domain}/>
+        {!!meta.toml_info && <> <ExternalLink href={`https://${domain}`}>{domain}</ExternalLink></>}
+        <TomlValidatorView asset={asset?.descriptor} domain={domain}/>
     </>
 }

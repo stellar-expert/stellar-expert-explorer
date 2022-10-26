@@ -17,8 +17,7 @@ export default function AccountBasicPropertiesView({account}) {
         {!!ledgerData?.home_domain && <>
             <dt>Home domain:</dt>
             <dd>
-                {ledgerData.home_domain ? <a href={'https://' + ledgerData.home_domain} rel="noreferrer noopener"
-                                             target="_blank">{ledgerData.home_domain}</a> : 'not set'}
+                <a href={'https://' + ledgerData.home_domain} rel="noreferrer noopener" target="_blank">{ledgerData.home_domain}</a>
                 <Info link="https://www.stellar.org/developers/guides/concepts/accounts.html#home-domain">A domain name
                     that can optionally be added to the account. Clients can look up a stellar.toml from this domain.
                     The federation procol can use the home domain to look up more details about a transaction’s memo or
