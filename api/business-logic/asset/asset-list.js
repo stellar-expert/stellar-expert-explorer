@@ -1,6 +1,6 @@
 const db = require('../../connectors/mongodb-connector')
 const QueryBuilder = require('../query-builder')
-const {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset} = require('../api-helpers')
+const {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset, normalizeLimit} = require('../api-helpers')
 const {resolveAccountId} = require('../account/account-resolver')
 const {validateNetwork, isValidAccountAddress} = require('../validators')
 const {fetchAssetsSupply} = require('./asset-supply')
@@ -25,19 +25,65 @@ const supportedFeaturesSearch = [{
     filter: 'sep31'
 }]
 
-async function queryAllAssets(network, basePath, {search, sort, order, cursor, limit, skip}) {
-    validateNetwork(network)
+const projection = {
+    name: 1,
+    created: 1,
+    trades: 1,
+    tradedAmount: 1,
+    payments: 1,
+    paymentsAmount: 1,
+    supply: 1,
+    trustlines: 1,
+    price: 1,
+    volume: 1,
+    volume7d: 1,
+    price7d: 1,
+    rating: 1,
+    domain: 1,
+    tomlInfo: 1
+}
 
-    const q = new QueryBuilder({asset: {$ne: 0}, payments: {$gt: 0}})
-        .setSkip(calculateSequenceOffset(skip, limit, cursor, order))
+async function mapAssetProps(assets, network) {
+    const supplies = await fetchAssetsSupply(assets.map(a => a._id).filter(a => a > 0), network)
+    return assets.map(({
+                           _id,
+                           supply,
+                           name,
+                           tradedAmount,
+                           paymentsAmount,
+                           lastPrice,
+                           price,
+                           baseVolume,
+                           volume,
+                           quoteVolume,
+                           totalTrades,
+                           trades,
+                           ...other
+                       }) => ({
+        asset: name,
+        supply: supplies[_id] || supply,
+        traded_amount: tradedAmount,
+        payments_amount: paymentsAmount,
+        trades: totalTrades,
+        price: lastPrice,
+        volume: quoteVolume,
+        ...other
+    }))
+}
+
+async function queryAllAssets(network, basePath, {search, sort, order, cursor, limit}) {
+    validateNetwork(network)
+    limit = normalizeLimit(limit, 50)
+    if (sort === 'created')
+        return await queryAllAssetsByCreatedDate(network, basePath, cursor, limit, order)
+
+    const q = new QueryBuilder({payments: {$gt: 0}})
+        .setSkip(calculateSequenceOffset(0, limit, cursor, order))
         .setLimit(limit, 50)
 
     let sortOrder
     //order is ignored for assets rating
     switch (sort) {
-        case 'created':
-            sortOrder = {'created': 1}
-            break
         case 'payments':
             sortOrder = {'payments': -1}
             break
@@ -60,23 +106,6 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
     }
     sortOrder._id = 1
 
-    const projection = {
-        name: 1,
-        created: 1,
-        trades: 1,
-        tradedAmount: 1,
-        payments: 1,
-        paymentsAmount: 1,
-        supply: 1,
-        trustlines: 1,
-        price: 1,
-        volume: 1,
-        volume7d: 1,
-        price7d: 1,
-        rating: 1,
-        domain: 1,
-        tomlInfo: 1
-    }
 
     search = (search || '').trim() //cleanup spaces
     let assets,
@@ -115,40 +144,14 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
     } else {
         assets = await db[network].collection('assets')
             .find(q.query)
-            .project(projection)
             .sort(sortOrder)
             .skip(q.skip)
             .limit(q.limit)
+            .project(projection)
             .toArray()
     }
 
-    //remap "asset" field
-    const supplies = await fetchAssetsSupply(assets.map(a => a._id).filter(a => a > 0), network)
-
-    assets = assets.map(({
-                             _id,
-                             supply,
-                             name,
-                             tradedAmount,
-                             paymentsAmount,
-                             lastPrice,
-                             price,
-                             baseVolume,
-                             volume,
-                             quoteVolume,
-                             totalTrades,
-                             trades,
-                             ...other
-                         }) => ({
-        asset: name,
-        supply: supplies[_id] || supply,
-        traded_amount: tradedAmount,
-        payments_amount: paymentsAmount,
-        trades: totalTrades,
-        price: lastPrice,
-        volume: quoteVolume,
-        ...other
-    }))
+    assets = await mapAssetProps(assets, network)
 
     addPagingToken(assets, q.skip)
 
@@ -157,6 +160,32 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
     }
 
     return preparePagedData(basePath, {sort, order, cursor: q.skip, limit: q.limit}, assets)
+}
+
+async function queryAllAssetsByCreatedDate(network, basePath, cursor, limit, order) {
+    order = normalizeOrder(order)
+    const q = new QueryBuilder({payments: {$gt: 0}})
+        .setSort('_id', order, -1)
+        .setLimit(limit, 50)
+
+    const idCursor = parseInt(cursor, 10)
+    if (idCursor) {
+        q.query = {_id: {[order === 1 ? '$gt' : '$lt']: idCursor}, ...q.query}
+    }
+
+    let assets = await db[network].collection('assets')
+        .find(q.query)
+        .limit(q.limit)
+        .sort(q.sort)
+        .project(projection)
+        .toArray()
+
+    for (const a of assets) {
+        a.paging_token = a._id
+    }
+    assets = await mapAssetProps(assets, network)
+
+    return preparePagedData(basePath, {sort: 'created', order, cursor: q.skip, limit: q.limit}, assets)
 }
 
 module.exports = {queryAllAssets}
