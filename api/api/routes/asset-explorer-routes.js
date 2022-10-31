@@ -40,7 +40,7 @@ module.exports = function (app) {
 
     registerRoute(app,
         'asset/:asset/rating',
-        {cache: 'stats'},
+        {cache: 'stats', cors: 'open'},
         ({params}) => queryAssetRating(params.network, params.asset))
 
     registerRoute(app,
