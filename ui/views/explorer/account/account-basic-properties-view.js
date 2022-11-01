@@ -11,20 +11,23 @@ function ActivityIndexDescription() {
 }
 
 export default function AccountBasicPropertiesView({account}) {
-    const {ledgerData} = account,
-        federationAddress = useResolvedFederationName(account)
+    const {ledgerData} = account
+    const federationAddress = useResolvedFederationName(account)
     return <>
         {!!ledgerData?.home_domain && <>
             <dt>Home domain:</dt>
             <dd>
-                <a href={'https://' + ledgerData.home_domain} rel="noreferrer noopener" target="_blank">{ledgerData.home_domain}</a>
+                <a href={'https://' + ledgerData.home_domain.toLowerCase()} rel="noreferrer noopener"
+                   target="_blank">{ledgerData.home_domain.toLowerCase()}</a>
+                {ledgerData.home_domain.toLowerCase() !== ledgerData.home_domain &&
+                    <span className="dimmed"> set as {ledgerData.home_domain}</span>}
                 <Info link="https://www.stellar.org/developers/guides/concepts/accounts.html#home-domain">A domain name
                     that can optionally be added to the account. Clients can look up a stellar.toml from this domain.
                     The federation procol can use the home domain to look up more details about a transaction’s memo or
                     address details about an account.</Info>
             </dd>
         </>}
-        {federationAddress && <>
+        {!!federationAddress && <>
             <dt>Federation address:</dt>
             <dd>
                 <BlockSelect>{federationAddress}</BlockSelect>
@@ -85,7 +88,7 @@ export default function AccountBasicPropertiesView({account}) {
             {account.activity.monthly}
             <Info><ActivityIndexDescription/></Info>
         </dd>
-        {ledgerData && <>
+        {!!ledgerData && <>
             <LockStatus accountInfo={ledgerData}/>
             <dt>Operation thresholds:</dt>
             <dd>
