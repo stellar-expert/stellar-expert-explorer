@@ -81,9 +81,15 @@ async function queryAssetsMeta(network, basePath, query) {
         delete record._id
     }
 
+    foundAssets.sort((a, b) => a.asset - b.asset)
+
     return preparePagedData(basePath, {
         sort: 'name',
-        order: 'asc'
+        order: 'asc',
+        asset: foundAssets.map(a => a.asset),
+        allowedLinks: {
+            self: 1
+        }
     }, foundAssets)
 }
 
