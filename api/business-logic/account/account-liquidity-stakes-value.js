@@ -26,6 +26,7 @@ async function estimateLiquidityStakesValue(network, accountId) {
         {
             $project: {
                 pool: '$pool.hash',
+                stake: 1,
                 value: {$floor: {$divide: [{$multiply: ['$stake', '$pool.tvl']}, '$pool.shares']}}
             }
         }

@@ -26,6 +26,7 @@ async function estimateTrustlinesValue(network, accountId) {
         {
             $project: {
                 asset: '$asset.name',
+                balance: 1,
                 value: {$floor: {$multiply: ['$balance', {$ifNull: ['$asset.lastPrice', 0]}]}}
             }
         }
