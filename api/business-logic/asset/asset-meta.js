@@ -16,23 +16,19 @@ async function findLiquidityPools(network, pools) {
         .toArray()
 
     const poolAssets = await matchPoolAssets(network, foundPools)
-
-    for (const pool of foundPools) {
-        pool.name = pool.paging_token = pool.hash
-        pool.assets = poolAssets.match(pool)
-        delete pool.hash
-        delete pool.asset
-    }
-
-    return foundPools
+    return foundPools.map(pool => {
+        const {hash, asset, ...rest} = pool
+        return {
+            pool: hash,
+            name: hash,
+            assets: poolAssets.match(pool),
+            ...rest
+        }
+    })
 }
 
 async function findAssets(network, assets) {
-    const foundAssets = await retrieveAssetsMetadata(network, assets)
-    for (const a of foundAssets) {
-        a.paging_token = a.name
-    }
-    return foundAssets
+    return await retrieveAssetsMetadata(network, assets)
 }
 
 /**
@@ -84,9 +80,9 @@ async function queryAssetsMeta(network, basePath, query) {
     foundAssets.sort((a, b) => a.asset - b.asset)
 
     return preparePagedData(basePath, {
+        asset: foundAssets.map(a => a.name),
         sort: 'name',
         order: 'asc',
-        asset: foundAssets.map(a => a.asset),
         allowedLinks: {
             self: 1
         }
