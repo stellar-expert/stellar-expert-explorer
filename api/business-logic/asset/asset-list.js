@@ -71,11 +71,11 @@ async function mapAssetProps(assets, network) {
     }))
 }
 
-async function queryAllAssets(network, basePath, {search, sort, order, cursor, limit}) {
+async function queryAllAssets(network, basePath, {search, sort, order, cursor, limit, includeUninitialized}) {
     validateNetwork(network)
     limit = normalizeLimit(limit, 50)
     if (sort === 'created')
-        return await queryAllAssetsByCreatedDate(network, basePath, cursor, limit, order)
+        return await queryAllAssetsByCreatedDate(network, basePath, cursor, limit, order, includeUninitialized)
 
     const q = new QueryBuilder({payments: {$gt: 0}})
         .setSkip(calculateSequenceOffset(0, limit, cursor, order))
@@ -162,9 +162,9 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
     return preparePagedData(basePath, {sort, order, cursor: q.skip, limit: q.limit}, assets)
 }
 
-async function queryAllAssetsByCreatedDate(network, basePath, cursor, limit, order) {
+async function queryAllAssetsByCreatedDate(network, basePath, cursor, limit, order, includeUninitialized = false) {
     order = normalizeOrder(order)
-    const q = new QueryBuilder({payments: {$gt: 0}})
+    const q = new QueryBuilder(includeUninitialized ? {} : {payments: {$gt: 0}})
         .setSort('_id', order, -1)
         .setLimit(limit, 50)
 
