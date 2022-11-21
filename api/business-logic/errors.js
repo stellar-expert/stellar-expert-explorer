@@ -40,6 +40,6 @@ module.exports = {
         })
     },
     validationError: function (invalidParamName, details = null) {
-        return this.badRequest(`Invalid parameter: ${invalidParamName}.`, details)
+        return this.badRequest(withDetails(`Invalid parameter: "${invalidParamName}".`, details))
     }
 }
