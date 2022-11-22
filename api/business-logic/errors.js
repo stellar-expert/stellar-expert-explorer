@@ -30,7 +30,7 @@ module.exports = {
     forbidden: function (details = null) {
         return generateError({
             message: withDetails('Forbidden.', details),
-            code: 403
+            status: 403
         })
     },
     notFound: function (details = null) {

@@ -1,6 +1,7 @@
 const db = require('../../connectors/mongodb-connector')
 const {validateNetwork, validateAssetName} = require('../validators')
 const errors = require('../errors')
+const {resolveAssetId} = require('./asset-resolver')
 
 async function fetchLiquidityPoolsSupply(assetIds, network) {
     return await db[network].collection('liquidity_pools').aggregate([
@@ -83,11 +84,12 @@ async function queryAssetSupply(network, asset) {
     validateNetwork(network)
     validateAssetName(asset)
 
-    const res = await fetchAssetsSupply([asset], network)
-    const supply = res[asset]
-
-    if (!supply)
+    const assetId = await resolveAssetId(network, asset)
+    if (assetId === null)
         throw errors.notFound('Asset supply was not found on the ledger. Check if you specified the asset correctly.')
+
+    const res = await fetchAssetsSupply([assetId], network)
+    const supply = res[assetId]
 
     return (supply / 10000000).toFixed(7)
 }
