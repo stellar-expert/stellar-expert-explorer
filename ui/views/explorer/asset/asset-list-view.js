@@ -76,7 +76,7 @@ export default function AssetListView({rows = 30, compact = false}) {
                         </td>
                         {!compact && <>
                             <td className="nowrap" key="created" data-header="Created: ">
-                                <UtcTimestamp date={created} dateOnly/>
+                                {descriptor.isNative ? null : <UtcTimestamp date={created} dateOnly/>}
                             </td>
                             <td className="nowrap text-right" key="supply" data-header="Supply: ">
                                 <Amount amount={supply} adjust round/>

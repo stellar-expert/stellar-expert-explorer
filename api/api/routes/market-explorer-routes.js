@@ -11,7 +11,7 @@ module.exports = function (app) {
 
     registerRoute(app,
         'market/:selling/:buying/candles',
-        {cache: 'stats'},
+        {cache: 'stats', billingCategory: 'marketCandles'},
         ({params, query}) => aggregateMarketCandlesData(params.network, params.selling, params.buying, query))
 
     registerRoute(app,

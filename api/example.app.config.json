@@ -32,5 +32,13 @@
     "http://localhost:3000",
     "http://localhost:9001"
   ],
-  "proxyValidationKey": ""
+  "proxyValidationKey": "",
+  "billing": {
+    "billingServerUrl": "ws://127.0.0.1:9000",
+    "serviceToken": "",
+    "pricing": {
+      "marketCandles": 10,
+      "assetCandles": 10
+    }
+  }
 }

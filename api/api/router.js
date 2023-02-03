@@ -1,25 +1,20 @@
-const cors = require('cors'),
-    apiCache = require('./api-cache'),
-    {corsWhitelist} = require('../app.config')
-
-const defaultCorsOptions = {
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
+const cors = require('cors')
+const {corsWhitelist} = require('../app.config')
+const apiCache = require('./api-cache')
+const billing = require('./billing')
 
 const corsMiddleware = {
-    whitelist: cors(Object.assign({}, defaultCorsOptions, {
-        origin: function (origin, callback) {
-            if (!origin) return callback(null, true)
-            if (corsWhitelist.includes(origin)) {
-                callback(null, true)
-            } else {
-                let e = new Error(`Origin ${origin} is blocked by CORS.`)
-                e.isBlockedByCors = true
-                callback(e)
-            }
-        }
-    })),
-    open: cors(Object.assign({}, defaultCorsOptions))
+    whitelist: cors(function (req, callback) {
+        const origin = req.header('Origin')
+        if (!origin)
+            return callback(null, true)
+        if (corsWhitelist.includes(origin) || req.billingProcessed)
+            return callback(null, true)
+        const e = new Error(`Origin ${origin} is blocked by CORS.`)
+        e.isBlockedByCors = true
+        callback(e)
+    }),
+    open: cors()
 }
 
 
@@ -67,33 +62,40 @@ module.exports = {
      * @param {('whitelist'|'open')} [options.cors] - CORS headers to set. Default: 'whitelist'.
      * @param {string} [options.cache] - Caching bucket name or '' to disable caching. Default: ''.
      * @param {object} [options.headers] - Additional response headers. Default: {}.
-     * @param {boolean} [options.prettyPrint] - Pretty-print JSON.
+     * @param {string} [options.billingCategory] - Billing category name.
      * @param {[function]} [options.middleware] - Request middleware to use.
      * @param {routeHandler} handler - Request handler.
      */
     registerRoute(app, route, options, handler) {
-        let {
+        const {
             method = 'get',
             prefix = '/explorer/:network/',
             cors = 'whitelist',
             cache = '',
-            prettyPrint = false,
             headers,
+            billingCategory,
             middleware = []
         } = options
 
         middleware.unshift(corsMiddleware[cors])
+        if (billingCategory) {
+            middleware.unshift((req, res, next) => {
+                const charged = billing.charge(req.headers, billingCategory)
+                if (charged) {
+                    req.billingProcessed = true
+                    return next()
+                }
+                res.status(402)
+                res.send('Payment Required')
+            })
+        }
 
         if (cache) {
             middleware.push(apiCache.cache(cache))
         }
         app[method](prefix + route, middleware, function (req, res) {
             //TODO: combine request path parameters with query params and pass a single plain object instead of req
-            if (req.query && req.query.prettyPrint !== undefined) {
-                prettyPrint = true
-            }
-
-            processResponse(res, handler(req), headers, prettyPrint)
+            processResponse(res, handler(req), headers, req.query && req.query.prettyPrint !== undefined)
         })
         app.options(prefix + route, middleware, function (req, res) {
             res.send(method.toUpperCase())

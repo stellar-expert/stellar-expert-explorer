@@ -85,6 +85,6 @@ module.exports = function (app) {
 
     registerRoute(app,
         'asset/:asset/candles',
-        {cache: 'stats'},
+        {cache: 'stats', billingCategory: 'assetCandles'},
         ({params, query}) => aggregateAssetPriceCandlesData(params.network, params.asset, query))
 }
