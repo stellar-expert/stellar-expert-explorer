@@ -1,7 +1,7 @@
 {
   "name": "api.stellar.expert",
   "private": true,
-  "version": "0.22.0",
+  "version": "0.22.1",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "api.js",
@@ -13,7 +13,7 @@
     "url": "https://github.com/orbitlens/stellar-expert.git"
   },
   "dependencies": {
-    "@stellar-expert/api-billing-connector": "github:stellar-expert/api-billing-connector#v1.0.1",
+    "@stellar-expert/api-billing-connector": "github:stellar-expert/api-billing-connector#v1.1.0",
     "bignumber.js": "^4.0.0",
     "body-parser": "^1.19.0",
     "bson": "^1.1.6",
