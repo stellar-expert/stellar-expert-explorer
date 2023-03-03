@@ -7,7 +7,7 @@ async function queryMarketStats(network, selling, buying, {ts}) {
     validateNetwork(network)
     const assets = await Promise.all([resolveAssetId(network, selling), resolveAssetId(network, buying)])
 
-    const [market] = await db[network].collection('markets')
+    const [market] = await db[network].collection('markets_data')
         .find({$or: [{asset: assets}, {asset: assets.slice().reverse()}]})
         .toArray()
 

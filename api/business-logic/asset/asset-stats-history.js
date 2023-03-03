@@ -5,6 +5,7 @@ const {validateNetwork, validateAssetName} = require('../validators')
 const {resolveAssetId} = require('./asset-resolver')
 const {unixNow} = require('../../utils/date-utils')
 const errors = require('../errors')
+const {anyToNumber} = require('../../utils/formatter')
 
 async function queryAssetStatsHistory(network, asset) {
     validateNetwork(network)
@@ -53,7 +54,7 @@ async function queryAssetStatsHistory(network, asset) {
     const history = stats.map(stat => {
         const tick = {
             ts: stat.ts,
-            supply: (typeof stat.supply === 'number') ? stat.supply : stat.supply.toNumber(),
+            supply: anyToNumber(stat.supply),
             trustlines: stat.trustlines,
             payments: stat.payments,
             payments_amount: stat.paymentsAmount,

@@ -3,7 +3,7 @@ const QueryBuilder = require('../query-builder')
 const {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset, normalizeLimit} = require('../api-helpers')
 const {resolveAccountId} = require('../account/account-resolver')
 const {validateNetwork, isValidAccountAddress} = require('../validators')
-const {fetchAssetsSupply} = require('./asset-supply')
+const {anyToNumber} = require('../../utils/formatter')
 
 const supportedFeaturesSearch = [{
     terms: ['SEP3', 'SEP0003', 'SEP-0003', 'AUTH_SERVER'],
@@ -44,8 +44,7 @@ const projection = {
 }
 
 async function mapAssetProps(assets, network) {
-    const supplies = await fetchAssetsSupply(assets.map(a => a._id).filter(a => a > 0), network)
-    return assets.map(({
+        return assets.map(({
                            _id,
                            supply,
                            name,
@@ -61,7 +60,7 @@ async function mapAssetProps(assets, network) {
                            ...other
                        }) => ({
         asset: name,
-        supply: supplies[_id] || supply,
+        supply: anyToNumber(supply),
         traded_amount: tradedAmount,
         payments_amount: paymentsAmount,
         trades: totalTrades,

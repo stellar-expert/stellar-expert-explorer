@@ -6,7 +6,7 @@ const db = require('../../connectors/mongodb-connector'),
 async function queryAssetsOverallStats(network) {
     validateNetwork(network)
     const q = new QueryBuilder({
-        supply: {$gt: 0},
+        supply: {$ne: 0},
         payments: {$gt: 0}
     })
 

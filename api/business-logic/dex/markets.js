@@ -1,11 +1,9 @@
-const {Long} = require('bson'),
-    db = require('../../connectors/mongodb-connector'),
-    QueryBuilder = require('../query-builder'),
-    {AssetJSONResolver} = require('../asset/asset-resolver'),
-    {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset} = require('../api-helpers'),
-    {validateNetwork} = require('../validators'),
-    errors = require('../errors'),
-    {resolveAssetId} = require('../asset/asset-resolver')
+const db = require('../../connectors/mongodb-connector')
+const QueryBuilder = require('../query-builder')
+const {AssetJSONResolver} = require('../asset/asset-resolver')
+const {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset} = require('../api-helpers')
+const {validateNetwork} = require('../validators')
+const {resolveAssetId} = require('../asset/asset-resolver')
 
 async function queryMarkets(network, basePath, {type, asset, sort, order, cursor, limit, skip}) {
     validateNetwork(network)
@@ -124,7 +122,7 @@ async function queryMarkets(network, basePath, {type, asset, sort, order, cursor
             break
     }
 
-    let markets = await db[network].collection('markets').aggregate([
+    let markets = await db[network].collection('markets_data').aggregate([
         {
             $match: q.query
         },

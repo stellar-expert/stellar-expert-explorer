@@ -1,5 +1,6 @@
-import CsvGenerator from '../util/csv-generator'
 import {Server} from 'stellar-sdk'
+import {approximatePrice} from '@stellar-expert/formatter'
+import CsvGenerator from '../util/csv-generator'
 
 function formatDate(date) {
     return date.replace('T', ' ').replace('.000', '').replace('Z', ' +0000')
@@ -189,7 +190,7 @@ class TaxInfoExporter {
             const ts = formatDate(trade.ledger_close_time),
                 base = formatAsset(trade, 'base_') || 'XLM',
                 counter = formatAsset(trade, 'counter_') || 'XLM',
-                price = (trade.price.n / trade.price.d)
+                price = approximatePrice(trade.price)
             //if (trade.base_is_seller){}
             this.trades.push([
                 ts,               //Date

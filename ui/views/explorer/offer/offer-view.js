@@ -1,7 +1,7 @@
 import React from 'react'
 import {useRouteMatch} from 'react-router'
 import {AssetLink, AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
-import {formatWithPrecision}  from '@stellar-expert/formatter'
+import {formatWithPrecision, approximatePrice} from '@stellar-expert/formatter'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import appSettings from '../../../app-settings'
 import {useDexOffer} from '../../../business-logic/api/offer-api'
@@ -30,7 +30,7 @@ function OfferDetailsView({offer}) {
                             <Info>An asset to buy.</Info>
                         </dd>
                         <dt>Price:</dt>
-                        <dd><BlockSelect>{formatWithPrecision(offer.price.n / offer.price.d)}</BlockSelect>
+                        <dd><BlockSelect>{formatWithPrecision(approximatePrice(offer.price))}</BlockSelect>
                             <Info>Current offer price.</Info>
                         </dd>
                     </dl>

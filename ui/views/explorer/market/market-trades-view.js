@@ -1,17 +1,16 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {Amount, ElapsedTime, useDeepEffect, useDependantState, streamMarketTrades, loadMarketTrades} from '@stellar-expert/ui-framework'
+import {formatWithAutoPrecision, approximatePrice} from '@stellar-expert/formatter'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
-import {formatPrice} from '@stellar-expert/formatter'
 import {resolvePath} from '../../../business-logic/path'
-import {formatWithAutoPrecision} from '@stellar-expert/formatter/src/numeric-format'
 
 function processTrade({id, base_amount, counter_amount, price, ledger_close_time, base_is_seller}) {
     return {
         id,
         baseAmount: base_amount,
         counterAmount: counter_amount,
-        price: price.n / price.d,
+        price: approximatePrice(price),
         revert: base_is_seller,
         ts: new Date(ledger_close_time)
     }

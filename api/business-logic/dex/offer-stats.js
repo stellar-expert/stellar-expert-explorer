@@ -27,7 +27,7 @@ async function queryOfferDetails(network, offerId) {
         buying: assetResolver.resolve(offer.asset[1]),
         amount: (offer.amount || '0').toString(),
         updated: offer.updated,
-        price: offer.priceRational,
+        price: offer.price,
         trades: offer.trades || 0
     }
     if (offer.deleted) {

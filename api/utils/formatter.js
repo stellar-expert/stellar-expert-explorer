@@ -68,4 +68,16 @@ function formatPercentage(value) {
     return trimZeros(asString)
 }
 
-module.exports = {formatAmount, formatWithPrecision, formatPercentage, adjustAmount}
+function anyToNumber(value) {
+    if (!value)
+        return 0
+    if (typeof value === 'number')
+        return value
+    if (typeof value === 'string')
+        return parseFloat(value)
+    if (typeof value.toNumber === 'function')
+        return value.toNumber()
+    throw TypeError(`Can't convert [${typeof value}] ${value} to number`)
+}
+
+module.exports = {formatAmount, formatWithPrecision, formatPercentage, adjustAmount, anyToNumber}

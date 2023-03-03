@@ -11,7 +11,7 @@ async function queryAssetTradingPairs(network, asset) {
     const assetId = await resolveAssetId(network, asset)
     if (assetId === null) throw errors.notFound('Unknown asset: ' + asset)
 
-    const markets = await db[network].collection('markets').aggregate([
+    const markets = await db[network].collection('markets_data').aggregate([
         {
             $match: {asset: assetId}
         },

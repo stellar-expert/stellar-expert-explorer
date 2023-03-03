@@ -1,9 +1,9 @@
 import React from 'react'
 import {AssetLink, AccountAddress, OfferLink, Amount, UtcTimestamp, useExplorerApi} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
-import {formatWithPrecision, formatPrice} from '@stellar-expert/formatter'
-import SearchResultsSectionView from './search-results-section-view'
+import {formatWithPrecision, formatPrice, approximatePrice} from '@stellar-expert/formatter'
 import {resolvePath} from '../../../business-logic/path'
+import SearchResultsSectionView from './search-results-section-view'
 
 export default function OfferSearchResultsView({term, onLoaded}) {
     const response = useExplorerApi('offer/' + term)
@@ -22,7 +22,7 @@ export default function OfferSearchResultsView({term, onLoaded}) {
             By account <AccountAddress account={account} chars={12}/>{' | '}
             <Amount amount={amount} asset={selling}/> for{' '}
             <AssetLink asset={buying}/> at{' '}
-            {formatWithPrecision(price.n / price.d, 7)}{' '}
+            {formatWithPrecision(approximatePrice(price), 7)}{' '}
             {AssetDescriptor.parse(buying).toCurrency()}/{AssetDescriptor.parse(selling).toCurrency()} {' | '}
             Created&nbsp;<UtcTimestamp date={created} dateOnly/>{', '}
             {formatPrice(trades)}&nbsp;trades
