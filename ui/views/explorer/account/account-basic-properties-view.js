@@ -59,7 +59,7 @@ export default function AccountBasicPropertiesView({account}) {
         </>}
         <dt>Total payments:</dt>
         <dd>
-            {account.payments}
+            {account.payments || 0}
             <Info>Overall number of payments.</Info>
         </dd>
         <dt>Total trades:</dt>

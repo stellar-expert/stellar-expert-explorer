@@ -10,7 +10,7 @@ function rangeActivity(index, multiplier = 1) {
     if (index > multiplier * 100) return 'high'
     if (index > multiplier * 10) return 'moderate'
     if (index > 0) return 'low'
-    return 'zero'
+    return 'none'
 }
 
 async function queryAccountStats(network, accountAddress) {
@@ -68,6 +68,11 @@ async function queryAccountStats(network, accountAddress) {
         res.activity = {
             yearly: rangeActivity(year, 5),
             monthly: rangeActivity(month, 1)
+        }
+    } else {
+        res.activity = {
+            yearly: 'none',
+            monthly: 'none'
         }
     }
 
