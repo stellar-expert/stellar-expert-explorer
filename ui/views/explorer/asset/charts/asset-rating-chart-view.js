@@ -1,8 +1,9 @@
 import React from 'react'
-import Chart from '../../../components/chart-view'
+import Chart from '../../../components/chart/chart'
 
-export default function AssetRatingChartView({asset}) {
-    if (!asset.rating) return null
+export default Chart.withErrorBoundary(function AssetRatingChartView({asset}) {
+    if (!asset.rating)
+        return <Chart.Loader/>
     const config = {
         chart: {
             polar: true,
@@ -16,7 +17,7 @@ export default function AssetRatingChartView({asset}) {
             size: '75%'
         },
         xAxis: {
-            categories: ['Age', 'Payments', 'Trustlines', 'Trades', 'Weekly volume', 'Interoperability', 'Liquidity'],
+            categories: ['Age', 'Payments', 'Trustlines', 'Interoperability', 'Weekly volume', 'Trades', 'Liquidity'],
             tickmarkPlacement: 'on',
             lineWidth: 0,
             crosshair: false
@@ -36,7 +37,7 @@ export default function AssetRatingChartView({asset}) {
     config.series.push({
         name: 'Rating',
         pointPlacement: 'on',
-        data: [age, payments, trustlines, trades, volume7d, interop, liquidity]
+        data: [age, payments, trustlines, interop, volume7d, trades, liquidity]
     })
-    return <Chart title="" options={config} noLegend/>
-}
+    return <Chart title="Rating" options={config} noLegend/>
+})

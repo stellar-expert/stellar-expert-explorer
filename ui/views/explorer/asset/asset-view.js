@@ -54,7 +54,7 @@ export default function AssetView() {
     return <>
         <AssetDetailsView asset={asset}/>
         {!!issuerInfo?.home_domain &&
-            <TomlInfo homeDomain={issuerInfo.home_domain} assetMeta={assetMeta} account={issuer} className="card space"/>}
+            <TomlInfo homeDomain={issuerInfo.home_domain} assetMeta={assetMeta} account={issuer} className="space"/>}
         <AssetHistoryTabsView asset={asset}/>
     </>
 }

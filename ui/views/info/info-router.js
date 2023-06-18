@@ -1,7 +1,7 @@
+import React from 'react'
 import {Route, Switch} from 'react-router'
 import LostPayment from './lost-payment-view'
 import NotFoundView from '../pages/not-found-page-view'
-import React from 'react'
 
 export default function InfoRouter({match}) {
     const {path} = match

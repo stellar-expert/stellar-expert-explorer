@@ -8,7 +8,6 @@ import AccountsChart from '../ledger/charts/ledger-history-accounts-chart-view'
 import AssetsChart from '../ledger/charts/ledger-history-assets-trustlines-chart-view'
 import PaymentsTradesChart from '../ledger/charts/ledger-history-payments-trades-chart-view'
 import SupplyChart from '../ledger/charts/ledger-supply-fee-chart-view'
-import OperationsDistribution from '../ledger/charts/ledger-history-operations-distribution-chart-view'
 import FailedTransactions from '../ledger/charts/ledger-history-failed-transactions-chart-view'
 
 export default function NetworkActivityPageView() {
@@ -20,36 +19,27 @@ export default function NetworkActivityPageView() {
         <h2>Network Stats</h2>
         <div className="row">
             <div className="column column-50">
-                <div className="card">
+                <div className="segment blank">
                     <LedgerActivity/>
                 </div>
             </div>
             <div className="column column-50">
-                <div className="card">
+                <div className="segment blank">
                     <LedgerDailyStats className="column column-50"/>
                 </div>
             </div>
         </div>
-        <div className="card space">
-            <OperationsChart/>
-        </div>
-        <div className="card space">
-            <AccountsChart/>
-        </div>
-        <div className="card space">
-            <AssetsChart/>
-        </div>
-        <div className="card space">
-            <PaymentsTradesChart/>
-        </div>
-        <div className="card space">
-            <SupplyChart/>
-        </div>
-        <div className="card space">
-            <OperationsDistribution/>
-        </div>
-        <div className="card space">
-            <FailedTransactions/>
-        </div>
+        <div className="space"/>
+        <OperationsChart/>
+        <div className="space"/>
+        <AccountsChart/>
+        <div className="space"/>
+        <AssetsChart/>
+        <div className="space"/>
+        <PaymentsTradesChart/>
+        <div className="space"/>
+        <SupplyChart/>
+        <div className="space"/>
+        <FailedTransactions/>
     </>
 }

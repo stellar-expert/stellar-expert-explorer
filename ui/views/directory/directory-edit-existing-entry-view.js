@@ -4,14 +4,15 @@ import {navigation} from '@stellar-expert/navigation'
 import DirectoryEntryPropsView from './directory-entry-props-view'
 
 function EditDirectoryLayoutView({address, children}) {
-    return <div className="card">
+    return <>
         <div className="desktop-only text-small" style={{float: 'right', paddingTop: '1em'}}>
             <a href="/directory">Back to Directory</a>
         </div>
-        <h3>Directory – edit entry <AccountAddress account={address} chars={12} name={false}/></h3>
-        <hr/>
-        {children}
-    </div>
+        <h2>Directory – edit entry <AccountAddress account={address} chars={12} name={false}/></h2>
+        <div className="segment blank">
+            {children}
+        </div>
+    </>
 }
 
 export default function DirectoryEditExistingEntryView({match}) {

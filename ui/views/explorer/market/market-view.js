@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useCallback} from 'react'
 import {useRouteMatch} from 'react-router'
 import {AssetLink, Amount, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
@@ -14,7 +14,8 @@ import MarketTrades from './market-trades-view'
 import './market.scss'
 
 function MarketSummaryView({marketInfo, buying, selling}) {
-    if (!marketInfo) return <div className="loader"/>
+    if (!marketInfo)
+        return <div className="loader"/>
     return <>
         <div className="row">
             <div className="column column-50">
@@ -97,19 +98,21 @@ function MarketSummaryView({marketInfo, buying, selling}) {
 }
 
 export default function MarketView() {
-    const {params} = useRouteMatch(),
-        selling = AssetDescriptor.parse(params.selling),
-        buying = AssetDescriptor.parse(params.buying),
-        {loading, error, data} = useExplorerApi(`market/${selling.toString()}/${buying.toString()}`)
+    const {params} = useRouteMatch()
+    const selling = AssetDescriptor.parse(params.selling)
+    const buying = AssetDescriptor.parse(params.buying)
+    const buyingAsset = buying.toString()
+    const sellingAsset = selling.toString()
+    const {loading, error, data} = useExplorerApi(`market/${sellingAsset}/${buyingAsset}`)
 
     setPageMetadata({
-        title: `Live market data of ${buying.toString()}/${selling.toString()} trading pair on Stellar ${appSettings.activeNetwork} network DEX`,
-        description: `Statistics and price dynamic of ${buying.toString()}/${selling.toString()} trading pair on Stellar ${appSettings.activeNetwork} decentralized exchange.`
+        title: `Live market data of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} network DEX`,
+        description: `Statistics and price dynamic of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} decentralized exchange.`
     })
 
-    function reverse() {
-        navigation.navigate(resolvePath(`market/${buying.toString()}/${selling.toString()}/`))
-    }
+    const reverse = useCallback(function () {
+        navigation.navigate(resolvePath(`market/${buyingAsset}/${sellingAsset}/`))
+    }, [buyingAsset, sellingAsset])
 
     return <div className="market-view">
         <h2><span className="dimmed">Market</span> <AssetLink asset={buying} displayIssuer/>&nbsp;

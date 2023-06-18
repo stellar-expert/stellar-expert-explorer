@@ -1,7 +1,6 @@
 import React from 'react'
 import {StrKey} from 'stellar-sdk'
-import {Button} from '@stellar-expert/ui-framework'
-import Dropdown from '../components/dropdown'
+import {Dropdown, Button, useAutoFocusRef} from '@stellar-expert/ui-framework'
 import TaxInfoExporter from '../../business-logic/tax-info-exporter'
 import {setPageMetadata} from '../../util/meta-tags-generator'
 
@@ -32,8 +31,8 @@ class TaxDataExportView extends React.Component {
     }
 
     setPublicKey(pk) {
-        const v = pk.trim(),
-            isValid = StrKey.isValidEd25519PublicKey(v)
+        const v = pk.trim()
+        const isValid = StrKey.isValidEd25519PublicKey(v)
         this.setState({pk: v, isValid})
     }
 
@@ -80,7 +79,7 @@ class TaxDataExportView extends React.Component {
                     Provide your account public key:<br/>
                     <input disabled={inProgress} type="text" onChange={e => this.setPublicKey(e.target.value)}
                            value={pk}
-                           style={{width: '33em', fontFamily: 'monospace'}} autoFocus
+                           style={{width: '33em', fontFamily: 'monospace'}}
                            placeholder="for example, GADL...0H5M"/>
                 </label>
                 <label>
@@ -137,9 +136,8 @@ class TaxDataExportView extends React.Component {
 
     render() {
         return <div className="container narrow">
-            <div className="card">
-                <h3>Tax Data Export</h3>
-                <hr/>
+            <h2>Tax Data Export</h2>
+            <div className="segment blank">
                 <ul className="list checked space">
                     <li>BitcoinTax-compatible data export format.</li>
                     <li>Separate export files for income, spending, and trades.</li>
@@ -154,7 +152,7 @@ class TaxDataExportView extends React.Component {
                     of tax reports lies on users.
                 </div>
             </div>
-            <div className="card space">
+            <div className="segment blank space">
                 <h3>Export</h3>
                 <hr/>
                 {this.renderSettings()}

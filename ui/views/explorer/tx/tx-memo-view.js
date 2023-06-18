@@ -1,8 +1,7 @@
 import React, {useRef} from 'react'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
-import {InfoTooltip as Info, useDependantState} from '@stellar-expert/ui-framework'
-import Dropdown from '../../components/dropdown'
+import {Dropdown, InfoTooltip as Info, useDependantState} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../../business-logic/path'
 
 class MemoFormatter {
@@ -23,10 +22,11 @@ class MemoFormatter {
                 return 'hash'
             case 4:
                 return 'return'
+            default:
+                if (typeof (memoType) !== 'string')
+                    throw new Error('Invalid memo type: ' + memoType)
+                return memoType.toLowerCase()
         }
-        if (typeof (memoType) !== 'string')
-            throw new Error('Invalid memo type: ' + memoType)
-        return memoType.toLowerCase()
     }
 
     encodeTo(encoding) {
@@ -67,20 +67,23 @@ class MemoFormatter {
 }
 
 export default function TxMemoView({memo, memoType, className}) {
-    if (memo === undefined) return null
-    const memoRef = useRef(null),
-        [encoding, setEncoding] = useDependantState(() => {
-            const memoWrapper = memoRef.current = new MemoFormatter(memo, memoType)
-            switch (memoWrapper.type) {
-                case 'return':
-                    return 'hex'
-                case 'hash':
-                    return 'base64'
-            }
-            return ''
-        }, [memo, memoType])
+    if (memo === undefined)
+        return null
+    const memoRef = useRef(null)
+    const [encoding, setEncoding] = useDependantState(() => {
+        const memoWrapper = memoRef.current = new MemoFormatter(memo, memoType)
+        switch (memoWrapper.type) {
+            case 'return':
+                return 'hex'
+            case 'hash':
+                return 'base64'
+            default:
+                return ''
+        }
+    }, [memo, memoType])
     const memoWrapper = memoRef.current
-    if (!memoWrapper.hasMemo) return null
+    if (!memoWrapper.hasMemo)
+        return null
     const formattedMemo = memoWrapper.format(encoding)
     return <div className={cn('column', className)}>
         <span className="dimmed">Memo ({memoWrapper.type.toUpperCase()}): </span>
@@ -104,8 +107,7 @@ export default function TxMemoView({memo, memoType, className}) {
         {' '}
         {memoWrapper.isBinary && <>
             <span className="nowrap dimmed">(
-                <Dropdown value={memoWrapper.encoding} title="Change binary encoding format"
-                          onChange={v => setEncoding(v)}
+                <Dropdown value={memoWrapper.encoding} title="Change binary encoding format" onChange={setEncoding}
                           options={memoWrapper.availableEncodings}/>{' '}format)</span>
             <Info link="https://en.wikipedia.org/wiki/Binary-to-text_encoding">
                 Binary-to-text encoding format used to represent binary hashes.

@@ -1,15 +1,18 @@
 import React from 'react'
 import {usePoolHistory} from '../../../business-logic/api/lp-api'
-import Chart from '../../components/chart-view'
+import Chart from '../../components/chart/chart'
 
-export default function LiquidityPoolTradesChartView({id}) {
+export default Chart.withErrorBoundary(function LiquidityPoolTradesChartView({id}) {
     const poolHistory = usePoolHistory(id)
-    if (!poolHistory.loaded) return <div className="loader"/>
-    if (poolHistory.error || !poolHistory.data.length) return null
+    if (!poolHistory.loaded)
+        return <Chart.Loader/>
+    if (poolHistory.error || !poolHistory.data.length)
+        return <Chart.Loader unavailable/>
 
-    const trades = [],
-        volumes = []
-    for (let entry of poolHistory.data) {
+    const trades = []
+    const volumes = []
+    for (let i = poolHistory.data.length - 1; i >= 0; i--) {
+        const entry = poolHistory.data[i]
         trades.push([entry.ts * 1000, Math.round(entry.trades)])
         volumes.push([entry.ts * 1000, Math.round(entry.volume_value / 10000000)])
     }
@@ -47,7 +50,6 @@ export default function LiquidityPoolTradesChartView({id}) {
             {
                 type: 'column',
                 name: 'Trades',
-                maxPointWidth: 12,
                 data: trades,
                 dataGrouping: {
                     approximation: 'sum'
@@ -57,7 +59,6 @@ export default function LiquidityPoolTradesChartView({id}) {
                 type: 'column',
                 name: 'Volume',
                 yAxis: 1,
-                maxPointWidth: 12,
                 data: volumes,
                 tooltip: {
                     valueSuffix: ' USD'
@@ -69,4 +70,4 @@ export default function LiquidityPoolTradesChartView({id}) {
     }
 
     return <Chart title="Pool Trading Volumes" options={config} grouped range noLegend/>
-}
+})

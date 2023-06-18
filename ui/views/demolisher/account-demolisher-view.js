@@ -11,14 +11,14 @@ function filterInvalidKeyChars(value) {
 }
 
 export default function AccountDemolisherView() {
-    const [status, setStatus] = useState(''),
-        [errors, setErrors] = useState(null),
-        [finished, setFinished] = useState(true),
-        [balance, setBalance] = useState(''),
-        [source, setSource] = useState(''),
-        [destination, setDestination] = useState(''),
-        [memo, setMemo] = useState(''),
-        [signers, setSigners] = useState([])
+    const [status, setStatus] = useState('')
+    const [errors, setErrors] = useState(null)
+    const [finished, setFinished] = useState(true)
+    const [balance, setBalance] = useState('')
+    const [source, setSource] = useState('')
+    const [destination, setDestination] = useState('')
+    const [memo, setMemo] = useState('')
+    const [signers, setSigners] = useState([])
 
     useEffect(() => {
         setPageMetadata({
@@ -170,8 +170,8 @@ export default function AccountDemolisherView() {
                             </div>
                         })}
                         {signers.length < 1 &&
-                        <div className="dimmed text-small">You can add more than one secret key for multisig-protected
-                            accounts</div>}
+                            <div className="dimmed text-small">You can add more than one secret key for multisig-protected
+                                accounts</div>}
                     </label>
                 </div>
             </div>
@@ -185,31 +185,28 @@ export default function AccountDemolisherView() {
     }
 
     return <div className="container narrow">
-        <div className="card">
-            <h3>Account Demolisher</h3>
-            <hr/>
-            <div className="space">
-                <p>
-                    Every Stellar account must maintain a minimum balance (currently 1 XLM) to exist on the ledger.
-                    Moreover, each asset trustline, open DEX offer, additional signer, and data entry requires
-                    an additional 0.5 XLM reserve.
-                    This tool provides a straightforward way to merge Stellar accounts automatically.
-                </p>
-                <ul className="list checked space">
-                    <li>Automatically closes open offers.</li>
-                    <li>Automatically sells owned assets on Stellar DEX at market price.</li>
-                    <li>Automatically removes trustlines, returning all unsold assets to the issuers.</li>
-                    <li>Automatically removes existing data entries.</li>
-                    <li>Allows merging directly to exchanges and other destinations that do not support merge
-                        operations out of the box.
-                    </li>
-                    <li>Works with multisig accounts.</li>
-                    <li>Absolutely free, you pay only for transaction fees.</li>
-                </ul>
-            </div>
-            <div className="space">
-                {RenderForm()}
-            </div>
+        <h2>Account Demolisher</h2>
+        <div className="segment blank">
+            <p>
+                Every Stellar account must maintain a minimum balance (currently 1 XLM) to exist on the ledger.
+                Moreover, each asset trustline, open DEX offer, additional signer, and data entry requires
+                an additional 0.5 XLM reserve.
+                This tool provides a straightforward way to merge Stellar accounts automatically.
+            </p>
+            <ul className="list checked space">
+                <li>Automatically closes open offers.</li>
+                <li>Automatically sells owned assets on Stellar DEX at market price.</li>
+                <li>Automatically removes trustlines, returning all unsold assets to the issuers.</li>
+                <li>Automatically removes existing data entries.</li>
+                <li>Allows merging directly to exchanges and other destinations that do not support merge
+                    operations out of the box.
+                </li>
+                <li>Works with multisig accounts.</li>
+                <li>Absolutely free, you pay only for transaction fees.</li>
+            </ul>
+        </div>
+        <div className="space segment blank">
+            {RenderForm()}
         </div>
     </div>
 }

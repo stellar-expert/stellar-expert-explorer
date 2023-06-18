@@ -30,9 +30,9 @@ function PoolSummaryView({poolInfo}) {
     return <>
         <div className="row">
             <div className="column column-50">
-                <div className="card">
+                <div className="segment blank">
                     <h3>Summary</h3>
-                    <hr/>
+                    <hr className="flare"/>
                     <dl>
                         <dt>Total value locked:</dt>
                         <dd>
@@ -76,22 +76,18 @@ function PoolSummaryView({poolInfo}) {
                     </dl>
                 </div>
             </div>
+            <div className="micro-space mobile-only"/>
             <div className="column column-50 relative">
-                <div className="card">
-                    <LiquidityPoolTvlChartView id={poolInfo.id}/>
-                </div>
+                <LiquidityPoolTvlChartView id={poolInfo.id}/>
             </div>
         </div>
         <div className="row space">
             <div className="column column-50 relative">
-                <div className="card">
-                    <LiquidityPoolTradesChartView id={poolInfo.id}/>
-                </div>
+                <LiquidityPoolTradesChartView id={poolInfo.id}/>
             </div>
+            <div className="micro-space mobile-only"/>
             <div className="column column-50 relative">
-                <div className="card">
-                    <LiquidityPoolFeesChartView id={poolInfo.id}/>
-                </div>
+                <LiquidityPoolFeesChartView id={poolInfo.id}/>
             </div>
         </div>
         <LiquidityPoolHistoryTabsView id={poolInfo.id}/>
@@ -99,10 +95,10 @@ function PoolSummaryView({poolInfo}) {
 }
 
 export default function LiquidityPoolView() {
-    const {params} = useRouteMatch(),
-        {loaded, error, data} = useExplorerApi(`liquidity-pool/${params.id}`)
+    const {params} = useRouteMatch()
+    const {loaded, error, data} = useExplorerApi(`liquidity-pool/${params.id}`)
 
-    return <div className="market-view">
+    return <div>
         <h2><span className="dimmed">Liquidity Pool</span> <AssetLink asset={params.id} link={false} issuer={true}/></h2>
         {!loaded && <div className="loader"/>}
         {!!error && <ErrorNotificationBlock>Failed to load liquidity pool data</ErrorNotificationBlock>}

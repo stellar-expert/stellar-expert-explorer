@@ -1,10 +1,11 @@
 import React from 'react'
-import Chart from '../../../components/chart-view'
+import Chart from '../../../components/chart/chart'
 import {useAccountStatsHistory} from '../../../../business-logic/api/account-api'
 
-export default function AccountTradesChartView({address}) {
+export default Chart.withErrorBoundary(function AccountTradesChartView({address}) {
     const {data = [], loaded} = useAccountStatsHistory(address)
-    if (!loaded) return null
+    if (!loaded)
+        return <Chart.Loader/>
     const config = {
         plotOptions: {
             column: {
@@ -38,4 +39,4 @@ export default function AccountTradesChartView({address}) {
         data: trades
     })
     return <Chart type="StockChart" options={config} grouped range noLegend/>
-}
+})

@@ -17,37 +17,40 @@ export default function ExplorerHomePageView() {
         <div className="space"/>
         <div className="row">
             <div className="column column-34">
-                <div className="card">
+                <div className="segment blank">
                     <h3>Asset Statistics</h3>
-                    <hr/>
+                    <hr className="flare"/>
                     <AssetsOverallStatsView/>
                 </div>
             </div>
+            <div className="space mobile-only"/>
             <div className="column column-34">
-                <div className="card">
+                <div className="segment blank">
                     <LedgerDailyStats/>
                 </div>
             </div>
+            <div className="space mobile-only"/>
             <div className="column column-34">
-                <div className="card">
+                <div className="segment blank">
                     <LedgerActivity/>
                 </div>
             </div>
         </div>
         <div className="row space">
             <div className="column column-50">
-                <div className="card">
-                    <h3>Network Stats</h3>
-                    <hr/>
+                <div>
                     <OperationsChart/>
+                    <div className="space"/>
                     <AccountsChart/>
+                    <div className="space"/>
                     <AssetsChart/>
                 </div>
             </div>
+            <div className="space mobile-only"/>
             <div className="column column-50">
-                <div className="card">
+                <div className="segment blank">
                     <h3>Assets on the Ledger</h3>
-                    <hr/>
+                    <hr className="flare"/>
                     <AssetList compact/>
                 </div>
             </div>

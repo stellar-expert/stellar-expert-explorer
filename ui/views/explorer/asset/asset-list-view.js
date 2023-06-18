@@ -1,12 +1,11 @@
-import React from 'react'
-import {AssetLink, Amount, Button, UtcTimestamp, useDependantState, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
+import React, {useCallback} from 'react'
+import {AssetLink, Amount, Dropdown, Button, UtcTimestamp, useDependantState, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {navigation} from '@stellar-expert/navigation'
-import Dropdown from '../../components/dropdown'
-import AssetSparkLine from './charts/asset-sparkline-chart-view'
-import AssetPriceChange from './asset-price-change'
 import GridDataActionsView from '../../components/grid-data-actions'
 import {resolvePath} from '../../../business-logic/path'
+import AssetSparkLine from './charts/asset-sparkline-chart-view'
+import AssetPriceChange from './asset-price-change'
 
 const orderOptions = [
     {value: 'rating', title: 'overall rating'},
@@ -41,16 +40,17 @@ export default function AssetListView({rows = 30, compact = false}) {
             //dataProcessingCallback: records => records.map(stat => AssetViewModel.fromStats(stat))
         })
 
-    function setSort(sort) {
+    const setSort = useCallback(function (sort) {
         const order = sort === 'created' ? 'asc' : 'desc'
         navigation.updateQuery({cursor: undefined, skip: undefined, sort, order})
         setState({sort, order})
-    }
+    }, [])
 
     if (!assets.loaded) return <div className="loader"/>
     return <div className="asset-list-view">
-        <div className="text-right mobile-left" style={{marginTop: '-2.2em'}}>
-            Sort by <Dropdown options={orderOptions} onChange={value => setSort(value)} value={sort}/>
+        <div className="double-space mobile-only"/>
+        <div className="text-right mobile-left text-small" style={{marginTop: '-3em'}}>
+            Sort by <Dropdown options={orderOptions} onChange={setSort} value={sort}/>
         </div>
         <table className="table exportable space" data-export-prefix="assets">
             <thead>
@@ -82,7 +82,7 @@ export default function AssetListView({rows = 30, compact = false}) {
                                 <Amount amount={supply} adjust round/>
                             </td>
                             <td className="holders text-right" key="holders" data-header="Holders: ">
-                                <Amount amount={trustlines.total}/>
+                                <Amount amount={trustlines[2]}/>
                             </td>
                             <td className="transfers text-right" key="transfers" data-header="Payments: ">
                                 <Amount amount={payments}/>
@@ -98,12 +98,10 @@ export default function AssetListView({rows = 30, compact = false}) {
                 })}
             </tbody>
         </table>
-        <div className="text-center">
-            {!compact ?
-                <GridDataActionsView model={assets}/> :
-                <div className="space">
-                    <Button small className="text-small" href={resolvePath('asset')}>Explore all Stellar assets</Button>
-                </div>}
-        </div>
+        {!compact ?
+            <GridDataActionsView model={assets}/> :
+            <div className="space text-center">
+                <Button small className="text-small" href={resolvePath('asset')}>Explore all Stellar assets</Button>
+            </div>}
     </div>
 }

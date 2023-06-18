@@ -1,9 +1,6 @@
 import React from 'react'
-import QR from 'qrcode.react'
+import {QrCode} from '@stellar-expert/ui-framework'
 
 export default function AccountQrCode({address}) {
-    return <div className="text-center">
-        <QR value={address} size={256} level="Q" includeMargin/>
-        <div className="text-small dimmed condensed word-break">{address}</div>
-    </div>
+    return <QrCode value={address} caption={address} size={256}/>
 }

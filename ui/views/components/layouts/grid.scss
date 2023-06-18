@@ -52,23 +52,6 @@
     }
   }
 
-  & > .chart:only-child {
-    & > h3 {
-      text-align: left !important;
-
-      &:after {
-        content: '';
-        display: block;
-        border-bottom: 1px solid var(--color-contrast-border);
-        margin: 0.5em (-$space-standard) 1em;
-      }
-    }
-
-    & > [data-highcharts-chart] {
-      margin: 0 -$space-micro;
-    }
-  }
-
   &.tabs .tabs-header {
     margin-top: 0;
   }

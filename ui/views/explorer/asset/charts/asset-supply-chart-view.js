@@ -1,12 +1,13 @@
 import React from 'react'
-import Chart from '../../../components/chart-view'
+import Chart from '../../../components/chart/chart'
 import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 import {useAssetHistory} from '../../../../business-logic/api/asset-api'
 
-export default function AssetSupplyChartView({asset, noTitle}) {
+export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noTitle}) {
     const {data, loaded} = useAssetHistory(asset.descriptor)
-    if (!loaded || !data.history.length) return null
-    let options = {
+    if (!loaded || !data.history.length)
+        return <Chart.Loader/>
+    const options = {
         plotOptions: {
             series: {
                 step: 'left'
@@ -40,13 +41,13 @@ export default function AssetSupplyChartView({asset, noTitle}) {
         series: []
     }
 
-    const assetSupply = [],
-        assetTrustlines = [],
-        day = 24 * 60 * 60 * 1000
+    const assetSupply = []
+    const assetTrustlines = []
+    const day = 24 * 60 * 60 * 1000
     let maxTs = 0
 
     if (data.history) {
-        for (let {ts, supply, reserve, feePool, trustlines} of data.history) {
+        for (const {ts, supply, reserve, feePool, trustlines} of data.history) {
             if (ts > 0) {
                 const timestamp = ts
 
@@ -112,4 +113,4 @@ export default function AssetSupplyChartView({asset, noTitle}) {
                   title={!noTitle && <>Supply and Accounts <EmbedWidgetTrigger
                       path={`asset/supply/${asset.descriptor.toString()}`}
                       title="Asset Supply and Accounts"/></>}/>
-}
+})

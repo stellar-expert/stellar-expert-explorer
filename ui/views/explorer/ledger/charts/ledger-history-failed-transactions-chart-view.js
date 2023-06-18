@@ -1,14 +1,16 @@
 import React from 'react'
-import Chart from '../../../components/chart-view'
+import Chart from '../../../components/chart/chart'
 import {useLedgerStats} from '../../../../business-logic/api/ledger-stats-api'
 
-export default function LedgerHistoryFailedTransactionsChartView() {
+export default Chart.withErrorBoundary(function LedgerHistoryFailedTransactionsChartView() {
     const {data = [], loaded} = useLedgerStats()
-    if (!loaded) return null
+    if (!loaded)
+        return <Chart.Loader/>
 
-    let successfulTx = [],
-        failedTx = []
-    for (let {ts, transactions, failed_transactions} of data) {
+    //eslint-disable-next-line prefer-const
+    const successfulTx = []
+    const failedTx = []
+    for (const {ts, transactions, failed_transactions} of data) {
         const dt = ts * 1000
         successfulTx.push([dt, transactions])
         failedTx.push([dt, failed_transactions])
@@ -44,4 +46,4 @@ export default function LedgerHistoryFailedTransactionsChartView() {
     }
 
     return <Chart type="StockChart" title="Transactions Success Rate" options={options} grouped range/>
-}
+})

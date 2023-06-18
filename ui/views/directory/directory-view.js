@@ -28,18 +28,18 @@ function DirectoryBlockTagsView({tags, filters, selectTag}) {
 }
 
 export default function DirectoryView() {
-    const [githubUser, githubApiProvider] = useGithubOAuth(),
-        isAdmin = isDirectoryAdmin(githubUser)
-    const directoryTags = useDirectoryTags(),
-        [searchTerm, setSearchTerm] = useState(() => navigation.query.search || ''),
-        [{filters, search}, updateState] = useState(() => {
-            return {
-                filters: new Set(navigation.query.tag || []),
-                search: ''
-            }
-        })
+    const [githubUser, githubApiProvider] = useGithubOAuth()
+    const isAdmin = isDirectoryAdmin(githubUser)
+    const directoryTags = useDirectoryTags()
+    const [searchTerm, setSearchTerm] = useState(() => navigation.query.search || '')
+    const [{filters, search}, updateState] = useState(() => {
+        return {
+            filters: new Set(navigation.query.tag || []),
+            search: ''
+        }
+    })
 
-    useEffect(()=>{
+    useEffect(() => {
         setPageMetadata({
             title: `Directory of well-known Stellar XLM accounts`,
             description: `Discover well-known Stellar accounts, filter data by account address, description, or tags.`
@@ -52,15 +52,15 @@ export default function DirectoryView() {
     }
 
     const directory = useExplorerPaginatedApi({
-            path: 'directory',
-            query: queryParams
-        }, {
-            includeNetwork: false,
-            ttl: 0,
-            autoReverseRecordsOrder: true,
-            defaultSortOrder: 'asc'
-        }),
-        {loaded, loading, data} = directory
+        path: 'directory',
+        query: queryParams
+    }, {
+        includeNetwork: false,
+        ttl: 0,
+        autoReverseRecordsOrder: true,
+        defaultSortOrder: 'asc'
+    })
+    const {loaded, loading, data} = directory
 
     function selectTag(tag, resetOtherTags = false) {
         const newFilters = new Set(filters)
@@ -82,56 +82,57 @@ export default function DirectoryView() {
         updateState({filters, search: searchTerm})
     }
 
-    return <div className="card space directory">
-        <h3>Directory | Well-known Stellar Accounts</h3>
+    return <>
+        <h2>Directory | Well-known Stellar Accounts</h2>
         <div className="text-right mobile-left" style={{marginTop: '-2.2em'}}>
             <GithubLoginView/>
         </div>
-        <hr/>
-        <p className="dimmed text-small">
-            The list of well-known Stellar accounts curated by StellarExpert team.
-        </p>
-        <div className="text-center double-space">
-            <form onSubmit={runSearch}>
-                <input type="text" onChange={e => setSearchTerm(e.target.value)}
-                       value={searchTerm} style={{maxWidth: '36em'}} className="primary"
-                       placeholder="Search accounts by domain, company name, or public key"/>
-            </form>
-            <div>
-                <div className="dimmed text-small">
-                    Filter by tag:
+        <div className="segment blank directory">
+            <p className="dimmed text-small">
+                The list of well-known Stellar accounts curated by StellarExpert team.
+            </p>
+            <div className="text-center double-space">
+                <form onSubmit={runSearch}>
+                    <input type="text" onChange={e => setSearchTerm(e.target.value)}
+                           value={searchTerm} style={{maxWidth: '36em'}} className="primary"
+                           placeholder="Search accounts by domain, company name, or public key"/>
+                </form>
+                <div>
+                    <div className="dimmed text-small">
+                        Filter by tag:
+                    </div>
+                    <DirectoryBlockTagsView tags={directoryTags.map(t => t.name)} filters={filters} selectTag={selectTag}/>
                 </div>
-                <DirectoryBlockTagsView tags={directoryTags.map(t => t.name)} filters={filters} selectTag={selectTag}/>
+            </div>
+            {loading && <div className="loader"/>}
+            {loaded && <>
+                <ul className="striped space">
+                    {data.map(entry => <li key={entry.address}
+                                           style={{padding: '1em', lineHeight: 1.6, overflow: 'hidden'}}>
+                        <div>
+                            <b>{entry.name}</b> <a href={'https://' + entry.domain} className="text-small">{entry.domain}</a>
+                            &emsp;
+                            <DirectoryTagsLineView tags={Array.from(entry.tags)} filters={filters} selectTag={selectTag}/>
+                            {isAdmin && <>&emsp;
+                                <a className="text-small" href={`/directory/${entry.address}/edit`} target="_blank">
+                                    <i className="icon icon-exchange"/>Edit</a>
+                            </>}
+                        </div>
+                        <AccountAddress account={entry.address} name={false} style={{marginRight: '1em'}} chars="all"/>
+                    </li>)}
+                </ul>
+                <GridDataActions model={directory} allowExport={false}/>
+            </>}
+
+            <div className="double-space dimmed">
+                <p>
+                    You can request new address listing <a href="/directory/add">here</a>. The data from {' '}
+                    <a href="/openapi.html#tag/Directory-API" target="_blank">Open Directory API</a> is publicly available
+                    for developers and users, free of charge.
+                    Please note: listing in the directory is not an endorsement, the maintainers do not verify legal
+                    entities operating the listed accounts.
+                </p>
             </div>
         </div>
-        {loading && <div className="loader"/>}
-        {loaded && <>
-            <ul className="striped space">
-                {data.map(entry => <li key={entry.address}
-                                       style={{padding: '1em', lineHeight: 1.6, overflow: 'hidden'}}>
-                    <div>
-                        <b>{entry.name}</b> <a href={'https://' + entry.domain} className="text-small">{entry.domain}</a>
-                        &emsp;
-                        <DirectoryTagsLineView tags={Array.from(entry.tags)} filters={filters} selectTag={selectTag}/>
-                        {isAdmin && <>&emsp;
-                            <a className="text-small" href={`/directory/${entry.address}/edit`} target="_blank">
-                                <i className="icon icon-exchange"/>Edit</a>
-                        </>}
-                    </div>
-                    <AccountAddress account={entry.address} name={false} style={{marginRight: '1em'}} chars="all"/>
-                </li>)}
-            </ul>
-            <GridDataActions model={directory} allowExport={false}/>
-        </>}
-
-        <div className="double-space dimmed">
-            <p>
-                You can request new address listing <a href="/directory/add">here</a>. The data from {' '}
-                <a href="/openapi.html#tag/Directory-API" target="_blank">Open Directory API</a> is publicly available
-                for developers and users, free of charge.
-                Please note: listing in the directory is not an endorsement, the maintainers do not verify legal
-                entities operating the listed accounts.
-            </p>
-        </div>
-    </div>
+    </>
 }

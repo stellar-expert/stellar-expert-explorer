@@ -1,25 +1,25 @@
 import React from 'react'
 import {Amount, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {formatWithPrecision} from '@stellar-expert/formatter'
-import AssetPriceChange from './asset-price-change'
+import {useAssetHistory} from '../../../business-logic/api/asset-api'
 import AuthorizationFlags from '../account/account-authorization-flags-view'
 import LockStatus from '../account/account-lock-status-view'
-import {useAssetHistory} from '../../../business-logic/api/asset-api'
+import AssetPriceChange from './asset-price-change'
 
 function formatTrustlines({total, authorized, funded}) {
     return <>
         {formatWithPrecision(total, 0)}
         {(authorized > 0 || funded > 0) && <>&nbsp;total</>}
-        {authorized > 0 && <> / {formatWithPrecision(authorized, 0)}&nbsp;authorized</>}
+        {/*{authorized > 0 && <> / {formatWithPrecision(authorized, 0)}&nbsp;authorized</>}*/}
         {funded > 0 && <> / {formatWithPrecision(funded, 0)}&nbsp;funded</>}
     </>
 }
 
 export default function AssetSummaryView({asset}) {
-    const {descriptor, issuerInfo} = asset,
-        history = useAssetHistory(descriptor)
+    const {descriptor, issuerInfo} = asset
+    const history = useAssetHistory(descriptor)
     return <dl>
-        {asset.rating && <>
+        {!!asset.rating && <>
             <dt>Rating:</dt>
             <dd>{(asset.rating.average || 0).toFixed(1)}
                 <Info>Composite rating based on asset age, established trustlines, weekly trading volume,
@@ -94,7 +94,7 @@ export default function AssetSummaryView({asset}) {
             {formatWithPrecision(asset.trades, 0)}
             <Info>Total count of all trades with the asset recorded on the Stellar ledger.</Info>
         </dd>
-        {(asset.volume || undefined) && <>
+        {!!asset.volume && <>
             <dt>Overall traded volume:</dt>
             <dd>
                 <Amount amount={asset.volume} round asset="USD"/>

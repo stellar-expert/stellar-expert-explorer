@@ -1,6 +1,5 @@
 import React from 'react'
 import {useRouteMatch} from 'react-router'
-import Widget from './widget'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import LedgerActivityView from '../ledger/ledger-activity-view'
 import LedgerDailyStatsView from '../ledger/ledger-daily-stats'
@@ -9,6 +8,7 @@ import LedgerHistoryAccountsChart from '../ledger/charts/ledger-history-accounts
 import LedgerHistoryAssetsTrustlinesChart from '../ledger/charts/ledger-history-assets-trustlines-chart-view'
 import LedgerHistoryPaymentsTradesChart from '../ledger/charts/ledger-history-payments-trades-chart-view'
 import LedgerSupplyFeeChart from '../ledger/charts/ledger-supply-fee-chart-view'
+import Widget from './widget'
 
 export default function NetworkWidget() {
     const {params} = useRouteMatch()
@@ -30,7 +30,7 @@ export default function NetworkWidget() {
         case 'accounts':
             return <Widget center>
                 <h2>Stellar Network - Account Stats</h2>
-                <LedgerHistoryAccountsChart noTitle />
+                <LedgerHistoryAccountsChart noTitle/>
             </Widget>
         case 'assets':
             return <Widget center>
@@ -47,6 +47,8 @@ export default function NetworkWidget() {
                 <h2>Stellar Network - Circulating XLM Supply and Fee Pool</h2>
                 <LedgerSupplyFeeChart noTitle/>
             </Widget>
+        default:
+            throw new TypeError('Not supported snippet type: ' + params.snippet)
     }
 
     return <ErrorNotificationBlock>Invalid widget request</ErrorNotificationBlock>

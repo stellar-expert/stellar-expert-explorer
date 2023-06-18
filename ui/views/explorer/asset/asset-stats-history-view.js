@@ -3,18 +3,16 @@ import AssetSupplyChart from './charts/asset-supply-chart-view'
 import AssetsPriceChart from './charts/asset-price-chart-view'
 
 export default function AssetStatsHistoryView({asset}) {
-    if (!asset || asset.loading) return <div className="loader"/>
-    const isXlm = asset.descriptor.isNative
+    if (!asset || asset.loading)
+        return null
     return <>
         <div className="space column column-50">
-            <div className="card">
-                <AssetSupplyChart asset={asset}/>
-            </div>
+            <AssetSupplyChart asset={asset}/>
+            <div className="space mobile-only"/>
         </div>
         <div className="space column column-50">
-            <div className="card">
-                <AssetsPriceChart asset={asset}/>
-            </div>
+            <AssetsPriceChart asset={asset}/>
+            <div className="space mobile-only"/>
         </div>
     </>
 }

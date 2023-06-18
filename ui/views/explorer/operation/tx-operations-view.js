@@ -20,7 +20,7 @@ export default function TxOperationsView({tx, embedded}) {
                 meaning that either all operations are applied or none are. If any operation fails, the whole
                 transaction fails.
             </Info></h3>}
-        <hr/>
+        <hr className="flare"/>
         {!!embedded && <Spoiler showMore="Show operations" showLess="Hide operations" expanded={showOperations}
                                 onChange={e => setShowOperations(!showOperations)}/>}
         {showOperations && !operations && <div className="loader"/>}

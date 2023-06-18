@@ -44,6 +44,10 @@ export function useAccountStatsHistory(address) {
     })
 }
 
+export function useAccountBalanceHistory(address, asset) {
+    return useExplorerApi(`account/${address}/balance/${asset}/history`)
+}
+
 export function useAccountIssuedAssets(address) {
     const [result, setResult] = useDependantState(() => {
         //fetch Horizon data

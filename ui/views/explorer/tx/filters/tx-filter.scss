@@ -1,0 +1,57 @@
+.op-filters {
+  .icon-delete-circle {
+    margin-left: 0.1em;
+  }
+}
+
+.op-filter-container {
+  display: flex;
+  justify-content: flex-start;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-contrast-border);
+  border-radius: $border-radius-input;
+  color: var(--color-text);
+  height: 4rem;
+  padding: 0.2rem 1rem;
+  width: 100%;
+
+  &:focus {
+    border-color: var(--color-highlight);
+  }
+}
+
+.op-filter-condition {
+  display: inline-block;
+  margin-right: 0.4em;
+  cursor: pointer;
+
+  &:before {
+    content: '/';
+    color: var(--color-highlight);
+  }
+
+  .icon-delete-circle {
+    opacity: 0;
+  }
+
+  &:hover .icon-delete-circle {
+    opacity: 1;
+  }
+
+  > input {
+    margin-bottom: 0;
+    height: 3rem;
+    padding: 0 0.4rem;
+
+    + .icon-ok {
+      display: inline-block;
+      visibility: hidden;
+      transition: visibility 0.3s;
+    }
+
+    &:focus + .icon-ok {
+      visibility: visible;
+      margin-left: 0.2em;
+    }
+  }
+}

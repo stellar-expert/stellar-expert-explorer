@@ -1,10 +1,11 @@
 import React from 'react'
-import Chart from '../../../components/chart-view'
+import Chart from '../../../components/chart/chart'
 import {useLedgerStats} from '../../../../business-logic/api/ledger-stats-api'
 
-export default function LedgerHistoryOperationsDistributionChartView() {
+export default Chart.withErrorBoundary(function LedgerHistoryOperationsDistributionChartView() {
     const {data = [], loaded} = useLedgerStats()
-    if (!loaded) return null
+    if (!loaded)
+        return <Chart.Loader/>
 
     //init series data
     const opsData = [
@@ -60,4 +61,4 @@ export default function LedgerHistoryOperationsDistributionChartView() {
     }
 
     return <Chart type="StockChart" title="Operations Distribution" options={options} grouped range/>
-}
+})

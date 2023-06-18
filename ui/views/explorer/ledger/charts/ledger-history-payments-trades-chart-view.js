@@ -1,11 +1,12 @@
 import React from 'react'
-import Chart from '../../../components/chart-view'
+import Chart from '../../../components/chart/chart'
 import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 import {useLedgerStats} from '../../../../business-logic/api/ledger-stats-api'
 
-export default function LedgerHistoryPaymentsTradesChartView({className, noTitle}) {
+export default Chart.withErrorBoundary(function LedgerHistoryPaymentsTradesChartView({className, noTitle}) {
     const {data = [], loaded} = useLedgerStats()
-    if (!loaded) return null
+    if (!loaded)
+        return <Chart.Loader/>
     const config = {
         plotOptions: {
             series: {
@@ -32,10 +33,10 @@ export default function LedgerHistoryPaymentsTradesChartView({className, noTitle
         }],
         series: []
     }
-    const dataTrades = [],
-        dataPayments = [],
-        dataVolume = []
-    for (let {ts, payments, trades, volume} of data) {
+    const dataTrades = []
+    const dataPayments = []
+    const dataVolume = []
+    for (const {ts, payments, trades, volume} of data) {
         const dt = ts * 1000
         dataPayments.push([dt, payments])
         dataTrades.push([dt, trades])
@@ -74,4 +75,4 @@ export default function LedgerHistoryPaymentsTradesChartView({className, noTitle
         Payments and Trades
         <EmbedWidgetTrigger path="network-activity/payments" title="Stellar Network - Payments and Trades"/>
     </>}/>
-}
+})

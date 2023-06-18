@@ -1,13 +1,14 @@
 import React, {useState} from 'react'
 import {Tabs} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
-import OperationsView from '../operation/operations-history-view'
+import TxHistoryView from '../tx/tx-history-view'
 import TradesView from '../effect/trades-history-view'
 
 export default function OfferHistoryTabsView({offer}) {
     const [operationsFilter, setOpFilter] = useState(navigation.query.filter || 'trades')
     const operationsHistoryProps = {
-        endpoint: `offer/${offer.id}/history/${operationsFilter}`
+        endpoint: `offer/${offer.id}/history/${operationsFilter}`,
+        presetFilter: {offer: [offer.id]}
     }
 
     function selectTab(tabName) {
@@ -19,18 +20,14 @@ export default function OfferHistoryTabsView({offer}) {
         {
             name: 'trades',
             title: 'Trades',
-            render: () => <div>
-                <TradesView {...operationsHistoryProps}/>
-            </div>
+            render: () => <TradesView {...operationsHistoryProps}/>
         },
         {
             name: 'changes',
             title: 'Changes',
-            render: () => <div>
-                <OperationsView {...operationsHistoryProps} filter="offers"/>
-            </div>
+            render: () => <TxHistoryView {...operationsHistoryProps}/>
         }
     ]
 
-    return <Tabs className="space card" tabs={tabs} selectedTab={operationsFilter} onChange={selectTab}/>
+    return <Tabs right className="space" tabs={tabs} selectedTab={operationsFilter} onChange={selectTab}/>
 }

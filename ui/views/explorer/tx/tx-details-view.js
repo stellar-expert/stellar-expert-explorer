@@ -17,13 +17,13 @@ import TxPreconditionsView from './tx-preconditions-view'
  * @constructor
  */
 export default function TxDetailsView({tx, embedded}) {
-    const feeSource = tx.fee_account_muxed || tx.fee_account,
-        source = tx.account_muxed || tx.source_account
+    const feeSource = tx.fee_account_muxed || tx.fee_account
+    const source = tx.account_muxed || tx.source_account
     return <>
         <TxHeaderView tx={tx} embedded={embedded}/>
-        <div className="card">
+        <div className="segment blank">
             <h3>Summary</h3>
-            <hr/>
+            <hr className="flare"/>
             <div className="row">
                 <div className="column column-50">
                     <dl>
@@ -120,7 +120,7 @@ export default function TxDetailsView({tx, embedded}) {
             {!!embedded && <TxOperationsView tx={tx} embedded={embedded}/>}
         </div>
         {!embedded && <>
-            <div className="card space">
+            <div className="segment blank space">
                 <TxOperationsView tx={tx} embedded={embedded}/>
             </div>
             <TxSignaturesView tx={tx}/>

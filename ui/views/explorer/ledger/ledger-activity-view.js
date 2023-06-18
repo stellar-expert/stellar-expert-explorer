@@ -4,7 +4,8 @@ import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 import {resolvePath} from '../../../business-logic/path'
 
 export default function LedgerActivityView({title, className}) {
-    let ledgersStream, unmounted
+    let ledgersStream
+    let unmounted
     const [
         {sequence, protocol, txSuccess, txFailed, operations, timeDelta, baseFee, baseReserve, lastLedgerClosedAt},
         setState
@@ -31,8 +32,10 @@ export default function LedgerActivityView({title, className}) {
 
     }, [title, className], () => {
         unmounted = true
-        ledgersStream && ledgersStream()
-        ledgersStream = undefined
+        if (ledgersStream) {
+            ledgersStream()
+            ledgersStream = undefined
+        }
     })
 
 
@@ -52,7 +55,7 @@ export default function LedgerActivityView({title, className}) {
             txFailed: ledger.failed_transaction_count,
             baseFee: ledger.base_fee_in_stroops,
             baseReserve: ledger.base_reserve_in_stroops,
-            timeDelta: timeDelta,
+            timeDelta,
             lastLedgerClosedAt: time
         })
     }
@@ -61,11 +64,11 @@ export default function LedgerActivityView({title, className}) {
 
     return <>
         <h3>
-            {title || 'Ledger '}<UpdateHighlighter><a
-            href={resolvePath(`ledger/${sequence}`)}>{sequence}</a></UpdateHighlighter>
+            {title || 'Ledger '}
+            <UpdateHighlighter><a href={resolvePath(`ledger/${sequence}`)}>{sequence}</a></UpdateHighlighter>
             <EmbedWidgetTrigger path="network-activity/ledger" title="Stellar Network Stats"/>
         </h3>
-        <hr/>
+        <hr className="flare"/>
         <dl>
             <dt>Transactions:</dt>
             <dd><UpdateHighlighter>{txSuccess} succeeded{txFailed > 0 && ` / ${txFailed} failed`}</UpdateHighlighter></dd>
@@ -77,8 +80,7 @@ export default function LedgerActivityView({title, className}) {
             <dd><UpdateHighlighter>{timeDelta}s</UpdateHighlighter></dd>
 
             <dt>Protocol version:</dt>
-            <dd><UpdateHighlighter><a
-                href={resolvePath('protocol-history', 'explorer')}>{protocol}</a></UpdateHighlighter></dd>
+            <dd><UpdateHighlighter><a href={resolvePath('protocol-history', 'explorer')}>{protocol}</a></UpdateHighlighter></dd>
 
             <dt>Base operation fee:</dt>
             <dd><UpdateHighlighter><Amount amount={baseFee} asset="XLM" adjust/></UpdateHighlighter></dd>
@@ -86,7 +88,7 @@ export default function LedgerActivityView({title, className}) {
             <dt>Base reserve:</dt>
             <dd><UpdateHighlighter><Amount amount={baseReserve} asset="XLM" adjust/></UpdateHighlighter></dd>
         </dl>
-        <div className="micro-space">
+        <div className="micro-space text-small">
             <a href={resolvePath('operations-live-stream', 'explorer')}>View operations live stream</a>
         </div>
     </>

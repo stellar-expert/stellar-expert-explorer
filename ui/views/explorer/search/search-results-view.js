@@ -94,11 +94,8 @@ function SearchResults({term, searchTypes, originalTerm}) {
 
 function SearchResultsWrapper({originalTerm, children}) {
     return <div className="search container narrow">
-        <div className="card">
-            <h2 className="text-overflow">Search results for "{originalTerm}"</h2>
-            <hr/>
-            {children}
-        </div>
+        <h2 className="text-overflow">Search results for "{originalTerm}"</h2>
+        {children}
     </div>
 }
 
@@ -134,8 +131,9 @@ export default function SearchResultsView() {
 
     return <SearchResultsWrapper originalTerm={originalTerm}>
         <SearchResults {...state}/>
-        <div className="double-space">
+        <div className="space segment blank">
             <h3>Not found what you've been looking for?</h3>
+            <hr className="flare"/>
             <div className="row">
                 <div className="column column-66 space">
                     <div className="dimmed">

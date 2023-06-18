@@ -15,7 +15,7 @@ function formatTransactionsCount(ledger) {
 }
 
 export default function LedgerView({match}) {
-    const sequence = parseInt(match.params.sequence) || 0
+    const sequence = parseInt(match.params.sequence, 10) || 0
     const [{ledger, error}, setState] = useDependantState(() => {
         setPageMetadata({
             title: `Ledger ${sequence} on Stellar ${appSettings.activeNetwork} network`,
@@ -55,15 +55,15 @@ export default function LedgerView({match}) {
                 </a>
             </div>
         </div>
-        <h2 className="relative">Ledger <BlockSelect>{ledger.sequence}</BlockSelect>
+        <h2 className="relative"><span className="dimmed">Ledger</span> <BlockSelect>{ledger.sequence}</BlockSelect>
             <Info link="https://www.stellar.org/developers/guides/concepts/ledger.html">A ledger represents the
                 state of
                 the Stellar network at a given point in time. It contains the list of all the accounts and balances,
                 all the orders in the distributed exchange, and any other data that persists.
             </Info><Tracer endpoint={`ledgers/${ledger.sequence}`}/></h2>
-        <div className="card">
+        <div className="segment blank">
             <h3>Summary <Tracer endpoint={`ledgers/${ledger.sequence}`}/></h3>
-            <hr/>
+            <hr className="flare"/>
             <div className="row">
                 <div className="column column-50">
                     <dl>

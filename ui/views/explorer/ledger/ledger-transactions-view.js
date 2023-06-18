@@ -10,15 +10,13 @@ export default function LedgerTransactionsView({ledgerSequence}) {
         return null
     }, [ledgerSequence])
 
-    if (!transactions) return <div className="loading"/>
-    return <div className="ledger-transactions-view">
+    if (!transactions)
+        return <div className="loading"/>
+    if (!transactions.length)
+        return <div className="text-center space dimmed">(no transactions)</div>
+    return <div className="block-indent-screen space">
         <h3>Ledger Transactions</h3>
-        <div className="block-indent-screen">
-            {transactions.map(tx => <div className="space" key={tx.id}>
-                    <TxDetails tx={tx} embedded/>
-                </div>
-            )}
-        </div>
+        {transactions.map(tx => <div className="space" key={tx.id}><TxDetails tx={tx} embedded/></div>)}
     </div>
 }
 

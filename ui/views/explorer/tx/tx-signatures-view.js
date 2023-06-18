@@ -37,13 +37,13 @@ export default function TxSignaturesView({tx}) {
         return {xdr: parsedTx, potentialSigners: null, prop: 0}
     }, [tx.id])
 
-    return <div className="card space">
+    return <div className="segment blank space">
         <h3>Signatures
             <Info link="https://www.stellar.org/developers/guides/concepts/multi-sig.html">The list of all
                 cryptographic signatures applied to the transaction envelope. A transaction may be signed by
                 up to 20 signers.</Info>
         </h3>
-        <hr/>
+        <hr className="flare"/>
         {!potentialSigners ?
             <div className="loader"/> :
             xdr.signatures.map(signature => {

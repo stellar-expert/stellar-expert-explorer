@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react'
 import {useExplorerApi} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
-import Chart from '../../components/chart-view'
+import Chart from '../../components/chart/chart'
 
 /**
  * Retrieve chart series points from candles data
@@ -9,9 +9,9 @@ import Chart from '../../components/chart-view'
  * @return {{volumes: [], prices: []}}
  */
 function processData(data) {
-    const prices = [],
-        volumes = []
-    for (let record of data) {
+    const prices = []
+    const volumes = []
+    for (const record of data) {
         const ts = record[0] * 1000
         prices.push([ts, ...record.slice(1, 5)])
         volumes.push([ts, parseFloat(formatWithAutoPrecision(record[6] / 10000000, ''))])
@@ -42,7 +42,7 @@ function buildUrl(baseEndpoint, from, to) {
     return endpoint
 }
 
-export default function OhlcvtChartView({baseEndpoint, title, currency}) {
+export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, title, currency}) {
     const [from, setFrom] = useState(0)
     const [to, setTo] = useState(0)
     const [config, setConfig] = useState(null)
@@ -62,7 +62,8 @@ export default function OhlcvtChartView({baseEndpoint, title, currency}) {
     }
 
     function loadScaledData(chart, min, max) {
-        if (loadCallbackRef.current) return
+        if (loadCallbackRef.current)
+            return
         chart.showLoading('Loading data...')
         loadCallbackRef.current = function (data) {
             //update chart data on scale-in
@@ -85,21 +86,23 @@ export default function OhlcvtChartView({baseEndpoint, title, currency}) {
     }, [baseEndpoint, currency])
 
     useEffect(() => {
-        if (!navigatorData) return
+        if (!navigatorData)
+            return
 
         const {prices, volumes} = processData(navigatorData.data)
 
         const config = {
             chart: {
                 events: {
-                    load: function (e) {
+                    load(e) {
                         e.target.xAxis[0].setExtremes(new Date().getTime() - 30 * 24 * 60 * 60 * 1000)
                     }
                 }
             },
             tooltip: {
-                pointFormatter: function () {
-                    if (this.open === undefined) return `<span class="dimmed">Volume: </span>${formatWithAutoPrecision(this.y)} ${currency}<br/>`
+                pointFormatter() {
+                    if (this.open === undefined)
+                        return `<span class="dimmed">Volume: </span>${formatWithAutoPrecision(this.y)} ${currency}<br/>`
                     return `<span class="dimmed">Open: </span>${this.open} ${currency}<br/>
 <span class="dimmed">High: </span>${this.high} ${currency}<br/>
 <span class="dimmed">Low: </span>${this.low} ${currency}<br/>
@@ -168,8 +171,10 @@ export default function OhlcvtChartView({baseEndpoint, title, currency}) {
         setConfig(config)
     }, [navigatorData])
 
-    if (!navigatorData) return <div className="loader"/>
-    if (!navigatorData.data.length) return null
+    if (!navigatorData)
+        return <Chart.Loader/>
+    if (!navigatorData.data.length)
+        return <Chart.Loader/>
 
     return <Chart type="StockChart" options={config} range noLegend title={title}/>
-}
+})

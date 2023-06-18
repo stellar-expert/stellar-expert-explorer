@@ -13,11 +13,12 @@ import AccountInfoView from './account-info-view'
 import AccountDirectoryInfoView from './account-directory-info-view'
 
 function AccountDirectoryActionView({address}) {
-    const directoryInfo = useDirectory(address),
-        [githubUser] = useGithubOAuth(),
-        isAdmin = isDirectoryAdmin(githubUser)
-    if (!isDirectoryAdmin) return null
-    let link, title
+    const directoryInfo = useDirectory(address)
+    const [githubUser] = useGithubOAuth()
+    if (!isDirectoryAdmin(githubUser))
+        return null
+    let link
+    let title
     if (!directoryInfo) {
         title = 'Add Directory metadata'
         link = `/directory/add?address=${address}`
@@ -29,10 +30,10 @@ function AccountDirectoryActionView({address}) {
 }
 
 export default function AccountView() {
-    let {id: address} = useParams(),
-        originalAddress = address,
-        isMuxed = address.indexOf('M') === 0 && StrKey.isValidMed25519PublicKey(address),
-        muxedId
+    let {id: address} = useParams()
+    let originalAddress = address
+    let isMuxed = address.indexOf('M') === 0 && StrKey.isValidMed25519PublicKey(address)
+    let muxedId
 
     if (isMuxed) {
         const parsed = parseMuxedAccount(originalAddress)
@@ -40,24 +41,27 @@ export default function AccountView() {
         muxedId = parsed.muxedId
     }
 
-    if (!StrKey.isValidEd25519PublicKey(address)) return <div className="account-view">
-        <h2 className="word-break condensed">{originalAddress}</h2>
-        <ErrorNotificationBlock>
-            Invalid Stellar account address. Make sure that you copied it correctly.
-        </ErrorNotificationBlock>
-    </div>
+    if (!StrKey.isValidEd25519PublicKey(address))
+        return <div className="account-view">
+            <h2 className="word-break condensed">{originalAddress}</h2>
+            <ErrorNotificationBlock>
+                Invalid Stellar account address. Make sure that you copied it correctly.
+            </ErrorNotificationBlock>
+        </div>
 
     const {loaded, data: accountInfo} = useCompositeAccountInfo(address, muxedId)
 
-    if (!loaded) return <div className="loader"/>
+    if (!loaded)
+        return <div className="loader"/>
 
-    if (accountInfo.nonExistentAccount) return <div className="account-view">
-        <h2 className="word-break condensed">{address}</h2>
-        <ErrorNotificationBlock>
-            Account does not exist on the network. Make sure that you copied account address correctly and there was at
-            least one payment to this address.
-        </ErrorNotificationBlock>
-    </div>
+    if (accountInfo.nonExistentAccount)
+        return <div className="account-view">
+            <h2 className="word-break condensed">{address}</h2>
+            <ErrorNotificationBlock>
+                Account does not exist on the network. Make sure that you copied account address correctly and there was at
+                least one payment to this address.
+            </ErrorNotificationBlock>
+        </div>
 
     if (accountInfo.error)
         throw accountInfo.error instanceof Error ? accountInfo.error : new Error(accountInfo.error)

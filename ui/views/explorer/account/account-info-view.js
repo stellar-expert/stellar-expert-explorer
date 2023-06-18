@@ -14,7 +14,7 @@ import AccountBalanceChart from './charts/account-balance-chart-view'
 import AccountHistoryTabs from './account-history-tabs-view'
 
 export default function AccountInfoView({account}) {
-    const [selectedAsset, setSelectedAsset] = useState()
+    const [selectedAsset, setSelectedAsset] = useState('XLM')
     if (!account) return <div className="loader"/>
     if (account.nonExistentAccount) return <ErrorNotificationBlock>
         The account does not exist on Stellar ledger.
@@ -22,11 +22,11 @@ export default function AccountInfoView({account}) {
     return <div>
         <div className="row space">
             <div className="column column-50">
-                <div className="card">
+                <div className="segment blank">
                     <h3>Summary
                         <EmbedWidgetTrigger path={`account/summary/${account.address}`} title="Account Summary"/>
                     </h3>
-                    <hr/>
+                    <hr className="flare"/>
                     <dl>
                         <AccountBasicPropertiesView account={account}/>
                     </dl>
@@ -36,17 +36,18 @@ export default function AccountInfoView({account}) {
                     <AccountSponsoredInfoView account={account}/>
                     <AccountClaimableBalancesSection address={account.address}/>
                 </div>
+                <div className="mobile-only space"/>
             </div>
             <div className="column column-50">
-                <div className="card">
+                <div className="segment blank">
                     <h3>
-                        Account Balance
+                        Account Balances
                         <EmbedWidgetTrigger path={`account/balances/${account.address}`} title="Current Account Balance"/>
                         <Info link="https://www.stellar.org/developers/guides/concepts/accounts.html#balance">
                             The number of lumens and other assets held by the account.
                         </Info>
                     </h3>
-                    <hr/>
+                    <hr className="flare"/>
                     <AccountCurrentBalancesView account={account} onSelectAsset={setSelectedAsset}/>
                     <div className="space">
                         <AccountBalanceChart account={account} externallySelectedAsset={selectedAsset}/>
@@ -55,7 +56,7 @@ export default function AccountInfoView({account}) {
             </div>
         </div>
         {account.ledgerData && account.ledgerData.home_domain &&
-            <TomlInfoView account={account.address} homeDomain={account.ledgerData.home_domain} className="card space"/>}
+            <TomlInfoView account={account.address} homeDomain={account.ledgerData.home_domain} className="space"/>}
         <AccountHistoryTabs account={account}/>
     </div>
 }

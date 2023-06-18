@@ -1,6 +1,6 @@
 import React from 'react'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
-import Chart from '../../../components/chart-view'
+import Chart from '../../../components/chart/chart'
 
 const defaultOptions = {
     chart: {
@@ -52,7 +52,7 @@ const defaultOptions = {
         hideDelay: 0,
         shared: true,
         padding: 4,
-        formatter: function () {
+        formatter () {
             return `<span style="font-size: 10px;white-space: nowrap">${formatWithAutoPrecision(this.y)} ${this.points[0].series.name}</span>`
         }
     },
@@ -85,18 +85,19 @@ function getSparkLineConfig(currency, sparklineData) {
         //no trades - render empty chart
         sparklineData = []
     }
-    return Object.assign({
+    return {
         series: [{
             type: 'spline',
             colorIndex: 1,
             name: currency,
             data: sparklineData
-        }]
-    }, defaultOptions)
+        }],
+        ...defaultOptions
+    }
 }
 
 export default function SparkLineChart({currency, sparklineData}) {
-    return <Chart title="" noPadding inline options={getSparkLineConfig(currency, sparklineData)} noLegend
+    return <Chart title="" inline options={getSparkLineConfig(currency, sparklineData)} noLegend
                   style={{margin: '-4px -4px', verticalAlign: 'middle'}}/>
 }
 

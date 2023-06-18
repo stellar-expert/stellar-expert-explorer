@@ -10,13 +10,13 @@ export default function LedgerDailyStatsView({title = '24h Ledger Statistics'}) 
         <h3>
             {title}<EmbedWidgetTrigger path="network-activity/24h" title="Stellar Network 24h Stats"/>
         </h3>
-        <hr/>
+        <hr className="flare"/>
         <dl>
             <dt>Total accounts:</dt>
             <dd><UpdateHighlighter><Amount amount={data.accounts}/></UpdateHighlighter></dd>
 
-            <dt>Daily active accounts:</dt>
-            <dd><UpdateHighlighter><Amount amount={data.daily_active_accounts}/></UpdateHighlighter></dd>
+            {/*<dt>Daily active accounts:</dt>
+            <dd><UpdateHighlighter><Amount amount={data.daily_active_accounts}/></UpdateHighlighter></dd>*/}
 
             <dt>Average ledger time:</dt>
             <dd><UpdateHighlighter>{data.avg_ledger_time}s</UpdateHighlighter></dd>

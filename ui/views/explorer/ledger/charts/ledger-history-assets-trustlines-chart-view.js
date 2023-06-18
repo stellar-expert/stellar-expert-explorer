@@ -1,11 +1,12 @@
 import React from 'react'
-import Chart from '../../../components/chart-view'
+import Chart from '../../../components/chart/chart'
 import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 import {useLedgerStats} from '../../../../business-logic/api/ledger-stats-api'
 
-export default function LedgerHistoryAssetsTrustlinesChartView({className, noTitle}) {
+export default Chart.withErrorBoundary(function LedgerHistoryAssetsTrustlinesChartView({className, noTitle}) {
     const {data = [], loaded} = useLedgerStats()
-    if (!loaded) return null
+    if (!loaded)
+        return <Chart.Loader/>
     const config = {
         yAxis: [{
             title: {
@@ -20,10 +21,10 @@ export default function LedgerHistoryAssetsTrustlinesChartView({className, noTit
         }],
         series: []
     }
-    const dataNewAssets = [],
-        dataTrustlines = [],
-        dataFundedTrustlines = []
-    for (let {ts, trustlines, funded_trustlines, new_assets,} of data) {
+    const dataNewAssets = []
+    const dataTrustlines = []
+    const dataFundedTrustlines = []
+    for (const {ts, trustlines, funded_trustlines, new_assets} of data) {
         const dt = ts * 1000
         dataNewAssets.push([dt, new_assets])
         dataTrustlines.push([dt, trustlines])
@@ -61,4 +62,4 @@ export default function LedgerHistoryAssetsTrustlinesChartView({className, noTit
         New Assets and Trustlines
         <EmbedWidgetTrigger path="network-activity/assets" title="Stellar Network Stats - New Assets and Trustlines"/>
     </>}/>
-}
+})

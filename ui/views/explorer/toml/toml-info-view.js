@@ -107,5 +107,5 @@ export default function TomlInfoView({homeDomain, account, assetMeta, className,
     }
     if (!tabs.length) return null
 
-    return <div id="toml-props"><Tabs tabs={tabs} className={className}/></div>
+    return <div id="toml-props"><Tabs right tabs={tabs} className={className}/></div>
 }

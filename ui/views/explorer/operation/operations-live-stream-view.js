@@ -2,8 +2,8 @@ import React from 'react'
 import {throttle} from 'throttle-debounce'
 import {ElapsedTime, loadOperations} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
-import {convertHorizonOperation} from './operation-horizon-converter'
 import {resolvePath} from '../../../business-logic/path'
+import {convertHorizonOperation} from './operation-horizon-converter'
 import OpTextDescriptionView from './operation-text-description-view'
 
 const maximum = 50
@@ -158,14 +158,13 @@ export default class OperationsLiveStreamView extends React.Component {
 
     render() {
         return <div className="container narrow">
-            <div className="card">
+            <h2>Operations Live Stream</h2>
+            <div className="segment blank">
                 <div className="column column-67">
-                    <h3>Operations Live Stream</h3>
-                    <hr/>
                 </div>
                 <div className="desktop-right dimmed">
                     <label>
-                        <input type="checkbox" checked={this.state.includeFailed}
+                        &nbsp;<input type="checkbox" checked={this.state.includeFailed}
                                onChange={e => this.toggleFailed()}/> Show failed transactions
                     </label>
                 </div>

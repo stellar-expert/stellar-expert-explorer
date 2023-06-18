@@ -1,7 +1,7 @@
 import React,{useState} from 'react'
 import {Tabs} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
-import OperationsView from '../operation/operations-history-view'
+import TxHistoryView from '../tx/tx-history-view'
 import TradesView from '../effect/trades-history-view'
 import LiquidityPoolHoldersListView from './liquidity-pool-holders-list-view'
 
@@ -10,7 +10,8 @@ export default function LiquidityPoolHistoryTabsView({id}) {
     const [operationsFilter, setOpFilter] = useState(query.filter || 'all')
 
     const operationsHistoryProps = {
-        endpoint: `liquidity-pool/${id}/history/${operationsFilter}`
+        endpoint: `liquidity-pool/${id}/history/${operationsFilter}`,
+        presetFilter: {pool: [id]}
     }
 
     function selectTab(tabName) {
@@ -21,34 +22,21 @@ export default function LiquidityPoolHistoryTabsView({id}) {
     const tabs = [
         {
             name: 'all',
-            title: 'All Operations',
+            title: 'History',
             isDefault: true,
-            render: () => <div>
-                <OperationsView {...operationsHistoryProps}/>
-            </div>
-        },
-        {
-            name: 'settings',
-            title: 'Deposits/Withdrawals',
-            render: () => <div>
-                <OperationsView {...operationsHistoryProps} filter="settings"/>
-            </div>
+            render: () => <TxHistoryView {...operationsHistoryProps}/>
         },
         {
             name: 'trades',
             title: 'Trades',
-            render: () => <div>
-                <TradesView {...operationsHistoryProps}/>
-            </div>
+            render: () => <TradesView {...operationsHistoryProps}/>
         },
         {
             name: 'asset-holders',
-            title: 'Asset Holders',
-            render: () => <div>
-                <LiquidityPoolHoldersListView pool={id}/>
-            </div>
+            title: 'Participants',
+            render: () => <LiquidityPoolHoldersListView pool={id}/>
         }
     ]
 
-    return <Tabs className="card space" tabs={tabs} selectedTab={operationsFilter} onChange={selectTab}/>
+    return <Tabs right className="space" tabs={tabs} selectedTab={operationsFilter} onChange={selectTab}/>
 }

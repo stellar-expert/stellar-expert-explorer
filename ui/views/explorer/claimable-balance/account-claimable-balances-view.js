@@ -11,9 +11,7 @@ import {
 } from '@stellar-expert/ui-framework'
 import AccountClaimableBalanceRowView from './account-claimable-balance-row-view'
 
-const limit = 40
-
-function useClaimableBalances(account) {
+function useClaimableBalances(account, limit) {
     const [response, setResponse] = useState([])
     useEffect(() => {
         initHorizon().claimableBalances()
@@ -55,15 +53,16 @@ function useClaimableBalances(account) {
 }
 
 export function AccountClaimableBalancesSection({address}) {
-    const cbResponse = useClaimableBalances(address)
-    if (!cbResponse.data?.length) return null
+    const cbResponse = useClaimableBalances(address, 10)
+    if (!cbResponse.data?.length)
+        return null
     const cbListLink = formatExplorerLink('account', address) + '/claimable-balances'
     return <div>
         <h4 style={{marginBottom: 0}}>Pending Claimable Balances</h4>
         <div className="text-small micro-space">
             {cbResponse.data.map(({id, ...props}) => <AccountClaimableBalanceRowView key={id} account={address} {...props}/>)}
-            {cbResponse.data.length === limit && <div className="micro-space">
-                <a href={cbListLink}>All claimable balances...</a>
+            {cbResponse.data.length === 10 && <div className="micro-space">
+                <a href={cbListLink}><i className="icon icon-open-new-window"/> All claimable balances</a>
             </div>}
         </div>
     </div>
@@ -71,14 +70,12 @@ export function AccountClaimableBalancesSection({address}) {
 
 export default function AccountClaimableBalancesView() {
     const {id: address} = useParams()
-    const cbResponse = useClaimableBalances(address)
+    const cbResponse = useClaimableBalances(address, 40)
     if (!cbResponse.data)
         return <div className="loader"/>
     return <>
-        <h2 style={{marginBottom: 0}}>Claimable balances</h2>
-        <div className="card space">
-            <h3 style={{marginBottom: 0}}>Pending claimable balances for account <AccountAddress account={address}/></h3>
-            <hr/>
+        <h2>Pending claimable balances for account <AccountAddress account={address}/></h2>
+        <div className="segment blank">
             <div className="micro-space">
                 {cbResponse.data.map(({id, ...props}) => <AccountClaimableBalanceRowView key={id} account={address} {...props}/>)}
             </div>

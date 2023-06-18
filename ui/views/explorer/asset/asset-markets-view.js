@@ -1,15 +1,15 @@
 import React from 'react'
-import {useDependantState} from '@stellar-expert/ui-framework'
+import {Dropdown, useDependantState} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {navigation} from '@stellar-expert/navigation'
 import {resolvePath} from '../../../business-logic/path'
 import {apiCall} from '../../../models/api'
-import Dropdown from '../../components/dropdown'
 import OrderbookDetails from '../market/orderbook-details-view'
 import MarketTrades from '../market/market-trades-view'
 
 export default function AssetMarketsView({asset}) {
-    if (!asset) return null
+    if (!asset)
+        return null
     const assetId = asset.descriptor.toString()
 
     const [selectedMarket, setSelectedMarket] = useDependantState(() => navigation.query.market || null, [assetId])
@@ -52,10 +52,10 @@ export default function AssetMarketsView({asset}) {
         tradingPairs.push({value: 'all', title: `All ${asset.descriptor.toCurrency()} markets`})
     }
 
-    const baseMarket = AssetDescriptor.parse(assetId),
-        counterAsset = AssetDescriptor.parse(selectedMarket)
+    const baseMarket = AssetDescriptor.parse(assetId)
+    const counterAsset = AssetDescriptor.parse(selectedMarket)
 
-    return <div style={{minHeight: '4em'}}>
+    return <div className="segment blank space" style={{minHeight: '4em'}}>
         <div className="row">
             <div className="column column-50">
                 <div style={{float: 'left'}} className="text-small">

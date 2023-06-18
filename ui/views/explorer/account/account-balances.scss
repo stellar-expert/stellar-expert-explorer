@@ -4,29 +4,22 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: center;
   width: 100%;
-  margin-bottom: $space-standard;
-  margin-left: -$space-micro;
-  margin-right: -$space-micro;
-
-  & > div {
-    flex: 0 0 33%;
-    width: 100%;
-    max-width: 33%;
-    display: block;
-    margin-left: 0;
-    padding: 0 1rem;
-  }
+  max-height: 21.5em;
+  overflow-y: auto;
 
   .account-balance {
     display: block;
-    width: 100%;
+    padding: $space-micro 0 0.8*$space-micro;
+    margin: 0.2em;
+    font-size: 1.15em;
+    flex: 0 0 31%;
+    max-width: 31%;
+    height: 5.8em;
     background: var(--color-highlight);
     color: var(--color-bg);
-    padding: $space-micro 0 0.8*$space-micro;
-    margin-top: $space-standard;
     text-align: center;
-    font-size: 1.15em;
 
     *, *:hover {
       color: var(--color-bg);
@@ -40,13 +33,10 @@
   @media (max-width: $responsive-mobile-browser-width) {
     margin-left: 0;
     margin-right: 0;
-    & > div {
-      flex: 0 0 100%;
-      max-width: 100%;
-      padding: 0;
-    }
     .account-balance {
       margin-top: $space-micro;
+      flex: 0 0 100%;
+      max-width: 100%;
     }
   }
 }

@@ -4,14 +4,9 @@ import {Switch, Router, Route, Redirect} from 'react-router'
 import Layout from './layout/layout-view'
 import TopMenu from './layout/top-menu-view'
 import Loadable from './components/loadable'
-//import Home from './pages/home-page-view'
 
 import NotFoundView from './pages/not-found-page-view'
 
-//<Route path="/anchor/:network" component={loadable(() =>
-//   import(/* webpackChunkName: "anchor" */ './anchor/anchor-router'))}/>
-//<Route path="/terms" component={loadable(() =>
-//   import(/* webpackChunkName: "legal" */ './terms/legal-router'))}/>
 
 export default function AppRouter({history}) {
     return <Router history={history}>
@@ -53,14 +48,6 @@ export default function AppRouter({history}) {
                         <Route path="/blog">
                             <Loadable moduleKey="blog" load={() => import(/* webpackChunkName: "blog" */ './blog/blog-router')}/>
                         </Route>
-                        {/*info/graph*/}
-                        <Route path="/graph/:network">
-                            <Loadable moduleKey="graph" load={() => import(/* webpackChunkName: "graph" */ './graph/graph-router')}/>
-                        </Route>
-                        {/*info/contacts*/}
-                        <Route path="/info">
-                            <Loadable moduleKey="info" load={() => import(/* webpackChunkName: "info" */ './info/info-router')}/>
-                        </Route>
                         {/*not found*/}
                         <Route component={NotFoundView}/>
                     </Switch>
@@ -69,6 +56,11 @@ export default function AppRouter({history}) {
         </Switch>
     </Router>
 }
+
+//<Route path="/terms" component={loadable(() =>
+//   import(/* webpackChunkName: "legal" */ './terms/legal-router'))}/>
+/*<Route path="/info">
+    <Loadable moduleKey="info" load={() => import(/!* webpackChunkName: "info" *!/ './info/info-router')}/></Route>*/
 
 AppRouter.propTypes = {
     history: PropTypes.object.isRequired

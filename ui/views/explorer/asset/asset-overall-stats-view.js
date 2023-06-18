@@ -1,13 +1,12 @@
 import React from 'react'
-import {Amount, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
+import {Amount, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import {useAssetOverallStats} from '../../../business-logic/api/asset-api'
 import {use24hLedgerStats} from '../../../business-logic/api/ledger-stats-api'
 
 export default function AssetsOverallStatsView() {
-    const {data: assetStats, loaded: assetStatsLoaded} = useAssetOverallStats(),
-        {data: ledgerStats, loaded: ledgerStatsLoaded} = use24hLedgerStats()
-    const xlmStats = useExplorerApi('asset/XLM?history=false', {ttl: 60})
+    const {data: assetStats, loaded: assetStatsLoaded} = useAssetOverallStats()
+    const {data: ledgerStats, loaded: ledgerStatsLoaded} = use24hLedgerStats()
     return <dl>
         {assetStatsLoaded ? <>
             <dt>Unique assets:</dt>

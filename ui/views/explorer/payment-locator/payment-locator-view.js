@@ -98,35 +98,38 @@ function PaymentLocatorView() {
         </div>
     }
 
-    return <div className="payment-locator">
+    return <>
         <h3>Search for Payments</h3>
-        <form action="#" onSubmit={e => search(e)}>
-            <div className="row">
-                <div className="column column-50">
-                    <PaymentLocatorField name="account" label="Account"
-                                         placeholder="source or destination account address"/>
-                    <PaymentLocatorField name="memo" label="Transaction memo"
-                                         placeholder="memo text if any, for example, 1D65Z50P"/>
+        <hr className="flare"/>
+        <div className="payment-locator space">
+            <form action="#" onSubmit={e => search(e)}>
+                <div className="row">
+                    <div className="column column-50">
+                        <PaymentLocatorField name="account" label="Account"
+                                             placeholder="source or destination account address"/>
+                        <PaymentLocatorField name="memo" label="Transaction memo"
+                                             placeholder="memo text if any, for example, 1D65Z50P"/>
+                    </div>
+                    <div className="column column-50">
+                        <PaymentLocatorField name="amount" label="Payment amount"
+                                             placeholder="for example, 123.15"/>
+                        <PaymentLocatorField name="asset" label="Asset"
+                                             placeholder="CODE-ISSUER format, leave blank for XLM"/>
+                    </div>
                 </div>
-                <div className="column column-50">
-                    <PaymentLocatorField name="amount" label="Payment amount"
-                                         placeholder="for example, 123.15"/>
-                    <PaymentLocatorField name="asset" label="Asset"
-                                         placeholder="CODE-ISSUER format, leave blank for XLM"/>
-                </div>
-            </div>
 
-            {!!validationError && <div className="error">Error: {validationError}</div>}
-            <div className="space row">
-                <div className="column column-25 column-offset-75">
-                    <Button block disabled={results.loading}>Search</Button>
+                {!!validationError && <div className="error">Error: {validationError}</div>}
+                <div className="space row">
+                    <div className="column column-25 column-offset-75">
+                        <Button block disabled={results.loading}>Search</Button>
+                    </div>
                 </div>
+            </form>
+            <div className="space">
+                <PaymentLocatorResultsView payments={results}/>
             </div>
-        </form>
-        <div className="space">
-            <PaymentLocatorResultsView payments={results}/>
         </div>
-    </div>
+    </>
 }
 
 export default PaymentLocatorView

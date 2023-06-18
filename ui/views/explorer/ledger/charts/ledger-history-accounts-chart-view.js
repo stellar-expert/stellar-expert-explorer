@@ -1,31 +1,32 @@
 import React from 'react'
-import Chart from '../../../components/chart-view'
+import Chart from '../../../components/chart/chart'
 import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 import {useLedgerStats} from '../../../../business-logic/api/ledger-stats-api'
 
-export default function LedgerHistoryAccountsChartView({noTitle, className}) {
+export default Chart.withErrorBoundary(function LedgerHistoryAccountsChartView({noTitle, className}) {
     const {data = [], loaded} = useLedgerStats()
-    if (!loaded) return null
+    if (!loaded)
+        return <Chart.Loader/>
     const config = {
         yAxis: [{
             title: {
                 text: 'Total Existing Accounts'
             },
             opposite: false
-        }, {
+        }],/*, {
             title: {
                 text: 'Daily Active Accounts'
             },
             opposite: true
-        }],
+        }],*/
         series: []
     }
-    const dataAccounts = [],
-        dataActiveAccounts = []
-    for (let {ts, daily_active_accounts, accounts} of data) {
+    const dataAccounts = []
+    //const dataActiveAccounts = []
+    for (const {ts, daily_active_accounts, accounts} of data) {
         const dt = ts * 1000
         dataAccounts.push([dt, accounts])
-        dataActiveAccounts.push([dt, daily_active_accounts])
+        //dataActiveAccounts.push([dt, daily_active_accounts])
     }
 
     config.series.push({
@@ -36,7 +37,7 @@ export default function LedgerHistoryAccountsChartView({noTitle, className}) {
             approximation: 'close'
         }
     })
-    config.series.push({
+    /*config.series.push({
         type: 'spline',
         name: 'Daily Active Accounts',
         yAxis: 1,
@@ -44,9 +45,9 @@ export default function LedgerHistoryAccountsChartView({noTitle, className}) {
         dataGrouping: {
             approximation: 'high'
         }
-    })
+    })*/
     return <Chart type="StockChart" options={config} className={className} grouped range title={noTitle ? null : <>
         Accounts
         <EmbedWidgetTrigger path="network-activity/accounts" title="Stellar Network Stats - Accounts"/>
     </>}/>
-}
+})

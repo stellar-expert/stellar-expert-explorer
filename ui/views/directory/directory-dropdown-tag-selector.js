@@ -1,14 +1,14 @@
-import React from 'react'
+import React, {useCallback} from 'react'
 import PropTypes from 'prop-types'
-import DropdownMenu from '../components/dropdown-menu'
+import {Dropdown} from '@stellar-expert/ui-framework'
 import './directory-tags.scss'
 
 export default function DirectoryDropdownTagSelector({available, selected = [], onChange, disabled}) {
-    function addTag(value) {
+    const addTag = useCallback(function (value) {
         if (!selected.includes(value)) {
             onChange([...selected, value])
         }
-    }
+    }, [onChange, selected])
 
     function removeTag(value) {
         if (selected.includes(value)) {
@@ -18,18 +18,18 @@ export default function DirectoryDropdownTagSelector({available, selected = [], 
         }
     }
 
+    const options = available.filter(t => !selected.includes(t.name)).map(tag => ({
+        title: <>#{tag.name} <span className="dimmed text-small condensed">{tag.description}</span></>,
+        value: tag.name
+    }))
+
     return <div className="tag-selector-dropdown">
         {selected.map(tag => <span key={tag} className="selected-tag nowrap" style={{cursor: 'pointer'}}
                                    title={available.find(t => t.name === tag)?.description}>
             #{tag}<a href="#" className="icon icon-cancel" onClick={() => removeTag(tag)}/>
         </span>)}
         {!selected.length && <span className="dimmed">[no tags selected]</span>}{' '}
-        <DropdownMenu title="Add..." onClick={tag => addTag(tag)} disabled={disabled}>
-            {available.filter(t => !selected.includes(t.name)).map(tag => ({
-                title: <>#{tag.name} <span className="dimmed text-small condensed">{tag.description}</span></>,
-                value: tag.name
-            }))}
-        </DropdownMenu>
+        <Dropdown onChange={addTag} disabled={disabled} title="Add..." options={options}/>
     </div>
 }
 

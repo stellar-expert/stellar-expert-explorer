@@ -1,7 +1,7 @@
 import React from 'react'
 import {Switch, Route, Redirect} from 'react-router'
-import Directory from './directory-view'
 import NotFoundView from '../pages/not-found-page-view'
+import Directory from './directory-view'
 import DirectoryAddEntry from './directory-add-new-entry-view'
 import DirectoryEditEntry from './directory-edit-existing-entry-view'
 import DirectoryCreateIncidentView from './directory-create-incident-view'

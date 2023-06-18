@@ -1,9 +1,20 @@
 import React, {useState} from 'react'
+import {Dropdown} from '@stellar-expert/ui-framework'
 import NetworkSwitchView from './network-switch-view'
 import SearchBoxView from '../explorer/search/search-box-view'
-import DropdownMenu from '../components/dropdown-menu'
 import LoginStatus from '../components/login-status'
 import {resolvePath} from '../../business-logic/path'
+
+const services = [
+    {title: 'Accounts Directory', href: resolvePath('', 'directory')},
+    {title: 'Domains BlockList', href: resolvePath('', 'directory/blocked-domains')},
+    {title: 'Payment Locator', href: resolvePath('payment-locator')},
+    {title: 'Operations Live Stream', href: resolvePath('operations-live-stream')},
+    {title: 'Account Demolisher', href: resolvePath('', 'demolisher')},
+    {title: 'Tax Data Export', href: resolvePath('', 'tax-export')},
+    {title: 'Protocol Versions History', href: resolvePath('protocol-history')}
+//{title: 'Account Demolisher', href: resolvePath('', 'demolisher')}
+]
 
 export default function TopMenuView() {
     const [menuVisible, setMenuVisible] = useState(false)
@@ -22,18 +33,7 @@ export default function TopMenuView() {
                     <a href={resolvePath('market')}>Markets</a>
                     <a href={resolvePath('liquidity-pool')}>Liquidity Pools</a>
                     <a href={resolvePath('network-activity')}>Network Stats</a>
-                    <DropdownMenu title="Services" className="desktop-only">
-                        {[
-                            {title: 'Accounts Directory', href: resolvePath('', 'directory')},
-                            {title: 'Domains BlockList', href: resolvePath('', 'directory/blocked-domains')},
-                            {title: 'Payment Locator', href: resolvePath('payment-locator')},
-                            {title: 'Operations Live Stream', href: resolvePath('operations-live-stream')},
-                            {title: 'Account Demolisher', href: resolvePath('', 'demolisher')},
-                            {title: 'Tax Data Export', href: resolvePath('', 'tax-export')},
-                            {title: 'Protocol Versions History', href: resolvePath('protocol-history')}
-                            //{title: 'Account Demolisher', href: resolvePath('', 'demolisher')}
-                        ]}
-                    </DropdownMenu>
+                    <Dropdown title="Services" className="desktop-only" options={services}/>
                     <a href="/blog">Blog</a>
                     <hr className="mobile-only"/>
                     <a href={resolvePath('', 'directory')} className="mobile-only">Accounts Directory</a>

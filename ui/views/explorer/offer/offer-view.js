@@ -9,11 +9,11 @@ import OfferHistoryTabsView from './offer-history-tabs-view'
 
 function OfferDetailsView({offer}) {
     if (!offer) return <div className="loader"/>
-    if (offer.nonExistentOffer) return <h3 className="text-center">Offer {offer.id} does not exist</h3>
+    if (offer.nonExistentOffer) return <h3>Offer {offer.id} does not exist</h3>
     return <>
-        <div className="card">
+        <div className="segment blank">
             <h3>Summary</h3>
-            <hr/>
+            <hr className="flare"/>
             <div className="row">
                 <div className="column column-50">
                     <dl>
@@ -60,10 +60,11 @@ function OfferDetailsView({offer}) {
 }
 
 export default function OfferView() {
-    const {params} = useRouteMatch(),
-        {id: offerId} = params,
-        {data: offer, loaded} = useDexOffer(offerId)
-    if (!loaded) return <div className="loader"/>
+    const {params} = useRouteMatch()
+    const {id: offerId} = params
+    const {data: offer, loaded} = useDexOffer(offerId)
+    if (!loaded)
+        return <div className="loader"/>
 
     setPageMetadata({
         title: `Offer ${offerId} on Stellar ${appSettings.activeNetwork} network DEX`,
@@ -72,7 +73,6 @@ export default function OfferView() {
 
     return <div className="offer-view">
         <h2><span className="dimmed">DEX offer</span> {offerId}</h2>
-
         <OfferDetailsView offer={offer}/>
     </div>
 }
