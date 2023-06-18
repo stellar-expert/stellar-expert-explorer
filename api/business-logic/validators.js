@@ -1,11 +1,12 @@
-const {StrKey} = require('stellar-sdk'),
-    {Long} = require('bson'),
-    errors = require('./errors'),
-    {networks} = require('../app.config')
+const {StrKey} = require('stellar-sdk')
+const {Long} = require('bson')
+const {networks} = require('../app.config')
+const errors = require('./errors')
 
 function validateNetwork(networkName) {
     //TODO: move this check to registerRoute() func
-    if (networks[networkName] === undefined) throw errors.validationError('network', `Unknown network name: "${networkName}".`)
+    if (networks[networkName] === undefined)
+        throw errors.validationError('network', `Unknown network name: "${networkName}".`)
     return networkName
 }
 
@@ -31,15 +32,16 @@ function validateAccountAddress(account) {
     return account
 }
 
-function validateOfferId(offerId) {
+function validateOfferId(offerId, paramName = 'offerId') {
+    let parsed
     try {
-        const parsed = Long.fromString(offerId)
-        if (parsed.isNegative())
-            throw new Error('Negative offer id')
-        return parsed
+        parsed = Long.fromString(offerId)
     } catch (e) {
-        throw errors.validationError('offerId', 'Invalid offer id.')
+        throw errors.validationError(paramName, 'Invalid offer id.')
     }
+    if (parsed.isNegative())
+        throw errors.validationError(paramName, 'Negative offer id.')
+    return parsed
 }
 
 function validatePoolId(poolId) {

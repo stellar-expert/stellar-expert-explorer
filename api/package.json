@@ -1,7 +1,7 @@
 {
   "name": "api.stellar.expert",
   "private": true,
-  "version": "0.22.3",
+  "version": "0.23.0",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "api.js",
@@ -13,18 +13,18 @@
     "url": "https://github.com/orbitlens/stellar-expert.git"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^8.7.0",
     "@stellar-expert/api-billing-connector": "github:stellar-expert/api-billing-connector#v1.1.0",
-    "bignumber.js": "^4.0.0",
-    "body-parser": "^1.19.0",
-    "bson": "^1.1.6",
+    "bignumber.js": "^4.1.0",
+    "body-parser": "^1.20.2",
+    "bson": "^5.3.0",
     "cors": "^2.8.5",
-    "dayjs": "^1.8.25",
     "express": "^4.17.1",
-    "lru-cache": "^5.1.1",
-    "mongodb": "^3.7.2",
+    "lru-cache": "^9.1.1",
+    "mongodb": "^5.5.0",
     "morgan": "^1.10.0",
-    "simple-git": "^3.7.1",
-    "stellar-sdk": "^10.1.2"
+    "simple-git": "^3.18.0",
+    "stellar-sdk": "^10.4.1"
   },
   "devDependencies": {
     "@stellar-expert/eslint-config-js": "github:stellar-expert/eslint-config-js"

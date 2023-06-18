@@ -1,4 +1,5 @@
 const cors = require('cors')
+const {Long} = require('mongodb')
 const {corsWhitelist} = require('../app.config')
 const apiCache = require('./api-cache')
 const billing = require('./billing')
@@ -33,13 +34,8 @@ function processResponse(res, promise, headers, prettyPrint = false) {
                     return
                 }
             }
-            if (prettyPrint) { //pretty-print result (tabs)
-                res.set({'content-type': 'application/json'})
-                res.send(JSON.stringify(data, null, '  '))
-            } else {
-                //send optimized json
-                res.json(data)
-            }
+            res.set({'content-type': 'application/json'})
+            res.send(JSON.stringify(data, responseReplacer, prettyPrint ? '  ' : undefined))
         })
         .catch(err => {
             if (err.isBlockedByCors) return res.status(403).json({error: err.text, status: 403})
@@ -50,6 +46,11 @@ function processResponse(res, promise, headers, prettyPrint = false) {
         })
 }
 
+function responseReplacer(key, value) {
+    if (typeof value === 'bigint' || value instanceof Long)
+        return value.toString()
+    return value
+}
 
 module.exports = {
     /**

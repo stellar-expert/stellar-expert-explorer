@@ -1,9 +1,9 @@
-const db = require('../../connectors/mongodb-connector'),
-    QueryBuilder = require('../query-builder'),
-    {resolveAccountId} = require('./account-resolver'),
-    {AssetJSONResolver} = require('../asset/asset-resolver'),
-    {validateNetwork, validateAccountAddress} = require('../validators'),
-    errors = require('../errors')
+const {Long} = require('mongodb')
+const db = require('../../connectors/mongodb-connector')
+const errors = require('../errors')
+const {AssetJSONResolver} = require('../asset/asset-resolver')
+const {validateNetwork, validateAccountAddress} = require('../validators')
+const {resolveAccountId} = require('./account-resolver')
 
 async function queryAccountStatsHistory(network, accountAddress) {
     validateNetwork(network)
@@ -15,26 +15,23 @@ async function queryAccountStatsHistory(network, accountAddress) {
     if (!accountId)
         throw errors.notFound('Account was not found on the ledger. Check if you specified account address key correctly.')
 
-
-    const q = new QueryBuilder()
-        .forAccount(accountId)
-
     const history = await db[network].collection('account_history')
-        .find(q.query)
-        .sort({ts: 1})
+        .find({
+            _id: {
+                $gte: new Long(0, accountId),
+                $lt: new Long(0, accountId + 1)
+            }
+        })
+        .sort({_id: 1})
         .toArray()
 
     if (!history.length)
         throw errors.notFound('Account statistics were not found on the ledger. Check if you specified the public key correctly.')
 
-    const res = history.map(({_id, payments, trades, balances, deleted}) => ({
-        ts: _id.getHighBits(),
+    const res = history.map(({_id, payments, trades, deleted}) => ({
+        ts: _id.low,
         payments,
         trades,
-        balances: Object.keys(balances).map(key => ({
-            asset: assetResolver.resolve(parseInt(key)),
-            balance: balances[key].toString()
-        })),
         deleted: deleted ? true : undefined
     }))
 

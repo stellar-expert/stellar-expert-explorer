@@ -42,6 +42,9 @@ const OHLCVT = {
  * @return {Promise<[][]>}
  */
 async function aggregateOhlcvt({network, collection, order, fromId, toId, resolution, reverse}) {
+    if (resolution >= 14400) {
+        collection += '4h' //switch to hi-res collection with larger timeframes
+    }
     let data = await db[network].collection(collection).aggregate(
         [
             {
@@ -109,7 +112,7 @@ function reverseRecordSides(record) {
 function optimizeResolution(from, to, originalResolution) {
     const span = to - from
     if (originalResolution && originalResolution !== 'auto') {
-        originalResolution = parseInt(originalResolution)
+        originalResolution = parseInt(originalResolution, 10)
         if (standardResolutions.includes(originalResolution)) {
             if (span / originalResolution <= 200)
                 return originalResolution
@@ -118,7 +121,7 @@ function optimizeResolution(from, to, originalResolution) {
         }
     }
     const optimal = span / 200
-    let res = standardResolutions.find(v => v >= optimal)
+    const res = standardResolutions.find(v => v >= optimal)
     return res || standardResolutions[standardResolutions.length - 1]
 }
 
@@ -130,8 +133,8 @@ function optimizeResolution(from, to, originalResolution) {
  * @return {{from: Number, to: Number, order: Number, resolution: Number}}
  */
 function parseBoundaries({from = 0, to = maxUnixTime, resolution = 'auto', order}) {
-    from = parseInt(from)
-    to = parseInt(to)
+    from = parseInt(from, 10)
+    to = parseInt(to, 10)
     if (isNaN(from) || from < 0 || from > maxUnixTime)
         throw errors.validationError('from')
     if (isNaN(to) || to < 0 || to > 2147483647)

@@ -1,8 +1,8 @@
-const LRU = require('lru-cache'),
-    config = require('../app.config'),
-    {timeUnits} = require('../utils/date-utils')
+const {LRUCache} = require('lru-cache')
+const config = require('../app.config')
+const {timeUnits} = require('../utils/date-utils')
 
-// list of headers that should never be cached
+//list of headers that should never be cached
 const headerBlacklist = ['access-control-allow-origin']
 
 function formatKey(req, res) {
@@ -28,7 +28,7 @@ function makeResponseCacheable(cacheInstance, req, res, next, key, duration, tog
     }
 
     res.writeHead = function () {
-        // add cache control headers
+        //add cache control headers
         if (shouldCacheResponse(req, res, toggle)) {
             res.header('cache-control', 'max-age=' + (duration / timeUnits.second).toFixed(0))
         } else {
@@ -39,13 +39,13 @@ function makeResponseCacheable(cacheInstance, req, res, next, key, duration, tog
         return res._apicache.writeHead.apply(this, arguments)
     }
 
-    // patch res.write
+    //patch res.write
     res.write = function (content) {
         accumulateContent(res, content)
         return res._apicache.write.apply(this, arguments)
     }
 
-    // patch res.end
+    //patch res.end
     res.end = function (content, encoding) {
         if (shouldCacheResponse(req, res, toggle)) {
             accumulateContent(res, content)
@@ -68,21 +68,22 @@ function makeResponseCacheable(cacheInstance, req, res, next, key, duration, tog
 }
 
 function sendCachedResponse(request, response, cacheObject, toggle) {
-    if (toggle && !toggle(request, response)) return false
+    if (toggle && !toggle(request, response))
+        return false
 
     const headers = (typeof response.getHeaders === 'function') ? response.getHeaders() : response._headers
 
     Object.assign(headers, cacheObject.headers)
 
-    // unstringify buffers
+    //unstringify buffers
     let data = cacheObject.data
     if (data && data.type === 'Buffer') {
         data = new Buffer(data.data)
     }
 
-    // test Etag against If-None-Match for 304
-    const cachedEtag = cacheObject.headers.etag,
-        requestEtag = request.headers['if-none-match']
+    //test Etag against If-None-Match for 304
+    const cachedEtag = cacheObject.headers.etag
+    const requestEtag = request.headers['if-none-match']
 
     if (requestEtag && cachedEtag === requestEtag) {
         response.writeHead(304, headers)
@@ -96,7 +97,7 @@ function sendCachedResponse(request, response, cacheObject, toggle) {
 
 function accumulateContent(res, content) {
     if (content) {
-        if (typeof(content) === 'string') {
+        if (typeof (content) === 'string') {
             res._apicache.content = (res._apicache.content || '') + content
         } else if (Buffer.isBuffer(content)) {
             let oldContent = res._apicache.content
@@ -117,8 +118,10 @@ function accumulateContent(res, content) {
 }
 
 function shouldCacheResponse(request, response, toggle) {
-    if (!response) return false
-    if (toggle && !toggle(request, response)) return false
+    if (!response)
+        return false
+    if (toggle && !toggle(request, response))
+        return false
 
     /*var opt = globalOptions
     var codes = opt.statusCodes*/
@@ -137,9 +140,9 @@ class ApiCache {
 
     createBucket(group, size, maxAge) {
         maxAge = this.getDuration(maxAge)
-        const cacheInstance = this.cacheGroups[group] = new LRU({
+        const cacheInstance = this.cacheGroups[group] = new LRUCache({
             max: size,
-            maxAge: maxAge
+            ttl: maxAge
         })
         cacheInstance.maxAge = maxAge
         this.stats[group] = {
@@ -152,25 +155,26 @@ class ApiCache {
         if (group) {
             this.cacheGroups[group].reset()
         } else {
-            for (let cacheGroup of Object.values(this.cacheGroups)) {
+            for (const cacheGroup of Object.values(this.cacheGroups)) {
                 cacheGroup.reset()
             }
         }
     }
 
     getDuration(duration, defaultDuration) {
-        if (typeof duration === 'number') return duration
+        if (typeof duration === 'number')
+            return duration
 
         if (typeof duration === 'string') {
-            let [match, len, unit] = duration.match(/^([\d\.,]+)\s?(\w+)$/)
+            let [match, value, unit] = duration.match(/^([\d.,]+)\s?(\w+)$/)
 
             if (unit) {
-                len = parseFloat(len)
+                value = parseFloat(value)
                 unit = unit.replace(/s$/i, '').toLowerCase()
                 if (unit === 'm') {
                     unit = 'ms'
                 }
-                return (len || 1) * (timeUnits[unit] || 0)
+                return (value || 1) * (timeUnits[unit] || 0)
             }
         }
 
@@ -181,29 +185,29 @@ class ApiCache {
      * Middleware
      * @param {string} group - cache group
      * @param {string|number} [duration] - custom cache duration (only if default group settings are not applicable)
-     * @param {function} [middlewareToggle]
+     * @param {function} [middlewareToggle] - optional custom function that can be called to determine whether the response should be cached or not
      * @returns {function}
      */
     cache(group, duration, middlewareToggle) {
-        const cacheInstance = this.cacheGroups[group],
-            stat = this.stats[group]
+        const cacheInstance = this.cacheGroups[group]
+        const stat = this.stats[group]
         duration = this.getDuration(duration, cacheInstance.maxAge)
 
         return function (req, res, next) {
-            // initial bypass chances
+            //initial bypass chances
             if (config.apiCacheDisabled || req.headers['x-apicache-bypass'] || req.headers['x-apicache-force-fetch']) {
                 return next()
             }
 
-            // embed timer
+            //embed timer
             req.apicacheTimer = new Date()
 
-            let key = formatKey(req, res)
+            const key = formatKey(req, res)
 
-            // attempt cache hit
-            let cached = cacheInstance.get(key)
+            //attempt cache hit
+            const cached = cacheInstance.get(key)
 
-            // send if cache hit from memory-cache
+            //send if cache hit from memory-cache
             if (cached) {
                 const sent = sendCachedResponse(req, res, cached, middlewareToggle)
                 stat.hit++

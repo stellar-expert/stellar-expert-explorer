@@ -1,43 +1,42 @@
-const db = require('../../connectors/mongodb-connector'),
-    QueryBuilder = require('../query-builder'),
-    {AssetJSONResolver} = require('../asset/asset-resolver'),
-    {validateNetwork, validateAccountAddress} = require('../validators'),
-    errors = require('../errors')
+const db = require('../../connectors/mongodb-connector')
+const {resolveAssetId} = require('../asset/asset-resolver')
+const {validateNetwork, validateAccountAddress, validateAssetName} = require('../validators')
+const {encodeBsonId, decodeBsonIdPart} = require('../../utils/bson-id-encoder')
+const errors = require('../errors')
 
-async function queryAccountBalanceHistory(network, accountAddress) {
+async function queryAccountBalanceHistory(network, accountAddress, asset) {
     validateNetwork(network)
     validateAccountAddress(accountAddress)
+    validateAssetName(asset)
 
     const account = await db[network]
         .collection('accounts')
-        .findOne({address: accountAddress})
+        .findOne({address: accountAddress}, {projection: {_id: 1}})
     if (!account)
         throw errors.notFound('Account was not found on the ledger. Check if you specified account address key correctly.')
 
-    const assetResolver = new AssetJSONResolver(network)
+    const assetId = await resolveAssetId(network, asset)
 
-    const q = new QueryBuilder()
-        .forAccount(account._id)
+    const from = encodeBsonId(account._id, assetId, 0)
+    const to = encodeBsonId(account._id, assetId + 1, 0)
 
-    const history = await db[network].collection('account_history')
-        .find(q.query)
-        .sort({_id: 1})
-        .project({balances: 1})
+    const history = await db[network].collection('trustlines_history')
+        .find({_id: {$gt: from, $lt: to}})
+        .sort({_id: -1})
+        .project({balance: 1, max: 1})
         .toArray()
 
     if (!history.length)
-        throw errors.notFound('Account statistics were not found on the ledger. Check if you specified the public key correctly.')
+        throw errors.notFound('Account balance history was not found on the ledger. Check if you specified account address and asset identifier correctly.')
 
-    const res = history.map(({_id, balances}) => ({
-        ts: _id.getHighBits(),
-        balances: Object.keys(balances).map(key => ({
-            asset: assetResolver.resolve(parseInt(key)),
-            balance: balances[key].toString()
-        }))
-    }))
-
-    await assetResolver.fetchAll()
+    const res = history.map((r, i) => prepareRecord(r, i === 0))
     return res
+}
+
+function prepareRecord({_id, balance, max}, lastValue) {
+    const ts = decodeBsonIdPart(_id, 2)
+    const value = !lastValue ? (max || balance) : (balance || max)
+    return [ts, value.toString()]
 }
 
 module.exports = {queryAccountBalanceHistory}

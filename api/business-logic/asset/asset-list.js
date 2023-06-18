@@ -43,8 +43,8 @@ const projection = {
     tomlInfo: 1
 }
 
-async function mapAssetProps(assets, network) {
-        return assets.map(({
+function mapAssetProps(assets, network) {
+    return assets.map(({
                            _id,
                            supply,
                            name,
@@ -107,8 +107,8 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
 
 
     search = (search || '').trim() //cleanup spaces
-    let assets,
-        isTextSearch = false
+    let assets
+    let isTextSearch = false
     if (search) {
         //check whether search is an account address
         if (isValidAccountAddress(search)) {
@@ -118,8 +118,8 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
             q.addQueryFilter({issuer})
         } else {
             //check if it's a search by features
-            const asFeatureName = search.toUpperCase(),
-                supportedFeature = supportedFeaturesSearch.find(f => f.terms.includes(asFeatureName))
+            const asFeatureName = search.toUpperCase()
+            const supportedFeature = supportedFeaturesSearch.find(f => f.terms.includes(asFeatureName))
             if (supportedFeature) {
                 q.addQueryFilter({features: supportedFeature.filter})
 
@@ -150,7 +150,7 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
             .toArray()
     }
 
-    assets = await mapAssetProps(assets, network)
+    assets = mapAssetProps(assets, network)
 
     addPagingToken(assets, q.skip)
 
@@ -182,7 +182,7 @@ async function queryAllAssetsByCreatedDate(network, basePath, cursor, limit, ord
     for (const a of assets) {
         a.paging_token = a._id
     }
-    assets = await mapAssetProps(assets, network)
+    assets = mapAssetProps(assets, network)
 
     return preparePagedData(basePath, {sort: 'created', order, cursor: q.skip, limit: q.limit}, assets)
 }

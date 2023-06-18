@@ -4,7 +4,6 @@ const {queryAccountStatsHistory} = require('../../business-logic/account/account
 const {queryAllAccounts} = require('../../business-logic/account/account-list')
 const {queryAccountBalanceHistory} = require('../../business-logic/account/account-balance-history')
 const {queryAccountTrades} = require('../../business-logic/dex/trades')
-const {queryAccountOperations} = require('../../business-logic/operation/operations')
 const {queryAccountClaimableBalances} = require('../../business-logic/claimable-balances/claimable-balances')
 const {estimateAccountValue} = require('../../business-logic/account/account-value-estimator')
 
@@ -25,23 +24,21 @@ module.exports = function (app) {
         ({params, query}) => queryAccountStatsHistory(params.network, params.account, query))
 
     registerRoute(app,
-        'account/:account/history/:filter',
-        {cache: 'operations'},
+        'account/:account/history/trades',
+        {cache: 'tx'},
         ({params, query, path}) => {
             const {filter, network, account} = params
-            if (filter === 'trades') return queryAccountTrades(network, account, path, query)
-            return queryAccountOperations(network, account, filter, path, query)
+            return queryAccountTrades(network, account, path, query)
         })
 
-    //TODO: re-route to account/:account/stats-history once we open this endpoint
     registerRoute(app,
-        'account/:account/balance/history',
-        {cache: 'operations', cors: 'open'},
-        ({params}) => queryAccountBalanceHistory(params.network, params.account))
+        'account/:account/balance/:asset/history',
+        {cache: 'balance'},
+        ({params}) => queryAccountBalanceHistory(params.network, params.account, params.asset))
 
     registerRoute(app,
         'account/:account/claimable-balances',
-        {cache: 'operations'},
+        {cache: 'balance'},
         ({params, query, path}) => {
             const {network, account} = params
             return queryAccountClaimableBalances(network, account, path, query)

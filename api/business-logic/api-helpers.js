@@ -1,18 +1,18 @@
 function normalizeLimit(limit, defaultLimit = 10, maxLimit = 200) {
-    limit = parseInt(limit || 0)
+    limit = parseInt(limit || 0, 10)
     if (!limit || limit < 0) return defaultLimit //by default Horizon API
     if (limit > maxLimit) return maxLimit
     return limit
 }
 
 function normalizeSkip(skip) {
-    skip = parseInt(skip || 0)
+    skip = parseInt(skip || 0, 10)
     if (!skip || skip < 0) return 0
     return skip
 }
 
 function calculateSequenceOffset(skip, limit, cursor, order) {
-    let offset = parseInt(cursor) || 0
+    let offset = parseInt(cursor, 10) || 0
     if (normalizeOrder(order) === -1) {
         offset += normalizeSkip(skip)
     } else {
@@ -32,9 +32,9 @@ function calculateSequenceOffset(skip, limit, cursor, order) {
 function normalizeOrder(order, defaultOrder = -1) {
     if (order === 'asc') order = 1
     if (order === 'desc') order = -1
-    order = parseInt(order || defaultOrder)
+    order = parseInt(order || defaultOrder, 10)
     if (1 === order || -1 === order) return order
-    return defaultOrder// contrary to Horizon, which uses asc order by default
+    return defaultOrder //contrary to Horizon, which uses asc order by default
 }
 
 function inverseOrder(order) {
@@ -51,13 +51,13 @@ function preparePagedData(base, params, data = []) {
     let {order, limit, cursor, allowedLinks, ...otherParams} = params
 
     function buildLink(order, cursor) {
-        const qParams = {...otherParams, order, limit, cursor},
-            qParts = []
-        for (let key of Object.keys(qParams)) {
+        const qParams = {...otherParams, order, limit, cursor}
+        const qParts = []
+        for (const key of Object.keys(qParams)) {
             const value = qParams[key]
             if (value !== undefined && value !== null && value !== '') {
                 if (value instanceof Array) {
-                    for (let v of value) {
+                    for (const v of value) {
                         qParts.push(`${encodeURIComponent(key)}[]=${encodeURIComponent(v)}`)
                     }
                 } else {
@@ -93,7 +93,7 @@ function preparePagedData(base, params, data = []) {
         links.next = buildLink(order, data[data.length - 1].paging_token)
     }
     if (allowedLinks) {
-        for (let key of Object.keys(links)) {
+        for (const key of Object.keys(links)) {
             if (!allowedLinks[key]) {
                 delete links[key]
             }
@@ -109,7 +109,7 @@ function preparePagedData(base, params, data = []) {
 
 function addPagingToken(data, skip = 0) {
     let i = 0
-    for (let row of data) {
+    for (const row of data) {
         row.paging_token = ++i + skip
     }
     return data

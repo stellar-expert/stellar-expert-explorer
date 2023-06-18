@@ -1,11 +1,12 @@
+const {Long} = require('mongodb')
 const db = require('../../connectors/mongodb-connector')
+const errors = require('../errors')
+const {unixNow} = require('../../utils/date-utils')
+const {anyToNumber} = require('../../utils/formatter')
+const {validateNetwork, validateAssetName} = require('../validators')
 const priceTracker = require('../../business-logic/ticker/price-tracker')
 const {aggregateOhlcvt, encodeAssetOhlcvtId, OHLCVT} = require('../dex/ohlcvt-aggregator')
-const {validateNetwork, validateAssetName} = require('../validators')
 const {resolveAssetId} = require('./asset-resolver')
-const {unixNow} = require('../../utils/date-utils')
-const errors = require('../errors')
-const {anyToNumber} = require('../../utils/formatter')
 
 async function queryAssetStatsHistory(network, asset) {
     validateNetwork(network)
@@ -16,7 +17,12 @@ async function queryAssetStatsHistory(network, asset) {
         throw errors.notFound('Asset statistics not found on the ledger. Check if you specified the asset identifier correctly.')
 
     const stats = await db[network].collection('asset_history')
-        .find({asset: assetId, _id: {$gt: 0}})
+        .find({
+            _id: {
+                $gt: new Long(0, assetId),
+                $lt: new Long(0, assetId + 1)
+            }
+        })
         .sort({_id: 1})
         .toArray()
 
@@ -88,17 +94,20 @@ async function queryAssetStatsHistory(network, asset) {
             .sort({_id: 1})
             .project({fee_pool: 1})
             .toArray()
-        for (let poolEntry of poolHistory) {
+        for (const poolEntry of poolHistory) {
             poolEntry.ts = poolEntry._id
         }
-        let assetCursor = 0, poolCursor = 0, lastPoolValue
+        let assetCursor = 0
+        let poolCursor = 0
+        let lastPoolValue
         while (true) {
-            const poolRecord = poolHistory[poolCursor],
-                assetRecord = history[assetCursor]
-            if (!assetRecord) break
+            const poolRecord = poolHistory[poolCursor]
+            const assetRecord = history[assetCursor]
+            if (!assetRecord)
+                break
             if (poolRecord && assetRecord.ts < poolRecord.ts) {
                 //use pool value from the previous ledger history entry
-                assetRecord.feePool = lastPoolValue.fee_pool.toNumber()
+                assetRecord.feePool = lastPoolValue.fee_pool
                 assetCursor++
                 continue
             }
@@ -106,7 +115,7 @@ async function queryAssetStatsHistory(network, asset) {
             if (poolRecord) {
                 lastPoolValue = poolRecord
                 if (assetRecord.ts === lastPoolValue.ts) { //both records match
-                    assetRecord.feePool = lastPoolValue.fee_pool.toNumber()
+                    assetRecord.feePool = lastPoolValue.fee_pool
                     assetCursor++
                     poolCursor++
                     continue
@@ -115,7 +124,7 @@ async function queryAssetStatsHistory(network, asset) {
             //look for a matching pool record for an asset history
             if (assetRecord.ts > lastPoolValue.ts) {
                 if (!poolRecord) { //we don't have a matching ledger history entry
-                    assetRecord.feePool = lastPoolValue.fee_pool.toNumber()
+                    assetRecord.feePool = lastPoolValue.fee_pool
                     assetCursor++
                 } else {
                     //current ledger history entry is too old - jump to the next entry

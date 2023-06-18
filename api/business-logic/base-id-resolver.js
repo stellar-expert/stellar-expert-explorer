@@ -1,4 +1,4 @@
-const LRU = require('lru-cache')
+const {LRUCache} = require('lru-cache')
 
 /**
  * @typedef {Object} MapEntry
@@ -8,8 +8,8 @@ const LRU = require('lru-cache')
 
 class AccountMapCache {
     constructor(cacheSize) {
-        this.valueToIdCache = new LRU({max: cacheSize})
-        this.idToValueCache = new LRU({max: cacheSize})
+        this.valueToIdCache = new LRUCache({max: cacheSize})
+        this.idToValueCache = new LRUCache({max: cacheSize})
     }
 
     valueToIdCache
@@ -22,13 +22,22 @@ class BaseIdResolver {
         this.cacheSize = cacheSize
     }
 
+    /**
+     * @type {Object}
+     * @private
+     */
     caches
+    /**
+     * @type {Number}
+     * @private
+     */
     cacheSize
 
     /**
      * @param {String} network
      * @param {[Number]} filter
      * @return {Promise<[MapEntry]>}
+     * @abstract
      */
     async searchById(network, filter) {
         throw new Error('Should be implemented in inherited class')
@@ -38,6 +47,7 @@ class BaseIdResolver {
      * @param {String} network
      * @param {[String]} filter
      * @return {Promise<[MapEntry]>}
+     * @abstract
      */
     async searchByValue(network, filter) {
         throw new Error('Should be implemented in inherited class')
@@ -57,14 +67,14 @@ class BaseIdResolver {
     }
 
     retrieveResultsFromCache(cache, entries) {
-        const results = {},
-            missing = new Set() //we need only unique values here
+        const results = {}
+        const missing = new Set() //we need only unique values here
 
         for (const entry of entries) {
             //we already added this to the mapping
             if (results[entry] || missing.has(entry)) continue
-            // attempt cache hit
-            let cached = cache.get(entry)
+            //attempt cache hit
+            const cached = cache.get(entry)
             if (cached) {//cache hit
                 results[entry] = cached
             } else { //cache miss - need to fetch from db
@@ -89,11 +99,14 @@ class BaseIdResolver {
      * Resolve entry id using cached values mapping.
      * @param {String} network
      * @param {String|[String]} valuesToMap
+     * @return {Promise<(Number|null)[]>}
      */
-    async resolveId(network, valuesToMap) {
-        if (valuesToMap === null || valuesToMap === undefined) return valuesToMap
+    async resolveIds(network, valuesToMap) {
+        if (valuesToMap === null || valuesToMap === undefined)
+            return []
         //single entry
-        if (typeof valuesToMap === 'string') return await this.resolveSingleId(network, valuesToMap)
+        if (typeof valuesToMap === 'string')
+            return [await this.resolveSingleId(network, valuesToMap)]
         //process array
         if (!(valuesToMap instanceof Array))
             throw new Error(`Invalid value provided: ${valuesToMap}`)
@@ -104,12 +117,12 @@ class BaseIdResolver {
 
         if (missing.length) {
             const fetched = await this.searchByValue(network, valuesToMap)
-            for (let {_id, value} of fetched) {
+            for (const {_id, value} of fetched) {
                 results[value] = _id
                 valueToIdCache.set(value, _id)
             }
         }
-        return results
+        return valuesToMap.map(v => results[v])
     }
 
     async resolveSingleValue(network, id) {

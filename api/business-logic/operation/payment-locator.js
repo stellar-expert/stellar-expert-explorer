@@ -1,8 +1,8 @@
-const {Long} = require('bson'),
-    OperationsQuery = require('./operations-query'),
-    {parseGenericId} = require('../../utils/generic-id-utils'),
-    {validateAssetName, validateAccountAddress} = require('../validators'),
-    {resolveFederationAccountAddress} = require('../federation/federation-address-resolver')
+const {Long} = require('bson')
+//const OperationsQuery = require('./operations-query')
+const {parseGenericId} = require('../../utils/generic-id-utils')
+const {validateAssetName, validateAccountAddress} = require('../validators')
+const {resolveFederationAccountAddress} = require('../federation/federation-address-resolver')
 
 async function searchPayments(network, basePath, query) {
     const opQuery = new OperationsQuery(network, basePath, query)

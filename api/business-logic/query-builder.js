@@ -1,12 +1,12 @@
-const {normalizeOrder, normalizeLimit, normalizeSkip} = require('./api-helpers'),
-    {validateOfferId, validateAssetName} = require('./validators'),
-    {parseDate} = require('../utils/date-utils'),
-    {Long} = require('bson'),
-    errors = require('./errors')
+const {Long} = require('bson')
+const {parseDate} = require('../utils/date-utils')
+const {normalizeOrder, normalizeLimit, normalizeSkip} = require('./api-helpers')
+const {validateOfferId} = require('./validators')
+const errors = require('./errors')
 
 class QueryBuilder {
     constructor(initial) {
-        this.query = Object.assign({}, initial)
+        this.query = {...initial}
     }
 
     /**
@@ -79,7 +79,7 @@ class QueryBuilder {
 
     setSort(sortField, order, defaultOrder = -1) {
         if (typeof sortField === 'object') {
-            this.sort = Object.assign({}, this.sort, sortField)
+            this.sort = {...this.sort, ...sortField}
             return this
         }
         this.sort = this.sort || {}

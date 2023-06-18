@@ -1,22 +1,50 @@
-const db = require('../../connectors/mongodb-connector'),
-    {Int32} = require('bson'),
-    AssetDescriptor = require('../asset/asset-descriptor'),
-    {validateNetwork} = require('../api-helpers'),
-    {generateEffectId} = require('../../utils/generic-id-utils'),
-    errors = require('../errors'),
-    {formatPercentage, formatAmount, adjustAmount, formatWithPrecision} = require('../../utils/formatter'),
-    {unixNow} = require('../../utils/date-utils')
+const errors = require('../errors')
+const AssetDescriptor = require('../asset/asset-descriptor')
+const {validateNetwork} = require('../api-helpers')
+const {unixNow} = require('../../utils/date-utils')
+const {formatPercentage, formatAmount, adjustAmount, formatWithPrecision} = require('../../utils/formatter')
+const {aggregateOhlcvt, encodeAssetOhlcvtId, encodeMarketOhlcvtId, OHLCVT} = require('../dex/ohlcvt-aggregator')
+const {validateAssetName} = require('../validators')
+const {resolveAssetIds} = require('../asset/asset-resolver')
 
 async function queryAssetTicker(network, symbol) {
     validateNetwork(network)
-    if (!symbol || typeof symbol !== 'string') throw errors.badRequest('Invalid market symbol: ' + symbol)
+    if (!symbol || typeof symbol !== 'string')
+        throw errors.badRequest('Invalid market symbol: ' + symbol)
 
     const [baseAsset, quoteAsset] = symbol.split('_')
-    if (!baseAsset || !quoteAsset) throw errors.badRequest('Invalid market symbol: ' + symbol)
+    if (!baseAsset || !quoteAsset)
+        throw errors.badRequest('Invalid market symbol: ' + symbol)
 
-    const dateNow = unixNow(),
-        dateFrom = dateNow - 24 * 60 * 60 //last 24h
+    validateAssetName(baseAsset)
+    validateAssetName(quoteAsset)
 
+    const assetIds = await resolveAssetIds([new AssetDescriptor(baseAsset).toFQAN(), new AssetDescriptor(quoteAsset).toFQAN()])
+    if (assetIds.some(a => !a) || assetIds.length < 2)
+        throw errors.notFound(`Unknown asset pair ${baseAsset}/${quoteAsset}.`)
+    //match the original assets
+
+    let reverse = false
+    if (assetIds[1] < assetIds[0]) {
+        assetIds.reverse()
+        reverse = true
+    }
+    const dateNow = unixNow()
+    const dateFrom = dateNow - 24 * 60 * 60 //last 24h
+
+    const fromId = encodeMarketOhlcvtId(assetIds, dateFrom)
+    const toId = encodeMarketOhlcvtId(assetIds, dateNow)
+
+    const data = await aggregateOhlcvt({
+        collection: 'market_ohlcvt',
+        network,
+        order: 1,
+        fromId,
+        toId,
+        resolution: 86400,
+        reverse
+    })
+    /*
     //find first op that matches dateFrom timestamp
     const [firstOp] = await db[network].collection('operations')
         .find({ts: {$gte: dateFrom}})
@@ -31,7 +59,7 @@ async function queryAssetTicker(network, symbol) {
             {
                 $match: {
                     asset: [new AssetDescriptor(baseAsset).toFQAN(), new AssetDescriptor(quoteAsset).toFQAN()],
-                    type: Int32(33),
+                    type: 33,
                     _id: {$gte: generateEffectId(firstOp._id)},
                     'amount.0': {$gt: 0}
                 }
@@ -62,25 +90,30 @@ async function queryAssetTicker(network, symbol) {
                 }
             }
         ])
-        .toArray()
+        .toArray()*/
 
     const res = {
-            symbol,
-            openTime: dateFrom,
-            closeTime: dateNow,
-            tradesCount: 0
-        }
+        symbol,
+        openTime: dateFrom,
+        closeTime: dateNow,
+        tradesCount: 0
+    }
 
     //normalize data
-    if (data) {
-        res.priceChangePercent = formatPercentage((data.closePrice - data.openPrice) / data.openPrice)
-        res.openPrice = formatWithPrecision(data.openPrice,1)
-        res.highPrice = formatWithPrecision(data.highPrice)
-        res.lowPrice = formatWithPrecision(data.lowPrice)
-        res.closePrice = formatWithPrecision(data.closePrice)
-        res.baseVolume = adjustAmount(data.baseVolume)
-        res.quoteVolume = adjustAmount(data.quoteVolume)
-        res.tradesCount = data.tradesCount
+    if (data?.length) {
+        let [first, last] = data
+        const single = !last
+        if (single) {
+            last = first
+        }
+        res.priceChangePercent = formatPercentage((last[OHLCVT.CLOSE] - first[OHLCVT.OPEN]) / first[OHLCVT.OPEN])
+        res.openPrice = formatWithPrecision(first[OHLCVT.OPEN])
+        res.highPrice = formatWithPrecision(Math.max(first[OHLCVT.HIGH], last[OHLCVT.HIGH]))
+        res.lowPrice = formatWithPrecision(Math.min(first[OHLCVT.LOW], last[OHLCVT.LOW]))
+        res.closePrice = formatWithPrecision(first[OHLCVT.CLOSE])
+        res.baseVolume = adjustAmount(single ? first[OHLCVT.BASE_VOLUME] : (first[OHLCVT.BASE_VOLUME] + last[OHLCVT.BASE_VOLUME]))
+        res.quoteVolume = adjustAmount(single ? first[OHLCVT.QUOTE_VOLUME] : (first[OHLCVT.QUOTE_VOLUME] + last[OHLCVT.QUOTE_VOLUME]))
+        res.tradesCount = single ? first[OHLCVT.TRADES_COUNT] : (first[OHLCVT.TRADES_COUNT] + last[OHLCVT.TRADES_COUNT])
     }
     return res
 }

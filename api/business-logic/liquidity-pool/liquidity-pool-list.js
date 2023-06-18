@@ -7,7 +7,7 @@ const {matchPoolAssets} = require('./liquidity-pool-asset-matcher')
 async function queryAllLiquidityPools(network, basePath, {sort, order, cursor, limit}) {
     validateNetwork(network)
 
-    const q = new QueryBuilder({shares: {$gt: 0}})
+    const q = new QueryBuilder({accounts: {$gt: 2}})
         .setSkip(calculateSequenceOffset(0, limit, cursor, order))
         .setLimit(limit)
 
@@ -38,6 +38,7 @@ async function queryAllLiquidityPools(network, basePath, {sort, order, cursor, l
         case 'tvl':
         default:
             sortOrder = {'tvl': -1}
+
             break
     }
 

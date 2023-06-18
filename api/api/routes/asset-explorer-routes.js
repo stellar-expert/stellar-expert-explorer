@@ -8,7 +8,6 @@ const {queryAssetSupply} = require('../../business-logic/asset/asset-supply')
 const {queryAssetTradingPairs} = require('../../business-logic/asset/asset-trading-pairs')
 const {queryAssetsMeta} = require('../../business-logic/asset/asset-meta')
 const {queryAssetTrades} = require('../../business-logic/dex/trades')
-const {queryAssetOperations} = require('../../business-logic/operation/operations')
 const {queryAssetHolders, queryHolderPosition, queryAssetDistribution} = require('../../business-logic/asset/asset-holders')
 const {queryAssetPrices} = require('../../business-logic/asset/asset-price')
 const {aggregateAssetPriceCandlesData} = require('../../business-logic/asset/asset-ohlcvt')
@@ -50,12 +49,11 @@ module.exports = function (app) {
         ({params}) => queryAssetRating(params.network, params.asset))
 
     registerRoute(app,
-        'asset/:asset/history/:filter',
-        {cache: 'operations'},
+        'asset/:asset/history/trades',
+        {cache: 'tx'},
         ({params, query, path}) => {
-            const {filter, network, asset} = params
-            if (filter === 'trades') return queryAssetTrades(network, asset, path, query)
-            return queryAssetOperations(network, asset, filter, path, query)
+            const {network, asset} = params
+            return queryAssetTrades(network, asset, path, query)
         })
 
     registerRoute(app,

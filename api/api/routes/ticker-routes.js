@@ -1,6 +1,6 @@
-const {registerRoute} = require('../router'),
-    apiCache = require('../api-cache'),
-    {queryAssetTicker} = require('../../business-logic/ticker/asset-ticker')
+const {registerRoute} = require('../router')
+const apiCache = require('../api-cache')
+const {queryAssetTicker} = require('../../business-logic/ticker/asset-ticker')
 
 apiCache.createBucket('asset-ticker', 5000, '30 seconds')
 

@@ -1,6 +1,6 @@
-const {BaseIdResolver, BatchJSONResolver} = require('../base-id-resolver'),
-    db = require('../../connectors/mongodb-connector'),
-    AssetDescriptor = require('../asset/asset-descriptor')
+const {BaseIdResolver, BatchJSONResolver} = require('../base-id-resolver')
+const db = require('../../connectors/mongodb-connector')
+const AssetDescriptor = require('../asset/asset-descriptor')
 
 class AssetResolver extends BaseIdResolver {
     constructor() {
@@ -16,11 +16,11 @@ class AssetResolver extends BaseIdResolver {
     }
 
     async searchByValue(network, filter) {
-        return this.search(network, {name: {$in: filter}})
+        return await this.search(network, {name: {$in: filter}})
     }
 
     async searchById(network, filter) {
-        return this.search(network, {_id: {$in: filter}})
+        return await this.search(network, {_id: {$in: filter}})
     }
 }
 
@@ -33,6 +33,15 @@ const assetResolver = new AssetResolver()
  */
 async function resolveAssetId(network, assetName) {
     return await assetResolver.resolveSingleId(network, new AssetDescriptor(assetName).toFQAN())
+}
+
+/**
+ * @param {String} network
+ * @param {String[]} assets
+ * @return {Promise<(Number|null)[]>}
+ */
+async function resolveAssetIds(network, assets){
+    return await assetResolver.resolveIds(network, assets)
 }
 
 /**
@@ -50,4 +59,4 @@ class AssetJSONResolver extends BatchJSONResolver {
     }
 }
 
-module.exports = {resolveAssetId, resolveAssetName, AssetJSONResolver}
+module.exports = {resolveAssetId, resolveAssetIds, resolveAssetName, AssetJSONResolver}

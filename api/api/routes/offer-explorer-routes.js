@@ -1,7 +1,6 @@
-const {registerRoute} = require('../router'),
-    {queryOfferTrades} = require('../../business-logic/dex/trades'),
-    {queryOfferOperations} = require('../../business-logic/operation/operations'),
-    {queryOfferDetails} = require('../../business-logic/dex/offer-stats')
+const {registerRoute} = require('../router')
+const {queryOfferTrades} = require('../../business-logic/dex/trades')
+const {queryOfferDetails} = require('../../business-logic/dex/offer-stats')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -10,11 +9,10 @@ module.exports = function (app) {
         ({params, query}) => queryOfferDetails(params.network, params.id))
 
     registerRoute(app,
-        'offer/:id/history/:filter',
-        {cache: 'operations'},
+        'offer/:id/history/trades',
+        {cache: 'tx'},
         ({params, query, path}) => {
             const {filter, network, id} = params
-            if (filter === 'trades') return queryOfferTrades(network, id, path, query)
-            return queryOfferOperations(network, id, filter, path, query)
+            return queryOfferTrades(network, id, path, query)
         })
 }

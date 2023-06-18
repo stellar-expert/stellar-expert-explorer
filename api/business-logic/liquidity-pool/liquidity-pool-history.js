@@ -1,10 +1,10 @@
-const db = require('../../connectors/mongodb-connector'),
-    {Long} = require('bson'),
-    {validateNetwork, validatePoolId} = require('../validators'),
-    errors = require('../errors'),
-    {matchPoolAssets} = require('./liquidity-pool-asset-matcher'),
-    QueryBuilder = require('../query-builder'),
-    {preparePagedData} = require('../api-helpers')
+const {Long} = require('bson')
+const db = require('../../connectors/mongodb-connector')
+const errors = require('../errors')
+const {validateNetwork, validatePoolId} = require('../validators')
+const QueryBuilder = require('../query-builder')
+const {preparePagedData} = require('../api-helpers')
+const {matchPoolAssets} = require('./liquidity-pool-asset-matcher')
 
 const emptyReserves = ['0', '0']
 
@@ -46,14 +46,21 @@ async function queryLiquidityPoolHistory(network, liquidityPool, path, {order, l
 
     const poolAssets = await matchPoolAssets(network, pool)
 
+    let prevAccounts = 0
     const res = history.map(entry => {
         const ts = entry._id.getHighBits()
+        let accounts
 
+        if (entry.accounts > 0) {
+            accounts = prevAccounts = entry.accounts
+        } else {
+            accounts = entry.reserves.some(r => r && r.gt(0)) ? prevAccounts : 0
+        }
         return {
             ts,
             paging_token: entry._id.toString(),
             shares: entry.shares || '0',
-            accounts: entry.accounts || 0,
+            accounts,
             trades: entry.trades || 0,
             reserves: poolAssets.match(pool, (pa, i) => ({
                 asset: pa.name,
@@ -76,7 +83,7 @@ async function queryLiquidityPoolHistory(network, liquidityPool, path, {order, l
 
     return preparePagedData(path, {
         order: q.sort,
-        cursor: cursor,
+        cursor,
         limit: q.limit,
         from,
         to

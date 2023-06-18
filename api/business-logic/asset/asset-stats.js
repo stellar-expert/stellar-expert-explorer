@@ -1,10 +1,11 @@
 const db = require('../../connectors/mongodb-connector')
+const errors = require('../errors')
 const {validateNetwork, validateAssetName} = require('../validators')
 const {anyToNumber} = require('../../utils/formatter')
 const AssetDescriptor = require('./asset-descriptor')
-const errors = require('../errors')
+const {Long} = require('mongodb')
 
-async function queryAssetStats(network, asset, {ts}) {
+async function queryAssetStats(network, asset) {
     validateNetwork(network)
     validateAssetName(asset)
 
@@ -17,7 +18,11 @@ async function queryAssetStats(network, asset, {ts}) {
         asset: assetInfo.name,
         created: assetInfo.created,
         supply: anyToNumber(assetInfo.supply),
-        trustlines: assetInfo.trustlines,
+        trustlines: {
+            total: assetInfo.trustlines[0],
+            authorized: assetInfo.trustlines[1],
+            funded: assetInfo.trustlines[2]
+        },
         payments: assetInfo.payments,
         payments_amount: assetInfo.paymentsAmount,
         trades: assetInfo.totalTrades,
@@ -45,7 +50,12 @@ async function queryAssetStats(network, asset, {ts}) {
         //fetch fee pool and reserve for XLM
         const [xlmHistory, poolHistory] = await Promise.all([
             db[network].collection('asset_history')
-                .find({asset: assetInfo._id})
+                .find({
+                    _id: {
+                        $gt: new Long(0, assetInfo._id),
+                        $lt: new Long(0, assetInfo._id + 1)
+                    }
+                })
                 .sort({_id: -1})
                 .limit(2)
                 .project({reserve: 1})

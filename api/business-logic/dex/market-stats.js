@@ -1,13 +1,13 @@
-const db = require('../../connectors/mongodb-connector'),
-    {resolveAssetId} = require('../asset/asset-resolver'),
-    {validateNetwork} = require('../validators'),
-    errors = require('../errors')
+const db = require('../../connectors/mongodb-connector')
+const {resolveAssetId} = require('../asset/asset-resolver')
+const {validateNetwork} = require('../validators')
+const errors = require('../errors')
 
 async function queryMarketStats(network, selling, buying, {ts}) {
     validateNetwork(network)
     const assets = await Promise.all([resolveAssetId(network, selling), resolveAssetId(network, buying)])
 
-    const [market] = await db[network].collection('markets_data')
+    const [market] = await db[network].collection('markets')
         .find({$or: [{asset: assets}, {asset: assets.slice().reverse()}]})
         .toArray()
 

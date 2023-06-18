@@ -4,6 +4,6 @@ const {estimateClaimableBalancesValue} = require('../../business-logic/claimable
 module.exports = function (app) {
     registerRoute(app,
         'claimable-balance/value',
-        {cache: 'operations'},
+        {cache: 'balance'},
         ({params, query, path}) => estimateClaimableBalancesValue(params.network, path, query))
 }

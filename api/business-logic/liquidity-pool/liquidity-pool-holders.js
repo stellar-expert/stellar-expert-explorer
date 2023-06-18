@@ -1,12 +1,12 @@
-const {Long} = require('bson'),
-    db = require('../../connectors/mongodb-connector'),
-    QueryBuilder = require('../query-builder'),
-    {resolveLiquidityPoolId} = require('./liquidity-pool-resolver'),
-    {resolveAccountId} = require('../account/account-resolver'),
-    {AccountAddressJSONResolver} = require('../account/account-resolver'),
-    {normalizeOrder, preparePagedData} = require('../api-helpers'),
-    {validateNetwork, validateAccountAddress, validatePoolId} = require('../validators'),
-    errors = require('../errors')
+const db = require('../../connectors/mongodb-connector')
+const errors = require('../errors')
+const QueryBuilder = require('../query-builder')
+const {normalizeOrder, preparePagedData} = require('../api-helpers')
+const {validateNetwork, validateAccountAddress, validatePoolId} = require('../validators')
+const {AccountAddressJSONResolver} = require('../account/account-resolver')
+const {resolveAccountId} = require('../account/account-resolver')
+const {resolveLiquidityPoolId} = require('./liquidity-pool-resolver')
+const {encodeBsonId} = require('../../utils/bson-id-encoder')
 
 async function queryLiquidityPoolHolders(network, pool, basePath, {sort, order, cursor, limit}) {
     validateNetwork(network)
@@ -14,16 +14,20 @@ async function queryLiquidityPoolHolders(network, pool, basePath, {sort, order, 
 
     const poolId = await resolveLiquidityPoolId(network, pool)
 
-    if (poolId === null) throw errors.notFound()
+    if (poolId === null)
+        throw errors.notFound()
 
     const normalizedOrder = normalizeOrder(order, 1)
 
-    const q = new QueryBuilder({stake: {$gt: 0}, pool: poolId})
+    const q = new QueryBuilder({
+        _id: {$gt: encodeBsonId(1 - poolId, 0, 0), $lt: encodeBsonId(poolId, 0, 0)},
+        balance: {$gt: 0}
+    })
         .setLimit(limit)
-        .setSort({stake: -1})
+        .setSort({balance: -1})
 
     if (cursor) {
-        cursor = parseInt(cursor)
+        cursor = parseInt(cursor, 10)
         if (isNaN(cursor) || cursor < 0) {
             cursor = undefined
         } else {
@@ -38,7 +42,7 @@ async function queryLiquidityPoolHolders(network, pool, basePath, {sort, order, 
         }
     }
 
-    const records = await db[network].collection('liquidity_pool_stakes')
+    const records = await db[network].collection('trustlines')
         .find(q.query)
         .sort({stake: -1})
         .skip(q.skip)

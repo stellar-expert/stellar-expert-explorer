@@ -7,8 +7,8 @@ const {resolveAssetId} = require('../asset/asset-resolver')
 
 async function queryMarkets(network, basePath, {type, asset, sort, order, cursor, limit, skip}) {
     validateNetwork(network)
-    let marketTypeFilter,
-        reverseCondition
+    let marketTypeFilter
+    let reverseCondition
     switch (('' + type).toLowerCase()) {
         case 'xlm':
             marketTypeFilter = {asset: 0}
@@ -67,8 +67,8 @@ async function queryMarkets(network, basePath, {type, asset, sort, order, cursor
         change7d: 1
     }
 
-    let sortOrder,
-        adjustment = []
+    let sortOrder
+    let adjustment = []
     //order is ignored for assets rating
     switch (sort) {
         case 'created':
@@ -122,7 +122,7 @@ async function queryMarkets(network, basePath, {type, asset, sort, order, cursor
             break
     }
 
-    let markets = await db[network].collection('markets_data').aggregate([
+    let markets = await db[network].collection('markets').aggregate([
         {
             $match: q.query
         },

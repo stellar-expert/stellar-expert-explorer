@@ -80,4 +80,37 @@ function anyToNumber(value) {
     throw TypeError(`Can't convert [${typeof value}] ${value} to number`)
 }
 
-module.exports = {formatAmount, formatWithPrecision, formatPercentage, adjustAmount, anyToNumber}
+/**
+ * Convert arbitrary stringified number to Long representation
+ * @param {String|Number} value
+ * @return {BigInt}
+ */
+function toStroops(value) {
+    if (!value)
+        return 0n
+    if (typeof value === 'number') {
+        value = value.toFixed(7)
+    }
+    if (typeof value !== 'string' || !/^-?[\d.,]+$/.test(value))
+        return 0n //invalid format
+    try {
+        let [int, decimal = '0'] = value.split(/[.,]/, 2)
+        let negative = false
+        if (int.startsWith('-')) {
+            negative = true
+            int = int.slice(1)
+        }
+        let res = BigInt(int) * 10000000n + BigInt(decimal.slice(0, 7).padEnd(7, '0'))
+        if (negative) {
+            res *= -1n
+            if (res < -0x8000000000000000n) //overflow
+                return 0n
+        } else if (res > 0xFFFFFFFFFFFFFFFFn) //overflow
+            return 0n
+        return res
+    } catch (e) {
+        return 0n
+    }
+}
+
+module.exports = {formatAmount, formatWithPrecision, formatPercentage, adjustAmount, anyToNumber, toStroops}

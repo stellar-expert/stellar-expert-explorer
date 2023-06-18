@@ -1,10 +1,12 @@
+const {Long} = require('bson')
 const db = require('../../connectors/mongodb-connector')
 
 async function estimateTrustlinesValue(network, accountId) {
     return await db[network].collection('trustlines').aggregate([
         {
             $match: {
-                account: accountId,
+                _id: {$gt: new Long(0, accountId), $lt: new Long(0, accountId + 1)},
+                asset: {$lt: 0},
                 balance: {$gt: 0}
             }
         },

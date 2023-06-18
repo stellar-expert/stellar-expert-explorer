@@ -1,5 +1,5 @@
-const db = require('../../connectors/mongodb-connector'),
-    {validateNetwork} = require('../validators')
+const db = require('../../connectors/mongodb-connector')
+const {validateNetwork} = require('../validators')
 
 async function queryLedgerStats(network) {
     validateNetwork(network)
@@ -18,9 +18,13 @@ async function queryLedgerStats(network) {
 
 async function query24HLedgerStats(network) {
     validateNetwork(network)
-    const entry = await db[network].collection('network_stats')
+    let entry = await db[network].collection('network_stats')
         .findOne({_id: -1})
 
+    if (!entry) {
+        entry = await db[network].collection('network_stats')
+            .findOne({}, {sort: {_id: -1}})
+    }
     entry.successful_transactions = entry.transactions
     delete entry._id
     delete entry.finalized

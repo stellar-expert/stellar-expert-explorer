@@ -1,11 +1,13 @@
 const apiCache = require('../api-cache')
 
-apiCache.createBucket('operations', 8000, '10 seconds')
+apiCache.createBucket('tx', 8000, '5 seconds')
+apiCache.createBucket('balance', 8000, '10 seconds')
 apiCache.createBucket('stats', 8000, '2 minutes')
 apiCache.createBucket('global-stats', 8000, '5 minutes')
 apiCache.createBucket('search', 2000, '30 seconds')
 
 module.exports = function (app) {
+    require('./tx-routes')(app)
     require('./account-explorer-routes')(app)
     require('./asset-explorer-routes')(app)
     require('./liquidity-pool-explorer-routes')(app)

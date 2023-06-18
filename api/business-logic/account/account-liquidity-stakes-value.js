@@ -1,11 +1,19 @@
+const {Long, Int32} = require('bson')
 const db = require('../../connectors/mongodb-connector')
 
 async function estimateLiquidityStakesValue(network, accountId) {
-    return await db[network].collection('liquidity_pool_stakes').aggregate([
+    return await db[network].collection('trustlines').aggregate([
         {
             $match: {
-                account: accountId,
-                stake: {$gt: 0}
+                _id: {$gt: new Long(0, accountId), $lt: new Long(0, accountId + 1)},
+                asset: {$lt: 0},
+                balance: {$gt: 0}
+            }
+        },
+        {
+            $project: {
+                pool: {$multiply: ['$asset', new Int32(-1)]},
+                stake: '$balance'
             }
         },
         {

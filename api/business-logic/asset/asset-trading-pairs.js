@@ -1,8 +1,7 @@
-const db = require('../../connectors/mongodb-connector'),
-    AssetDescriptor = require('./asset-descriptor'),
-    {resolveAssetId, AssetJSONResolver} = require('./asset-resolver'),
-    {validateNetwork, validateAssetName} = require('../validators'),
-    errors = require('../errors')
+const db = require('../../connectors/mongodb-connector')
+const errors = require('../errors')
+const {validateNetwork, validateAssetName} = require('../validators')
+const {resolveAssetId, AssetJSONResolver} = require('./asset-resolver')
 
 async function queryAssetTradingPairs(network, asset) {
     validateNetwork(network)
@@ -11,7 +10,7 @@ async function queryAssetTradingPairs(network, asset) {
     const assetId = await resolveAssetId(network, asset)
     if (assetId === null) throw errors.notFound('Unknown asset: ' + asset)
 
-    const markets = await db[network].collection('markets_data').aggregate([
+    const markets = await db[network].collection('markets').aggregate([
         {
             $match: {asset: assetId}
         },

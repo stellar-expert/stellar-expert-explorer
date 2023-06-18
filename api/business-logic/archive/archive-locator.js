@@ -1,0 +1,112 @@
+const {Long} = require('bson')
+const db = require('../../connectors/mongodb-connector')
+const ArchiveTxInfo = require('./archive-tx-info')
+const ArchiveLedgerInfo = require('./archive-ledger-info')
+
+/**
+ * @param {String} network
+ * @param {String} collectionName
+ * @return {Collection}
+ * @private
+ */
+function collection(network, collectionName) {
+    return db.archive[network].collection(collectionName)
+}
+
+function mapTxProps(entry) {
+    const tx = new ArchiveTxInfo()
+    tx.id = entry._id
+    tx.hash = entry.hash
+    tx.body = entry.xdr[0]
+    tx.result = entry.xdr[1]
+    tx.meta = entry.xdr[2]
+    return tx
+}
+
+function mapLedgerProps(entry) {
+    const ledger = new ArchiveLedgerInfo()
+    ledger.sequence = entry._id
+    ledger.header = entry.xdr
+    if (entry.upgrades) {
+        ledger.upgrades = entry.upgrades
+    }
+    return ledger
+}
+
+/**
+ * Fetch multiple transactions from archive
+ * @param {String} network - Network identifier
+ * @param {Long[]} ids - Transaction identifiers
+ * @param {Number} order - Transactions sorting order
+ * @return {Promise<ArchiveTxInfo[]>}
+ */
+async function fetchArchiveTransactions(network, ids, order = -1) {
+    if (!ids?.length)
+        return []
+    const res = await collection(network, 'transactions')
+        .find({_id: {$in: ids}}, {sort: {_id: order}})
+        .toArray()
+    return res.map(mapTxProps)
+}
+
+/**
+ * Fetch a single transaction from archive db
+ * @param {String} network - Network identifier
+ * @param {String|Long|Buffer} idOrHash - Transaction id or hash
+ * @return {Promise<ArchiveTxInfo>}
+ */
+async function fetchSingleArchiveTransaction(network, idOrHash) {
+    if (!idOrHash)
+        return null
+    const query = {}
+    if (typeof idOrHash === 'string') {
+        if (idOrHash.length === 64) {
+            query.hash = Buffer.from(idOrHash, 'hex')
+        } else {
+            try {
+                query._id = Long.fromString(idOrHash, false, 10)
+            } catch (e) {
+                return null
+            }
+        }
+    } else if (idOrHash instanceof Long) {
+        query._id = idOrHash
+    } else if (idOrHash instanceof Buffer) {
+        query.hash = Buffer.from(idOrHash, 'hex')
+    } else
+        return null //unknown format
+    const res = await collection(network, 'transactions').findOne(query)
+    return mapTxProps(res)
+}
+
+/**
+ * Fetch ledger header and upgrades from archive db
+ * @param {String} network - Network identifier
+ * @param {Number} ledger - Ledger sequence
+ * @return {Promise<ArchiveTxInfo>}
+ */
+async function fetchArchiveLedger(network, ledger) {
+    if (typeof ledger !== 'number' || !(ledger > 0))
+        return null
+    const res = await collection(network, 'transactions')
+        .find({_id: {$gte: new Long(0, ledger), $lt: new Long(0, ledger + 1)}}, {sort: {_id: order}})
+        .toArray()
+    return res.map(mapTxProps)
+}
+
+/**
+ * Fetch all transaction that belong to a certain ledger from archive db
+ * @param {String} network - Network identifier
+ * @param {Number} ledger - Ledger sequence
+ * @param {Number} order - Transactions sorting order
+ * @return {Promise<ArchiveLedgerInfo>}
+ */
+async function fetchArchiveLedgerTransactions(network, ledger, order = 1) {
+    if (typeof ledger !== 'number' || !(ledger > 0))
+        return []
+    const res = await collection(network, 'transactions')
+        .findOne({_id: ledger})
+    return mapLedgerProps(res)
+}
+
+module.exports = {fetchArchiveLedger, fetchArchiveTransactions, fetchArchiveLedgerTransactions, fetchSingleArchiveTransaction}

@@ -1,10 +1,9 @@
-const {registerRoute} = require('../router'),
-    {queryLiquidityPoolStats} = require('../../business-logic/liquidity-pool/liquidity-pool-stats'),
-    {queryLiquidityPoolHistory} = require('../../business-logic/liquidity-pool/liquidity-pool-history'),
-    {queryAllLiquidityPools} = require('../../business-logic/liquidity-pool/liquidity-pool-list'),
-    {queryPoolTrades} = require('../../business-logic/dex/trades'),
-    {queryPoolOperations} = require('../../business-logic/operation/operations'),
-    {queryLiquidityPoolHolders, queryLiquidityPoolPosition} = require('../../business-logic/liquidity-pool/liquidity-pool-holders')
+const {registerRoute} = require('../router')
+const {queryLiquidityPoolStats} = require('../../business-logic/liquidity-pool/liquidity-pool-stats')
+const {queryLiquidityPoolHistory} = require('../../business-logic/liquidity-pool/liquidity-pool-history')
+const {queryAllLiquidityPools} = require('../../business-logic/liquidity-pool/liquidity-pool-list')
+const {queryPoolTrades} = require('../../business-logic/dex/trades')
+const {queryAssetHolders} = require('../../business-logic/asset/asset-holders')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -33,26 +32,25 @@ module.exports = function (app) {
 
 
     registerRoute(app,
-        'liquidity-pool/:poolId/history/:filter',
-        {cache: 'operations'},
+        'liquidity-pool/:poolId/history/trades',
+        {cache: 'tx'},
         ({params, query, path}) => {
-            const {filter, network, poolId} = params
-            if (filter === 'trades') return queryPoolTrades(network, poolId, path, query)
-            return queryPoolOperations(network, poolId, filter, path, query)
+            const {network, poolId} = params
+            return queryPoolTrades(network, poolId, path, query)
         })
 
     registerRoute(app,
         'liquidity-pool/:pool/holders',
         {cache: 'stats'},
-        ({params, query, path}) => queryLiquidityPoolHolders(params.network, params.pool, path, query))
+        ({params, query, path}) => queryAssetHolders(params.network, params.pool, path, query))
 
-/*    registerRoute(app,
-        'liquidity-pool/:pool/distribution',
-        {cache: 'stats'},
-        ({params, query, path}) => queryLiquidityPoolDistribution(params.network, params.pool))*/
+    /*    registerRoute(app,
+            'liquidity-pool/:pool/distribution',
+            {cache: 'stats'},
+            ({params, query, path}) => queryLiquidityPoolDistribution(params.network, params.pool))
 
     registerRoute(app,
         'liquidity-pool/:pool/position/:account',
         {cache: 'stats'},
-        ({params, query, path}) => queryLiquidityPoolPosition(params.network, params.pool, params.account))
+        ({params, query, path}) => queryLiquidityPoolPosition(params.network, params.pool, params.account))*/
 }
