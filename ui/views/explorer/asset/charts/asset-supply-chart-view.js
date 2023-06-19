@@ -66,7 +66,7 @@ export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noT
                     assetSupply.push([timestamp, Math.round(s / 100000) / 100])
                 }
                 if (trustlines) {
-                    assetTrustlines.push([timestamp, trustlines.total])
+                    assetTrustlines.push([timestamp, trustlines[2]])
                 }
             }
         }

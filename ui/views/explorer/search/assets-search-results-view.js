@@ -33,7 +33,7 @@ export default function AssetSearchResultsView({term, onLoaded}) {
                 title: <>Asset <AssetLink asset={asset} link={false} displayIssuer/></>,
                 description: <>
                     Created&nbsp;<UtcTimestamp date={created} dateOnly/>{' | '}
-                    {formatPrice(trustlines.funded || 0)}&nbsp;funded&nbsp;trustlines{', '}
+                    {formatPrice(trustlines[2] || 0)}&nbsp;funded&nbsp;trustlines{', '}
                     {formatPrice(payments)}&nbsp;payments{', '}
                     {formatPrice(trades)}&nbsp;trades
                 </>,
