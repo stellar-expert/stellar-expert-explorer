@@ -10,9 +10,12 @@ async function queryLedgerStats(network) {
 
     for (let entry of data) {
         entry.ts = entry._id
-        entry._id = undefined
+        delete entry._id
     }
     data[0].total_xlm = data[0].reserve
+    if (!data[data.length - 1]?.reserve) {
+        data[data.length - 1].reserve = data[data.length - 2].reserve
+    }
     return data
 }
 
