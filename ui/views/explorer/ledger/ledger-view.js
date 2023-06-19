@@ -99,17 +99,17 @@ export default function LedgerView({match}) {
                     <dl>
                         <dt className="dimmed">Total Existing XLM:</dt>
                         <dd>
-                            <BlockSelect><Amount amount={ledger.total_coins} asset="XLM"/></BlockSelect>
+                            <BlockSelect><Amount amount={ledger.total_coins} asset="XLM" issuer={false}/></BlockSelect>
                             <Info>Total number of lumens in existence at the time of the ledger closing.</Info>
                         </dd>
                         <dt>Base Fee:</dt>
                         <dd>
-                            <BlockSelect><Amount amount={ledger.base_fee_in_stroops} asset="XLM" adjust/></BlockSelect>
+                            <BlockSelect><Amount amount={ledger.base_fee_in_stroops} asset="XLM" adjust issuer={false}/></BlockSelect>
                             <Info>The fee the network charges per operation in a transaction.</Info>
                         </dd>
                         <dt>Fee Pool:</dt>
                         <dd>
-                            <BlockSelect><Amount amount={ledger.fee_pool} asset="XLM"/></BlockSelect>
+                            <BlockSelect><Amount amount={ledger.fee_pool} asset="XLM" issuer={false}/></BlockSelect>
                             <Info>Number of lumens that have been paid in fees. This number will be added to the
                                 inflation pool and reset to 0 the next time inflation runs.</Info>
                         </dd>

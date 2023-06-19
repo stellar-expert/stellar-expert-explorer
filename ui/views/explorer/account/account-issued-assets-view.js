@@ -11,7 +11,7 @@ export default function AccountIssuedAssetsView({address}) {
 
     function renderAsset(asset) {
         return <li key={asset.asset_code}>
-            <AssetLink asset={`${asset.asset_code}-${asset.asset_issuer}`} displayIssuer={false}/>
+            <AssetLink asset={`${asset.asset_code}-${asset.asset_issuer}`} issuer={false}/>
             &nbsp;<span className="dimmed">({formatWithAutoPrecision(asset.num_accounts)} trustlines)</span>
         </li>
     }

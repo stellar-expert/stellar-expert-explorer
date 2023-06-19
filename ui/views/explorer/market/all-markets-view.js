@@ -61,10 +61,10 @@ function MarketsListContentView({markets}) {
                                onClick={() => navigation.navigate(resolvePath(`market/${sellingAsset.toString()}/${buyingAsset.toString()}`))}>
                         <td data-header="Market pair: ">
                             <div>
-                                <AssetLink asset={buyingAsset} displayIssuer link={false} className="nowrap"/>
+                                <AssetLink asset={buyingAsset} issuer link={false} className="nowrap"/>
                             </div>
                             <div>
-                                <AssetLink asset={sellingAsset} displayIssuer link={false} className="nowrap"/>
+                                <AssetLink asset={sellingAsset} issuer link={false} className="nowrap"/>
                             </div>
                         </td>
                         <td className="nowrap text-right" data-header="Price: ">

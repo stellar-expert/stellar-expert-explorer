@@ -22,7 +22,7 @@ export default function AssetHoldersListView({asset}) {
     const bg = rgbArrayToRgba(hexToRgbArray(getCssVar('--color-price-up')), 0.15)
 
     return <div>
-        <AssetDistributionChartView asset={asset}/>
+        {!asset.descriptor.isNative && <AssetDistributionChartView asset={asset}/>}
         <div className="segment blank space">
             <AssetHolderPositionView asset={asset}/>
             <table className="table exportable space" data-export-prefix={assetId + '-holders'}>

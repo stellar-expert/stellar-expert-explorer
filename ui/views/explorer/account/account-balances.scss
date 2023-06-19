@@ -14,8 +14,8 @@
     padding: $space-micro 0 0.8*$space-micro;
     margin: 0.2em;
     font-size: 1.15em;
-    flex: 0 0 31%;
-    max-width: 31%;
+    flex: 0 0 30%;
+    max-width: 30%;
     height: 5.8em;
     background: var(--color-highlight);
     color: var(--color-bg);
@@ -35,8 +35,8 @@
     margin-right: 0;
     .account-balance {
       margin-top: $space-micro;
-      flex: 0 0 100%;
-      max-width: 100%;
+      flex: 0 0 96%;
+      max-width: 96%;
     }
   }
 }

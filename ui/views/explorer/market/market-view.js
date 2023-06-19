@@ -24,11 +24,11 @@ function MarketSummaryView({marketInfo, buying, selling}) {
                     <hr/>
                     <dl>
                         <dt>Base asset:</dt>
-                        <dd><AssetLink asset={buying} displayIssuer/>
+                        <dd><AssetLink asset={buying}/>
                             <Info>An asset being bought on the market.</Info>
                         </dd>
                         <dt>Quote asset:</dt>
-                        <dd><AssetLink asset={selling} displayIssuer/>
+                        <dd><AssetLink asset={selling}/>
                             <Info>An asset being sold on the market.</Info>
                         </dd>
                         <dt>Total trades:</dt>
@@ -115,13 +115,13 @@ export default function MarketView() {
     }, [buyingAsset, sellingAsset])
 
     return <div className="market-view">
-        <h2><span className="dimmed">Market</span> <AssetLink asset={buying} displayIssuer/>&nbsp;
+        <h2><span className="dimmed">Market</span> <AssetLink asset={buying}/>&nbsp;
             <a href="#" className="market-reverse" title="Reverse assets" onClick={reverse}>
                 <i className="icon icon-shuffle"/>
                 <i className="icon icon-exchange"/>
             </a>
             &nbsp;
-            <AssetLink asset={selling} displayIssuer/></h2>
+            <AssetLink asset={selling}/></h2>
         {loading && <div className="loader"/>}
         {!!error && <ErrorNotificationBlock>Failed to load market data</ErrorNotificationBlock>}
         {!error && !!data && <MarketSummaryView marketInfo={data} selling={selling} buying={buying}/>}

@@ -49,8 +49,8 @@ function LiquidityPoolsContentView({pools}) {
                         <td data-header="Pool assets: ">
                             <div className="dual-layout">
                                 <div>
-                                    <AssetLink asset={assetB} displayIssuer link={false} className="nowrap"/><br/>
-                                    <AssetLink asset={assetA} displayIssuer link={false} className="nowrap"/>
+                                    <AssetLink asset={assetB} issuer link={false} className="nowrap"/><br/>
+                                    <AssetLink asset={assetA} issuer link={false} className="nowrap"/>
                                 </div>
                                 <div className="text-right">
                                     {formatWithAbbreviation(pool.assets[1].amount / 10000000)}<br/>

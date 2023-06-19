@@ -10,8 +10,8 @@ export default function ProtocolHistoryView() {
         description: `History of the Stellar ${config.activeNetwork} network protocol upgrades.`
     })
     if (!loaded) return <div className="loader"/>
-    return <div>
-        <h2>Stellar Network Upgrades History<Info
+    return <div className="container narrow">
+        <h2>Protocol Upgrades History<Info
             link="https://www.stellar.org/developers/stellar-core/software/security-protocol-release-notes.html#list-of-releases">
             Protocol defines the serialized forms of all objects stored in the ledger and its behavior.
             This version number is incremented every time the protocol changes over time.

@@ -14,7 +14,7 @@ export default function AssetSearchResultsView({term, onLoaded}) {
     if (term.toLowerCase() === 'xlm') {
         results.push({
             link: resolvePath(`asset/XLM`),
-            title: <>Asset <AssetLink asset="XLM" link={false} displayIssuer={true}/></>,
+            title: <>Asset <AssetLink asset="XLM" link={false}/></>,
             description: <>
                 Native Stellar asset
             </>,
@@ -30,7 +30,7 @@ export default function AssetSearchResultsView({term, onLoaded}) {
         for (const {asset, created, trades, payments, trustlines} of records) {
             results.push({
                 link: resolvePath(`asset/${asset}`),
-                title: <>Asset <AssetLink asset={asset} link={false} displayIssuer/></>,
+                title: <>Asset <AssetLink asset={asset} link={false}/></>,
                 description: <>
                     Created&nbsp;<UtcTimestamp date={created} dateOnly/>{' | '}
                     {formatPrice(trustlines[2] || 0)}&nbsp;funded&nbsp;trustlines{', '}

@@ -48,9 +48,5 @@ export default function AssetHistoryTabsView({asset}) {
             render: () => <AssetTokenHoldersList asset={asset}/>
         }
     ]
-
-    if (asset.descriptor.isNative) {
-        tabs.splice(3, 1)
-    }
     return <Tabs right tabs={tabs} selectedTab={operationsFilter} onChange={selectTab}/>
 }

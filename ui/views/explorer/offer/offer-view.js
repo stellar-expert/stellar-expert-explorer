@@ -22,11 +22,11 @@ function OfferDetailsView({offer}) {
                             <Info>Parent account that created the offer.</Info>
                         </dd>
                         <dt>Selling:</dt>
-                        <dd><AssetLink asset={offer.selling} displayIssuer/>
+                        <dd><AssetLink asset={offer.selling}/>
                             <Info>An asset to sell.</Info>
                         </dd>
                         <dt>Buying:</dt>
-                        <dd><AssetLink asset={offer.buying} displayIssuer/>
+                        <dd><AssetLink asset={offer.buying}/>
                             <Info>An asset to buy.</Info>
                         </dd>
                         <dt>Price:</dt>

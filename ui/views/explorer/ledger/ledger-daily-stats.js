@@ -36,7 +36,7 @@ export default function LedgerDailyStatsView({title = '24h Ledger Statistics'}) 
             <dd><UpdateHighlighter><Amount amount={data.trades}/></UpdateHighlighter></dd>
 
             <dt>DEX volume:</dt>
-            <dd><UpdateHighlighter><Amount amount={data.volume} adjust round asset="XLM"/></UpdateHighlighter></dd>
+            <dd><UpdateHighlighter><Amount amount={data.volume} adjust round asset="XLM" issuer={false}/></UpdateHighlighter></dd>
         </dl>
     </>
 }

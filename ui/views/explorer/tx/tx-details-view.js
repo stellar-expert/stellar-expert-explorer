@@ -77,7 +77,7 @@ export default function TxDetailsView({tx, embedded}) {
                         </dd>
                         <dt>Max Fee:</dt>
                         <dd>
-                            <BlockSelect><Amount asset="XLM" amount={tx.max_fee} adjust/></BlockSelect>
+                            <BlockSelect><Amount asset="XLM" amount={tx.max_fee} adjust issuer={false}/></BlockSelect>
                             <Info link="https://www.stellar.org/developers/guides/concepts/transactions.html#fee">Maximum
                                 fee specified in the transaction itself – the maximum XLM amount the source account
                                 willing to pay. Each transaction sets a fee that is paid by the source account. The more
@@ -85,7 +85,7 @@ export default function TxDetailsView({tx, embedded}) {
                         </dd>
                         <dt>Fee Charged:</dt>
                         <dd>
-                            <BlockSelect><Amount asset="XLM" amount={tx.fee_charged} adjust/></BlockSelect>
+                            <BlockSelect><Amount asset="XLM" amount={tx.fee_charged} adjust issuer={false}/></BlockSelect>
                             <Info link="https://www.stellar.org/developers/guides/concepts/transactions.html#fee">Actually
                                 charged fee which can be lower than the fee specified in the transaction. Each
                                 transaction sets a fee that is paid by the source account. The more operations in the

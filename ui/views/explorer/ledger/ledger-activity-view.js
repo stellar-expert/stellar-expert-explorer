@@ -83,10 +83,10 @@ export default function LedgerActivityView({title, className}) {
             <dd><UpdateHighlighter><a href={resolvePath('protocol-history', 'explorer')}>{protocol}</a></UpdateHighlighter></dd>
 
             <dt>Base operation fee:</dt>
-            <dd><UpdateHighlighter><Amount amount={baseFee} asset="XLM" adjust/></UpdateHighlighter></dd>
+            <dd><UpdateHighlighter><Amount amount={baseFee} asset="XLM" issuer={false} adjust/></UpdateHighlighter></dd>
 
             <dt>Base reserve:</dt>
-            <dd><UpdateHighlighter><Amount amount={baseReserve} asset="XLM" adjust/></UpdateHighlighter></dd>
+            <dd><UpdateHighlighter><Amount amount={baseReserve} asset="XLM" issuer={false} adjust/></UpdateHighlighter></dd>
         </dl>
         <div className="micro-space text-small">
             <a href={resolvePath('operations-live-stream', 'explorer')}>View operations live stream</a>

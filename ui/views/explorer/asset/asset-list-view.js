@@ -72,7 +72,7 @@ export default function AssetListView({rows = 30, compact = false}) {
                     const priceDynamic = price7d.map(([ts, price]) => [ts * 1000, price])
                     return <tr key={descriptor.toString()}>
                         <td data-header="Asset: ">
-                            <AssetLink asset={descriptor} displayIssuer/>
+                            <AssetLink asset={descriptor}/>
                         </td>
                         {!compact && <>
                             <td className="nowrap" key="created" data-header="Created: ">
