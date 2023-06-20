@@ -67,17 +67,21 @@ export default function AccountBasicPropertiesView({account}) {
             {account.trades}
             <Info>Overall number of trades.</Info>
         </dd>
-        <dt>Created:</dt>
-        <dd>
-            <UtcTimestamp date={account.created}/>
-            <Info>Account creation timestamp.</Info>
-        </dd>
-        <dt>Created by:</dt>
-        <dd>
-            <AccountAddress account={account.creator} chars={8}/>
-            <Info link="https://www.stellar.org/developers/guides/concepts/list-of-operations.html#create-account">
-                The account that was used to create and provide initial funding for this account.</Info>
-        </dd>
+        {!!account.created && <>
+            <dt>Created:</dt>
+            <dd>
+                <UtcTimestamp date={account.created}/>
+                <Info>Account creation timestamp.</Info>
+            </dd>
+        </>}
+        {!!account.creator && <>
+            <dt>Created by:</dt>
+            <dd>
+                <AccountAddress account={account.creator} chars={8}/>
+                <Info link="https://www.stellar.org/developers/guides/concepts/list-of-operations.html#create-account">
+                    The account that was used to create and provide initial funding for this account.</Info>
+            </dd>
+        </>}
         <dt>Last year activity:</dt>
         <dd>
             {account.activity.yearly}
