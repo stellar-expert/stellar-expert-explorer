@@ -15,7 +15,7 @@
 
   &.shrinkable {
     width: 13rem;
-    z-index: 2;
+    z-index: 2000;
     overflow: visible;
     float: right;
     padding-left: 0;
@@ -35,6 +35,7 @@
         width: 36em;
         max-width: 60vw;
         box-shadow: 0 0 4px var(--color-bg);
+        background: var(--color-bg)!important;
 
         &::placeholder {
           color: #999;
