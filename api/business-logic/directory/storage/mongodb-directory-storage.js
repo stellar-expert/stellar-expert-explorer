@@ -38,7 +38,7 @@ const mongodbStorage = {
     async updateDirectoryEntry(changes) {
         const {address, ts, author, signature, ...entry} = changes
         await this.changesCollection
-            .insertOne({_id: Int32(ts.getTime()), ...changes})
+            .insertOne({_id: new Int32(ts.getTime()), ...changes})
         await this.directoryCollection
             .replaceOne({_id: address}, {_id: address, ...entry}, {upsert: true})
     },
@@ -69,7 +69,7 @@ const mongodbStorage = {
     async deleteDirectoryEntry(changes) {
         const {address, ts} = changes
         await this.changesCollection
-            .insertOne({_id: Int32(ts.getTime()), ...changes})
+            .insertOne({_id: new Int32(ts.getTime()), ...changes})
         await this.directoryCollection
             .deleteOne({_id: address})
     },

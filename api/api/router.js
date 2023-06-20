@@ -4,6 +4,9 @@ const {corsWhitelist} = require('../app.config')
 const apiCache = require('./api-cache')
 const billing = require('./billing')
 
+//increase stack trace depth
+Error.stackTraceLimit = 16
+
 const corsMiddleware = {
     whitelist: cors(function (req, callback) {
         const origin = req.header('Origin')
@@ -16,34 +19,6 @@ const corsMiddleware = {
         callback(e)
     }),
     open: cors()
-}
-
-
-function processResponse(res, promise, headers, prettyPrint = false) {
-    if (typeof promise.then !== 'function') {
-        promise = Promise.resolve(promise)
-    }
-    promise
-        .then(data => {
-            if (!data) data = {}
-            if (headers) {
-                res.set(headers)
-                //send raw data if content-type was specified
-                if (headers['content-type'] && headers['content-type'] !== 'application/json') {
-                    res.send(data)
-                    return
-                }
-            }
-            res.set({'content-type': 'application/json'})
-            res.send(JSON.stringify(data, responseReplacer, prettyPrint ? '  ' : undefined))
-        })
-        .catch(err => {
-            if (err.isBlockedByCors) return res.status(403).json({error: err.text, status: 403})
-            if (err.status) return res.status(err.status).json({error: err.message, status: err.status})
-            //unhandled error
-            console.error(err)
-            res.status(500).json({error: 'Internal server error', status: 500})
-        })
 }
 
 function responseReplacer(key, value) {
@@ -96,7 +71,37 @@ module.exports = {
         }
         app[method](prefix + route, middleware, function (req, res) {
             //TODO: combine request path parameters with query params and pass a single plain object instead of req
-            processResponse(res, handler(req), headers, req.query && req.query.prettyPrint !== undefined)
+            let promise
+            try {
+                promise = handler(req)
+                if (typeof promise.then !== 'function') {
+                    promise = Promise.resolve(promise)
+                }
+            } catch (e) {
+                promise = Promise.reject(e)
+            }
+            promise
+                .then(data => {
+                    if (!data) data = {}
+                    if (headers) {
+                        res.set(headers)
+                        //send raw data if content-type was specified
+                        if (headers['content-type'] && headers['content-type'] !== 'application/json') {
+                            res.send(data)
+                            return
+                        }
+                    }
+                    res.set({'content-type': 'application/json'})
+                    res.send(JSON.stringify(data, responseReplacer, req.query.prettyPrint !== undefined ? '  ' : undefined))
+                })
+                .catch(err => {
+                    if (err.isBlockedByCors) return res.status(403).json({error: err.text, status: 403})
+                    if (err.status) return res.status(err.status).json({error: err.message, status: err.status})
+                    //unhandled error
+                    err.message = req.url + ' \n' + err.message
+                    console.error(err)
+                    res.status(500).json({error: 'Internal server error', status: 500})
+                })
         })
         app.options(prefix + route, middleware, function (req, res) {
             res.send(method.toUpperCase())

@@ -86,7 +86,7 @@ async function queryAssetTicker(network, symbol) {
                     closePrice: {$last: '$price'},
                     baseVolume: {$sum: '$baseVolume'},
                     quoteVolume: {$sum: '$quoteVolume'},
-                    tradesCount: {$sum: Int32(1)}
+                    tradesCount: {$sum: new Int32(1)}
                 }
             }
         ])

@@ -192,12 +192,11 @@ export default function DirectoryEntryPropsView({existingEntry, requestedAddress
                 Account address
             </label>
             <p className="dimmed text-small">
-                An address of the Stellar account that exists on the ledger or simply a public key of any Stellar
-                keypair.
+                An address of the Stellar account that exists on the ledger or a public key of any Stellar keypair.
             </p>
             {batchMode ? <textarea value={batch} onChange={e => setBatch(e.target.value)}
                                    placeholder="Copy-paste addresses separated with a newline here (max 100 per batch)"/> :
-                existingEntry ? <AccountAddress account={entry.address} name={false} icon={false}/> :
+                existingEntry ? <AccountAddress account={entry.address} name={false} icon={false} chars="all"/> :
                     <input type="text" maxLength={60} placeholder="G..." value={entry.address} autoFocus
                            disabled={inProgress} onChange={e => setAddress(e.target.value)}/>}
 
