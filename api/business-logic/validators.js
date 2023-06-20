@@ -11,7 +11,6 @@ function validateNetwork(networkName) {
 }
 
 function validateAssetName(asset) {
-    throw new Error('something')
     if (typeof asset === 'string') {
         const [code, issuer, type] = asset.split('-')
         if (issuer) {
