@@ -10,8 +10,8 @@ async function aggregateMarketCandlesData(network, baseAsset, quoteAsset, query)
     validateAssetName(quoteAsset)
     const {from, to, resolution, order} = parseBoundaries(query)
 
-    const assetIds = await resolveAssetIds([new AssetDescriptor(baseAsset).toFQAN(), new AssetDescriptor(quoteAsset).toFQAN()])
-    if (assetIds.some(a => !a) || assetIds.length < 2)
+    const assetIds = await resolveAssetIds(network, [new AssetDescriptor(baseAsset).toFQAN(), new AssetDescriptor(quoteAsset).toFQAN()])
+    if (assetIds.some(a => !(a >= 0)) || assetIds.length < 2)
         throw errors.notFound(`Unknown asset pair ${baseAsset}/${quoteAsset}.`)
     //match the original assets
 

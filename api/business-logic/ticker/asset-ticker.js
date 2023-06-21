@@ -19,7 +19,7 @@ async function queryAssetTicker(network, symbol) {
     validateAssetName(baseAsset)
     validateAssetName(quoteAsset)
 
-    const assetIds = await resolveAssetIds([new AssetDescriptor(baseAsset).toFQAN(), new AssetDescriptor(quoteAsset).toFQAN()])
+    const assetIds = await resolveAssetIds(network, [new AssetDescriptor(baseAsset).toFQAN(), new AssetDescriptor(quoteAsset).toFQAN()])
     if (assetIds.some(a => !a) || assetIds.length < 2)
         throw errors.notFound(`Unknown asset pair ${baseAsset}/${quoteAsset}.`)
     //match the original assets

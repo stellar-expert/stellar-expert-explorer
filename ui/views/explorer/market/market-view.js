@@ -19,9 +19,9 @@ function MarketSummaryView({marketInfo, buying, selling}) {
     return <>
         <div className="row">
             <div className="column column-50">
-                <div className="card">
+                <div className="segment blank">
                     <h3>Summary</h3>
-                    <hr/>
+                    <hr className="flare"/>
                     <dl>
                         <dt>Base asset:</dt>
                         <dd><AssetLink asset={buying}/>
@@ -69,25 +69,22 @@ function MarketSummaryView({marketInfo, buying, selling}) {
                 </div>
             </div>
             <div className="column column-50 relative">
-                <div className="card">
-                    <MarketPriceChartView buying={buying} selling={selling} currency={selling.toCurrency()}/>
-                </div>
+                <MarketPriceChartView buying={buying} selling={selling} currency={selling.toCurrency()}/>
             </div>
         </div>
         <div className="row space">
             <div className="column column-50">
-                <div className="card">
+                <div className="segment blank">
                     <h3>Orderbook</h3>
-                    <hr/>
-                    <div className="space">
-                        <Orderbook selling={buying} buying={selling}/>
-                    </div>
+                    <hr className="flare"/>
+                    <div style={{marginTop: '-2em'}}/>
+                    <Orderbook selling={buying} buying={selling}/>
                 </div>
             </div>
             <div className="column column-50">
-                <div className="card">
+                <div className="segment blank">
                     <h3>Recent Trades</h3>
-                    <hr/>
+                    <hr className="flare"/>
                     <div className="relative" style={{height: 'calc(100% - 3em)'}}>
                         <MarketTrades baseAsset={buying} counterAsset={selling}/>
                     </div>
