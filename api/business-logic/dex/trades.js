@@ -1,16 +1,16 @@
-const db = require('../../connectors/mongodb-connector'),
-    {Long} = require('bson'),
-    QueryBuilder = require('../query-builder'),
-    {preparePagedData, normalizeOrder} = require('../api-helpers'),
-    {resolveAssetId, AssetJSONResolver} = require('../asset/asset-resolver'),
-    {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver'),
-    {validateNetwork, validateAssetName, validateAccountAddress, validateOfferId, validatePoolId} = require('../validators'),
-    {parseDate} = require('../../utils/date-utils'),
-    {LiquidityPoolJSONResolver, resolveLiquidityPoolId} = require('../liquidity-pool/liquidity-pool-resolver')
+const {Long} = require('bson')
+const db = require('../../connectors/mongodb-connector')
+const QueryBuilder = require('../query-builder')
+const {parseDate} = require('../../utils/date-utils')
+const {preparePagedData, normalizeOrder} = require('../api-helpers')
+const {resolveAssetId, AssetJSONResolver} = require('../asset/asset-resolver')
+const {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver')
+const {validateNetwork, validateAssetName, validateAccountAddress, validateOfferId, validatePoolId} = require('../validators')
+const {LiquidityPoolJSONResolver, resolveLiquidityPoolId} = require('../liquidity-pool/liquidity-pool-resolver')
 
 function buildHintPredicate(objectiveFilterCondition) {
     const res = {}
-    for (let key in objectiveFilterCondition) {
+    for (const key of Object.keys(objectiveFilterCondition)) {
         res[key] = 1
     }
     //enforce only for specific indexes
@@ -45,25 +45,25 @@ async function queryTradesList(network, queryFilter, basePath, {ts, order, curso
         })
         .toArray()
 
-    const assetResolver = new AssetJSONResolver(network),
-        accountResolver = new AccountAddressJSONResolver(network),
-        poolResolver = new LiquidityPoolJSONResolver(network)
+    const assetResolver = new AssetJSONResolver(network)
+    const accountResolver = new AccountAddressJSONResolver(network)
+    const poolResolver = new LiquidityPoolJSONResolver(network)
 
     rows = rows.map(({_id, operation, offerId, poolId, account, asset, amount}) => {
         return {
             id: _id,
             paging_token: _id,
             ts: _id.getHighBits(),
-            operation: operation,
+            operation,
             offer: offerId,
             pool: poolResolver.resolve(poolId),
-            seller: poolId ? undefined : accountResolver.resolve(account[0]),
-            sold_asset: assetResolver.resolve(asset[0]),
-            sold_amount: amount[0],
-            buyer: accountResolver.resolve(account[poolId ? 0 : 1]),
-            bought_asset: assetResolver.resolve(asset[1]),
-            bought_amount: amount[1],
-            price: amount[1].toNumber() / amount[0].toNumber()
+            seller: poolId ? undefined : accountResolver.resolve(account[1]),
+            sold_asset: assetResolver.resolve(asset[1]),
+            sold_amount: amount[1],
+            buyer: accountResolver.resolve(account[0]),
+            bought_asset: assetResolver.resolve(asset[0]),
+            bought_amount: amount[0],
+            price: amount[0].toNumber() / amount[1].toNumber()
         }
     })
     await Promise.all([assetResolver.fetchAll(), accountResolver.fetchAll(), poolResolver.fetchAll()])

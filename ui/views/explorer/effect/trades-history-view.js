@@ -20,8 +20,7 @@ export default function TradesHistoryView({endpoint}) {
         <table className="table exportable" data-export-prefix="trades">
             <thead>
                 <tr>
-                    <th className="collapsing">Operation</th>
-                    <th>Details</th>
+                    <th>Trade</th>
                     <th className="collapsing">Date</th>
                 </tr>
             </thead>
@@ -44,24 +43,25 @@ export default function TradesHistoryView({endpoint}) {
                     const sold = AssetDescriptor.parse(sold_asset)
                     const bought = AssetDescriptor.parse(bought_asset)
                     const counter = pool ?
-                        <><AssetLink asset={pool}/> pool</> :
-                        <><AccountAddress account={seller} chars={8}/> (offer <OfferLink offer={offer}/>)</>
+                        <>on&nbsp;<AssetLink asset={pool}/>&nbsp;pool</> :
+                        <>on&nbsp;offer&nbsp;<OfferLink offer={offer}/>&nbsp;by&nbsp;<AccountAddress account={seller} chars={8}/></>
 
                     return <tr key={paging_token}>
-                        <td data-header="Operation: ">
-                            <a href={resolvePath('op/' + operation)} className="nowrap">{operation}</a>
-                        </td>
-                        <td data-header="Details: ">
+                        <td data-header="Trade: ">
                             <AccountAddress account={buyer} chars={8}/> exchanged{' '}
                             <Amount amount={sold_amount} asset={sold} adjust/> <i className="icon icon-shuffle  color-primary"/>{' '}
                             <Amount amount={bought_amount} asset={bought} adjust/> at{' '}
                             <span className="nowrap">
-                                ({formatPrice(price, 4)}{bought.toCurrency()}/{sold.toCurrency()})
+                                {formatPrice(price, 4)}{bought.toCurrency()}/{sold.toCurrency()}
                             </span>{' '}
-                            from {counter}
+                            {counter}
+                            <div className="mobile-only">
+                                <span className="dimmed">Operation:&nbsp;</span>
+                                <a href={resolvePath('op/' + operation)} className="nowrap">{operation}</a>
+                            </div>
                         </td>
                         <td data-header="Date: ">
-                            <UtcTimestamp date={ts} className="nowrap"/>
+                            <a href={resolvePath('op/' + operation)} className="nowrap"><UtcTimestamp date={ts} className="nowrap"/></a>
                         </td>
                     </tr>
                 })}
