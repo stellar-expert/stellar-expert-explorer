@@ -6,5 +6,5 @@ import appSettings from '../../app-settings'
  */
 export function isDirectoryAdmin(githubUser) {
     if (!githubUser) return false
-    return appSettings.directoryAdmins.includes(githubUser.name)
+    return appSettings.directoryAdmins.includes(githubUser.name.toLowerCase())
 }
