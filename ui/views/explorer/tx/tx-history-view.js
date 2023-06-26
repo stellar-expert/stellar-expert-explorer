@@ -57,5 +57,7 @@ function TxMemo({tx}) {
     } else if (value instanceof Buffer) {
         value = value.toString('base64')
     }
+    if (!value)
+        return null
     return <div className="nano-space dimmed condensed text-tiny">Memo: {value}</div>
 }
