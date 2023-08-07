@@ -15,7 +15,8 @@ function getUniqueKey(balance) {
 }
 
 function resolveBalanceValue(balance, valueInfo) {
-    if (!valueInfo || valueInfo.error || !balance) return
+    if (!valueInfo || valueInfo.error || !balance)
+        return
     const balanceValue = isPoolShare(balance) ?
         valueInfo.pool_stakes.find(ps => ps.pool === balance.liquidity_pool_id) :
         valueInfo.trustlines.find(ps => balance.asset_type === 'native' ?
@@ -23,9 +24,11 @@ function resolveBalanceValue(balance, valueInfo) {
             ps.asset === parseAssetFromObject(balance).toFQAN())
 
     let {value} = balanceValue || {}
-    if (!value) return '-'
+    if (!value)
+        return '-'
     value /= 10000000
-    if (value < 0.01) return '<0.01 ' + valueInfo.currency
+    if (value < 0.01)
+        return '<0.01 ' + valueInfo.currency
     return `~${formatWithAutoPrecision(value)} ${valueInfo.currency}`
 }
 

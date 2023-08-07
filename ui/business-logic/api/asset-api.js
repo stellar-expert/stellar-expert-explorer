@@ -1,5 +1,6 @@
 import {useDependantState, useExplorerApi, loadAccount} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
+import {fromStroops} from '@stellar-expert/formatter'
 
 export function useAssetInfo(asset) {
     const [descriptor] = useDependantState(() => {
@@ -29,10 +30,10 @@ export function useAssetInfo(asset) {
                 ...stats,
                 descriptor,
                 supply: stats.supply,
-                payments_amount: denominate(stats.payments_amount),
-                traded_amount: denominate(stats.traded_amount),
-                volume: denominate(stats.volume),
-                volume7d: denominate(stats.volume7d),
+                payments_amount: fromStroops(stats.payments_amount),
+                traded_amount: fromStroops(stats.traded_amount),
+                volume: fromStroops(stats.volume),
+                volume7d: fromStroops(stats.volume7d),
                 price: stats.price,
                 price_dynamic: price7d.map(([ts, price]) => [ts * 1000, price])
             }
@@ -85,11 +86,6 @@ export function useAssetIssuerInfo(descriptor) {
         return undefined
     }, [descriptor?.issuer?.toString()])
     return issuerInfo
-}
-
-function denominate(value) {
-    if (typeof value !== 'number') return value
-    return value / 10000000
 }
 
 export function useAssetOverallStats() {

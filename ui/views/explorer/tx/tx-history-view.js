@@ -59,5 +59,5 @@ function TxMemo({tx}) {
     }
     if (!value)
         return null
-    return <div className="nano-space dimmed condensed text-tiny">Memo: {value}</div>
+    return <div className="dimmed condensed text-tiny" style={{marginLeft: '3.6em'}}>Memo: {value}</div>
 }
