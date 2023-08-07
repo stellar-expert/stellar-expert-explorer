@@ -22,7 +22,7 @@ export default function AccountSearchResultsView({term, onLoaded}) {
         onLoaded(null)
         return null
     }
-    const results = records.map(({account, created, trades, payments, deleted}) => {
+    const results = records.map(({account, created, trades=0, payments=0, deleted}) => {
         const address = account === accountAddress ? term : account //replace result for a muxed account
         return {
             link: resolvePath(`account/${address}`),

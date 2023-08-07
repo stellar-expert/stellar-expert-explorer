@@ -13,7 +13,7 @@ export default function OfferSearchResultsView({term, onLoaded}) {
         onLoaded(null)
         return null
     }
-    const {id, account, created, trades, amount, selling, buying, price, deleted} = data,
+    const {id, account, created, trades=0, amount, selling, buying, price, deleted} = data,
         basePath = resolvePath(`offer/${id}`)
     const results = [{
         link: basePath,

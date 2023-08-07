@@ -27,7 +27,7 @@ export default function AssetSearchResultsView({term, onLoaded}) {
             onLoaded(null)
             return null
         }
-        for (const {asset, created, trades, payments, trustlines} of records) {
+        for (const {asset, created, trades = 0, payments = 0, trustlines} of records) {
             results.push({
                 link: resolvePath(`asset/${asset}`),
                 title: <>Asset <AssetLink asset={asset} link={false}/></>,
