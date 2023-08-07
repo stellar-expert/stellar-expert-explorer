@@ -8,7 +8,7 @@ async function queryLedgerStats(network) {
         .sort({_id: 1})
     const data = await query.toArray()
 
-    for (let entry of data) {
+    for (const entry of data) {
         entry.ts = entry._id
         delete entry._id
     }
