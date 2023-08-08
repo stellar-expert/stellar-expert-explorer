@@ -155,15 +155,16 @@ async function queryHolderPosition(network, asset, account) {
         .findOne({account: accountId, asset: assetId}, {projection: {_id: 0, balance: 1}})
 
     if (!entry)
-        throw  errors.notFound(`Trustline for account ${account} to asset ${asset} not found`)
+        throw errors.notFound(`Trustline for account ${account} to asset ${asset} not found`)
     const position = await db[network].collection('trustlines')
         .countDocuments({asset: assetId, balance: {$gt: entry.balance}}) + 1
 
     const {trustlines} = await db[network].collection('assets')
         .findOne({_id: assetId}, {projection: {trustlines: 1}})
 
-    if (!entry) throw errors.notFound()
-    return {account, asset, total: trustlines.funded || trustlines.total || position, ...entry, position}
+    if (!entry)
+        throw errors.notFound()
+    return {account, asset, total: trustlines[2] || trustlines[0] || position, ...entry, position}
 }
 
 const distributionThresholds = {

@@ -90,7 +90,7 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
             sortOrder = {'trades': -1}
             break
         case 'trustlines':
-            sortOrder = {'trustlines.total': -1}
+            sortOrder = {'trustlines.0': -1}
             break
         case 'volume':
             sortOrder = {'volume': -1}
