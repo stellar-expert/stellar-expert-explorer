@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useEffect, useRef, useState, useCallback} from 'react'
 import {useExplorerApi} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import Chart from '../../components/chart/chart'
@@ -61,10 +61,10 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
         }
     }
 
-    function loadScaledData(chart, min, max) {
+    const loadScaledData = useCallback(function loadScaledData(chart, min, max) {
         if (loadCallbackRef.current)
             return
-        chart.showLoading('Loading data...')
+        chart.showLoading('...')
         loadCallbackRef.current = function (data) {
             //update chart data on scale-in
             const {prices, volumes} = processData(data)
@@ -75,7 +75,8 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
         }
         setFrom(Math.floor(min / 1000 / 3600) * 3600)
         setTo(Math.round(max / 1000))
-    }
+    }, [])
+
 
     useEffect(() => {
         //reset navigator data on pair change
@@ -172,9 +173,9 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
     }, [navigatorData])
 
     if (!navigatorData)
-        return <Chart.Loader/>
+        return <Chart.Loader title={title}/>
     if (!navigatorData.data.length)
-        return <Chart.Loader/>
+        return <Chart.Loader title={title} unavailable/>
 
     return <Chart type="StockChart" options={config} range noLegend title={title}/>
 })

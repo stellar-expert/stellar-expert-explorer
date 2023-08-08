@@ -5,7 +5,7 @@ import {useAssetHistory} from '../../../../business-logic/api/asset-api'
 
 export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noTitle}) {
     const {data, loaded} = useAssetHistory(asset.descriptor)
-    if (!loaded || !data.history.length)
+    if (!loaded)
         return <Chart.Loader/>
     const options = {
         plotOptions: {

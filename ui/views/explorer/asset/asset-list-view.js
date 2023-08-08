@@ -82,7 +82,7 @@ export default function AssetListView({rows = 30, compact = false}) {
                                 <Amount amount={supply} adjust round/>
                             </td>
                             <td className="holders text-right" key="holders" data-header="Holders: ">
-                                <Amount amount={trustlines[2]}/>
+                                <Amount amount={trustlines[2]}/>/<Amount amount={trustlines[0]}/>
                             </td>
                             <td className="transfers text-right" key="transfers" data-header="Payments: ">
                                 <Amount amount={payments}/>

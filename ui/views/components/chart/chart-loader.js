@@ -3,8 +3,12 @@ import cn from 'classnames'
 
 const placeholderBars = [30, 60, 42, 40, 70, 62, 80, 83]
 
-export function ChartLoader({unavailable = false, container}) {
+export function ChartLoader({title, unavailable = false, container}) {
     return <div className={cn('chart', container !== undefined ? container : 'segment blank')}>
+        {!!title && <>
+            <h3>{title}</h3>
+            <hr className="flare"/>
+        </>}
         <div className="chart-placeholder">
             {placeholderBars.map(v => <div key={v} style={{height: v + '%'}}/>)}
         </div>

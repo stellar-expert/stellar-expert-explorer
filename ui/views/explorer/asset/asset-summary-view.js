@@ -8,10 +8,10 @@ import AssetPriceChange from './asset-price-change'
 
 function formatTrustlines({total, authorized, funded}) {
     return <>
-        {formatWithPrecision(total, 0)}
+        {formatWithPrecision(total || 0, 0)}
         {(authorized > 0 || funded > 0) && <>&nbsp;total</>}
-        {/*{authorized > 0 && <> / {formatWithPrecision(authorized, 0)}&nbsp;authorized</>}*/}
-        {funded > 0 && <> / {formatWithPrecision(funded, 0)}&nbsp;funded</>}
+        {/*{authorized > 0 && <> / {formatWithPrecision(authorized||0, 0)}&nbsp;authorized</>}*/}
+        {funded > 0 && <> / {formatWithPrecision(funded || 0, 0)}&nbsp;funded</>}
     </>
 }
 
@@ -81,7 +81,7 @@ export default function AssetSummaryView({asset}) {
         </>}
         <dt>Total payments count:</dt>
         <dd>
-            {formatWithPrecision(asset.payments, 0)}
+            {formatWithPrecision(asset.payments || 0, 0)}
             <Info>Total count of all payments with the asset recorded on the ledger.</Info>
         </dd>
         <dt>Overall payments volume:</dt>
@@ -91,7 +91,7 @@ export default function AssetSummaryView({asset}) {
         </dd>
         <dt>Total trades count:</dt>
         <dd>
-            {formatWithPrecision(asset.trades, 0)}
+            {formatWithPrecision(asset.trades || 0, 0)}
             <Info>Total count of all trades with the asset recorded on the Stellar ledger.</Info>
         </dd>
         {!!asset.volume && <>

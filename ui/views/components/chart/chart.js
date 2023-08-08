@@ -62,7 +62,7 @@ export default function Chart({
 
 
     if (!options) {
-        return <ChartLoader/>
+        return <ChartLoader title={title}/>
     }
     const containerStyle = {...style}
     if (inline) {
