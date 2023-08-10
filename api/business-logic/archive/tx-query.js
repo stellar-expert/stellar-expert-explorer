@@ -119,18 +119,24 @@ class TxQuery {
         for (let i = 0; i < type.length; i++) {
             let value = type[i]
             if (typeof value === 'string') {
-                //process types group
+                //match op type by name or by group name
                 const mapped = typeMapping[value]
-                if (mapped instanceof Array) {
-                    for (const type of mapped) {
-                        searchTypes.add(type)
+                if (mapped !== undefined) {
+                    if (mapped instanceof Array) {
+                        for (const type of mapped) {
+                            searchTypes.add(type)
+                        }
+                    } else {
+                        searchTypes.add(mapped)
                     }
                     continue
                 }
+                //is it a numeric op type code?
                 value = parseInt(value, 10)
             }
             if (typeof value !== 'number' || !(value >= 0 && value <= 23))
                 throw errors.validationError('type', `Invalid type filter: ${value}.`)
+            searchTypes.add(value)
         }
         if (searchTypes.size) {
             filters.push({terms: {type: Array.from(searchTypes)}})
@@ -469,7 +475,31 @@ const typeMapping = {
     payments: [0, 1, 2, 8, 9, 13, 14, 15, 19, 20],
     trustlines: [6, 7, 21],
     dex: [3, 4, 12, 22, 23],
-    settings: [0, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 21]
+    settings: [0, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 21],
+    createAccount: 0,
+    payment: 1,
+    pathPaymentStrictReceive: 2,
+    pathPaymentStrictSend: 13,
+    createPassiveSellOffer: 4,
+    manageSellOffer: 3,
+    manageBuyOffer: 12,
+    setOptions: 5,
+    changeTrust: 6,
+    allowTrust: 7,
+    accountMerge: 8,
+    inflation: 9,
+    manageData: 10,
+    bumpSequence: 11,
+    createClaimableBalance: 14,
+    claimClaimableBalance: 15,
+    beginSponsoringFutureReserves: 16,
+    endSponsoringFutureReserves: 17,
+    revokeSponsorship: 18,
+    clawback: 19,
+    clawbackClaimableBalance: 20,
+    setTrustLineFlags: 21,
+    liquidityPoolDeposit: 22,
+    liquidityPoolWithdraw: 23
 }
 
 function enforceArray(value) {
