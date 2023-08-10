@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {AccountAddress, Amount, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
+import {fromStroops} from '@stellar-expert/formatter'
 import {getCssVar, hexToRgbArray, rgbArrayToRgba} from '../../../util/css-var-utils'
 import GridDataActionsView from '../../components/grid-data-actions'
 import AssetHolderPositionView from './asset-holder-position-view'
@@ -33,11 +34,11 @@ export default function AssetHoldersListView({asset}) {
                     </tr>
                 </thead>
                 <tbody>
-                    {holders.data.map(holder => {
+                    {holders.data.map(({account, balance}) => {
                         let share
                         let rowStyle
                         if (totalSupply > 0) {
-                            share = 100 * holder.balance / totalSupply
+                            share = 100 * balance / totalSupply
                             if (share > 0.01) {
                                 share = share.toFixed(2)
                                 rowStyle = {
@@ -48,12 +49,12 @@ export default function AssetHoldersListView({asset}) {
                             }
                         }
 
-                        return <tr key={holder.account} style={rowStyle}>
+                        return <tr key={account} style={rowStyle}>
                             <td data-header="Account: ">
-                                <AccountAddress account={holder.account} chars="all"/>
+                                <AccountAddress account={account} chars="all"/>
                             </td>
                             <td data-header="Balance: " className="text-right nowrap condensed">
-                                <Amount adjust icon={false} amount={holder.balance} asset={asset.descriptor.toCurrency()}/>
+                                <Amount adjust icon={false} amount={balance} asset={asset.descriptor.toCurrency()}/>
                                 {share > 0 && <span className="dimmed text-small"> ({share}%)</span>}
                             </td>
                         </tr>
