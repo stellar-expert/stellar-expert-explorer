@@ -1,9 +1,10 @@
 import React from 'react'
-import {AccountAddress, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {AccountAddress, InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
 
-export default function AccountSignersView({account}) {
+export default withErrorBoundary(function AccountSignersView({account}) {
     const {ledgerData} = account
-    if (!ledgerData) return null
+    if (!ledgerData)
+        return null
     return <>
         <h4 style={{marginBottom: 0}}>Account Signers
             <Info link="https://www.stellar.org/developers/guides/concepts/accounts.html#signers">Used for
@@ -16,4 +17,4 @@ export default function AccountSignersView({account}) {
             </li>)}
         </ul>
     </>
-}
+})

@@ -1,11 +1,11 @@
 import React, {useState} from 'react'
 import deepMerge from 'deepmerge'
 import {TxOperationsList, UtcTimestamp} from '@stellar-expert/ui-framework'
-import {useStellarNetwork, useTxHistory, parseTxDetails, formatExplorerLink} from '@stellar-expert/ui-framework'
+import {useStellarNetwork, useTxHistory, parseTxDetails, formatExplorerLink, withErrorBoundary} from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
 import TxFilterView from './filters/tx-filter-view'
 
-export default function TxHistoryView({presetFilter}) {
+export default withErrorBoundary(function TxHistoryView({presetFilter}) {
     const network = useStellarNetwork()
     const [filters, setFilters] = useState(presetFilter ? deepMerge({}, presetFilter) : {})
     const txHistory = useTxHistory(filters)
@@ -17,7 +17,7 @@ export default function TxHistoryView({presetFilter}) {
         meta: tx.meta,
         context: filters,
         createdAt: tx.ts
-    }))
+    }))//.filter(tx => !!tx.operations.length)
     return <div className="relative segment blank">
         {!!loading && data.length > 0 && <div className="loader cover"/>}
         <TxFilterView presetFilter={presetFilter} onChange={setFilters}/>
@@ -46,9 +46,9 @@ export default function TxHistoryView({presetFilter}) {
         {!loading && !data.length && <div className="dimmed text-center text-small space">(no transactions matching search criteria)</div>}
         {!!data.length && <GridDataActionsView model={txHistory}/>}
     </div>
-}
+})
 
-function TxMemo({tx}) {
+const TxMemo = React.memo(function TxMemo({tx}) {
     if (!tx.memo)
         return null
     let value = tx.memo.value
@@ -60,4 +60,4 @@ function TxMemo({tx}) {
     if (!value)
         return null
     return <div className="dimmed condensed text-tiny" style={{marginLeft: '3.6em'}}>Memo: {value}</div>
-}
+})

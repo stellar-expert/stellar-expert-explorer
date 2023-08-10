@@ -1,5 +1,5 @@
 import React from 'react'
-import {Amount, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {Amount, UtcTimestamp, InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import {useAssetHistory} from '../../../business-logic/api/asset-api'
 import AuthorizationFlags from '../account/account-authorization-flags-view'
@@ -15,7 +15,7 @@ function formatTrustlines({total, authorized, funded}) {
     </>
 }
 
-export default function AssetSummaryView({asset}) {
+export default withErrorBoundary(function AssetSummaryView({asset}) {
     const {descriptor, issuerInfo} = asset
     const history = useAssetHistory(descriptor)
     return <dl>
@@ -111,4 +111,4 @@ export default function AssetSummaryView({asset}) {
         {!!issuerInfo && <AuthorizationFlags accountInfo={issuerInfo}/>}
         {!!issuerInfo && <LockStatus accountInfo={issuerInfo} forAsset/>}
     </dl>
-}
+})

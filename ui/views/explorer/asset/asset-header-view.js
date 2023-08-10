@@ -1,8 +1,8 @@
 import React from 'react'
-import {AccountAddress, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {AccountAddress, InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
 import AssetVerificationStatusView from './asset-verification-status-view'
 
-export default function AssetHeaderView({asset, subtitle}) {
+export default withErrorBoundary(function AssetHeaderView({asset, subtitle}) {
     const {descriptor} = asset
     return <>
         <h2>
@@ -20,4 +20,4 @@ export default function AssetHeaderView({asset, subtitle}) {
             </Info>
         </div>}
     </>
-}
+})

@@ -1,5 +1,5 @@
 import React from 'react'
-import {Tabs, useExplorerApi} from '@stellar-expert/ui-framework'
+import {Tabs, useExplorerApi, withErrorBoundary} from '@stellar-expert/ui-framework'
 import TomlTransferServerView from './toml-transfer-server-view'
 import TomlPaymentServerView from './toml-payment-server-view'
 import TomlInteropView from './toml-interop-view'
@@ -7,10 +7,12 @@ import TomlSection from './toml-section-view'
 import TomlWarningsView from './toml-warnings-view'
 import TomlRawContentView from './toml-raw-content-view'
 
-export default function TomlInfoView({homeDomain, account, assetMeta, className, showInteropInfo = true}) {
+export default withErrorBoundary(function TomlInfoView({homeDomain, account, assetMeta, className, showInteropInfo = true}) {
     const {loaded: tomlInfoLoaded, data: tomlInfo} = useExplorerApi('domain-meta?domain=' + encodeURIComponent(homeDomain))
-    if (!homeDomain || !tomlInfoLoaded || !tomlInfo) return null
-    if (assetMeta && assetMeta.domain !== homeDomain) return null
+    if (!homeDomain || !tomlInfoLoaded || !tomlInfo)
+        return null
+    if (assetMeta && assetMeta.domain !== homeDomain)
+        return null
     const {meta, tomlCid, warnings, interop} = tomlInfo
     if (!assetMeta) {
         //check whether this account is mentioned anywhere in the TOML
@@ -105,7 +107,10 @@ export default function TomlInfoView({homeDomain, account, assetMeta, className,
             render: () => <TomlWarningsView warnings={warnings}/>
         })
     }
-    if (!tabs.length) return null
+    if (!tabs.length)
+        return null
 
-    return <div id="toml-props"><Tabs right tabs={tabs} className={className}/></div>
-}
+    return <div id="toml-props">
+        <Tabs right tabs={tabs} className={className}/>
+    </div>
+})

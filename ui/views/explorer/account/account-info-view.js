@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import TomlInfoView from '../toml/toml-info-view'
 import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
@@ -13,7 +13,7 @@ import AccountCurrentBalancesView from './account-current-balances-view'
 import AccountBalanceChart from './charts/account-balance-chart-view'
 import AccountHistoryTabs from './account-history-tabs-view'
 
-export default function AccountInfoView({account}) {
+export default withErrorBoundary(function AccountInfoView({account}) {
     const [selectedAsset, setSelectedAsset] = useState('XLM')
     if (!account) return <div className="loader"/>
     if (account.nonExistentAccount) return <ErrorNotificationBlock>
@@ -59,4 +59,4 @@ export default function AccountInfoView({account}) {
             <TomlInfoView account={account.address} homeDomain={account.ledgerData.home_domain} className="space"/>}
         <AccountHistoryTabs account={account}/>
     </div>
-}
+})

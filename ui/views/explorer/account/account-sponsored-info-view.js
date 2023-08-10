@@ -1,5 +1,5 @@
 import React from 'react'
-import {AssetLink, AccountAddress, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {AssetLink, AccountAddress, InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
 import {parseAssetFromObject} from '@stellar-expert/asset-descriptor'
 
 function retrieveSponsoredInfo(ledgerData) {
@@ -7,7 +7,7 @@ function retrieveSponsoredInfo(ledgerData) {
     if (ledgerData.sponsor) {
         res.push({key: 'account', title: 'Account base reserve', sponsor: ledgerData.sponsor})
     }
-    for (let balance of ledgerData.balances) {
+    for (const balance of ledgerData.balances) {
         if (balance.sponsor) {
             const asset = parseAssetFromObject(balance)
             res.push({
@@ -19,7 +19,7 @@ function retrieveSponsoredInfo(ledgerData) {
             })
         }
     }
-    for (let signer of ledgerData.signers) {
+    for (const signer of ledgerData.signers) {
         if (signer.sponsor) {
             res.push({
                 key: signer.key,
@@ -33,11 +33,13 @@ function retrieveSponsoredInfo(ledgerData) {
     return res
 }
 
-export default function AccountSponsoredInfoView({account}) {
+export default withErrorBoundary(function AccountSponsoredInfoView({account}) {
     const {ledgerData} = account || {}
-    if (!ledgerData) return null
+    if (!ledgerData)
+        return null
     const {num_sponsoring, num_sponsored} = ledgerData
-    if (!num_sponsored && !num_sponsoring) return null
+    if (!num_sponsored && !num_sponsoring)
+        return null
     return <>
         <h4 style={{marginBottom: 0}}>Sponsored reserves
             <Info link="https://developers.stellar.org/docs/glossary/sponsored-reserves/">The sponsoring account
@@ -53,4 +55,4 @@ export default function AccountSponsoredInfoView({account}) {
             </li>)}
         </ul>
     </>
-}
+})

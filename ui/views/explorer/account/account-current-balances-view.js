@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react'
 import {parseAssetFromObject} from '@stellar-expert/asset-descriptor'
 import {stripTrailingZeros, formatWithPrecision, formatWithAutoPrecision} from '@stellar-expert/formatter'
-import {AssetLink, calculateAvailableBalance, useExplorerApi} from '@stellar-expert/ui-framework'
+import {AssetLink, calculateAvailableBalance, useExplorerApi, withErrorBoundary} from '@stellar-expert/ui-framework'
 import './account-balances.scss'
 
 function isPoolShare(balance) {
@@ -58,7 +58,7 @@ function AccountBalanceView({account, balance, valueInfo, onClick}) {
     </a>
 }
 
-export default function AccountCurrentBalancesView({account, onSelectAsset}) {
+export default withErrorBoundary(function AccountCurrentBalancesView({account, onSelectAsset}) {
     const {address, ledgerData, deleted} = account
     const {data: valueInfo} = useExplorerApi(`account/${address}/value`)
     if (deleted)
@@ -81,4 +81,4 @@ export default function AccountCurrentBalancesView({account, onSelectAsset}) {
                                               onClick={onSelectAsset}/>)}
         </div>
     </>
-}
+})

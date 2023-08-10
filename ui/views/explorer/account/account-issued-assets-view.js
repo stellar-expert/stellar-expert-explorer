@@ -1,9 +1,9 @@
 import React, {useState} from 'react'
-import {AssetLink, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {AssetLink, InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {useAccountIssuedAssets} from '../../../business-logic/api/account-api'
 
-export default function AccountIssuedAssetsView({address}) {
+export default withErrorBoundary(function AccountIssuedAssetsView({address}) {
     const [expanded, setExpanded] = useState(false),
         {data: issuedAssets, loaded} = useAccountIssuedAssets(address)
 
@@ -44,4 +44,4 @@ export default function AccountIssuedAssetsView({address}) {
             </>}
         </div>
     </div>
-}
+})

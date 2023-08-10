@@ -1,5 +1,5 @@
 import React from 'react'
-import {AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info, useResolvedFederationName} from '@stellar-expert/ui-framework'
+import {AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info, useResolvedFederationName, withErrorBoundary} from '@stellar-expert/ui-framework'
 import AccountAuthorizationFlags from './account-authorization-flags-view'
 import LockStatus from './account-lock-status-view'
 
@@ -10,7 +10,7 @@ function ActivityIndexDescription() {
     </>
 }
 
-export default function AccountBasicPropertiesView({account}) {
+export default withErrorBoundary(function AccountBasicPropertiesView({account}) {
     const {ledgerData} = account
     const federationAddress = useResolvedFederationName(account)
     return <>
@@ -121,4 +121,4 @@ export default function AccountBasicPropertiesView({account}) {
             <Info>Established asset trustlines.</Info>
         </div>*/}
     </>
-}
+})

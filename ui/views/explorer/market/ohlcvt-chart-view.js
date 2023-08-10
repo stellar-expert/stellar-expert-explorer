@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState, useCallback} from 'react'
 import {useExplorerApi} from '@stellar-expert/ui-framework'
-import {formatWithAutoPrecision} from '@stellar-expert/formatter'
+import {formatWithAutoPrecision, formatPrice} from '@stellar-expert/formatter'
 import Chart from '../../components/chart/chart'
 
 /**
@@ -103,11 +103,11 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
             tooltip: {
                 pointFormatter() {
                     if (this.open === undefined)
-                        return `<span class="dimmed">Volume: </span>${formatWithAutoPrecision(this.y)} ${currency}<br/>`
-                    return `<span class="dimmed">Open: </span>${this.open} ${currency}<br/>
-<span class="dimmed">High: </span>${this.high} ${currency}<br/>
-<span class="dimmed">Low: </span>${this.low} ${currency}<br/>
-<span class="dimmed">Close: </span>${this.close} ${currency}<br/>`
+                        return `<span class="dimmed">Volume: </span><b>${formatWithAutoPrecision(this.y)} ${currency}</b><br/>`
+                    return `<span class="dimmed">Open: </span><b>${formatPrice(this.open)} ${currency}</b><br/>
+<span class="dimmed">High: </span><b>${formatPrice(this.high)} ${currency}</b><br/>
+<span class="dimmed">Low: </span><b>${formatPrice(this.low)} ${currency}</b><br/>
+<span class="dimmed">Close: </span><b>${formatPrice(this.close)} ${currency}</b><br/>`
                 }
             },
             navigator: {
