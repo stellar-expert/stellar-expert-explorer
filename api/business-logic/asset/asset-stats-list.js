@@ -1,7 +1,6 @@
-const db = require('../../connectors/mongodb-connector'),
-    QueryBuilder = require('../query-builder'),
-    {validateNetwork} = require('../validators'),
-    errors = require('../errors')
+const db = require('../../connectors/mongodb-connector')
+const QueryBuilder = require('../query-builder')
+const {validateNetwork} = require('../validators')
 
 async function queryAssetsOverallStats(network) {
     validateNetwork(network)
@@ -10,7 +9,7 @@ async function queryAssetsOverallStats(network) {
         payments: {$gt: 0}
     })
 
-    const res = await db[network].collection('assets').aggregate([
+    const [res] = await db[network].collection('assets').aggregate([
         {
             $match: q.query
         },
@@ -20,7 +19,7 @@ async function queryAssetsOverallStats(network) {
                 total_assets: {'$sum': 1},
                 payments: {$sum: '$payments'},
                 trades: {$sum: '$trades'},
-                volume: {$sum: '$volume'}
+                volume: {$sum: '$quoteVolume'}
             }
         },
         {
@@ -29,7 +28,8 @@ async function queryAssetsOverallStats(network) {
     ])
         .toArray()
 
-    return res[0]
+    res.volume = Math.round(res.volume)
+    return res
 }
 
 module.exports = {queryAssetsOverallStats}
