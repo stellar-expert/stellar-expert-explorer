@@ -1,9 +1,9 @@
+const {Long} = require('mongodb')
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
 const {validateNetwork, validateAssetName} = require('../validators')
 const {anyToNumber} = require('../../utils/formatter')
 const AssetDescriptor = require('./asset-descriptor')
-const {Long} = require('mongodb')
 
 async function queryAssetStats(network, asset) {
     validateNetwork(network)
@@ -28,8 +28,8 @@ async function queryAssetStats(network, asset) {
         trades: assetInfo.totalTrades,
         traded_amount: assetInfo.baseVolume,
         price: assetInfo.lastPrice,
-        volume: assetInfo.quoteVolume,
-        volume7d: assetInfo.volume7d,
+        volume: Math.round(assetInfo.quoteVolume),
+        volume7d: Math.round(assetInfo.volume7d),
         price7d: assetInfo.price7d
     }
 
