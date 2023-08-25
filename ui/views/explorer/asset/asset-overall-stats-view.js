@@ -26,7 +26,7 @@ export default function AssetsOverallStatsView() {
             </dd>
             <dt>Overall DEX volume:</dt>
             <dd>
-                <Amount amount={assetStats.volume} asset="XLM" adjust round issuer={false}/>
+                <Amount amount={assetStats.volume} asset="USD" adjust round issuer={false}/>
                 <Info>Total volume of all on-chain trades in XLM.</Info>
             </dd>
         </> : <div className="loader"/>

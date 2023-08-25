@@ -1,7 +1,6 @@
 import React from 'react'
 import {Amount, UtcTimestamp, InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
 import {formatWithPrecision} from '@stellar-expert/formatter'
-import {useAssetHistory} from '../../../business-logic/api/asset-api'
 import AuthorizationFlags from '../account/account-authorization-flags-view'
 import LockStatus from '../account/account-lock-status-view'
 import AssetPriceChange from './asset-price-change'
@@ -17,7 +16,6 @@ function formatTrustlines({total, authorized, funded}) {
 
 export default withErrorBoundary(function AssetSummaryView({asset}) {
     const {descriptor, issuerInfo} = asset
-    const history = useAssetHistory(descriptor)
     return <dl>
         {!!asset.rating && <>
             <dt>Rating:</dt>
