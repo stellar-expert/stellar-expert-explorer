@@ -1,11 +1,11 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {StrKey} from 'stellar-sdk'
 import ForceGraph2D from 'react-force-graph-2d'
 import {useWindowWidth} from '@stellar-expert/ui-framework'
+import {setPageMetadata} from '../../util/meta-tags-generator'
 import {drawNode, getLinkColor} from './graph-drawing-primitives'
 import {useGraphState} from './state/graph-state'
 import AccountRelationsListView from './account-relations-list-view'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 import './graph.scss'
 
 function AccountAddressSelector({onSelect}) {
@@ -39,9 +39,9 @@ function fixNodePosition(node) {
 }
 
 function RelationsWrapper({children}) {
-    return <div className="card accounts-graph">
-        <h3 className="condensed">Accounts graph</h3>
-        <hr/>
+    return <div className="accounts-graph segment blank">
+        <h3>Accounts graph</h3>
+        <hr className="flare"/>
         <div className="space">
             {children}
         </div>
@@ -54,10 +54,12 @@ function getGraphWidth(windowWidth) {
     return (windowWidth - 104) * 2 / 3 | 0
 }
 
+
 export default function GraphView() {
-    const graph = useGraphState(),
-        windowWidth = useWindowWidth(),
-        gRef = useRef()
+    const [_, forceRefresh] = useState(1)
+    const graph = useGraphState()
+    const windowWidth = useWindowWidth()
+    const gRef = useRef()
 
     useEffect(() => {
         setPageMetadata({
@@ -65,6 +67,27 @@ export default function GraphView() {
             description: `Explore relations graph for accounts on Stellar Network.`
         })
     }, [])
+
+    useEffect(() => {
+        const handler = () => forceRefresh(v => v + 1)
+        graph.on('update', handler)
+        return () => graph.off('update', handler)
+    }, [graph])
+
+    const canvasDrawNode =function (node, ctx) {
+        drawNode(ctx, node, graph)
+    }
+    const canvasLinkColor = link => getLinkColor(link, graph)
+    const canvasNodeHover = function (node) {
+        graph.setHoverNode(node)
+    }
+    const canvasLinkHover = function (link) {
+        graph.setHoverLink(link)
+    }
+    const canvasNodeClick = function (node) {
+        fixNodePosition(node)
+        graph.selectNode(node)
+    }
 
     if (!graph.hasData)
         return <RelationsWrapper>
@@ -77,14 +100,14 @@ export default function GraphView() {
         fg.d3Force('link')
             .distance(link => link.value)
     }, [])*/
-    return <RelationsWrapper>
-        <div className="row">
-            <div className="column column-66">
+    return <div className="row">
+        <div className="column column-66">
+            <RelationsWrapper>
                 <ForceGraph2D graphData={graph.graphData}
                               ref={gRef}
                               width={getGraphWidth(windowWidth)}
                               height={800}
-                              nodeCanvasObject={(node, ctx) => drawNode(ctx, node, graph)}
+                              nodeCanvasObject={canvasDrawNode}
                               linkDirectionalArrowLength={3.5}
                               linkDirectionalArrowRelPos={1}
                               linkCurvature={0.2}
@@ -93,18 +116,15 @@ export default function GraphView() {
                               cooldownTime={1000}
                               minZoom={3}
                               linkWidth={0.7}
-                              linkColor={link => getLinkColor(link, graph)}
-                              onNodeHover={node => graph.setHoverNode(node)}
-                              onNodeClick={node => {
-                                  fixNodePosition(node)
-                                  graph.selectNode(node)
-                              }}
-                              onLinkHover={link => graph.setHoverLink(link)}
+                              linkColor={canvasLinkColor}
+                              onNodeHover={canvasNodeHover}
+                              onNodeClick={canvasNodeClick}
+                              onLinkHover={canvasLinkHover}
                               onNodeDragEnd={fixNodePosition}/>
-            </div>
-            <div className="column column-33">
-                {graph.selectedNode ? <AccountRelationsListView/> : <div className="loader"/>}
-            </div>
+            </RelationsWrapper>
         </div>
-    </RelationsWrapper>
+        <div className="column column-33">
+            {graph.selectedNode ? <AccountRelationsListView/> : <div className="loader"/>}
+        </div>
+    </div>
 }

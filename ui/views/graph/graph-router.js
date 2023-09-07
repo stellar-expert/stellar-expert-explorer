@@ -1,7 +1,7 @@
-import {Route, Switch} from 'react-router'
-import GraphView from './graph-view'
-import NotFoundView from '../pages/not-found-page-view'
 import React from 'react'
+import {Route, Switch} from 'react-router'
+import NotFoundView from '../pages/not-found-page-view'
+import GraphView from './graph-view'
 
 export default function GraphRouter({match}) {
     const {path} = match

@@ -12,8 +12,9 @@ export default function AppRouter({history}) {
     return <Router history={history}>
         <Switch>
             {/*widgets*/}
-            <Route path='/widget/:network'>
-                <Loadable moduleKey="explorer-widget" load={() => import(/* webpackChunkName: "explorer" */'./explorer/widget/widget-router')}/>
+            <Route path="/widget/:network">
+                <Loadable moduleKey="explorer-widget"
+                          load={() => import(/* webpackChunkName: "explorer" */'./explorer/widget/widget-router')}/>
             </Route>
             {/*all other routes*/}
             <Route>
@@ -24,11 +25,11 @@ export default function AppRouter({history}) {
                         {/*tools*/}
                         <Route path="/tax-export/:network/" layout="Layout">
                             <Loadable moduleKey="tax-export"
-                                load={() => import(/* webpackChunkName: "tax-export" */ './export/tax-data-export-view')}/>
+                                      load={() => import(/* webpackChunkName: "tax-export" */ './export/tax-data-export-view')}/>
                         </Route>
                         <Route path="/directory">
                             <Loadable moduleKey="directory"
-                                load={() => import(/* webpackChunkName: "directory" */ './directory/directory-router')}/>
+                                      load={() => import(/* webpackChunkName: "directory" */ './directory/directory-router')}/>
                         </Route>
                         {/*old paths fixed*/}
                         <Redirect from="/explorer/:network/directory" to="/directory" push={true}/>
@@ -36,17 +37,23 @@ export default function AppRouter({history}) {
                         {/*explorer*/}
                         <Route path="/explorer/:network">
                             <Loadable moduleKey="explorer-router"
-                                load={() => import(/* webpackChunkName: "explorer" */ './explorer/explorer-router')}/>
+                                      load={() => import(/* webpackChunkName: "explorer" */ './explorer/explorer-router')}/>
                         </Route>
                         <Redirect from="/explorer" to="/explorer/public/" push={true}/>
                         {/*demolisher*/}
                         <Route path="/demolisher/:network">
                             <Loadable moduleKey="demolisher"
-                                load={() => import(/* webpackChunkName: "demolisher" */ './demolisher/account-demolisher-view')}/>
+                                      load={() => import(/* webpackChunkName: "demolisher" */ './demolisher/account-demolisher-view')}/>
+                        </Route>
+                        {/*relations graph*/}
+                        <Route path="/relations">
+                            <Loadable moduleKey="relations"
+                                      load={() => import(/* webpackChunkName: "relations" */ './graph/graph-router')}/>
                         </Route>
                         {/*blog*/}
                         <Route path="/blog">
-                            <Loadable moduleKey="blog" load={() => import(/* webpackChunkName: "blog" */ './blog/blog-router')}/>
+                            <Loadable moduleKey="blog"
+                                      load={() => import(/* webpackChunkName: "blog" */ './blog/blog-router')}/>
                         </Route>
                         {/*not found*/}
                         <Route component={NotFoundView}/>

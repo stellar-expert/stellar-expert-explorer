@@ -1,12 +1,40 @@
 import {drawIdenticon} from '@stellar-expert/ui-framework'
 import {hexToRgbArray, rgbArrayToRgba} from '../../util/css-var-utils'
 
-const defaultColor = '#555',
-    transparent = 'rgba(0,0,0,0)',
-    highlightColor = '#08B5E5',
-    parsedHighlightColor = hexToRgbArray(highlightColor),
-    highlightBackdropColor = rgbArrayToRgba(parsedHighlightColor, 0.1),
-    highlightBorderColor = rgbArrayToRgba(parsedHighlightColor, 0.12)
+const defaultColor = '#555'
+const transparent = 'rgba(0,0,0,0)'
+const highlightColor = '#08B5E5'
+const parsedHighlightColor = hexToRgbArray(highlightColor)
+const highlightBackdropColor = rgbArrayToRgba(parsedHighlightColor, 0.1)
+const highlightBorderColor = rgbArrayToRgba(parsedHighlightColor, 0.12)
+
+class IdenticonImageSource {
+    constructor() {
+        this.cache = {}
+        this.cleanupInterval = setInterval(() => {
+            for (const [key, value] of Object.entries(this.cache)) {
+                if (value.ts + 120_000 < new Date()) { //expired
+                    delete this.cache[key]
+                }
+            }
+        }, 30_000)
+    }
+
+    draw(address, onLoad) {
+        const cacheEntry = this.cache[address]
+        if (!cacheEntry) {
+            const identicon = new Image()
+            identicon.onload = onLoad(identicon)
+            identicon.src = URL.createObjectURL(new Blob([drawIdenticon(address, 7)], {type: 'image/svg+xml'}))
+            this.cache[address] = {identicon, ts: new Date()}
+        } else {
+            cacheEntry.ts = new Date()
+            onLoad(cacheEntry.identicon)
+        }
+    }
+}
+
+const identiconImageSource = new IdenticonImageSource()
 
 function drawTextbox(ctx, text, position, backdrop = false) {
     const fontSize = 3.5
@@ -34,8 +62,11 @@ export function drawNode(ctx, node, graph) {
     ctx.arc(node.x, node.y, 6, 0, 2 * Math.PI)
     ctx.fill()
     ctx.stroke()
-    drawIdenticon(ctx, node.id, 7, {top: node.y - 3.5, left: node.x - 3.5})
+    identiconImageSource.draw(node.id, identicon => ctx.drawImage(identicon, node.x - 3.5, node.y - 3.5, 7, 7))
     drawTextbox(ctx, node.name, {x: node.x, y: node.y + 9}, isHighlighted)
+    if (node.title){
+        drawTextbox(ctx, `[${node.title}]`, {x: node.x, y: node.y + 14}, isHighlighted)
+    }
 }
 
 export function getLinkColor(link, graph) {

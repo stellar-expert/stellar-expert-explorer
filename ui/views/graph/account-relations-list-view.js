@@ -1,84 +1,96 @@
-import React, {useState} from 'react'
-import PropTypes from 'prop-types'
+import React, {useCallback, useMemo, useState} from 'react'
 import {throttle} from 'throttle-debounce'
 import {AccountAddress} from '@stellar-expert/ui-framework'
-import {GraphState, useGraphState} from './state/graph-state'
 import {useCompositeAccountInfo} from '../../business-logic/api/account-api'
 import AccountBasicPropertiesView from '../explorer/account/account-basic-properties-view'
 import AccountDirectoryInfoView from '../explorer/account/account-directory-info-view'
+import {useGraphState} from './state/graph-state'
 
-function decodeLinkDescription({type, transfers}) {
-    return type.map(t => {
-        switch (t) {
-            case 0:
-                return `creator`
-            case 1:
-                return `merge destination`
-            case 2:
-                return `${transfers} payment${transfers === 1 ? 's' : ''}`
-        }
-    }).filter(v => !!v).join(', ')
+function decodeLinkDescription({type, transfers, trades}) {
+    const res = []
+    if ((type & 1) > 0 || (type & 1 << 16) > 0) {
+        res.push({icon: 'icon-hexagon-add', type: 'creator'})
+    }
+    if ((type & 1 < 1) > 0 || (type & 1 << 17) > 0) {
+        res.push({icon: 'icon-hexagon-add', type: 'merger'})
+    }
+    if (transfers[0] > 0) {
+        res.push({icon: 'icon-send-circle', type: `${transfers[0]} transfer${transfers[0] > 1 ? 's' : ''}`})
+    }
+    if (transfers[1] > 0) {
+        res.push({icon: 'icon-receive-circle', type: `${transfers[1]} transfer${transfers[1] > 1 ? 's' : ''}`})
+    }
+    if (trades > 0) {
+        res.push({icon: 'icon-refresh-circle', type: `${trades} trade${trades > 1 ? 's' : ''}`})
+    }
+    return res
 }
 
 export default function AccountRelationsListView() {
-    const graph = useGraphState(),
-        {selectedNode} = graph,
-        [fetchingMore, setFetchingMore] = useState(false),
-        accountInfo = useCompositeAccountInfo(selectedNode?.id)
+    const graph = useGraphState()
+    const {selectedNode} = graph
+    const [fetchingMore, setFetchingMore] = useState(false)
+    const accountInfo = useCompositeAccountInfo(selectedNode?.id)
 
-    if (selectedNode.cursor === undefined)
-        return <div className="loader"/>
-
-    const handleInteraction = throttle(200, (e) => {
-        const list = e.target,
-            scrolledToBottom = Math.ceil(list.scrollHeight - list.scrollTop - 40) < list.clientHeight
-        if (scrolledToBottom && selectedNode.canFetchMoreLinks) {
+    const handleInteraction = useMemo(() => throttle(200, (e) => {
+        const list = e.target
+        const scrolledToBottom = Math.ceil(list.scrollHeight - list.scrollTop - 40) < list.clientHeight
+        if (scrolledToBottom && graph.selectedNode.canFetchMoreLinks) {
             setFetchingMore(true)
-            graph.populateNodeLinks(selectedNode)
+            graph.populateNodeLinks(graph.selectedNode)
                 .finally(() => setFetchingMore(false))
         }
-    })
+    }), [graph])
 
-    function select(e, node) {
+    const select = useCallback(function (e, node) {
         const {checked} = e.target
         graph.setDisplayNodeState(node, checked)
         /*if (checked && node.visible) {
             graph.selectedNode(node)
         }*/
-    }
+    }, [graph])
+
+    if (selectedNode.cursor === undefined)
+        return <div className="loader"/>
+
 
     return <>
-        <h4>
-            <i className="icon icon-search dimmed"/>
-            Account <AccountAddress account={selectedNode.id} chars={8} target="_blank"/>
-            {accountInfo.deleted && <>&nbsp;(deleted)</>}
-        </h4>
-        <div className="text-small">
-            <AccountDirectoryInfoView address={selectedNode.id}/>
-            <div className="micro-space"/>
-            {accountInfo.loaded ? <dl><AccountBasicPropertiesView account={accountInfo.data}/></dl> :
-                <div className="loader"/>}
-            <h4 className="dimmed micro-space">Relations</h4>
+        <div className="segment blank" style={{height: 'auto'}}>
+            <h3>
+                <i className="icon icon-search dimmed"/>
+                Account <AccountAddress account={selectedNode.id} chars={8} target="_blank"/>
+                {accountInfo.deleted && <>&nbsp;(deleted)</>}
+            </h3>
+            <hr className="flare"/>
             <div>
-                <ul onScroll={handleInteraction}>
-                    {Array.from(selectedNode.links.values()).map(link => {
+                <AccountDirectoryInfoView address={selectedNode.id}/>
+                <div className="space"/>
+                {accountInfo.loaded ?
+                    <dl><AccountBasicPropertiesView account={accountInfo.data}/></dl> :
+                    <div className="loader"/>}
+            </div>
+        </div>
+        <div className="segment blank space" style={{height: 'auto'}}>
+            <h3 className="dimmed micro-space">Relations</h3>
+            <hr className="flare"/>
+            <ul onScroll={handleInteraction}>
+                {Array.from(selectedNode.links.values())
+                    .map(link => {
                         const otherNode = selectedNode === link.source ? link.target : link.source
                         return <li key={link.id}>
                             <label>
                                 <input type="checkbox" checked={otherNode.visible}
                                        onChange={e => select(e, otherNode)}/>{' '}
                                 <AccountAddress account={otherNode.id} chars={8} target="_blank"/>
-                                <span className="dimmed"> {decodeLinkDescription(link)}</span>
+                                <div className="dimmed text-tiny block-indent">
+                                    {decodeLinkDescription(link).map(info =>
+                                        <span key={info.icon}> <i className={info.icon}/> {info.type}</span>)}
+                                </div>
                             </label>
                         </li>
                     })}
-                    {fetchingMore && <div className="loader micro"/>}
-                </ul>
-            </div>
+                {fetchingMore && <div className="loader micro"/>}
+            </ul>
         </div>
     </>
-}
-
-AccountRelationsListView.propTypes = {
-    graph: PropTypes.instanceOf(GraphState)
 }

@@ -1,12 +1,14 @@
-import {useEffect, useState} from 'react'
 import EventEmitter from 'events'
+import {useEffect, useState} from 'react'
 import {throttle} from 'throttle-debounce'
 import {navigation} from '@stellar-expert/navigation'
+import {getDirectoryEntry} from '@stellar-expert/ui-framework'
+import {getAccountRelations} from '../graph-api'
 import AccountGraphLink from './account-graph-link'
 import AccountGraphNode from './account-graph-node'
-import {getAccountRelations} from '../graph-api'
 
 const linksBatchSize = 50
+
 
 export class GraphState extends EventEmitter {
     constructor(initialAddress) {
@@ -18,17 +20,26 @@ export class GraphState extends EventEmitter {
         }
     }
 
+    /**
+     * @type {Map<String,AccountGraphNode>}
+     */
     nodes
-
+    /**
+     * @type {Map<String,AccountGraphLink>}
+     */
     links
-
+    /**
+     * @type {AccountGraphNode}
+     */
     hoverNode
-
+    /**
+     * @type {AccountGraphNode}
+     */
     selectedNode
-
+    /**
+     * @type {AccountGraphLink}
+     */
     hoverLink
-
-    onChange
 
     graphData = {nodes: [], links: []}
 
@@ -52,12 +63,13 @@ export class GraphState extends EventEmitter {
     }
 
     selectNode(node) {
-        if (this.selectedNode === node) return
+        if (this.selectedNode === node)
+            return
         node.visible = true
         this.selectedNode = node
         this.setHoverNode(node)
-        this.notifyUpdated()
         this.populateNodeLinks(node)
+        this.notifyUpdated()
         navigation.hash = node.id
     }
 
@@ -72,20 +84,32 @@ export class GraphState extends EventEmitter {
 
     addNode(address) {
         const existing = this.nodes.get(address)
-        if (existing) return existing
+        if (existing)
+            return existing
         const node = new AccountGraphNode(address)
         this.nodes.set(node.id, node)
+        getDirectoryEntry(node.id)
+            .then(res => {
+                if (res) {
+                    node.title = res.name
+                    node.domain = res.domain
+                    node.tags = res.tags
+                    this.notifyUpdated()
+                }
+            })
         return node
     }
 
-    addLink(rel) {
+    addLinks(rel) {
         const existing = this.links.get(rel.id)
         if (existing) return existing
+        const accountNodes = rel.accounts.map(a => this.nodes.get(a))
         const link = new AccountGraphLink(rel)
-        link.source = this.nodes.get(rel.accounts[0])
-        link.target = this.nodes.get(rel.accounts[1])
+        link.source = accountNodes[0]
+        link.target = accountNodes[1]
         this.links.set(link.id, link)
-        return link
+        link.source.addLink(link)
+        link.target.addLink(link)
     }
 
     populateNodeLinks(node) {
@@ -93,12 +117,10 @@ export class GraphState extends EventEmitter {
         return getAccountRelations(node.id, linksBatchSize, node.cursor)
             .then(res => {
                 const {records} = res._embedded
-                for (let rel of records) {
+                for (const rel of records) {
                     node.cursor = rel.paging_token
-                    const otherNode = this.addNode(rel.accounts.find(a => a !== node.id))
-                    const link = this.addLink(rel)
-                    node.addLink(link)
-                    otherNode.addLink(link)
+                    this.addNode(rel.accounts.find(a => a !== node.id))
+                    this.addLinks(rel)
                 }
                 if (records.length < linksBatchSize) {
                     node.canFetchMoreLinks = false
@@ -114,15 +136,17 @@ export class GraphState extends EventEmitter {
 
     updateGraphData() {
         const selectedNodes = new Set()
-        for (let node of this.nodes.values()) {
+        for (const node of this.nodes.values()) {
             if (node.visible) {
                 selectedNodes.add(node)
             }
         }
         const selectedLinks = []
-        for (let link of this.links.values()) {
+        for (const link of this.links.values()) {
             if (selectedNodes.has(link.source) && selectedNodes.has(link.target)) {
-                selectedLinks.push(link)
+                for (const r of link.relations()) {
+                    selectedLinks.push(r)
+                }
             }
         }
         if (selectedNodes.size !== this.graphData.nodes.length || selectedLinks.length !== this.graphData.links.length) {
@@ -131,11 +155,13 @@ export class GraphState extends EventEmitter {
     }
 
     notifyUpdated() {
-        this.emit('update', this)
+        setTimeout(() => {
+            this.emit('update', this)
+        }, 100)
     }
 }
 
-const graph = new GraphState(navigation.hash.replace('#',''))
+const graph = new GraphState(navigation.hash.replace('#', ''))
 
 /**
  * @return {GraphState}

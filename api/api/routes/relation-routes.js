@@ -1,6 +1,6 @@
-const {registerRoute} = require('../router'),
-    apiCache = require('../api-cache'),
-    {queryAccountRelations} = require('../../business-logic/relations/relations')
+const {registerRoute} = require('../router')
+const apiCache = require('../api-cache')
+const {queryAccountRelations} = require('../../business-logic/relations/relations')
 
 apiCache.createBucket('relations', 5000, '5 minutes')
 
