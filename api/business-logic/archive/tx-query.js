@@ -5,9 +5,10 @@ const db = require('../../connectors/mongodb-connector')
 const elastic = require('../../connectors/elastic-connector')
 const Asset = require('../asset/asset-descriptor')
 const IdConstraints = require('../../utils/id-constraints')
-const {validateNetwork, validateOfferId, validatePoolId} = require('../validators')
+const {validateNetwork, validateOfferId, validatePoolId, isValidContractAddress} = require('../validators')
 const {preparePagedData, normalizeLimit, normalizeOrder} = require('../api-helpers')
 const {resolveSequenceFromTimestamp} = require('../ledger/ledger-timestamp-resolver')
+const {accountResolver} = require('../account/account-resolver')
 const {fetchMemoIds} = require('../memo/memo-resolver')
 const {fetchLedgers} = require('../ledger/ledger-resolver')
 const {fetchArchiveTransactions, fetchSingleArchiveTransaction} = require('./archive-locator')
@@ -134,7 +135,7 @@ class TxQuery {
                 //is it a numeric op type code?
                 value = parseInt(value, 10)
             }
-            if (typeof value !== 'number' || !(value >= 0 && value <= 23))
+            if (typeof value !== 'number' || !(value >= 0 && value <= 26))
                 throw errors.validationError('type', `Invalid type filter: ${value}.`)
             searchTypes.add(value)
         }
@@ -199,22 +200,22 @@ class TxQuery {
                 continue
             if (addresses.length > 10)
                 throw errors.validationError(param, `Too many account conditions.`)
-            for (const address of addresses)
-                if (!StrKey.isValidEd25519PublicKey(address))
+
+            for (const address of addresses) {
+                if (typeof address !== 'string' || address.length !== 56)
                     throw errors.validationError(param, `Invalid account address: ${address}.`)
-
-            const matchedAccounts = await db[this.network].collection('accounts')
-                .find({address: {$in: addresses}}, {projection: {_id: 1}}).toArray()
-
-            const accountsFilter = []
-            for (const matchedAccount of matchedAccounts) {
-                accountsFilter.push(matchedAccount._id)
+                const prefix = address[0]
+                if (prefix !== 'G' && prefix !== 'C')
+                    throw errors.validationError(param, `Invalid account address: ${address}.`)
             }
-            if (!accountsFilter.length) {
+
+            const matchedAccounts = await accountResolver.resolveIds(this.network, addresses)
+
+            if (!matchedAccounts.length) {
                 this.isUnfeasible = true
                 continue
             }
-            filters.push({terms: {[key]: accountsFilter}})
+            filters.push({terms: {[key]: matchedAccounts}})
         }
     }
 
@@ -476,6 +477,7 @@ const typeMapping = {
     trustlines: [6, 7, 21],
     dex: [3, 4, 12, 22, 23],
     settings: [0, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 21],
+    soroban: [24, 25, 26],
     createAccount: 0,
     payment: 1,
     pathPaymentStrictReceive: 2,
@@ -499,7 +501,10 @@ const typeMapping = {
     clawbackClaimableBalance: 20,
     setTrustLineFlags: 21,
     liquidityPoolDeposit: 22,
-    liquidityPoolWithdraw: 23
+    liquidityPoolWithdraw: 23,
+    invokeHostFunction: 24,
+    bumpFootprintExpiration: 25,
+    restoreFootprint: 26
 }
 
 function enforceArray(value) {

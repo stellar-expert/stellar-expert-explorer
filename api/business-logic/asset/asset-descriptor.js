@@ -1,4 +1,5 @@
 const {StrKey} = require('stellar-sdk')
+const {isValidContractAddress} = require('../validators')
 
 function normalizeType(code, type) {
     switch (type) {
@@ -11,7 +12,7 @@ function normalizeType(code, type) {
     }
 }
 
-const nativeAssetType = 'XLM'
+const nativeAssetName = 'XLM'
 
 /**
  * Stellar Asset definition.
@@ -19,9 +20,9 @@ const nativeAssetType = 'XLM'
 class Asset {
     /**
      * Creates an instance of the Asset
-     * @param codeOrFullyQualifiedName {String} - Asset code or fully qualified asset name in CODE-ISSUER-TYPE format.
-     * @param type [String] - Asset type. One of ['credit_alphanum4', 'credit_alphanum12', 'native'].
-     * @param issuer [String] - Asset issuer account public key.
+     * @param {String|Asset} codeOrFullyQualifiedName - Asset code or fully qualified asset name in CODE-ISSUER-TYPE format.
+     * @param {String} [type] - Asset type. One of ['credit_alphanum4', 'credit_alphanum12', 'native'].
+     * @param {String} [issuer] - Asset issuer account public key.
      */
     constructor(codeOrFullyQualifiedName, type, issuer) {
         if (codeOrFullyQualifiedName instanceof Asset) {
@@ -33,27 +34,36 @@ class Asset {
             this.code = codeOrFullyQualifiedName
             this.type = normalizeType(codeOrFullyQualifiedName, type)
             this.issuer = issuer
-        } else if (codeOrFullyQualifiedName === nativeAssetType || type === nativeAssetType || (codeOrFullyQualifiedName === 'XLM' && !type)) {
-            this.type = nativeAssetType
-        }
-        else {
+        } else if (codeOrFullyQualifiedName === nativeAssetName || type === 'native' || (codeOrFullyQualifiedName === 'XLM' && !type)) {
+            this.type = 0
+        } else if (isValidContractAddress(codeOrFullyQualifiedName)) {
+            this.type = 4
+            this.contract = codeOrFullyQualifiedName
+            return
+        } else {
             if (!codeOrFullyQualifiedName || typeof codeOrFullyQualifiedName !== 'string' || codeOrFullyQualifiedName.length < 3 || codeOrFullyQualifiedName.indexOf('-') < 0)
-                throw new TypeError(`Invalid asset name: ${codeOrFullyQualifiedName}. Use CODE-ISSUER format.`)
+                throw new TypeError(`Invalid asset name: ${codeOrFullyQualifiedName}. Use CODE-ISSUER format or contract address.`)
             const parts = codeOrFullyQualifiedName.split('-')
             this.code = parts[0]
             this.issuer = parts[1]
             this.type = normalizeType(this.code, parts[2])
         }
-        if (this.type !== nativeAssetType && !StrKey.isValidEd25519PublicKey(this.issuer)) throw new Error('Invalid asset issuer address: ' + this.issuer)
+        if (this.type !== 0 && !StrKey.isValidEd25519PublicKey(this.issuer))
+            throw new Error('Invalid asset issuer address: ' + this.issuer)
         //if (!this.code || !/^[a-zA-Z0-9]{1,12}$/.test(this.code)) throw new Error(`Invalid asset code. See https://www.stellar.org/developers/guides/concepts/assets.html#alphanumeric-4-character-maximum`)
     }
 
     get isNative() {
-        return this.type === nativeAssetType
+        return this.type === 0
+    }
+
+    get isContract() {
+        return this.type === 4
     }
 
     equals(anotherAsset) {
-        if (!anotherAsset) return false
+        if (!anotherAsset)
+            return false
         return this.toString() === anotherAsset.toString()
     }
 
@@ -62,8 +72,9 @@ class Asset {
      * @returns {String}
      */
     toString() {
-        if (this.isNative) return nativeAssetType
-        return `${this.code}-${this.issuer}`
+        if (this.isNative)
+            return nativeAssetName
+        return this.contract || `${this.code}-${this.issuer}`
     }
 
     /**
@@ -71,20 +82,24 @@ class Asset {
      * @returns {String}
      */
     toFQAN() {
-        if (this.isNative) return nativeAssetType
-        return `${this.code}-${this.issuer}-${this.type}`
+        if (this.isNative)
+            return nativeAssetName
+        return this.contract || `${this.code}-${this.issuer}-${this.type}`
     }
 
     /**
      * Formats Asset as a currency with optional maximum length.
-     * @param issuerMaxLength {Number}
+     * @param {Number} [issuerMaxLength]
      * @returns {String}
      */
     toCurrency(issuerMaxLength) {
-        if (this.isNative) return 'XLM'
+        if (this.isNative)
+            return nativeAssetName
+        if (this.contract)
+            return this.contract
         if (issuerMaxLength) {
-            let issuerAllowedLength = issuerMaxLength - 1,
-                shortenedIssuer = this.issuer.substring(0, issuerAllowedLength / 2) + '…' + this.issuer.substr(-issuerAllowedLength / 2)
+            const issuerAllowedLength = issuerMaxLength - 1
+            const shortenedIssuer = this.issuer.substring(0, issuerAllowedLength / 2) + '…' + this.issuer.substr(-issuerAllowedLength / 2)
 
             return `${this.code}-${shortenedIssuer}`
         }
@@ -100,19 +115,21 @@ class Asset {
      * @returns {Asset}
      */
     static get native() {
-        return new Asset(nativeAssetType)
+        return new Asset(nativeAssetName)
     }
 
     /**
      * Parses asset from Horizon API response
-     * @param obj {Object} - Object to parse data from.
-     * @param prefix {String} - Optional field names prefix.
+     * @param {Object} obj - Object to parse data from.
+     * @param {String} prefix - Optional field names prefix.
      * @returns {Asset}
      */
     static parseAssetFromObject(obj, prefix = '') {
-        let type = obj[prefix + 'asset_type']
-        if (!type) throw new TypeError(`Invalid asset descriptor: ${JSON.stringify(obj)}. Prefix: ${prefix}`)
-        if (type === 'native') return Asset.native
+        const type = obj[prefix + 'asset_type']
+        if (!type)
+            throw new TypeError(`Invalid asset descriptor: ${JSON.stringify(obj)}. Prefix: ${prefix}`)
+        if (type === 'native')
+            return Asset.native
         return new Asset(obj[prefix + 'asset_code'], obj[prefix + 'asset_type'], obj[prefix + 'asset_issuer'])
     }
 }

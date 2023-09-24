@@ -1,5 +1,5 @@
 import React from 'react'
-import {TransactionBuilder} from 'stellar-sdk'
+import {TransactionBuilder} from 'stellar-base'
 import {inspectTransactionSigners} from '@stellar-expert/tx-signers-inspector'
 import {
     BlockSelect,
@@ -32,7 +32,7 @@ export default function TxSignaturesView({tx}) {
             .then(schema => {
                 const potential = schema.getAllPotentialSigners();
                 [sourceAccount, feeAccount].map(acc => !potential.includes(acc) && potential.push(acc))
-                setPotentialSigners({xdr: parsedTx, potentialSigners: potential, prop: 1111})
+                setPotentialSigners({xdr: parsedTx, potentialSigners: potential})
             })
         return {xdr: parsedTx, potentialSigners: null, prop: 0}
     }, [tx.id])
@@ -47,9 +47,9 @@ export default function TxSignaturesView({tx}) {
         {!potentialSigners ?
             <div className="loader"/> :
             xdr.signatures.map(signature => {
-                const sig = signature.signature().toString('base64'),
-                    hint = signature.hint(),
-                    possibleSigners = findKeysBySignatureHint(signature, potentialSigners)
+                const sig = signature.signature().toString('base64')
+                const hint = signature.hint()
+                const possibleSigners = findKeysBySignatureHint(signature, potentialSigners)
 
                 //TODO: we actually CAN find a signer in case of collision (extremely rare event) - just need to verify a signature using each of the candidate pubkeys
                 const pubkey = possibleSigners.length !== 1 ?

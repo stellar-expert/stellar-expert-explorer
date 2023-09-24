@@ -7,7 +7,7 @@ export function TypeEditor({value, setValue}) {
         return <span>{option ? option.title : 'Unknown operation type'}</span>
     }
 
-    return <Dropdown title="Chose operation type" expanded onChange={setValue}
+    return <Dropdown title="Choose operation type" expanded onChange={setValue}
                      options={typeEditorOptions.map(({title, value}) => ({value, title}))}/>
 }
 
@@ -31,6 +31,11 @@ const typeEditorOptions = [
         title: 'Group: account settings',
         description: 'Including CreateAccount, SetOptions, ChangeTrust, AllowTrust, AccountMerge, Inflation, ManageData, BumpSequence, BeginSponsoringFutureReserves, EndSponsoringFutureReserves, RevokeSponsorship, SetTrustLineFlags operations',
         value: 'settings'
+    },
+    {
+        title: 'Group: smart contracts',
+        description: 'Including InvokeHostFunction, BumpFootprintExpiration, RestoreFootprint operations',
+        value: 'soroban'
     },
     {
         title: 'CreateAccount',
@@ -127,5 +132,17 @@ const typeEditorOptions = [
     {
         title: 'LiquidityPoolWithdraw',
         value: '23'
+    },
+    {
+        title: 'InvokeHostFunction',
+        value: '24'
+    },
+    {
+        title: 'BumpFootprintExpiration',
+        value: '25'
+    },
+    {
+        title: 'RestoreFootprint',
+        value: '26'
     }
 ]

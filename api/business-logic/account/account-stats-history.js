@@ -13,7 +13,7 @@ async function queryAccountStatsHistory(network, accountAddress) {
 
     const accountId = await resolveAccountId(network, accountAddress)
     if (!accountId)
-        throw errors.notFound('Account was not found on the ledger. Check if you specified account address key correctly.')
+        throw errors.notFound('Account was not found on the ledger. Check if you specified account address correctly.')
 
     const history = await db[network].collection('account_history')
         .find({

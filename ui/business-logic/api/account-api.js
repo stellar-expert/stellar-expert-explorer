@@ -1,4 +1,3 @@
-import React from 'react'
 import {useDependantState, useExplorerApi, loadAccount, loadIssuedAssets} from '@stellar-expert/ui-framework'
 
 export function useAccountInfo(address) {

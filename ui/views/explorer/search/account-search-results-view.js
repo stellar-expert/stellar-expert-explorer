@@ -34,7 +34,7 @@ export default function AccountSearchResultsView({term, onLoaded}) {
                 {formatPrice(trades)}&nbsp;trades
             </>,
             links: <>
-                <a href={formatLink(account)}>Operations history</a>&emsp;
+                <a href={formatLink(account)}>Transactions history</a>&emsp;
                 <a href={formatLink(account, 'trades')}>Trades history</a>&emsp;
                 <a href={formatLink(account, 'active-offers')}>Active DEX offers</a>
             </>

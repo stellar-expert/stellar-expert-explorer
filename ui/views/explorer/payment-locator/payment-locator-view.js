@@ -20,7 +20,7 @@ class PaymentLocatorQuery {
             return 'Invalid memo length'
         if (this.query.asset !== undefined && !AssetDescriptor.isValid(this.query.asset))
             return 'Invalid asset – use {CODE}-{ISSUER} format or XLM'
-        if (this.query.account !== undefined && !StrKey.isValidEd25519PublicKey(this.query.account))
+        if (this.query.account !== undefined && !(StrKey.isValidEd25519PublicKey(this.query.account) || StrKey.isValidContract(this.query.account)))
             return 'Invalid account format'
         return null
     }

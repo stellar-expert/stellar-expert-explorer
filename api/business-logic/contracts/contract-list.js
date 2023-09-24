@@ -5,43 +5,41 @@ const {validateNetwork} = require('../validators')
 const errors = require('../errors')
 const {addPagingToken, calculateSequenceOffset, preparePagedData} = require('../api-helpers')
 
-const accountProjectedFields = {
+const contractProjectedFields = {
     address: 1,
     created: 1,
-    deleted: 1,
     payments: 1,
     trades: 1,
     _id: 0
 }
 
-async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}) {
+async function queryAllContracts(network, basePath, {search, cursor, limit, skip}) {
     validateNetwork(network)
 
     if (!search)
         throw errors.notFound()
-
-    if (StrKey.isValidEd25519PublicKey(search)) {
-        const account = await db[network]
-            .collection('accounts')
-            .findOne({address: search}, {projection: accountProjectedFields})
+    //search a single contract
+    if (StrKey.isValidContract(search)) {
+        const contract = await db[network]
+            .collection('contracts')
+            .findOne({address: search}, {projection: contractProjectedFields})
         let batch
-        if (!account) {
+        if (!contract) {
             batch = []
         } else {
             batch = [{
-                account: account.address,
-                created: account.created,
-                deleted: account.deleted,
-                payments: account.payments,
-                trades: account.trades
+                account: contract.address,
+                created: contract.created,
+                payments: contract.payments,
+                trades: contract.trades
             }]
         }
         return preparePagedData(basePath, {sort: 'address', order: 'asc', cursor: 0, limit}, batch)
     }
-
     if (skip > 1000) {
         skip = 1000
     }
+
     const q = new QueryBuilder({$text: {$search: search.trim()}})
         .setSkip(calculateSequenceOffset(skip, limit, cursor, 'asc'))
         .setLimit(limit, 20)
@@ -59,22 +57,22 @@ async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}
 
     const idsToSearch = directoryEntries.map(di => di._id)
 
-    const accounts = await db[network].collection('accounts')
+    const contracts = await db[network].collection('contracts')
         .find({address: {$in: idsToSearch}})
-        .project(accountProjectedFields)
+        .project(contractProjectedFields)
         .toArray()
 
     const res = idsToSearch.map(d => {
-        let account = accounts.find(a => a.address === d)
-        if (!account) {
-            account = {address: d, deleted: true, payments: 0, trades: 0, created: 0}
+        let contract = contracts.find(a => a.address === d)
+        if (!contract) {
+            contract = {address: d, payments: 0, trades: 0, created: 0}
         }
-        account.account = account.address
-        delete account.address
-        return account
+        contract.account = contract.address
+        delete contract.address
+        return contract
     })
     addPagingToken(res, q.skip)
     return preparePagedData(basePath, {sort: 'score', order: 'asc', cursor: q.skip, limit: q.limit}, res)
 }
 
-module.exports = {queryAllAccounts}
+module.exports = {queryAllContracts}

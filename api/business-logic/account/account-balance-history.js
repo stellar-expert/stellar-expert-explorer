@@ -13,7 +13,7 @@ async function queryAccountBalanceHistory(network, accountAddress, asset) {
         .collection('accounts')
         .findOne({address: accountAddress}, {projection: {_id: 1}})
     if (!account)
-        throw errors.notFound('Account was not found on the ledger. Check if you specified account address key correctly.')
+        throw errors.notFound('Account was not found on the ledger. Check if you specified account address correctly.')
 
     const assetId = await resolveAssetId(network, asset)
 

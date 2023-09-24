@@ -226,7 +226,8 @@ class BatchJSONResolver {
                 let key, i = 0
                 while (true) {
                     key = path[i]
-                    if (i === path.length - 1) break
+                    if (i === path.length - 1)
+                        break
                     value = value[key]
                     i++
                 }
@@ -237,7 +238,8 @@ class BatchJSONResolver {
     }
 
     resolve(id, field = null, postProcessCallback = null) {
-        if (id === undefined || id === null) return id
+        if (id === undefined || id === null)
+            return id
         this.valuesToResolve.add(id)
         return new DeferredJSONValueResolver(this, id, field, postProcessCallback)
     }

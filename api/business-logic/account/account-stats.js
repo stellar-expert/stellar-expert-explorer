@@ -3,7 +3,6 @@ const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
 const {unixNow, timeUnits} = require('../../utils/date-utils')
 const {validateNetwork, validateAccountAddress} = require('../validators')
-const {AssetJSONResolver} = require('../asset/asset-resolver')
 const {resolveAccountAddress} = require('./account-resolver')
 const {encodeBsonId} = require('../../utils/bson-id-encoder')
 
@@ -23,9 +22,7 @@ async function queryAccountStats(network, accountAddress) {
         .collection('accounts')
         .findOne({address: accountAddress})
     if (!account)
-        throw errors.notFound('Account was not found on the ledger. Check if you specified account address key correctly.')
-
-    const assetResolver = new AssetJSONResolver(network)
+        throw errors.notFound('Account was not found on the ledger. Check if you specified account address correctly.')
 
     const res = {
         account: account.address,
@@ -50,8 +47,6 @@ async function queryAccountStats(network, accountAddress) {
             monthly: 'none'
         }
     }
-
-    await assetResolver.fetchAll()
     return res
 }
 

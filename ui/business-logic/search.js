@@ -22,6 +22,8 @@ function detectSearchType(query) {
         //account
         if (StrKey.isValidMed25519PublicKey(query)) return ['account']
         if (StrKey.isValidEd25519PublicKey(query)) return ['account', 'asset']
+        //contract address
+        if (StrKey.isValidContract(query)) return ['contract', 'asset']
         //tx hash
         if (query.length === 64 && /^[a-f0-9]{64}$/.test(query)) return ['transaction']
         //federation address

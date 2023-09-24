@@ -11,13 +11,13 @@ import './graph.scss'
 function AccountAddressSelector({onSelect}) {
     const [address, setAddress] = useState('')
 
-    function edit(e) {
+    const edit = useCallback(function (e) {
         const v = e.target.value.trim()
         setAddress(v)
         if (StrKey.isValidEd25519PublicKey(v)) {
             onSelect(v)
         }
-    }
+    }, [onSelect])
 
     return <div className="space">
         <div className="dimmed">Visual analysis tool for Stellar account connections graph analysis</div>
@@ -74,7 +74,7 @@ export default function GraphView() {
         return () => graph.off('update', handler)
     }, [graph])
 
-    const canvasDrawNode =function (node, ctx) {
+    const canvasDrawNode = function (node, ctx) {
         drawNode(ctx, node, graph)
     }
     const canvasLinkColor = link => getLinkColor(link, graph)

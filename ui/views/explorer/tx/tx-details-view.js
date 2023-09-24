@@ -1,7 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {BlockSelect, AccountAddress, Amount, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {BlockSelect, AccountAddress, Amount, UtcTimestamp, InfoTooltip as Info, TxOperationsList, parseTxDetails} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
+import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
 import TxOperationsView from '../operation/tx-operations-view'
 import TxSignaturesView from './tx-signatures-view'
@@ -19,6 +20,13 @@ import TxPreconditionsView from './tx-preconditions-view'
 export default function TxDetailsView({tx, embedded}) {
     const feeSource = tx.fee_account_muxed || tx.fee_account
     const source = tx.account_muxed || tx.source_account
+    const parsedTx = parseTxDetails({
+        network: appSettings.networkPassphrase,
+        txEnvelope: tx.envelope_xdr,
+        result: tx.result_xdr,
+        meta: tx.result_meta_xdr,
+        context: {}
+    })
     return <>
         <TxHeaderView tx={tx} embedded={embedded}/>
         <div className="segment blank">
@@ -121,7 +129,7 @@ export default function TxDetailsView({tx, embedded}) {
         </div>
         {!embedded && <>
             <div className="segment blank space">
-                <TxOperationsView tx={tx} embedded={embedded}/>
+                <TxOperationsList parsedTx={parsedTx}/>
             </div>
             <TxSignaturesView tx={tx}/>
         </>}

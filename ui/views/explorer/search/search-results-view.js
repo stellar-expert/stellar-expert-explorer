@@ -13,6 +13,7 @@ import LedgerSearchResultsView from './ledger-search-results-view'
 import OperationSearchResultsView from './operation-search-results-view'
 import TransactionSearchResultsView from './transaction-search-results-view'
 import OfferSearchResultsView from './offer-search-results-view'
+import ContractSearchResultsView from './contract-search-results-view'
 import './search.scss'
 
 /**
@@ -29,6 +30,7 @@ const searchTypesMapping = [
     {keys: ['offer'], component: OfferSearchResultsView},
     {keys: ['ledger'], component: LedgerSearchResultsView},
     {keys: ['account'], component: AccountSearchResultsView},
+    {keys: ['contract'], component: ContractSearchResultsView},
     {keys: ['asset', 'account'], component: AssetSearchResultsView}
 ]
 

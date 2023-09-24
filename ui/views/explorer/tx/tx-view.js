@@ -1,45 +1,46 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
+import {useParams} from 'react-router'
 import PropTypes from 'prop-types'
-import {BlockSelect, useDependantState, loadTransaction} from '@stellar-expert/ui-framework'
-import TransactionDetails from './tx-details-view'
+import {BlockSelect, loadTransaction} from '@stellar-expert/ui-framework'
+import ErrorNotificationBlock from '../../components/error-notification-block'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import appSetting from '../../../app-settings'
-import ErrorNotificationBlock from '../../components/error-notification-block'
+import TransactionDetails from './tx-details-view'
 
-export default function TxView({id, match}) {
-    const [data, setTxData] = useDependantState(() => {
-        if (!id) id = match.params.id
-        const promise = loadTransaction(id)
-        if (!promise) return {error: 'invalid', id}
-        promise
+export default function TxView({id}) {
+    const {id: queryId} = useParams()
+    const txId = id || queryId
+    const [txData, setTxData] = useState()
+    useEffect(() => {
+        loadTransaction(txId)
             .catch(err => {
-                if (err && (err.name === 'NotFoundError' || err.status === 404)) return {error: 'not found', id}
+                if (err && (err.name === 'NotFoundError' || err.status === 404))
+                    return {error: 'not found', txId}
                 //TODO: handle errors here
                 return Promise.reject(err)
             })
-            .then(data => setTxData(data))
-        return null
-    }, [id, match && match.params ? match.params.id : null])
-    if (!data) return <div className="loader"/>
-    const txHash = data.id
+            .then(setTxData)
+    }, [txId])
+    if (!txData)
+        return <div className="loader"/>
+    const txHash = txData.id
     setPageMetadata({
         title: `Transaction ${txHash} on Stellar ${appSetting.activeNetwork} network`,
         description: `Extensive blockchain information for the transaction ${txHash} on Stellar ${appSetting.activeNetwork} network.`
     })
-    if (data.error) return <>
+    if (txData.error) return <>
         <h2 className="word-break relative">Transaction&nbsp;<BlockSelect>{txHash}</BlockSelect></h2>
         <ErrorNotificationBlock>
-            {data.error === 'invalid' ?
+            {txData.error === 'invalid' ?
                 'Invalid transaction hash. Make sure that you copied it correctly.' :
                 'Transaction not found on Stellar Network.'
             }
         </ErrorNotificationBlock>
     </>
 
-    return <TransactionDetails tx={data}/>
+    return <TransactionDetails tx={txData}/>
 }
 
 TxView.propTypes = {
-    match: PropTypes.object,
     id: PropTypes.string
 }

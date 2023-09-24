@@ -1,37 +1,50 @@
-const {BaseIdResolver, BatchJSONResolver} = require('../base-id-resolver'),
-    db = require('../../connectors/mongodb-connector')
+const {BaseIdResolver, BatchJSONResolver} = require('../base-id-resolver')
+const db = require('../../connectors/mongodb-connector')
 
 class AccountResolver extends BaseIdResolver {
     constructor() {
         super(20000)
     }
 
-    async search(network, query) {
-        const data = await db[network].collection('accounts')
+    async searchByValue(network, filter) {
+        const accounts = filter.filter(address => address[0] === 'G')
+        const contracts = filter.filter(address => address[0] === 'C')
+        const results = await Promise.all([
+            accounts.length === 0 ? Promise.resolve([]) : AccountResolver.search(network, 'accounts', {address: {$in: accounts}}),
+            contracts.length === 0 ? Promise.resolve([]) : AccountResolver.search(network, 'contracts', {address: {$in: contracts}})
+        ])
+        return results.flat()
+    }
+
+    async searchById(network, filter) {
+        const accountIds = filter.filter(id => id < (1 << 30))
+        const contractIds = filter.filter(id => id >= (1 << 30))
+        const results = await Promise.all([
+            accountIds.length === 0 ? Promise.resolve([]) : AccountResolver.search(network, 'accounts', {_id: {$in: accountIds}}),
+            contractIds.length === 0 ? Promise.resolve([]) : AccountResolver.search(network, 'contracts', {_id: {$in: contractIds}})
+        ])
+        return results.flat()
+    }
+
+    static async search(network, collection, query) {
+        const data = await db[network].collection(collection)
             .find(query)
             .project({_id: 1, address: 1})
             .toArray()
         return data.map(({_id, address}) => ({_id, value: address}))
     }
 
-    async searchByValue(network, filter) {
-        return this.search(network, {address: {$in: filter}})
-    }
-
-    async searchById(network, filter) {
-        return this.search(network, {_id: {$in: filter}})
-    }
 }
 
 const accountResolver = new AccountResolver()
 
 /**
  * @param {String} network
- * @param {String|[String]} accountAddress
+ * @param {String|[String]} address
  * @return {Promise<[Number]>}
  */
-async function resolveAccountId(network, accountAddress) {
-    return await accountResolver.resolveSingleId(network, accountAddress)
+async function resolveAccountId(network, address) {
+    return await accountResolver.resolveSingleId(network, address)
 }
 
 /**
@@ -49,4 +62,4 @@ class AccountAddressJSONResolver extends BatchJSONResolver {
     }
 }
 
-module.exports = {resolveAccountId, resolveAccountAddress, AccountAddressJSONResolver}
+module.exports = {resolveAccountId, resolveAccountAddress, accountResolver, AccountAddressJSONResolver}

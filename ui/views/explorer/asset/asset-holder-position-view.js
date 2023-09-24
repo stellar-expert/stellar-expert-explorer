@@ -23,7 +23,7 @@ export default function AssetHolderPositionView({asset}) {
         [result, setResult] = useState(null)
 
     function checkRank() {
-        if (!StrKey.isValidEd25519PublicKey(address)) {
+        if (!StrKey.isValidEd25519PublicKey(address) && !StrKey.isValidContract(address)) {
             setError('Invalid account address')
             return
         }

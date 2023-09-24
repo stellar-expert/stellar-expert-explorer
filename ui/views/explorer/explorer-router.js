@@ -6,6 +6,7 @@ import ExplorerHomePageView from './pages/explorer-home-page-view'
 import AssetsDashboard from './asset/assets-dashboard-view'
 import Asset from './asset/asset-view'
 import Account from './account/account-view'
+import Contract from './contract/contract-view'
 import Ledger from './ledger/ledger-view'
 import Tx from './tx/tx-view'
 import MarketView from './market/market-view'
@@ -21,7 +22,7 @@ import AllLiquidityPoolsView from './liquidity-pool/all-liquidity-pools-view'
 import AccountClaimableBalancesView from './claimable-balance/account-claimable-balances-view'
 
 function ExplorerRouter({match}) {
-    const {path, params} = match
+    const {path} = match
     return <div className="container">
         <Switch>
             <Route path={`${path}/asset/:asset`} component={Asset}/>
@@ -29,6 +30,7 @@ function ExplorerRouter({match}) {
             <Route path={`${path}/ledger/:sequence`} component={Ledger}/>
             <Route path={`${path}/account/:id/claimable-balances`} component={AccountClaimableBalancesView}/>
             <Route path={`${path}/account/:id`} component={Account}/>
+            <Route path={`${path}/contract/:id`} component={Contract}/>
             <Route path={`${path}/tx/:id`} component={Tx}/>
             <Route path={`${path}/market/:selling/:buying`} component={MarketView}/>
             <Route path={`${path}/market/`} component={MarketDashboard}/>

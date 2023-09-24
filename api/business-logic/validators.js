@@ -12,14 +12,18 @@ function validateNetwork(networkName) {
 
 function validateAssetName(asset) {
     if (typeof asset === 'string') {
+        if (isValidContractAddress(asset))
+            return asset
         const [code, issuer, type] = asset.split('-')
         if (issuer) {
-            if (StrKey.isValidEd25519PublicKey(issuer) && code.length <= 12) return asset
+            if (StrKey.isValidEd25519PublicKey(issuer) && code.length <= 12)
+                return asset
         } else {
-            if (code === 'XLM') return asset
+            if (code === 'XLM')
+                return asset
         }
     }
-    throw errors.validationError('asset', 'Invalid asset descriptor. Use {code}-{issuer}-{type} format.')
+    throw errors.validationError('asset', 'Invalid asset descriptor. Use {code}-{issuer}-{type} format or contract address.')
 }
 
 function isValidAccountAddress(account) {
@@ -27,9 +31,19 @@ function isValidAccountAddress(account) {
 }
 
 function validateAccountAddress(account) {
-    if (!isValidAccountAddress(account))
+    if (!StrKey.isValidEd25519PublicKey(account))
         throw errors.validationError('account', 'Invalid account public key.')
     return account
+}
+
+function isValidContractAddress(contract) {
+    return StrKey.isValidContract(contract)
+}
+
+function validateContractAddress(contract) {
+    if (!isValidContractAddress(contract))
+        throw errors.validationError('contract', 'Invalid contract address.')
+    return contract
 }
 
 function validateOfferId(offerId, paramName = 'offerId') {
@@ -56,5 +70,7 @@ module.exports = {
     validateAccountAddress,
     validateOfferId,
     validatePoolId,
-    isValidAccountAddress
+    isValidAccountAddress,
+    validateContractAddress,
+    isValidContractAddress
 }

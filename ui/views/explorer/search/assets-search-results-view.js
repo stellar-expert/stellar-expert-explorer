@@ -38,7 +38,7 @@ export default function AssetSearchResultsView({term, onLoaded}) {
                     {formatPrice(trades)}&nbsp;trades
                 </>,
                 links: <>
-                    <AssetLink asset={asset}>Operations history</AssetLink>&emsp;
+                    <AssetLink asset={asset}>Transactions history</AssetLink>&emsp;
                     <AssetLink asset={asset} tab="trades">Trades history</AssetLink>&emsp;
                     <AssetLink asset={asset} tab="markets">Markets</AssetLink>&emsp;
                     <AssetLink asset={asset} tab="asset-holders">Top holders</AssetLink>
