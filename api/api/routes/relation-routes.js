@@ -16,8 +16,9 @@ module.exports = function (app) {
         'relations/storage-map/:address',
         {cache: 'relations', cors: 'open', prefix:'/'},
         ({params}) => loadRelationsMap(params.address))
+
     registerRoute(app,
-        'relations/storage-map/:address',
+        'relations/storage-map/:address/data',
         {cache: 'relations', cors: 'open', method:'post', prefix:'/'},
         ({params, body}) => saveRelationsMap(params.address, body))
 
