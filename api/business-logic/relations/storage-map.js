@@ -9,10 +9,15 @@ function saveRelationsMap(address, relations) {
 }
 
 function loadRelationsMap(address) {
-    if (!StrKey.isValidEd25519PublicKey(address))
+    try {
+        if (!StrKey.isValidEd25519PublicKey(address))
+            return {}
+        const raw = fs.readFileSync(address + '.json', 'utf8')
+        return JSON.parse(raw)
+    } catch (e) {
+        console.error(e)
         return {}
-    const raw = fs.readFileSync(address + '.json', 'utf8')
-    return JSON.parse(raw)
+    }
 }
 
 module.exports = {loadRelationsMap, saveRelationsMap}
