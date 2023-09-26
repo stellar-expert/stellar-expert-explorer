@@ -14,12 +14,12 @@ module.exports = function (app) {
 
     registerRoute(app,
         'relations/storage-map/:address',
-        {cache: 'relations', cors: 'open', prefix:'/'},
+        {cors: 'open', prefix:'/'},
         ({params}) => loadRelationsMap(params.address))
 
     registerRoute(app,
         'relations/storage-map/:address/data',
-        {cache: 'relations', cors: 'open', method:'post', prefix:'/'},
+        {cors: 'open', method:'post', prefix:'/'},
         ({params, body}) => saveRelationsMap(params.address, body))
 
 
