@@ -11,7 +11,6 @@ module.exports = function (app) {
         {cache: 'relations'},
         ({params, query, path}) => queryAccountRelations(params.network, params.account, path, query))
 
-
     registerRoute(app,
         'relations/storage-map/:address',
         {cors: 'open', prefix:'/'},
@@ -21,6 +20,4 @@ module.exports = function (app) {
         'relations/storage-map/:address/data',
         {cors: 'open', method:'post', prefix:'/'},
         ({params, body}) => saveRelationsMap(params.address, body))
-
-
 }
