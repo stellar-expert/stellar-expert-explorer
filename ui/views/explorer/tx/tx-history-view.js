@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {Networks} from 'stellar-sdk'
 import deepMerge from 'deepmerge'
-import {TxOperationsList, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {TxOperationsList, UtcTimestamp, ErrorBoundary} from '@stellar-expert/ui-framework'
 import {useStellarNetwork, useTxHistory, parseTxDetails, formatExplorerLink, withErrorBoundary} from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
 import TxFilterView from './filters/tx-filter-view'
@@ -47,10 +47,10 @@ export default withErrorBoundary(function TxHistoryView({presetFilter}) {
                     <td>
                         {tx.error ?
                             <div className="segment segment-inline error text-tiny">Error: {tx.error}</div> :
-                            <>
+                            <ErrorBoundary>
                                 <TxOperationsList parsedTx={tx}/>
                                 <TxMemo tx={tx.tx}/>
-                            </>}
+                            </ErrorBoundary>}
                     </td>
                     <td style={{verticalAlign: 'top'}} data-header="Processed: ">
                         <a href={formatExplorerLink('tx', tx.txHash)}><UtcTimestamp date={tx.createdAt} className="micro-space"/></a>
