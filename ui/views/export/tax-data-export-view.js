@@ -1,5 +1,5 @@
 import React from 'react'
-import {StrKey} from 'stellar-sdk'
+import {StrKey} from 'stellar-base'
 import {Dropdown, Button, useAutoFocusRef} from '@stellar-expert/ui-framework'
 import TaxInfoExporter from '../../business-logic/tax-info-exporter'
 import {setPageMetadata} from '../../util/meta-tags-generator'

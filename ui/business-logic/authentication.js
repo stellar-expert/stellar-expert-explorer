@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import {Keypair} from 'stellar-sdk'
+import {Keypair} from 'stellar-base'
 import shajs from 'sha.js'
 import albedo from '@albedo-link/intent'
 

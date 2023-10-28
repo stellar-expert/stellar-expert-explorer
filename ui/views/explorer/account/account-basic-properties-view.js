@@ -1,5 +1,6 @@
 import React from 'react'
-import {AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info, useResolvedFederationName, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {useResolvedFederationName} from '../../../util/federation-hooks'
 import AccountAuthorizationFlags from './account-authorization-flags-view'
 import LockStatus from './account-lock-status-view'
 

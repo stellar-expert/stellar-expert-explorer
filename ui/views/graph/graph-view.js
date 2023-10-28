@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
-import {StrKey} from 'stellar-sdk'
+import {StrKey} from 'stellar-base'
 import ForceGraph2D from 'react-force-graph-2d'
 import {useWindowWidth} from '@stellar-expert/ui-framework'
 import {setPageMetadata} from '../../util/meta-tags-generator'

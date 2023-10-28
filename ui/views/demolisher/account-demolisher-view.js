@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {StrKey, Keypair} from 'stellar-sdk'
+import {StrKey, Keypair} from 'stellar-base'
 import {inspectAccountSigners} from '@stellar-expert/tx-signers-inspector'
 import {AccountAddress, Button, getDirectoryEntry} from '@stellar-expert/ui-framework'
 import appSettings from '../../app-settings'

@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {Networks} from 'stellar-sdk'
+import {Networks} from 'stellar-base'
 import deepMerge from 'deepmerge'
 import {TxOperationsList, UtcTimestamp, ErrorBoundary} from '@stellar-expert/ui-framework'
 import {useStellarNetwork, useTxHistory, parseTxDetails, formatExplorerLink, withErrorBoundary} from '@stellar-expert/ui-framework'

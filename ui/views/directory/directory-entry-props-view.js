@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {StrKey} from 'stellar-sdk'
+import {StrKey} from 'stellar-base'
 import {AccountAddress, Button, useDirectoryTags, useDependantState, useTheme} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import {isDirectoryAdmin} from './is-directory-admin'

@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react'
-import {StrKey} from 'stellar-sdk'
+import {StrKey} from 'stellar-base'
 import {AccountAddress, useAutoFocusRef} from '@stellar-expert/ui-framework'
 
 export function AccountEditor({value, setValue}) {

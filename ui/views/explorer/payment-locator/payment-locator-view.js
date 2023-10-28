@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {StrKey} from 'stellar-sdk'
+import {StrKey} from 'stellar-base'
 import {Button, useForceUpdate, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {navigation} from '@stellar-expert/navigation'

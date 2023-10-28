@@ -1,4 +1,5 @@
-import {Account, Transaction, Operation, TransactionBuilder, Keypair, Memo, Asset, Server} from 'stellar-sdk'
+import {Account, Transaction, Operation, TransactionBuilder, Keypair, Memo, Asset} from 'stellar-base'
+import {Server} from 'stellar-sdk'
 import {adjustPrecision} from '@stellar-expert/formatter'
 import appSettings from '../../app-settings'
 
