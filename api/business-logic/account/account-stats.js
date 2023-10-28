@@ -56,14 +56,20 @@ async function fetchAssets(network, accountId) {
             {
                 $match: {
                     _id: {
-                        $gte: encodeBsonId(accountId, 0, 0),
+                        $gte: encodeBsonId(accountId, 1, 0), //skip XLM trustlines
                         $lt: encodeBsonId(accountId + 1, 0, 0)
                     }
                 }
             },
             {
+                $sort: {
+                    _id: -1
+                }
+            },
+            {
                 $group: {
-                    _id: '$asset'
+                    _id: '$asset',
+                    balance: {$first: '$balance'}
                 }
             },
             {
@@ -82,11 +88,20 @@ async function fetchAssets(network, accountId) {
             {
                 $project: {
                     _id: 0,
-                    asset: '$asset.name'
+                    asset: '$asset.name',
+                    balance: '$balance'
+                }
+            },
+            {
+                $sort: {
+                    balance: -1,
+                    asset: 1
                 }
             }
         ]).toArray()
-    return assets.map(a => a.asset)
+    const res = assets.map(a => a.asset)
+    res.unshift('XLM')
+    return res
 }
 
 async function fetchActivity(network, accountId) {

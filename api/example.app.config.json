@@ -5,6 +5,7 @@
     "public": {
       "db": "mongodb://127.0.0.1:27087/se_pub802",
       "archive": "mongodb://127.0.0.1:40217/se_archive",
+      "opIndex": "se-tx-pubnet000",
       "horizon": "https://horizon.stellar.org",
       "network": "PUBLIC",
       "demolisherSecret": "S..."
@@ -12,6 +13,7 @@
     "testnet": {
       "db": "mongodb://127.0.0.1:27087/se_test802",
       "archive": "mongodb://127.0.0.1:40217/se_test_archive",
+      "opIndex": "se-tx-testnet000",
       "horizon": "https://horizon-testnet.stellar.org",
       "network": "TESTNET",
       "demolisherSecret": "S..."
