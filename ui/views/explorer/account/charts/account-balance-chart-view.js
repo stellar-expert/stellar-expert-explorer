@@ -11,7 +11,7 @@ const timeframe = 24 * 60 * 60 * 1000
 
 function getChartData(balanceHistory, selectedAsset) {
     const {length} = balanceHistory
-    const data = new Array(length + 1)
+    const data = new Array(length + 2)
     let maxBalance = 0
     for (let i = 0; i < length; i++) {
         const entry = balanceHistory[i]
