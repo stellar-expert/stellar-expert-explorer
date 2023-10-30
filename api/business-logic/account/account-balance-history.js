@@ -2,6 +2,7 @@ const db = require('../../connectors/mongodb-connector')
 const {resolveAssetId} = require('../asset/asset-resolver')
 const {validateNetwork, validateAccountAddress, validateAssetName} = require('../validators')
 const {encodeBsonId, decodeBsonIdPart} = require('../../utils/bson-id-encoder')
+const {timeUnits} = require('../../utils/date-utils')
 const errors = require('../errors')
 
 async function queryAccountBalanceHistory(network, accountAddress, asset) {
@@ -30,13 +31,21 @@ async function queryAccountBalanceHistory(network, accountAddress, asset) {
         throw errors.notFound('Account balance history was not found on the ledger. Check if you specified account address and asset identifier correctly.')
 
     const res = history.map((r, i) => prepareRecord(r, i === 0))
-    return res
+    return extendHistory(res, history)
 }
 
 function prepareRecord({_id, balance, max}, lastValue) {
     const ts = decodeBsonIdPart(_id, 2)
-    const value = !lastValue ? (max || balance) : (balance || max)
+    const value = max || balance
     return [ts, value.toString()]
+}
+
+function extendHistory(res, history) {
+    const lastRecord = history[0]
+    if (lastRecord.balance.toString() === '0' && lastRecord.max.toNumber() > 0n) {
+        res.unshift([res[0][0] + timeUnits.day / 1000, '0'])
+    }
+    return res
 }
 
 module.exports = {queryAccountBalanceHistory}
