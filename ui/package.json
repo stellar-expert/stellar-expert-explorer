@@ -1,7 +1,7 @@
 {
   "name": "ui.stellar.expert",
   "private": true,
-  "version": "0.24.4",
+  "version": "0.24.5",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
@@ -25,10 +25,10 @@
     "@stellar-expert/asset-descriptor": "github:stellar-expert/asset-descriptor#v1.2.3",
     "@stellar-expert/claimable-balance-utils": "github:stellar-expert/claimable-balance-utils#v1.2.0",
     "@stellar-expert/client-cache": "github:stellar-expert/client-cache",
-    "@stellar-expert/formatter": "github:stellar-expert/formatter#v2.2.0",
+    "@stellar-expert/formatter": "github:stellar-expert/formatter#v2.2.1",
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
     "@stellar-expert/tx-signers-inspector": "^1.5.0",
-    "@stellar-expert/ui-framework": "github:stellar-expert/ui-framework#v1.8.4",
+    "@stellar-expert/ui-framework": "github:stellar-expert/ui-framework#v1.8.9",
     "classnames": "^2.3.2",
     "deepmerge": "^4.2.2",
     "highcharts": "8.1.0",
@@ -41,7 +41,7 @@
     "react-force-graph-2d": "^1.25.1",
     "react-router": "^5.3.3",
     "sha.js": "^2.4.11",
-    "stellar-base": "10.0.0-beta.3",
+    "stellar-base": "10.0.0-beta.4",
     "stellar-sdk": "11.0.0-beta.4",
     "throttle-debounce": "^5.0.0"
   },
@@ -54,13 +54,15 @@
   "pnpm": {
     "overrides": {
       "@stellar-expert/asset-descriptor": "github:stellar-expert/asset-descriptor#v1.2.3",
+      "@stellar-expert/formatter": "github:stellar-expert/formatter#v2.2.1",
       "stellar-sdk": "11.0.0-beta.4",
-      "stellar-base": "10.0.0-beta.3"
+      "stellar-base": "10.0.0-beta.4"
     }
   },
   "overrides": {
     "@stellar-expert/asset-descriptor": "github:stellar-expert/asset-descriptor#v1.2.3",
+    "@stellar-expert/formatter": "github:stellar-expert/formatter#v2.2.1",
     "stellar-sdk": "11.0.0-beta.4",
-    "stellar-base": "10.0.0-beta.3"
+    "stellar-base": "10.0.0-beta.4"
   }
 }
