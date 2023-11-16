@@ -3,7 +3,7 @@ import {setPageMetadata} from '../../../util/meta-tags-generator'
 import config from '../../../app-settings'
 import TxHistoryView from '../tx/tx-history-view'
 
-function PaymentLocatorPage() {
+export default function PaymentLocatorPage() {
     setPageMetadata({
         title: `Payment locator`,
         description: `Explore payments on the Stellar ${config.activeNetwork} network. Search by amount, assets, transaction memo, source/destination account.`
@@ -27,5 +27,3 @@ function PaymentLocatorPage() {
         </div>
     </div>
 }
-
-export default PaymentLocatorPage

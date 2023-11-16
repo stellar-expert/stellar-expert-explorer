@@ -11,40 +11,43 @@ function formatDateUTC(date) {
 }
 
 function parseTimeBounds(preconditions) {
-    if (!preconditions.timebounds) return null
-    const {min_time, max_time} = preconditions.timebounds
+    if (!preconditions.timeBounds)
+        return null
+    const {minTime, maxTime} = preconditions.timeBounds
     const info = <Info link="https://developers.stellar.org/docs/glossary/transactions/#time-bounds">
         The timestamp, determined by ledger time, of a lower and upper bound of when this transaction is valid. If a transaction is
         submitted too early or too late, it will fail to make it into the transaction set.
     </Info>
-    if (min_time > 0 && max_time > 0)
+    if (minTime > 0 && maxTime > 0)
         return <div><span className="dimmed">Valid</span>{' '}
-            <span className="condensed">{formatDateUTC(min_time)} - {formatDateUTC(max_time)}</span>{info}</div>
-    if (min_time > 0)
-        return <div><span className="dimmed">Valid after</span> <span className="condensed">{formatDateUTC(min_time)}{info}</span></div>
-    if (max_time > 0)
-        return <div><span className="dimmed">Valid before</span> <span className="condensed">{formatDateUTC(max_time)}</span>{info}</div>
+            <span className="condensed">{formatDateUTC(minTime)} - {formatDateUTC(maxTime)}</span>{info}</div>
+    if (minTime > 0)
+        return <div><span className="dimmed">Valid after</span> <span className="condensed">{formatDateUTC(minTime)}{info}</span></div>
+    if (maxTime > 0)
+        return <div><span className="dimmed">Valid before</span> <span className="condensed">{formatDateUTC(maxTime)}</span>{info}</div>
     return null
 }
 
 function parseLedgerBounds(preconditions) {
-    if (!preconditions.ledgerbounds) return null
-    const {min_ledger, max_ledger} = preconditions.ledgerbounds
+    if (!preconditions.ledgerBounds)
+        return null
+    const {minLedger, maxLedger} = preconditions.ledgerBounds
     const info = <Info link="https://developers.stellar.org/docs/glossary/transactions/#ledger-bounds">
         The transaction is only valid for ledger numbers that fall into the specified ledger sequence range.
     </Info>
-    if (min_ledger > 0 && max_ledger > 0) return <div><span className="dimmed">Valid
-        between</span> {min_ledger} <span className="dimmed">and</span> {max_ledger} <span className="dimmed">ledgers</span>{info}</div>
-    if (min_ledger > 0) return <div><span className="dimmed">Valid after ledger</span> {min_ledger}{info}</div>
-    if (max_ledger > 0) return <div><span className="dimmed">Valid before ledger</span> {max_ledger}{info}</div>
+    if (minLedger > 0 && maxLedger > 0) return <div><span className="dimmed">Valid
+        between</span> {minLedger} <span className="dimmed">and</span> {maxLedger} <span className="dimmed">ledgers</span>{info}</div>
+    if (minLedger > 0) return <div><span className="dimmed">Valid after ledger</span> {minLedger}{info}</div>
+    if (maxLedger > 0) return <div><span className="dimmed">Valid before ledger</span> {maxLedger}{info}</div>
     return null
 }
 
 
 function parseMinSequence(preconditions) {
-    if (!preconditions.min_account_sequence) return null
+    if (!preconditions.minAccountSequence)
+        return null
     return <div>
-        <span className="dimmed">Minimum account sequence:</span> {preconditions.min_account_sequence}
+        <span className="dimmed">Minimum account sequence:</span> {preconditions.minAccountSequence}
         <Info link="https://developers.stellar.org/docs/glossary/transactions/#minimum-sequence-number">
             <p>
                 The transaction is valid when its source account’s sequence number satisfies{' '}
@@ -56,9 +59,10 @@ function parseMinSequence(preconditions) {
 }
 
 function parseMinSequenceAge(preconditions) {
-    if (!preconditions.min_account_sequence_age) return null
+    if (!preconditions.minAccountSequenceAge)
+        return null
     return <div>
-        <span className="dimmed">Minimum account sequence age:</span> {preconditions.min_account_sequence_age}{' '}
+        <span className="dimmed">Minimum account sequence age:</span> {preconditions.minAccountSequenceAge._value.toString()}{' '}
         <span className="dimmed">seconds</span>
         <Info link="https://developers.stellar.org/docs/glossary/transactions/#minimum-sequence-age">
             <p>
@@ -72,9 +76,10 @@ function parseMinSequenceAge(preconditions) {
 }
 
 function parseMinSequenceGap(preconditions) {
-    if (!preconditions.min_account_sequence_ledger_gap) return null
+    if (!preconditions.minAccountSequenceLedgerGap)
+        return null
     return <div>
-        <span className="dimmed">Minimum sequence ledger gap:</span> {preconditions.min_account_sequence_ledger_gap}
+        <span className="dimmed">Minimum sequence ledger gap:</span> {preconditions.minAccountSequenceLedgerGap}
         <Info link="https://developers.stellar.org/docs/glossary/transactions/#minimum-sequence-ledger-gap">
             <p>
                 The transaction is only valid after the current network ledger number meets (or exceeds) a particular gap relative to
@@ -86,11 +91,12 @@ function parseMinSequenceGap(preconditions) {
 }
 
 function parseExtraSigners(preconditions) {
-    const signers = preconditions.extra_signers
-    if (!signers?.length) return null
+    const {extraSigners} = preconditions
+    if (!extraSigners?.length)
+        return null
     return <div>
-        <span className="dimmed">Required extra signer{signers.length > 1 ? 's' : ''}:{' '}</span>
-        {signers.map((s, i) => <span key={i + s}>{i > 0 && ', '}<AccountAddress account={s}/></span>)}
+        <span className="dimmed">Required extra signer{extraSigners.length > 1 ? 's' : ''}:{' '}</span>
+        {extraSigners.map((s, i) => <span key={i + s}>{i > 0 && ', '}<AccountAddress account={s}/></span>)}
         <Info link="https://developers.stellar.org/docs/glossary/transactions/#extra-signers">
             Extra signers precondition means it must have signatures that correspond to those extra signers,
             even if those signatures would not otherwise be required to authorize the transaction
@@ -99,22 +105,21 @@ function parseExtraSigners(preconditions) {
     </div>
 }
 
-export default function TxPreconditionsView({tx}) {
-    const {preconditions} = tx
-    if (!preconditions) return null
+export default function TxPreconditionsView({parsedTx}) {
+    const {tx} = parsedTx
     const parsed = [
-        parseTimeBounds(preconditions),
-        parseLedgerBounds(preconditions),
-        parseMinSequence(preconditions),
-        parseMinSequenceAge(preconditions),
-        parseMinSequenceGap(preconditions),
-        parseExtraSigners(preconditions)
+        parseTimeBounds(tx),
+        parseLedgerBounds(tx),
+        parseMinSequence(tx),
+        parseMinSequenceAge(tx),
+        parseMinSequenceGap(tx),
+        parseExtraSigners(tx)
     ].filter(r => !!r)
 
     if (!parsed.length)
         return null
     return <div>
         <h4>Preconditions</h4>
-        {parsed.map((component, i) => <div key={tx.id + i}>{component}</div>)}
+        {parsed.map((component, i) => <div key={parsedTx.txHash + i}>{component}</div>)}
     </div>
 }

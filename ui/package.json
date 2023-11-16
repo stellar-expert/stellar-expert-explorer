@@ -1,7 +1,7 @@
 {
   "name": "ui.stellar.expert",
   "private": true,
-  "version": "0.24.5",
+  "version": "0.24.6",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
@@ -28,7 +28,7 @@
     "@stellar-expert/formatter": "github:stellar-expert/formatter#v2.2.1",
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
     "@stellar-expert/tx-signers-inspector": "^1.5.0",
-    "@stellar-expert/ui-framework": "github:stellar-expert/ui-framework#v1.8.9",
+    "@stellar-expert/ui-framework": "github:stellar-expert/ui-framework#v1.8.14",
     "classnames": "^2.3.2",
     "deepmerge": "^4.2.2",
     "highcharts": "8.1.0",

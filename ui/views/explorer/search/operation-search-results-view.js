@@ -1,36 +1,64 @@
-import React, {useState} from 'react'
-import {UtcTimestamp, useDependantState, loadOperation} from '@stellar-expert/ui-framework'
-import SearchResultsSectionView from './search-results-section-view'
-import OperationDetailsHeader from '../operation/operation-details-header-view'
-import OpTextDescriptionView from '../operation/operation-text-description-view'
-import {convertHorizonOperation} from '../operation/operation-horizon-converter'
+import React, {useEffect, useState} from 'react'
+import {
+    UtcTimestamp,
+    TxOperationsList,
+    parseStellarGenericId,
+    loadTransaction,
+    parseTxDetails,
+    AccountAddress
+} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../../business-logic/path'
+import appSettings from '../../../app-settings'
+import SearchResultsSectionView from './search-results-section-view'
 
 export default function OperationSearchResultsView({term, onLoaded}) {
-    const [inProgress, setInProgress] = useState(true),
-        [operation, setOperation] = useDependantState(() => {
-            setInProgress(true)
-            loadOperation(term)
-                .then(op => setOperation(op))
-                .finally(() => setInProgress(false))
-        }, [term])
-    if (inProgress) return null
-    if (!operation) {
-        onLoaded(null)
+    const [inProgress, setInProgress] = useState(true)
+    const [tx, setTx] = useState(null)
+    const {tx: txid, operationOrder} = parseStellarGenericId(term)
+    useEffect(() => {
+        setInProgress(true)
+        loadTransaction(txid)
+            .then(txResponse => {
+                const parsedTx = parseTxDetails({
+                    network: appSettings.networkPassphrase,
+                    txEnvelope: txResponse.body,
+                    result: txResponse.result,
+                    meta: txResponse.meta,
+                    createdAt: txResponse.ts,
+                    context: {}
+                })
+                parsedTx.id = txResponse.id
+                parsedTx.ledger = txResponse.ledger
+                setTx(parsedTx)
+            })
+            .finally(() => setInProgress(false))
+    }, [term])
+    if (inProgress)
+        return null
+    if (!tx) {
+        onLoaded([])
         return null
     }
     const res = {
-        link: resolvePath(`op/${operation.id}`),
-        title: <OperationDetailsHeader operation={operation}/>,
+        link: resolvePath(`op/${term}`),
+        title: <>
+            Transaction {tx.txHash.substr(0, 8)}&hellip;{tx.txHash.substr(-8)}{' '}
+            {tx.successful ? '' : <span className="details">(failed)</span>}
+        </>,
         description: <>
-            <UtcTimestamp date={operation.created_at} dateOnly/>{' | '}
-            <OpTextDescriptionView {...convertHorizonOperation(operation)}/>
+            <UtcTimestamp date={tx.createdAt} dateOnly/>{' | '}
+            Source <AccountAddress account={tx.tx.source} chars={12}/>
+            <div className="micro-space">
+                <TxOperationsList parsedTx={tx} filter={(op, i) => operationOrder === (i + 1)} showEffects={false}/>
+            </div>
+            <div className="micro-space"/>
         </>,
         links: <>
-            <a href={resolvePath(`account/${operation.source_account}`)}>Source account</a>&emsp;
-            <a href={resolvePath(`tx/${operation.transaction_hash}`)}>Transaction</a>
+            <a href={resolvePath(`account/${tx.tx.source}`)}>Transaction source account</a>&emsp;
+            <a href={resolvePath(`ledger/${tx.ledger}`)}>Ledger</a>
         </>
     }
     onLoaded(res)
+
     return <SearchResultsSectionView key="operation" section="Operations" items={[res]}/>
 }

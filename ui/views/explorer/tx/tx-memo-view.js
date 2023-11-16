@@ -32,9 +32,9 @@ class MemoFormatter {
     encodeTo(encoding) {
         switch (encoding) {
             case 'base64':
-                return this.memo
+                return this.memo.toString('base64')
             case 'hex':
-                return Buffer.from(this.memo, 'base64').toString('hex')
+                return this.memo.toString('hex')
         }
         throw new Error(`Not supported memo encoding: ${encoding}`)
     }
@@ -44,16 +44,12 @@ class MemoFormatter {
     }
 
     get link() {
-        if (this.type === 'return') return resolvePath(`tx/${this.encodeTo('hex')})`)
+        if (this.type === 'return')
+            return resolvePath(`tx/${this.encodeTo('hex')})`)
     }
 
     get isBinary() {
-        switch (this.type) {
-            case 'return':
-            case 'hash':
-                return true
-        }
-        return false
+        return this.type === 'return' || this.type === 'hash'
     }
 
     get hasMemo() {
@@ -61,13 +57,26 @@ class MemoFormatter {
     }
 
     format(encoding) {
-        if (!encoding || encoding === 'base64' || !this.memo) return this.memo || '[empty]'
+        if (!encoding || encoding === 'base64' || !this.memo) {
+            if (!this.memo)
+                return '[empty]'
+            if (this.memo instanceof Uint8Array)
+                return this.memo.toString()
+            return this.memo
+        }
         return this.encodeTo(encoding)
     }
 }
 
+/**
+ * @param {String|Object} memo
+ * @param {String|Number} memoType
+ * @param {String} [className]
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export default function TxMemoView({memo, memoType, className}) {
-    if (memo === undefined)
+    if (memo === undefined || memo === null)
         return null
     const memoRef = useRef(null)
     const [encoding, setEncoding] = useDependantState(() => {
@@ -107,7 +116,7 @@ export default function TxMemoView({memo, memoType, className}) {
         {' '}
         {memoWrapper.isBinary && <>
             <span className="nowrap dimmed">(
-                <Dropdown value={memoWrapper.encoding} title="Change binary encoding format" onChange={setEncoding}
+                <Dropdown value={encoding} onChange={setEncoding}
                           options={memoWrapper.availableEncodings}/>{' '}format)</span>
             <Info link="https://en.wikipedia.org/wiki/Binary-to-text_encoding">
                 Binary-to-text encoding format used to represent binary hashes.
@@ -115,9 +124,4 @@ export default function TxMemoView({memo, memoType, className}) {
             </Info>
         </>}
     </div>
-}
-
-TxMemoView.propTypes = {
-    memo: PropTypes.string,
-    memoType: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 }

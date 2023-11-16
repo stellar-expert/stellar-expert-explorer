@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useCallback, useState} from 'react'
 import {Networks} from 'stellar-base'
 import deepMerge from 'deepmerge'
 import {TxOperationsList, UtcTimestamp, ErrorBoundary} from '@stellar-expert/ui-framework'
@@ -9,7 +9,21 @@ import TxFilterView from './filters/tx-filter-view'
 export default withErrorBoundary(function TxHistoryView({presetFilter}) {
     const network = Networks[useStellarNetwork().toUpperCase()]
     const [filters, setFilters] = useState(presetFilter ? deepMerge({}, presetFilter) : {})
-    const txHistory = useTxHistory(filters)
+    const updateLocation = useCallback(function (params) {
+        const res = {...params}
+        for (let [key,value] of Object.entries(params)){
+            const presetValue =presetFilter[key]
+            if (presetValue) {
+                if (value instanceof Array){
+                    res[key] = value.filter(av=>!presetValue.includes(av))
+                } else {
+                    delete res[key]
+                }
+            }
+        }
+        return res
+    }, [presetFilter])
+    const txHistory = useTxHistory({filters, updateLocation})
     const {data, loading} = txHistory
     const txList = data.map(tx => {
         try {
@@ -35,27 +49,27 @@ export default withErrorBoundary(function TxHistoryView({presetFilter}) {
         <TxFilterView presetFilter={presetFilter} onChange={setFilters}/>
         <table className="table exportable" data-export-prefix="transactions">
             <thead>
-                <tr>
-                    <th style={{display: 'none'}}>ID</th>
-                    <th>Transaction</th>
-                    <th className="collapsing">Date</th>
-                </tr>
+            <tr>
+                <th style={{display: 'none'}}>ID</th>
+                <th>Transaction</th>
+                <th className="collapsing">Date</th>
+            </tr>
             </thead>
             <tbody>
-                {txList.map(tx => <tr key={tx.txHash}>
-                    <td style={{display: 'none'}}>Tx hash: {tx.txHash}</td>
-                    <td>
-                        {tx.error ?
-                            <div className="segment segment-inline error text-tiny">Error: {tx.error}</div> :
-                            <ErrorBoundary>
-                                <TxOperationsList parsedTx={tx}/>
-                                <TxMemo tx={tx.tx}/>
-                            </ErrorBoundary>}
-                    </td>
-                    <td style={{verticalAlign: 'top'}} data-header="Processed: ">
-                        <a href={formatExplorerLink('tx', tx.txHash)}><UtcTimestamp date={tx.createdAt} className="micro-space"/></a>
-                    </td>
-                </tr>)}
+            {txList.map(tx => <tr key={tx.txHash}>
+                <td style={{display: 'none'}}>Tx hash: {tx.txHash}</td>
+                <td>
+                    {tx.error ?
+                        <div className="segment segment-inline error text-tiny">Error: {tx.error}</div> :
+                        <ErrorBoundary>
+                            <TxOperationsList parsedTx={tx}/>
+                            <TxMemo tx={tx.tx}/>
+                        </ErrorBoundary>}
+                </td>
+                <td style={{verticalAlign: 'top'}} data-header="Processed: ">
+                    <a href={formatExplorerLink('tx', tx.txHash)}><UtcTimestamp date={tx.createdAt} className="micro-space"/></a>
+                </td>
+            </tr>)}
             </tbody>
         </table>
         {!!loading && <div className="loader"/>}

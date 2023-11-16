@@ -121,15 +121,18 @@ export default function SearchResultsView() {
         }
     }, [originalTerm])
 
-    if (state.error) return <SearchResultsWrapper originalTerm={originalTerm}>
-        <ErrorNotificationBlock>{state.error}</ErrorNotificationBlock>
-    </SearchResultsWrapper>
+    if (state.error)
+        return <SearchResultsWrapper originalTerm={originalTerm}>
+            <ErrorNotificationBlock>{state.error}</ErrorNotificationBlock>
+        </SearchResultsWrapper>
 
-    if (state.inProgress) return <div className="loader"/>
+    if (state.inProgress)
+        return <div className="loader"/>
 
-    if (!originalTerm) return <SearchResultsWrapper originalTerm={originalTerm}>
-        <div className="text-center dimmed">(no search term provided)</div>
-    </SearchResultsWrapper>
+    if (!originalTerm)
+        return <SearchResultsWrapper originalTerm={originalTerm}>
+            <div className="text-center dimmed">(no search term provided)</div>
+        </SearchResultsWrapper>
 
     return <SearchResultsWrapper originalTerm={originalTerm}>
         <SearchResults {...state}/>

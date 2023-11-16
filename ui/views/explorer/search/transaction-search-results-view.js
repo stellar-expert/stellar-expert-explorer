@@ -1,17 +1,32 @@
-import React, {useState} from 'react'
-import {AccountAddress, UtcTimestamp, useDependantState, loadTransaction} from '@stellar-expert/ui-framework'
-import SearchResultsSectionView from './search-results-section-view'
+import React, {useEffect, useState} from 'react'
+import {AccountAddress, UtcTimestamp, TxOperationsList, loadTransaction, parseTxDetails} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../../business-logic/path'
+import appSettings from '../../../app-settings'
+import SearchResultsSectionView from './search-results-section-view'
 
 export default function TransactionSearchResultsView({term, onLoaded}) {
-    const [inProgress, setInProgress] = useState(true),
-        [tx, setTx] = useDependantState(() => {
-            setInProgress(true)
-            loadTransaction(term)
-                .then(tx => setTx(tx))
-                .finally(() => setInProgress(false))
-        }, [term])
-    if (inProgress) return null
+    const [inProgress, setInProgress] = useState(true)
+    const [tx, setTx] = useState(null)
+    useEffect(() => {
+        setInProgress(true)
+        loadTransaction(term)
+            .then(txResponse => {
+                const parsedTx = parseTxDetails({
+                    network: appSettings.networkPassphrase,
+                    txEnvelope: txResponse.body,
+                    result: txResponse.result,
+                    meta: txResponse.meta,
+                    createdAt: txResponse.ts,
+                    context: {}
+                })
+                parsedTx.id = txResponse.id
+                parsedTx.ledger = txResponse.ledger
+                setTx(parsedTx)
+            })
+            .finally(() => setInProgress(false))
+    }, [term])
+    if (inProgress)
+        return null
     if (!tx) {
         onLoaded([])
         return null
@@ -19,19 +34,23 @@ export default function TransactionSearchResultsView({term, onLoaded}) {
     const res = {
         link: resolvePath(`tx/${tx.id}`),
         title: <>
-            Transaction {tx.hash.substr(0, 8)}&hellip;{tx.hash.substr(-8)}{' '}
+            Operation {term} in transaction {tx.txHash.substr(0, 8)}&hellip;{tx.txHash.substr(-8)}{' '}
             {tx.successful ? '' : <span className="details">(failed)</span>}
         </>,
         description: <>
-            <UtcTimestamp date={tx.created_at} dateOnly/>{' | '}
-            Source <AccountAddress account={tx.source_account} chars={12}/>,{' '}
-            {tx.operation_count} operation{tx.operation_count != 1 && 's'}
+            <UtcTimestamp date={tx.createdAt} dateOnly/>{' | '}
+            Source <AccountAddress account={tx.tx.source} chars={12}/>,{' '}
+            {tx.operations.length} operation{tx.operations.length !== 1 && 's'}
+            <div className="space">
+                <TxOperationsList parsedTx={tx} showEffects={false}/>
+            </div>
         </>,
         links: <>
-            <a href={resolvePath(`account/${tx.source_account}`)}>Source account</a>&emsp;
-            <a href={resolvePath(`ledger/${tx.ledger_attr}`)}>Ledger</a>
+            <a href={resolvePath(`account/${tx.tx.source}`)}>Source account</a>&emsp;
+            <a href={resolvePath(`ledger/${tx.ledger}`)}>Ledger</a>
         </>
     }
     onLoaded(res)
+
     return <SearchResultsSectionView key="transaction" section="Transactions" items={[res]}/>
 }

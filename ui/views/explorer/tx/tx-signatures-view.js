@@ -1,5 +1,4 @@
 import React from 'react'
-import {TransactionBuilder} from 'stellar-base'
 import {inspectTransactionSigners} from '@stellar-expert/tx-signers-inspector'
 import {
     BlockSelect,
@@ -9,33 +8,33 @@ import {
     findKeysBySignatureHint,
     signatureHintToMask
 } from '@stellar-expert/ui-framework'
-import appSettings from '../../../app-settings'
 
-export default function TxSignaturesView({tx}) {
+export default function TxSignaturesView({parsedTx}) {
     const [{xdr, potentialSigners}, setPotentialSigners] = useDependantState(() => {
-        let parsedTx = TransactionBuilder.fromXDR(tx.envelope_xdr, appSettings.networkPassphrase)
-        const sourceAccount = tx.source_account
-        const feeAccount = tx.fee_account
+        let {tx} = parsedTx
+        let feeAccount = tx.source
 
-        if (tx.inner_transaction && tx.inner_transaction.hash === tx.hash) { //inner tx inside fee bump tx
-            parsedTx = parsedTx.innerTransaction
+        if (tx.innerTransaction) { //inner tx inside a fee bump tx
+            feeAccount = tx.feeSource
+            tx = tx.innerTransaction
         }
+        const sourceAccount = tx.source
         //check if the source account is the only signer
-        if (parsedTx.signatures.length === 1 && findKeysBySignatureHint(parsedTx.signatures[0], [sourceAccount]).length) {
+        if (tx.signatures.length === 1 && findKeysBySignatureHint(tx.signatures[0], [sourceAccount]).length) {
             return Promise.resolve().then(() => setPotentialSigners({
-                xdr: parsedTx,
+                xdr: tx,
                 potentialSigners: [sourceAccount]
             }))
         }
         //fetch all possible transaction signers and proceed
-        inspectTransactionSigners(parsedTx)
+        inspectTransactionSigners(tx)
             .then(schema => {
                 const potential = schema.getAllPotentialSigners();
                 [sourceAccount, feeAccount].map(acc => !potential.includes(acc) && potential.push(acc))
-                setPotentialSigners({xdr: parsedTx, potentialSigners: potential})
+                setPotentialSigners({xdr: tx, potentialSigners: potential})
             })
-        return {xdr: parsedTx, potentialSigners: null, prop: 0}
-    }, [tx.id])
+        return {xdr: tx, potentialSigners: null, prop: 0}
+    }, [parsedTx.id])
 
     return <div className="segment blank space">
         <h3>Signatures
