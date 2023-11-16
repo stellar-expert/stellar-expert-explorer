@@ -15,7 +15,7 @@ import OfferView from './offer/offer-view'
 import OpRedirect from './operation/op-redirect-view'
 import NetworkActivity from './pages/network-activity-page-view'
 import SearchRedirect from './search/search-results-view'
-import OperationsLiveStreamView from './operation/operations-live-stream-view'
+import ActivityStream from './operation/activity-stream-view'
 import DedicatedSearchBoxView from './search/dedicated-search-box-view'
 import LiquidityPoolView from './liquidity-pool/liquidity-pool-view'
 import AllLiquidityPoolsView from './liquidity-pool/all-liquidity-pools-view'
@@ -50,7 +50,7 @@ function ExplorerRouter({match}) {
             </Route>
             <Route path={`${path}/search/new`} component={DedicatedSearchBoxView}/>
             <Route path={`${path}/search`} component={SearchRedirect}/>
-            <Route path={`${path}/operations-live-stream`} component={OperationsLiveStreamView}/>
+            <Route path={`${path}/operations-live-stream`} component={ActivityStream}/>
             <Route component={NotFoundView}/>
         </Switch>
     </div>

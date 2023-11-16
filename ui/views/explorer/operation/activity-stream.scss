@@ -1,0 +1,12 @@
+.activity-stream {
+  ul {
+    min-height: 20vmin;
+    max-height: calc(100vh - 22em);
+    overflow: auto;
+    padding-right: 1em;
+
+    @media (max-width: $responsive-mobile-browser-width) {
+      max-height: calc(min(100vh, 600px))
+    }
+  }
+}
