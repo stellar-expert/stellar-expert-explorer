@@ -1,4 +1,3 @@
-const {StrKey} = require('stellar-sdk')
 const config = require('../../app.config.json')
 const errors = require('../errors')
 const db = require('../../connectors/mongodb-connector')
@@ -10,8 +9,8 @@ const {preparePagedData, normalizeLimit, normalizeOrder} = require('../api-helpe
 const {resolveSequenceFromTimestamp} = require('../ledger/ledger-timestamp-resolver')
 const {accountResolver} = require('../account/account-resolver')
 const {fetchMemoIds} = require('../memo/memo-resolver')
-const {fetchLedgers} = require('../ledger/ledger-resolver')
-const {fetchArchiveTransactions, fetchSingleArchiveTransaction} = require('./archive-locator')
+const {fetchArchiveTransactions, fetchSingleArchiveTransaction, fetchArchiveLedgerTransactions} = require('./archive-locator')
+const {fetchLedgers, fetchLedger} = require('../ledger/ledger-resolver')
 
 class TxQuery {
     constructor(network, basePath, {order = 'desc', cursor, limit, ...extraParams}) {
@@ -458,18 +457,46 @@ class TxQuery {
         return res
     }
 
+    /**
+     * Fetch a single transaction from history
+     * @param {String} network
+     * @param {String} txIdOrHash
+     * @returns {Promise<TxQueryResponse>}
+     */
     static async fetchTx(network, txIdOrHash) {
         if (typeof txIdOrHash !== 'string' || txIdOrHash.length > 64)
             throw errors.validationError('id', 'Invalid transaction id or hash')
         validateNetwork(network)
-
+        //fetch the transaction
         const tx = await fetchSingleArchiveTransaction(network, txIdOrHash)
         if (!tx)
             throw errors.notFound(`Transaction ${txIdOrHash} not found on the ${network} ledger`)
 
-        const [ledger] = fetchLedgers(network, [tx._id])
+        const ledger = await fetchLedger(network, tx.id.high)
         return TxQuery.prepareResponseEntry(tx, ledger)
     }
+
+    /**
+     * Fetch a single transaction from history
+     * @param {String} network
+     * @param {Number} ledgerSequence
+     * @returns {Promise<TxQueryResponse[]>}
+     */
+    static async fetchLedgerTransactions(network, ledgerSequence) {
+        ledgerSequence = parseInt(ledgerSequence || '0', 10)
+        if (typeof ledgerSequence !== 'number' || ledgerSequence <= 0 || ledgerSequence > 0XFFFFFFFF)
+            throw errors.validationError('sequence', 'Invalid ledger sequence')
+        validateNetwork(network)
+        //fetch the transaction
+        const res = await fetchArchiveLedgerTransactions(network, ledgerSequence)
+        if (!res)
+            throw errors.notFound(`Transaction ${ledgerSequence} not found on the ${network} ledger`)
+
+        const ledger = await fetchLedger(network, ledgerSequence)
+        return res.map(tx => TxQuery.prepareResponseEntry(tx, ledger))
+    }
+
+
 }
 
 const typeMapping = {

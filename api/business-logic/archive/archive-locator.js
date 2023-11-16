@@ -72,41 +72,29 @@ async function fetchSingleArchiveTransaction(network, idOrHash) {
     } else if (idOrHash instanceof Long) {
         query._id = idOrHash
     } else if (idOrHash instanceof Buffer) {
-        query.hash = Buffer.from(idOrHash, 'hex')
+        query.hash = idOrHash
     } else
         return null //unknown format
     const res = await collection(network, 'transactions').findOne(query)
-    return mapTxProps(res)
-}
-
-/**
- * Fetch ledger header and upgrades from archive db
- * @param {String} network - Network identifier
- * @param {Number} ledger - Ledger sequence
- * @return {Promise<ArchiveTxInfo>}
- */
-async function fetchArchiveLedger(network, ledger) {
-    if (typeof ledger !== 'number' || !(ledger > 0))
+    if (!res)
         return null
-    const res = await collection(network, 'transactions')
-        .find({_id: {$gte: new Long(0, ledger), $lt: new Long(0, ledger + 1)}}, {sort: {_id: order}})
-        .toArray()
-    return res.map(mapTxProps)
+    return mapTxProps(res)
 }
 
 /**
  * Fetch all transaction that belong to a certain ledger from archive db
  * @param {String} network - Network identifier
  * @param {Number} ledger - Ledger sequence
- * @param {Number} order - Transactions sorting order
- * @return {Promise<ArchiveLedgerInfo>}
+ * @param {Number} [order] - Transactions sorting order
+ * @return {Promise<ArchiveTxInfo[]>}
  */
 async function fetchArchiveLedgerTransactions(network, ledger, order = 1) {
     if (typeof ledger !== 'number' || !(ledger > 0))
         return []
     const res = await collection(network, 'transactions')
-        .findOne({_id: ledger})
-    return mapLedgerProps(res)
+        .find({_id: {$gte: new Long(0, ledger), $lt: new Long(0, ledger + 1)}}, {sort: {_id: order}})
+        .toArray()
+    return res.map(mapTxProps)
 }
 
-module.exports = {fetchArchiveLedger, fetchArchiveTransactions, fetchArchiveLedgerTransactions, fetchSingleArchiveTransaction}
+module.exports = {fetchArchiveTransactions, fetchArchiveLedgerTransactions, fetchSingleArchiveTransaction}
