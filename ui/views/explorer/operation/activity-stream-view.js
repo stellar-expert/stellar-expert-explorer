@@ -10,14 +10,7 @@ import {
     streamTransactions
 } from '@stellar-expert/ui-framework'
 import './activity-stream.scss'
-
-function getScrollParent(node) {
-    if (node == null)
-        return null
-    if (node.scrollHeight > node.clientHeight)
-        return node
-    return getScrollParent(node.parentNode)
-}
+import appSettings from '../../../app-settings'
 
 export default function ActivityStreamView() {
     const network = useStellarNetwork()
@@ -286,19 +279,6 @@ class RecentActivity {
 }
 
 /**
- *
- * @param {'public'|'testnet'} network
- * @param {Boolean} includeFailed
- * @param {Number} count
- * @param {String} cursor
- * @return {Promise<ParsedTxDetails[]>}
- * @internal
- */
-function loadAccountTransactions({network, includeFailed = true, count = 20, cursor}) {
-    return
-}
-
-/**
  * @param {String} network
  * @param {TransactionRecord} txRecord
  * @param {Boolean} inProgress
@@ -307,7 +287,7 @@ function loadAccountTransactions({network, includeFailed = true, count = 20, cur
  */
 function processTransactionRecord(network, txRecord, inProgress = false) {
     const details = parseTxDetails({
-        network,
+        network: appSettings.networkPassphrase,
         txEnvelope: txRecord.envelope_xdr,
         result: txRecord.result_xdr,
         meta: txRecord.result_meta_xdr,

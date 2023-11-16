@@ -1,13 +1,12 @@
 import React, {useCallback, useState} from 'react'
-import {Networks} from 'stellar-base'
 import deepMerge from 'deepmerge'
 import {TxOperationsList, UtcTimestamp, ErrorBoundary} from '@stellar-expert/ui-framework'
-import {useStellarNetwork, useTxHistory, parseTxDetails, formatExplorerLink, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {useTxHistory, parseTxDetails, formatExplorerLink, withErrorBoundary} from '@stellar-expert/ui-framework'
+import appSettings from '../../../app-settings'
 import GridDataActionsView from '../../components/grid-data-actions'
 import TxFilterView from './filters/tx-filter-view'
 
 export default withErrorBoundary(function TxHistoryView({presetFilter}) {
-    const network = Networks[useStellarNetwork().toUpperCase()]
     const [filters, setFilters] = useState(presetFilter ? deepMerge({}, presetFilter) : {})
     const updateLocation = useCallback(function (params) {
         const res = {...params}
@@ -28,7 +27,7 @@ export default withErrorBoundary(function TxHistoryView({presetFilter}) {
     const txList = data.map(tx => {
         try {
             return parseTxDetails({
-                network,
+                network: appSettings.networkPassphrase,
                 txEnvelope: tx.body,
                 result: tx.result,
                 meta: tx.meta,
