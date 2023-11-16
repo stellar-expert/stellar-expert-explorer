@@ -26,6 +26,20 @@ async function checkBlockedDomains(network, domains) {
 }
 
 /**
+ * Fetch tags for account
+ * @param {String} network - Stellar network
+ * @param {String[]} issuers - Asset issuer accounts to check
+ * @return {Promise<String[]>}
+ * @internal
+ */
+async function checkIssuersWarnings(network, issuers) {
+    return await db[network].collection('directory')
+        .find({_id: {$in: issuers}, tags: {$in: ['malicious', 'unsafe']}}) //search only for accounts with 'malicious' and 'unsafe' tags
+        .project({_id: 1})
+        .toArray()
+}
+
+/**
  * Retrieve assets meta from the db
  * @param {String} network - Stellar network
  * @param {String[]|Number[]} assets - Asset ids or FQANs
@@ -33,7 +47,9 @@ async function checkBlockedDomains(network, domains) {
  */
 async function retrieveAssetsMetadata(network, assets) {
     if (!assets.length) return []
-    const query = typeof assets[0] === 'number' ? {_id: {$gt: 0, $in: assets}} : {name: {$in: assets}, _id: {$gt: 0}}
+    const query = typeof assets[0] === 'number' ?
+        {_id: {$gt: 0, $in: assets}} :
+        {name: {$in: assets}, _id: {$gt: 0}}
 
     let foundAssets = await db[network].collection('assets')
         .find(query)
@@ -46,6 +62,8 @@ async function retrieveAssetsMetadata(network, assets) {
     }
 
     const domainsMap = {}
+    const issuersMap = {}
+
     //normalize response properties
     foundAssets = foundAssets.map(a => {
         const res = {_id: a._id, asset: a.name, name: a.name}
@@ -61,16 +79,34 @@ async function retrieveAssetsMetadata(network, assets) {
             }
             domainsMap[a.domain] = 1
         }
+        if (a.name.includes('-')) {
+            const issuer = a.name.split('-')[1]
+            issuersMap[issuer] = 1
+        }
         return res
     })
 
-    //check whether any of the found domains has been blocked
-    const blockedDomains = await checkBlockedDomains(network, Object.keys(domainsMap))
+    //process Directory info
+    const [blockedDomains, issuerWarnings] = await Promise.all([
+        checkBlockedDomains(network, Object.keys(domainsMap)), //check whether any of the found domains has been blocked
+        checkIssuersWarnings(network, Object.keys(issuersMap)) //check warnings set to issuer accounts
+    ])
+
     if (blockedDomains.length) {
         for (const blockedDomain of blockedDomains) {
             for (const a of foundAssets) {
                 if (a.domain === blockedDomain || a.unconfirmed_domain === blockedDomain) {
-                    a.blocked = true
+                    a.unsafe = true
+                }
+            }
+        }
+    }
+
+    if (issuerWarnings.length) {
+        for (const issuerTags of issuerWarnings) {
+            for (const a of foundAssets) {
+                if (a.name.includes(issuerTags._id)) {
+                    a.unsafe = true
                 }
             }
         }
