@@ -25,7 +25,7 @@ export default function TomlValidatorView({domain, asset}) {
 
     return <Tooltip trigger={<i className="icon icon-warning color-warning trigger" style={{verticalAlign: 'bottom'}}/>} maxWidth="40em">
         <div className="micro-space">
-            {warnings.slice(0, 4).map(warning => <TomlWarningView key={warning} warning={warning}/>)}
+            {warnings.slice(0, 4).map(warning => <TomlWarningView key={warning} warning={warning} domain={domain}/>)}
             {warnings.length > 4 && <div className="text-tiny dimmed">
                 and {warnings.length - 5} more...
             </div>}

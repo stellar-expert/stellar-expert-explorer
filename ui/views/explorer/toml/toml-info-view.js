@@ -104,7 +104,7 @@ export default withErrorBoundary(function TomlInfoView({homeDomain, account, ass
         tabs.push({
             name: 'warnings',
             title: <><i className="icon icon-warning text-small"/>Warnings</>,
-            render: () => <TomlWarningsView warnings={warnings}/>
+            render: () => <TomlWarningsView warnings={warnings} domain={homeDomain}/>
         })
     }
     if (!tabs.length)

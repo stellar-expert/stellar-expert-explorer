@@ -53,10 +53,10 @@ export function TomlWarningView({warning}) {
     </div>
 }
 
-export default function TomlWarningsView({warnings}) {
-    return <div>
-        <div className="dimmed text-tiny">
-            Hosted stellar.toml validation warnings:
+export default function TomlWarningsView({warnings, domain}) {
+    return <div className="segment blank">
+        <div className="dimmed text-small">
+            Hosted <code>stellar.toml</code> validation warnings for domain <code>{domain}</code>:
         </div>
         <div className="micro-space">
             {warnings.map(w => <TomlWarningView key={w} warning={w}/>)}
