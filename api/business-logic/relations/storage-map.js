@@ -1,5 +1,5 @@
 const fs = require('fs')
-const {StrKey} = require('stellar-sdk')
+const {StrKey} = require('@stellar/stellar-sdk')
 
 function saveRelationsMap(address, relations) {
     if (!StrKey.isValidEd25519PublicKey(address))

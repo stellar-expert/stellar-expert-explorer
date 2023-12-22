@@ -1,4 +1,4 @@
-const {StrKey} = require('stellar-sdk')
+const {StrKey} = require('@stellar/stellar-sdk')
 const mongodbStorage = require('./storage/mongodb-directory-storage')
 const {validateUpdateEntryData, validateDeletedEntryData} = require('./directory-request-validators')
 const {createGithubWrapper, requestGithubUserDetails, generateAccountFileName, getRepoFileHash} = require('./directory-github-api-utils')

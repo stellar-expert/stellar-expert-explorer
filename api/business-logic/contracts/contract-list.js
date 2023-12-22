@@ -1,4 +1,4 @@
-const {StrKey} = require('stellar-sdk')
+const {StrKey} = require('@stellar/stellar-sdk')
 const db = require('../../connectors/mongodb-connector')
 const QueryBuilder = require('../query-builder')
 const {validateNetwork} = require('../validators')

@@ -1,4 +1,4 @@
-const {StrKey} = require('stellar-sdk')
+const {StrKey} = require('@stellar/stellar-sdk')
 const {Long} = require('bson')
 const {networks} = require('../app.config')
 const errors = require('./errors')

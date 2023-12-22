@@ -1,4 +1,4 @@
-const {Transaction, Operation, Keypair, Networks} = require('stellar-sdk'),
+const {Transaction, Operation, Keypair, Networks} = require('@stellar/stellar-sdk'),
     errors = require('../errors'),
     {networks} = require('../../app.config')
 
