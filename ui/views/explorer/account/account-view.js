@@ -1,6 +1,6 @@
 import React from 'react'
 import {useParams} from 'react-router'
-import {StrKey} from 'stellar-base'
+import {StrKey} from '@stellar/stellar-base'
 import {BlockSelect, AccountAddress, InfoTooltip as Info, useDirectory, parseMuxedAccount} from '@stellar-expert/ui-framework'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import ErrorNotificationBlock from '../../components/error-notification-block'

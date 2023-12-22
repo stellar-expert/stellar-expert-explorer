@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {FederationServer} from 'stellar-sdk'
+import {Federation} from '@stellar/stellar-sdk'
 import {useDependantState} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import appSettings from '../../../app-settings'
@@ -40,7 +40,7 @@ async function processSearchTerm(originalTerm) {
         let searchTypes = detectSearchType(originalTerm)
         //resolve federation address
         if (searchTypes[0] === 'federation') {
-            const {account_id} = await FederationServer.resolve(originalTerm)
+            const {account_id} = await Federation.Server.resolve(originalTerm)
             term = account_id
             searchTypes = ['account']
         }

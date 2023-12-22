@@ -1,5 +1,5 @@
 import React from 'react'
-import {StrKey} from 'stellar-base'
+import {StrKey} from '@stellar/stellar-base'
 import {AccountAddress, UtcTimestamp, parseMuxedAccount, useExplorerApi} from '@stellar-expert/ui-framework'
 import {formatPrice} from '@stellar-expert/formatter'
 import {resolvePath} from '../../../business-logic/path'

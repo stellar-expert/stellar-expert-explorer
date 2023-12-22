@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {StrKey} from 'stellar-base'
+import {StrKey} from '@stellar/stellar-base'
 import {AccountAddress, Amount, Button} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {apiCall} from '../../../models/api'

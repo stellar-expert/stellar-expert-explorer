@@ -1,5 +1,5 @@
-import {Account, Transaction, Operation, TransactionBuilder, Keypair, Memo, Asset} from 'stellar-base'
-import {Server} from 'stellar-sdk'
+import {Account, Transaction, Operation, TransactionBuilder, Keypair, Memo, Asset} from '@stellar/stellar-base'
+import {Horizon} from '@stellar/stellar-sdk'
 import {adjustPrecision} from '@stellar-expert/formatter'
 import appSettings from '../../app-settings'
 
@@ -53,7 +53,7 @@ class DemolisherTxBuilder {
         //demolisher server API endpoint
         this.endpoint = endpoint
         //init Horizon server wrapper
-        this.server = new Server(horizon || 'https://horizon.stellar.org')
+        this.server = new Horizon.Server(horizon || 'https://horizon.stellar.org')
         //set status change callback
         this.onStatusChange = onStatusChange
         //init error counter
@@ -90,7 +90,7 @@ class DemolisherTxBuilder {
         //we can process max 100 ops at once so there is no need to fetch more
         const {records} = await this.server
             .offers()
-            .forAccount( this.sourcePublicKey)
+            .forAccount(this.sourcePublicKey)
             .limit(100)
             .call()
         //generate drop offer operations

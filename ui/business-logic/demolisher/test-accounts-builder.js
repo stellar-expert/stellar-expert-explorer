@@ -1,16 +1,13 @@
-import {Asset, Keypair, Network, Operation, Account, TransactionBuilder, Transaction, Server} from 'stellar-sdk'
+import {Asset, Keypair, Operation, Account, TransactionBuilder, Transaction} from '@stellar/stellar-base'
+import {Horizon} from '@stellar/stellar-sdk'
 
-const fetchFn = fetch || require('node-fetch')
-
-const server = new Server('https://horizon-testnet.stellar.org')
-
-Network.useTestNetwork()
+const server = new Horizon.Server('https://horizon-testnet.stellar.org')
 
 const XLM = Asset.native()
 
 async function createRootAccount() {
     const rootKeypair = Keypair.random()
-    const response = await fetchFn(
+    const response = await fetch(
         `https://friendbot.stellar.org?addr=${rootKeypair.publicKey()}`
     )
     if (!response.ok)

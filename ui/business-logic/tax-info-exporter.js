@@ -1,4 +1,4 @@
-import {Server} from 'stellar-sdk'
+import {Horizon} from '@stellar/stellar-sdk'
 import {approximatePrice} from '@stellar-expert/formatter'
 import CsvGenerator from '../util/csv-generator'
 
@@ -71,7 +71,7 @@ class TaxInfoExporter {
     constructor(publicKey, year) {
         this.publicKey = publicKey
         this.year = year
-        this.horizon = new Server('https://horizon.stellar.org/')
+        this.horizon = new Horizon.Server('https://horizon.stellar.org/')
         this.trades = []
         this.income = []
         this.spending = []

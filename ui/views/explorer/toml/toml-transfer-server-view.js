@@ -1,5 +1,5 @@
 import React from 'react'
-import {Keypair} from 'stellar-base'
+import {Keypair} from '@stellar/stellar-base'
 import {AssetLink} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 
