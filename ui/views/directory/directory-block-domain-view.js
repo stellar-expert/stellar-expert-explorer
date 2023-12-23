@@ -1,12 +1,12 @@
 import React, {useState} from 'react'
-import {AccountAddress, Button, useDirectoryTags} from '@stellar-expert/ui-framework'
+import {Button, useDirectoryTags} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
 import {isDirectoryAdmin} from './is-directory-admin'
 import {apiCall} from '../../models/api'
 
 function isDomainValid(domain) {
-    return /^(((?!-))(xn--)?[a-z0-9\-_]{0,61}[a-z0-9]\.)*(xn--)?([a-z0-9\-]{1,61}|[a-z0-9\-]{1,30})\.[a-z]{2,}$/.test(domain)
+    return /^\S+\.[a-z]{2,}$/.test(domain)
 }
 
 export default function DirectoryBlockDomainView() {
