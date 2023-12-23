@@ -136,7 +136,7 @@ const directoryManager = {
         return await mongodbStorage.listBlockedDomains(basePath, query)
     },
     async blockDomain({domain, reason, accessToken}) {
-        if (!/^(((?!-))(xn--)?[a-z0-9\-_]{0,61}[a-z0-9]\.)*(xn--)?([a-z0-9\-]{1,61}|[a-z0-9\-]{1,30})\.[a-z]{2,}$/.test(domain))
+        if (!/^\S+\.[a-z]{2,}$/.test(domain))
             throw errors.badRequest('Invalid domain name')
         if (await mongodbStorage.isDomainBlocked(domain))
             return {domain}//already added
