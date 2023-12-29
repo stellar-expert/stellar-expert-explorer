@@ -4,7 +4,7 @@ const {sorobanexpCredentials} = require('../../app.config')
 const {validateTurnstileToken} = require('../../utils/turnstile-adapter')
 const {unixNow, timeUnits} = require('../../utils/date-utils')
 const {validateNetwork, validateContractAddress} = require('../validators')
-const {errors} = require('../errors')
+const errors = require('../errors')
 const {parseContractHash} = require('./contract-code')
 
 let authInfo
@@ -32,7 +32,7 @@ async function validateContract(network, req) {
     if (!contractInfo.wasm)
         throw errors.badRequest(`${contract} is not a WASM-based contract.`)
 
-    const code = await fetchCodeValidationDetails(network, contract.wasm)
+    const code = await fetchCodeValidationDetails(network, contractInfo.wasm.buffer)
     //check if the validation has been done already
     if (code.source)
         throw errors.badRequest(`Contract ${contract} source code has been already associated with the repository "${code.source}".`)
@@ -42,10 +42,11 @@ async function validateContract(network, req) {
     //generate unique token for callback request verification
     const uid = crypto.randomBytes(32).toString('hex')
     //prepare params for the external validation request
-    const callback = `https://${hostname}/explorer/${network}/contract-validation/confirm/${uid}`
+    const host = req.get('host')
+    const callback = `https://${host}/explorer/${network}/contract-validation/confirm/${uid}`
     const externalRequestParams = {
         contractId: contract,
-        source: source,
+        source,
         callback
     }
     //execute external validation request
@@ -147,13 +148,13 @@ async function fetchCodeValidationDetails(network, hash) {
 
 function validateSourceLink(source) {
     if (!source)
-        throw errors.validationError('source', 'Source code URL not provided.')
+        throw errors.validationError('source', 'Source code URL is missing.')
+    if (source.length > 300)
+        throw errors.validationError('source', 'Source code URL is too long.')
     if (!source.startsWith('https://github.com/'))
         throw errors.validationError('source', 'Only Github repositories are supported at the moment.')
     if (!/\/tree\/[a-f0-9]{40}\//.test(source))
         throw errors.validationError('source', 'Repository link should contain the commit hash to associate the contract WASM with the particular point-in-time snapshot of the source code.')
-    if (source.length > 300)
-        throw errors.validationError('source', 'Source code URL is too long.')
     return source
 }
 
@@ -191,7 +192,6 @@ async function apiRequest(url, method, data, skipAuth = false) {
     }
     const response = await fetch(url, requestParams)
     const res = await response.json()
-    console.log(res)
     return res
 }
 

@@ -1,8 +1,6 @@
-const crypto = require('crypto')
 const db = require('../../connectors/mongodb-connector')
-const {validateNetwork, validateContractAddress} = require('../validators')
+const {validateNetwork} = require('../validators')
 const errors = require('../errors')
-const {validateContract} = require('./contract-validation')
 
 /**
  * @param {String} network
@@ -35,7 +33,7 @@ async function queryContractCode(network, hash) {
 }
 
 function parseContractHash(hash) {
-    if (hash?.test(/^[0-9a-f]{64}$/i)) {
+    if (typeof hash === 'string' && /^[0-9a-f]{64}$/i.test(hash)) {
         try {
             const parsedHash = Buffer.from(hash, 'hex')
             if (parsedHash.length === 32)
