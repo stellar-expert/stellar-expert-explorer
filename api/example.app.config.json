@@ -38,6 +38,10 @@
     "http://localhost:9001"
   ],
   "proxyValidationKey": "",
+  "sorobanexpCredentials": {
+    "email": "",
+    "password": ""
+  },
   "billing": {
     "billingServerUrl": "ws://127.0.0.1:9000",
     "serviceToken": "",

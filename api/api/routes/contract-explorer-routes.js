@@ -4,6 +4,7 @@ const {queryContractStats} = require('../../business-logic/contracts/contract-st
 const {queryContractBalanceHistory} = require('../../business-logic/contracts/contract-balance-history')
 const {estimateContractValue} = require('../../business-logic/contracts/contract-value-estimator')
 const {queryContractBalances} = require('../../business-logic/contracts/contract-balances')
+const {queryContractCode} = require('../../business-logic/contracts/contract-code')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -30,5 +31,16 @@ module.exports = function (app) {
         'contract/:contract/value',
         {cache: 'stats'},
         ({params, query}) => estimateContractValue(params.network, params.contract, query.currency))
+
+    registerRoute(app,
+        'contract/wasm/:hash',
+        {cache: 'stats'},
+        async ({params}, res) => {
+            res.type('application/octet-stream')
+            res.set('Content-Disposition', `attachment;filename=${params.hash}.wasm`)
+            const code = await queryContractCode(params.network, params.hash)
+            res.send(code.wasm)
+            res.end()
+        })
 
 }

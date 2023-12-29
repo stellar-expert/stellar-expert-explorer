@@ -3,6 +3,7 @@ const errors = require('../errors')
 const {validateNetwork, validateContractAddress} = require('../validators')
 const {resolveAccountAddress} = require('../account/account-resolver')
 const AssetDescriptor = require('../asset/asset-descriptor')
+const {getValidationStatus} = require('./contract-validation')
 
 async function queryContractStats(network, contractAddress) {
     validateNetwork(network)
@@ -32,12 +33,16 @@ async function queryContractStats(network, contractAddress) {
             res.issuer = issuerAddress
             res.salt = contract.salt?.toString()
         }
-    }
-
-    if (await db[network].collection('assets').findOne({name: contractAddress}, {projection: {_id: 1}})) {
+        res.isAsset = true
+    } else if (contract.code === 'XLM') {
+        res.asset = 'XLM'
+        res.isAsset = true
+    } else if (await db[network].collection('assets').findOne({name: contractAddress}, {projection: {_id: 1}})) {
         res.isAsset = true
     }
-
+    if (contract.wasm) {
+        res.validation = await getValidationStatus(network, contract.wasm)
+    }
     return res
 }
 
