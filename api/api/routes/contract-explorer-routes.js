@@ -39,7 +39,7 @@ module.exports = function (app) {
             res.type('application/octet-stream')
             res.set('Content-Disposition', `attachment;filename=${params.hash}.wasm`)
             const code = await queryContractCode(params.network, params.hash)
-            res.send(code.wasm)
+            res.send(code)
             res.end()
         })
 

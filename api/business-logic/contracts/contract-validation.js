@@ -74,7 +74,6 @@ async function validateContract(network, req) {
 }
 
 async function validateContractCallback(network, callbackParams, uid) {
-    console.log('Contract validation response', 'network: ' + network, JSON.stringify(callbackParams, null, '  '))
     const {verifyStatus, processStatus, gitUrl, runtime, platform, networkWasmHash} = callbackParams || {}
     if (processStatus !== 'C' && processStatus !== 'F')
         return {ok: 1}
@@ -110,34 +109,21 @@ async function validateContractCallback(network, callbackParams, uid) {
 
 async function getValidationStatus(network, hash) {
     const {validation, source, sourceUpdated} = await fetchCodeValidationDetails(network, hash)
+    if (source)
+        return {
+            status: 'verified',
+            source,
+            ts: sourceUpdated
+        }
     //check if the validation is in progress
-    const res = {
-        status: 'unverified'
-    }
-    if (source) {
-        res.verifiedSource = source
-        res.ts = sourceUpdated
-    }
-    if (!validation) {
-        if (source)
-            return Object.assign(res, {status: 'verified'})
-        return res
-    }
-    if (isValidationPending(validation))
-        return Object.assign(res, {
-            status: 'pending',
-            source: validation.source,
-            ts: validation.ts
-        })
-    //do not show validation request details if it was initiated more than 24 hours ago
-    if (source && validation.ts < unixNow() - timeUnits.day)
-        return res
+    if (!validation || validation.ts < unixNow() - 4 * timeUnits.hour) //skip stale validation request details
+        return {status: 'unverified'}
 
-    return Object.assign(res, {
+    return {
         status: validation.status,
-        source: validation.source,
+        possibleSource: validation.source,
         ts: validation.ts
-    })
+    }
 }
 
 async function fetchCodeValidationDetails(network, hash) {
