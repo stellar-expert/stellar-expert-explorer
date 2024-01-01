@@ -74,6 +74,11 @@ function ContractValidationForm({address}) {
                 })
             }
         } catch (e) {
+            console.error(e)
+            notify({
+                type: 'error',
+                message: e.ext?.error || 'Internal error occured.'
+            })
         } finally {
             setInProgress(false)
         }
