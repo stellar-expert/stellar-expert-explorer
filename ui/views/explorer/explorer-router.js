@@ -7,6 +7,7 @@ import AssetsDashboard from './asset/assets-dashboard-view'
 import Asset from './asset/asset-view'
 import Account from './account/account-view'
 import Contract from './contract/contract-view'
+import ValidateContract from './contract/contract-validation-view'
 import Ledger from './ledger/ledger-view'
 import Tx from './tx/tx-view'
 import MarketView from './market/market-view'
@@ -30,6 +31,7 @@ function ExplorerRouter({match}) {
             <Route path={`${path}/ledger/:sequence`} component={Ledger}/>
             <Route path={`${path}/account/:id/claimable-balances`} component={AccountClaimableBalancesView}/>
             <Route path={`${path}/account/:id`} component={Account}/>
+            <Route path={`${path}/contract/:id/validate`} component={ValidateContract}/>
             <Route path={`${path}/contract/:id`} component={Contract}/>
             <Route path={`${path}/tx/:id`} component={Tx}/>
             <Route path={`${path}/market/:selling/:buying`} component={MarketView}/>

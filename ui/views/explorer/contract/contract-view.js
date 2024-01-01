@@ -6,7 +6,7 @@ import ErrorNotificationBlock from '../../components/error-notification-block'
 import {useContractInfo} from '../../../business-logic/api/contract-api'
 import ContractBalancesView from './contract-balances-view'
 import ContractDetailsView from './contract-details-view'
-import ContractHistoryTabsView from './contract-history-tabs-view'
+import ContractTabsView from './contract-tabs-view'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 
 export default function ContractView() {
@@ -50,8 +50,8 @@ export default function ContractView() {
                 </div>
             </div>
         </div>
-        <div className="">
-            <ContractHistoryTabsView contract={address}/>
+        <div>
+            <ContractTabsView contract={data}/>
         </div>
     </>
 }

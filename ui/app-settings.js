@@ -24,6 +24,8 @@ class AppSettings {
 
     oauth
 
+    turnstileKey
+
     get activeNetwork() {
         return getCurrentStellarNetwork()
     }

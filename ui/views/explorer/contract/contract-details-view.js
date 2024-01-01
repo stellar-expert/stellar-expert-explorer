@@ -1,5 +1,5 @@
 import React from 'react'
-import {AssetLink, AccountAddress, CopyToClipboard} from '@stellar-expert/ui-framework'
+import {AssetLink, AccountAddress, CopyToClipboard, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 
 export default function ContractDetailsView({contract}) {
@@ -8,8 +8,11 @@ export default function ContractDetailsView({contract}) {
     return <div>
         <dl>
             <ContractType contract={contract}/>
+            <ContractValidationStatus validation={contract.validation}/>
             <dt>Creator:</dt>
             <dd><AccountAddress account={contract.creator}/></dd>
+            <dt>Created:</dt>
+            <dd><UtcTimestamp date={contract.created}/></dd>
             {contract.payments > 0 && <>
                 <dt>Payments:</dt>
                 <dd>{contract.payments}</dd>
@@ -50,4 +53,28 @@ function ContractType({contract}) {
         <dt>Type:</dt>
         <dd>Unknown</dd>
     </>
+}
+
+function ContractValidationStatus({validation}) {
+    if (!validation)
+        return null
+    const {status, source, possibleSource} = validation
+    return <>
+        <dt>Source code:</dt>
+        {status === 'unverified' ? <dd>
+            Unavailable - <a href={location.pathname + '/validate'}><i className="icon-add-circle"/>Provide source code</a>
+        </dd> : source ? <dd>
+            <a href={source} target="_blank" rel="noreferrer"><i className="icon-github"/>{parseSourceRepo(source)}</a> - confirmed
+        </dd> : <dd>
+            <a href={possibleSource} target="_blank" rel="noreferrer"><i className="icon-github"/>{parseSourceRepo(possibleSource)}</a>{' '}
+            - verification {status}
+        </dd>}
+    </>
+}
+
+function parseSourceRepo(source) {
+    const [_, owner, repo] = /github.com\/(.*?)\/(.*?)\//.exec(source.toLowerCase())
+    if (!owner || !repo)
+        return 'repository'
+    return owner + '/' + repo
 }
