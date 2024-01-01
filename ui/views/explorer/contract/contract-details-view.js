@@ -66,8 +66,8 @@ function ContractValidationStatus({validation}) {
         </dd> : source ? <dd>
             <a href={source} target="_blank" rel="noreferrer"><i className="icon-github"/>{parseSourceRepo(source)}</a> - confirmed
         </dd> : <dd>
-            <a href={possibleSource} target="_blank" rel="noreferrer"><i className="icon-github"/>{parseSourceRepo(possibleSource)}</a>{' '}
-            - verification {status}
+            <a href={possibleSource} target="_blank" rel="noreferrer"><i className="icon-warning-circle"/>
+                {parseSourceRepo(possibleSource)}</a> - verification {status}
         </dd>}
     </>
 }
