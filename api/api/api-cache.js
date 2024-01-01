@@ -51,13 +51,13 @@ function makeResponseCacheable(cacheInstance, req, res, next, key, duration, tog
             accumulateContent(res, content)
 
             if (res._apicache.cacheable && res._apicache.content) {
-                const headers = res._apicache.headers || res._headers,
-                    cacheObject = {
-                        status: res.statusCode,
-                        headers: filterBlacklistedHeaders(headers),
-                        data: res._apicache.content,
-                        encoding
-                    }
+                const headers = res._apicache.headers || res.getHeaders()
+                const cacheObject = {
+                    status: res.statusCode,
+                    headers: filterBlacklistedHeaders(headers),
+                    data: res._apicache.content,
+                    encoding
+                }
 
                 cacheInstance.set(key, cacheObject, duration)
             }
