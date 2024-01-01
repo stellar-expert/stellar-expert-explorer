@@ -29,7 +29,7 @@ function ContractValidationForm({address}) {
     const captchaRef = useRef()
     const requestVerification = useCallback(async function () {
         const sourceWarning = validateSource(sourceLink)
-        if (!sourceWarning)
+        if (sourceWarning)
             return notify({
                 type: 'warning',
                 message: sourceWarning
