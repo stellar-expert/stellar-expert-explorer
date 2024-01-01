@@ -49,5 +49,6 @@
       "marketCandles": 10,
       "assetCandles": 10
     }
-  }
+  },
+  "turnstileSecret": "1x0000000000000000000000000000000AA"
 }

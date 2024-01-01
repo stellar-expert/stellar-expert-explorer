@@ -1,12 +1,13 @@
 const {errors} = require('../business-logic/errors')
-const SECRET_KEY = '1x0000000000000000000000000000000AA'
+const {turnstileSecret} = require('../app.config')
 
 async function validateTurnstileToken(token) {
     if (!token)
         throw errors.forbidden('Anti-automation token is missing')
+
     // validate the token by calling the "/siteverify" API endpoint.
-    let formData = new FormData()
-    formData.append('secret', SECRET_KEY)
+    const formData = new FormData()
+    formData.append('secret', turnstileSecret)
     formData.append('response', token)
 
     const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
