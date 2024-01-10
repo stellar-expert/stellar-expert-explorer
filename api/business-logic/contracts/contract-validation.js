@@ -69,7 +69,7 @@ async function validateContract(network, req) {
         contract,
         hash: code._id.toString('hex'),
         source,
-        ts: validation.started
+        ts: validation.ts
     }
 }
 

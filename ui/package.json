@@ -1,7 +1,7 @@
 {
   "name": "ui.stellar.expert",
   "private": true,
-  "version": "0.25.1",
+  "version": "0.25.2",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
@@ -18,7 +18,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/orbitlens/stellar-expert.git"
+    "url": "https://github.com/stellar-expert/stellar-expert-explorer.git"
   },
   "dependencies": {
     "@albedo-link/intent": "^0.12.0",
@@ -29,7 +29,7 @@
     "@stellar-expert/formatter": "^2.3.0",
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
     "@stellar-expert/tx-signers-inspector": "^1.6.0",
-    "@stellar-expert/ui-framework": "1.9.2",
+    "@stellar-expert/ui-framework": "1.9.4",
     "@stellar/stellar-base": "^10.0.1",
     "@stellar/stellar-sdk": "^11.1.0",
     "classnames": "^2.3.2",

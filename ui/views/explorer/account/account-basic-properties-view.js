@@ -1,6 +1,7 @@
 import React from 'react'
 import {AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
 import {useResolvedFederationName} from '../../../util/federation-hooks'
+import ContractStorageInfo from '../../components/contract-storage-info'
 import AccountAuthorizationFlags from './account-authorization-flags-view'
 import LockStatus from './account-lock-status-view'
 
@@ -83,6 +84,7 @@ export default withErrorBoundary(function AccountBasicPropertiesView({account}) 
                     The account that was used to create and provide initial funding for this account.</Info>
             </dd>
         </>}
+        <ContractStorageInfo stats={account}/>
         <dt>Last year activity:</dt>
         <dd>
             {account.activity.yearly}

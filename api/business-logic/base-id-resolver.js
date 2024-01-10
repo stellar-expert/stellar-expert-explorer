@@ -164,7 +164,6 @@ class BaseIdResolver {
     }
 }
 
-
 class DeferredJSONValueResolver {
     constructor(batchResolver, originalValue, field = null, postProcessCallback) {
         this.batchResolver = batchResolver

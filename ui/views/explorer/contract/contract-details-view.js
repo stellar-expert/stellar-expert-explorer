@@ -1,6 +1,7 @@
 import React from 'react'
 import {AssetLink, AccountAddress, CopyToClipboard, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
+import ContractStorageInfo from '../../components/contract-storage-info'
 
 export default function ContractDetailsView({contract}) {
     if (!contract)
@@ -21,6 +22,7 @@ export default function ContractDetailsView({contract}) {
                 <dt>Trades:</dt>
                 <dd>{contract.trades}</dd>
             </>}
+            <ContractStorageInfo stats={contract}/>
         </dl>
     </div>
 }

@@ -2,9 +2,10 @@ const {Long} = require('mongodb')
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
 const {unixNow, timeUnits} = require('../../utils/date-utils')
+const {encodeBsonId} = require('../../utils/bson-id-encoder')
+const {countContractData} = require('../contract-data/contract-data-query')
 const {validateNetwork, validateAccountAddress} = require('../validators')
 const {resolveAccountAddress} = require('./account-resolver')
-const {encodeBsonId} = require('../../utils/bson-id-encoder')
 
 function rangeActivity(index, multiplier = 1) {
     if (index > multiplier * 1000) return 'very high'
@@ -46,6 +47,10 @@ async function queryAccountStats(network, accountAddress) {
             yearly: 'none',
             monthly: 'none'
         }
+    }
+    const count = await countContractData(network, account._id)
+    if (count > 0) {
+        res.storage_entries = count
     }
     return res
 }
