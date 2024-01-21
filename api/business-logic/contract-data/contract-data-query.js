@@ -1,10 +1,11 @@
-const {StrKey} = require('@stellar/stellar-sdk')
+const {StrKey, nativeToScVal} = require('@stellar/stellar-sdk')
 const db = require('../../connectors/mongodb-connector')
 const {resolveAccountId} = require('../account/account-resolver')
 const {resolveContractId} = require('../contracts/contract-resolver')
 const {preparePagedData, normalizeLimit, normalizeOrder} = require('../api-helpers')
 const {validateNetwork} = require('../validators')
 const errors = require('../errors')
+const {computeHash} = require('../../utils/sha256')
 
 /**
  * @param {String} network - Stellar network id
@@ -49,8 +50,20 @@ async function queryContractData(network, basePath, parentAddress, {cursor, limi
     return preparePagedData(basePath, {cursor, limit, order: parsedOrder === 1 ? 'asc' : 'desc'}, dataEntries)
 }
 
+async function fetchContractDataEntry(network, parentAddress, key) {
+    validateNetwork(network)
+    const contractDataKey = parseContractDataKey(key)
+    const parentId = await fetchParentId(network, parentAddress)
+    const entry = await db[network].collection('contract_data')
+        .findOne({_id: generateContractDataId(parentId, contractDataKey)}, {projection: {_id: 0, key: 1, value: 1, updated: 1}})
+    if (!entry)
+        throw errors.notFound()
+    entry.parent = parentAddress
+    return entry
+}
+
 async function fetchParentId(network, parent) {
-    if (!StrKey.isValidEd25519PublicKey(parent) && !StrKey.isValidContract(parent))
+    if (!StrKey.isValidEd25519PublicKey(parent) && !isValidContract(parent))
         throw errors.validationError('parentId', 'Invalid parent contract/account address.')
     let id
     if (parent.startsWith('G')) {
@@ -61,7 +74,6 @@ async function fetchParentId(network, parent) {
     if (id === null || id < 0)
         throw errors.validationError('parentId', 'Invalid parent contract/account address.')
     return id
-
 }
 
 function parseCursor(cursor, parentId) {
@@ -75,6 +87,36 @@ function parseCursor(cursor, parentId) {
     } catch (e) {
         throw errors.validationError('cursor', 'Invalid paging cursor.')
     }
+}
+
+function parseContractDataKey(rawKey) {
+    try {
+        return nativeToScVal(Buffer.from(rawKey, 'base64')).toXDR('raw')
+    } catch (e) {
+        throw errors.validationError('Invalid contract data key: ' + rawKey)
+    }
+}
+
+function isValidContract(address) {
+    try {
+        StrKey.decodeContract(address)
+        return true
+    } catch (e) {
+        return false
+    }
+}
+
+/**
+ * @param {Number} contractId - Contract identifier
+ * @param {Buffer} key - XDR-encoded state key
+ * @return {Buffer} 32-byte contract_id + hash combination
+ */
+function generateContractDataId(contractId, key) {
+    if (typeof contractId !== 'number')
+        throw new Error('Invalid contract id: ' + contractId)
+    const res = computeHash(key, 'binary')
+    res.writeInt32BE(contractId)
+    return res
 }
 
 function generateContractDataIdFilter(contractId) {
@@ -95,4 +137,4 @@ async function countContractData(network, parentId) {
     return count
 }
 
-module.exports = {queryContractData, countContractData}
+module.exports = {queryContractData, fetchContractDataEntry, countContractData}
