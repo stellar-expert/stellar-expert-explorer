@@ -22,6 +22,7 @@ import LiquidityPoolView from './liquidity-pool/liquidity-pool-view'
 import AllLiquidityPoolsView from './liquidity-pool/all-liquidity-pools-view'
 import AccountClaimableBalancesView from './claimable-balance/account-claimable-balances-view'
 import ContractDataEntries from './contract/contract-data-entries-view'
+import StagedSorobanConfigChanges from './ledger/staged-soroban-config-changes-view'
 
 function ExplorerRouter({match}) {
     const {path} = match
@@ -35,6 +36,7 @@ function ExplorerRouter({match}) {
             <Route path={`${path}/account/:id`} component={Account}/>
             <Route path={`${path}/contract/:id/validate`} component={ValidateContract}/>
             <Route path={`${path}/contract/:id/storage`} component={ContractDataEntries}/>
+            <Route path={`${path}/staged-soroban-config/:id`} component={StagedSorobanConfigChanges}/>
             <Route path={`${path}/contract/:id`} component={Contract}/>
             <Route path={`${path}/tx/:id`} component={Tx}/>
             <Route path={`${path}/market/:selling/:buying`} component={MarketView}/>
