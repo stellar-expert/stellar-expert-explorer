@@ -187,4 +187,34 @@ async function queryAllAssetsByCreatedDate(network, basePath, cursor, limit, ord
     return preparePagedData(basePath, {sort: 'created', order, cursor: q.skip, limit: q.limit}, assets)
 }
 
-module.exports = {queryAllAssets}
+async function querySAL(network, limit = 50) {
+    const assets = await db[network].collection('assets')
+        .find({})
+        .sort({'rating.average': -1})
+        .skip(1)
+        .limit(limit)
+        .project({name: 1, tomlInfo: 1, domain: 1})
+        .toArray()
+
+    return {
+        name: 'Stellar Top 50',
+        provider: 'StellarExpert',
+        description: 'Dynamically generated list based on technical asset metrics, including payments and trading volumes, interoperability, userbase, etc. Assets included in this list were not verified by StellarExpert team. StellarExpert is not affiliated with issuers, and does not endorse or advertise assets in the list.',
+        version: '1.0',
+        feedback: 'https://stellar.expert',
+        assets: assets.map(a => {
+            const [code, issuer] = a.name.split('-')
+            return {
+                code,
+                issuer,
+                name: a.tomlInfo?.name || a.code,
+                org: a.tomlInfo?.orgName || 'unknown',
+                domain: a.domain || null,
+                icon: a.tomlInfo?.image || null,
+                decimals: 7
+            }
+        })
+    }
+}
+
+module.exports = {queryAllAssets, querySAL}

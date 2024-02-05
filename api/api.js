@@ -38,6 +38,7 @@
     require('./api/routes/directory-routes')(app)
     require('./api/routes/price-routes')(app)
     require('./api/routes/demolisher-routes')(app)
+    require('./api/routes/asset-list-routes')(app)
     require('./api/routes/server-info-routes')(app)
 
     // error handler
