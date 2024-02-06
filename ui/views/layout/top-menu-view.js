@@ -1,9 +1,9 @@
 import React, {useState} from 'react'
 import {Dropdown} from '@stellar-expert/ui-framework'
-import NetworkSwitchView from './network-switch-view'
+import {resolvePath} from '../../business-logic/path'
 import SearchBoxView from '../explorer/search/search-box-view'
 import LoginStatus from '../components/login-status'
-import {resolvePath} from '../../business-logic/path'
+import NetworkSwitchView from './network-switch-view'
 
 const services = [
     {title: 'Accounts Directory', href: resolvePath('', 'directory')},
@@ -12,8 +12,9 @@ const services = [
     {title: 'Operations Live Stream', href: resolvePath('operations-live-stream')},
     {title: 'Account Demolisher', href: resolvePath('', 'demolisher')},
     {title: 'Tax Data Export', href: resolvePath('', 'tax-export')},
-    {title: 'Protocol Versions History', href: resolvePath('protocol-history')}
-//{title: 'Account Demolisher', href: resolvePath('', 'demolisher')}
+    {title: 'Protocol Versions History', href: resolvePath('protocol-history')},
+    {title: 'Asset Lists Catalogue', href: '/asset-lists'}
+    //{title: 'Account Demolisher', href: resolvePath('', 'demolisher')}
 ]
 
 export default function TopMenuView() {
@@ -42,6 +43,7 @@ export default function TopMenuView() {
                     <a href={resolvePath('operations-live-stream')} className="mobile-only">Operations Live Stream</a>
                     <a href={resolvePath('tax-export')} className="mobile-only">Tax Data Export</a>
                     <a href={resolvePath('protocol-history')} className="mobile-only">Protocol Versions History</a>
+                    <a href="/asset-lists" className="mobile-only">Asset Lists Catalogue</a>
                 </div>
                 <div className="top-menu-block right" style={{float: 'right'}}>
                     <LoginStatus/>

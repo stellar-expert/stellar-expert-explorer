@@ -197,7 +197,7 @@ async function querySAL(network, limit = 50) {
         .toArray()
 
     return {
-        name: 'Stellar Top 50',
+        name: 'StellarExpert Top 50',
         provider: 'StellarExpert',
         description: 'Dynamically generated list based on technical asset metrics, including payments and trading volumes, interoperability, userbase, etc. Assets included in this list were not verified by StellarExpert team. StellarExpert is not affiliated with issuers, and does not endorse or advertise assets in the list.',
         version: '1.0',

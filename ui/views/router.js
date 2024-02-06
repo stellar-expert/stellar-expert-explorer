@@ -7,7 +7,6 @@ import Loadable from './components/loadable'
 
 import NotFoundView from './pages/not-found-page-view'
 
-
 export default function AppRouter({history}) {
     return <Router history={history}>
         <Switch>
@@ -45,10 +44,10 @@ export default function AppRouter({history}) {
                             <Loadable moduleKey="demolisher"
                                       load={() => import(/* webpackChunkName: "demolisher" */ './demolisher/account-demolisher-view')}/>
                         </Route>
-                        {/*relations graph*/}
-                        <Route path="/relations">
-                            <Loadable moduleKey="relations"
-                                      load={() => import(/* webpackChunkName: "relations" */ './graph/graph-router')}/>
+                        {/*asset lists*/}
+                        <Route path="/asset-lists">
+                            <Loadable moduleKey="asset-lists"
+                                      load={() => import(/* webpackChunkName: "asset-lists" */ './asset-lists/asset-list-router')}/>
                         </Route>
                         {/*blog*/}
                         <Route path="/blog">
