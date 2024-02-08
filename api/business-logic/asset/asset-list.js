@@ -1,9 +1,10 @@
+const {Asset, Networks} = require('@stellar/stellar-sdk')
 const db = require('../../connectors/mongodb-connector')
+const {anyToNumber} = require('../../utils/formatter')
 const QueryBuilder = require('../query-builder')
 const {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset, normalizeLimit} = require('../api-helpers')
 const {resolveAccountId} = require('../account/account-resolver')
 const {validateNetwork, isValidAccountAddress} = require('../validators')
-const {anyToNumber} = require('../../utils/formatter')
 
 const supportedFeaturesSearch = [{
     terms: ['SEP3', 'SEP0003', 'SEP-0003', 'AUTH_SERVER'],
@@ -201,12 +202,14 @@ async function querySAL(network, limit = 50) {
         provider: 'StellarExpert',
         description: 'Dynamically generated list based on technical asset metrics, including payments and trading volumes, interoperability, userbase, etc. Assets included in this list were not verified by StellarExpert team. StellarExpert is not affiliated with issuers, and does not endorse or advertise assets in the list.',
         version: '1.0',
+        network,
         feedback: 'https://stellar.expert',
         assets: assets.map(a => {
             const [code, issuer] = a.name.split('-')
             return {
                 code,
                 issuer,
+                contract: new Asset(code, issuer).contractId(Networks[network.toUpperCase()]),
                 name: a.tomlInfo?.name || a.code,
                 org: a.tomlInfo?.orgName || 'unknown',
                 domain: a.domain || null,
