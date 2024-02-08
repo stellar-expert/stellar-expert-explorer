@@ -1,5 +1,5 @@
 import {Horizon} from '@stellar/stellar-sdk'
-import {approximatePrice} from '@stellar-expert/formatter'
+import {approximatePrice, formatPrice} from '@stellar-expert/formatter'
 import CsvGenerator from '../util/csv-generator'
 
 function formatDate(date) {
@@ -10,10 +10,6 @@ function formatAsset(op, prefix = '') {
     const asset_code = op[prefix + 'asset_code'],
         asset_issuer = op[prefix + 'asset_issuer']
     if (asset_code) return asset_code + '-' + asset_issuer
-}
-
-function formatPrice(price) {
-    return price.toFixed(7).replace(/0{1,6}$/, '')
 }
 
 /*
@@ -67,7 +63,7 @@ const inflationPools = [
     'GDCHDRSDOBRMSUDKRE2C4U4KDLNEATJPIHHR2ORFL5BSD56G4DQXL4VW'
 ]
 
-class TaxInfoExporter {
+export default class TaxInfoExporter {
     constructor(publicKey, year) {
         this.publicKey = publicKey
         this.year = year
@@ -85,11 +81,8 @@ class TaxInfoExporter {
     }
 
     buildFile(name, data, header) {
-        if (!data.length) {
-            return {
-                name: `No data in "${name}" category for ${this.year} year.`
-            }
-        }
+        if (!data.length)
+            return null
         const generator = new CsvGenerator()
         generator.writeHeader(header)
         for (let record of data) {
@@ -123,7 +116,8 @@ class TaxInfoExporter {
     async loadFees() {
         const handler = this.horizon.transactions().forAccount(this.publicKey).order('asc').limit(200).call()
         await this.loadHorizonData(handler, tx => tx.created_at, tx => {
-            if (tx.fee_account !== this.publicKey) return
+            if (tx.fee_account !== this.publicKey)
+                return
             this.spending.push([
                 formatDate(tx.created_at),  //Date
                 this.publicKey,             //Account
@@ -131,24 +125,26 @@ class TaxInfoExporter {
                 'SPEND',                    //Action
                 'network fees',             //Memo
                 'XLM',                      //Symbol
-                tx.fee_charged / 10000000,  //Volume
+                (tx.fee_charged / 10000000).toString(),  //Volume
                 tx.hash,                    //TxHash
                 tx.fee_account,             //Sender
                 null])                      //Recipient
         })
     }
 
-    async loadPayments() {
+    async loadPayments(exportIncomingPayments, exportOutgoingPayments, ignoreSpam) {
         const handler = this.horizon.payments().forAccount(this.publicKey).order('asc').limit(200).call()
         await this.loadHorizonData(handler, p => p.created_at, async payment => {
-            const ts = formatDate(payment.created_at),
-                sender = payment.from || payment.funder || payment.source_account,
-                destination = payment.to || payment.into || payment.destination || payment.account,
-                txHash = payment.transaction_hash
-            if (sender === destination) return
-            if (sender === this.publicKey) {
-                let spentAmount = payment.starting_balance || payment.amount || payment.source_amount,
-                    symbol = formatAsset(payment) || formatAsset(payment, 'source_') || 'XLM'
+            const ts = formatDate(payment.created_at)
+            const sender = payment.from || payment.funder || payment.source_account
+            const destination = payment.to || payment.into || payment.destination || payment.account
+            const txHash = payment.transaction_hash
+
+            if (sender === destination)
+                return //skip circular payments
+            if (sender === this.publicKey && exportOutgoingPayments) {
+                let spentAmount = payment.starting_balance || payment.amount || payment.source_amount
+                let symbol = formatAsset(payment) || formatAsset(payment, 'source_') || 'XLM'
                 if (payment.type_i === 8) {
                     const effect = await this.horizon.effects().forOperation(payment.id).order('asc').call()
                     spentAmount = effect.records.find(e => e.type === 'account_debited').amount
@@ -164,11 +160,12 @@ class TaxInfoExporter {
                     txHash,           //TxHash
                     sender,           //Sender
                     destination])     //Recipient
-            } else {
-                const action = inflationPools.includes(sender) ? 'MINING' : 'INCOME',
-                    receivedAmount = payment.starting_balance || payment.amount,
-                    symbol = formatAsset(payment) || 'XLM'
-
+            } else if (exportIncomingPayments) {
+                const action = inflationPools.includes(sender) ? 'MINING' : 'INCOME'
+                const receivedAmount = payment.starting_balance || payment.amount
+                const symbol = formatAsset(payment) || 'XLM'
+                if (ignoreSpam && symbol === 'XLM' && receivedAmount < 0.001)
+                    return
                 this.income.push([
                     ts,               //Date
                     this.publicKey,   //Account
@@ -187,46 +184,53 @@ class TaxInfoExporter {
     async loadTrades() {
         const handler = this.horizon.trades().forAccount(this.publicKey).order('asc').limit(200).call()
         await this.loadHorizonData(handler, p => p.ledger_close_time, trade => {
-            const ts = formatDate(trade.ledger_close_time),
-                base = formatAsset(trade, 'base_') || 'XLM',
-                counter = formatAsset(trade, 'counter_') || 'XLM',
-                price = approximatePrice(trade.price)
+            const ts = formatDate(trade.ledger_close_time)
+            const base = formatAsset(trade, 'base_') || 'XLM'
+            const counter = formatAsset(trade, 'counter_') || 'XLM'
+            const price = approximatePrice(trade.price)
             //if (trade.base_is_seller){}
             this.trades.push([
                 ts,               //Date
                 this.publicKey,   //Account
                 'StellarNetwork', //Source
-                (trade.base_account === this.publicKey) ? 'BUY' : 'SELL',            //Action
+                (trade.base_account === this.publicKey) ? 'BUY' : 'SELL', //Action
                 counter,           //Symbol
-                trade.counter_amount,           //Volume
+                trade.counter_amount, //Volume
                 base,         //Currency
-                formatPrice(1 / price)             //Price
+                formatPrice(1 / price)  //Price
             ])
         })
     }
 
-    async export() {
-        try {
-            if (this.exportFees) {
-                await this.loadFees()
-            }
-            await this.loadPayments()
-            await this.loadTrades()
-            this.spending.sort((a, b) => {
-                if (a[0] < b[0]) return -1
-                if (a[0] > b[0]) return 1
-                return 0
-            })
-
-            const incomeData = this.buildFile('income', this.income, ['Date', 'Account', 'Source', 'Action', 'Memo', 'Symbol', 'Volume', 'TxHash', 'Sender', 'Recipient']),
-                spendingData = this.buildFile('spending', this.spending, ['Date', 'Account', 'Source', 'Action', 'Memo', 'Symbol', 'Volume', 'TxHash', 'Sender', 'Recipient']),
-                tradesData = this.buildFile('trades', this.trades, ['Date', 'Account', 'Source', 'Action', 'Symbol', 'Volume', 'Currency', 'Price'])
-            return [incomeData, spendingData, tradesData]
-
-        } catch (e) {
-            return Promise.reject(e)
+    async export({
+                     exportIncomingPayments = true,
+                     exportOutgoingPayments = true,
+                     exportTrades = true,
+                     exportFees = false,
+                     ignoreSpam = true
+                 }) {
+        if (exportIncomingPayments || exportOutgoingPayments) {
+            await this.loadPayments(exportIncomingPayments, exportOutgoingPayments, ignoreSpam)
         }
+        if (exportTrades) {
+            await this.loadTrades()
+        }
+        if (exportFees) {
+            await this.loadFees()
+        }
+        this.spending.sort((a, b) => {
+            if (a[0] < b[0]) return -1
+            if (a[0] > b[0]) return 1
+            return 0
+        })
+
+        const incomeData = this.buildFile('income', this.income, ['Date', 'Account', 'Source', 'Action', 'Memo', 'Symbol', 'Volume', 'TxHash', 'Sender', 'Recipient'])
+        const spendingData = this.buildFile('spending', this.spending, ['Date', 'Account', 'Source', 'Action', 'Memo', 'Symbol', 'Volume', 'TxHash', 'Sender', 'Recipient'])
+        const tradesData = this.buildFile('trades', this.trades, ['Date', 'Account', 'Source', 'Action', 'Symbol', 'Volume', 'Currency', 'Price'])
+        return [
+            incomeData,
+            spendingData,
+            tradesData
+        ].filter(f => !!f)
     }
 }
-
-export default TaxInfoExporter
