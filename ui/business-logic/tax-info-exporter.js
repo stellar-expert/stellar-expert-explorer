@@ -142,7 +142,10 @@ export default class TaxInfoExporter {
 
             if (sender === destination)
                 return //skip circular payments
-            if (sender === this.publicKey && exportOutgoingPayments) {
+            //outgoing
+            if (sender === this.publicKey) {
+                if (!exportOutgoingPayments)
+                    return
                 let spentAmount = payment.starting_balance || payment.amount || payment.source_amount
                 let symbol = formatAsset(payment) || formatAsset(payment, 'source_') || 'XLM'
                 if (payment.type_i === 8) {
@@ -160,24 +163,26 @@ export default class TaxInfoExporter {
                     txHash,           //TxHash
                     sender,           //Sender
                     destination])     //Recipient
-            } else if (exportIncomingPayments) {
-                const action = inflationPools.includes(sender) ? 'MINING' : 'INCOME'
-                const receivedAmount = payment.starting_balance || payment.amount
-                const symbol = formatAsset(payment) || 'XLM'
-                if (ignoreSpam && symbol === 'XLM' && receivedAmount < 0.001)
-                    return
-                this.income.push([
-                    ts,               //Date
-                    this.publicKey,   //Account
-                    'StellarNetwork', //Source
-                    action,           //Action
-                    sender,           //Memo
-                    symbol,           //Symbol
-                    receivedAmount,   //Volume
-                    txHash,           //TxHash
-                    sender,           //Sender
-                    destination])     //Recipient
             }
+            //incoming
+            if (!exportIncomingPayments)
+                return
+            const action = inflationPools.includes(sender) ? 'MINING' : 'INCOME'
+            const receivedAmount = payment.starting_balance || payment.amount
+            const symbol = formatAsset(payment) || 'XLM'
+            if (ignoreSpam && symbol === 'XLM' && receivedAmount < 0.001)
+                return
+            this.income.push([
+                ts,               //Date
+                this.publicKey,   //Account
+                'StellarNetwork', //Source
+                action,           //Action
+                sender,           //Memo
+                symbol,           //Symbol
+                receivedAmount,   //Volume
+                txHash,           //TxHash
+                sender,           //Sender
+                destination])     //Recipient
         })
     }
 
