@@ -23,7 +23,7 @@ export default function PaymentLocatorPage() {
             </ul>
         </div>
         <div className="space">
-            <TxHistoryView/>
+            <TxHistoryView presetFilter={{}}/>
         </div>
     </div>
 }
