@@ -3,7 +3,10 @@ import {StrKey, xdr} from '@stellar/stellar-base'
 import {useExplorerApi, CopyToClipboard, CodeBlock} from '@stellar-expert/ui-framework'
 
 export default function StagedSorobanConfigChangesView() {
-    const {id} = useParams()
+    let {id} = useParams()
+    if (id.includes('%')) { //URI-encoded
+        id = decodeURIComponent(id)
+    }
     let endpoint
     let error
     try {
