@@ -1,33 +1,41 @@
 import {useParams} from 'react-router'
 import {StrKey, xdr} from '@stellar/stellar-base'
-import {useExplorerApi, CopyToClipboard, CodeBlock} from '@stellar-expert/ui-framework'
+import {useExplorerApi, CopyToClipboard, CodeBlock, AccountAddress} from '@stellar-expert/ui-framework'
 
 export default function StagedSorobanConfigChangesView() {
-    let {id} = useParams()
+    let {id = ''} = useParams()
     if (id.includes('%')) { //URI-encoded
         id = decodeURIComponent(id)
     }
-    let endpoint
-    let error
     try {
         const configKey = xdr.ConfigUpgradeSetKey.fromXDR(id, 'base64')
-        endpoint = `contract-data/${StrKey.encodeContract(configKey.contractId())}/${encodeURIComponent(configKey.contentHash().toString('base64'))}`
+        const contract = StrKey.encodeContract(configKey.contractId())
+        const hash = configKey.contentHash().toString('base64')
+        const endpoint = `contract-data/${contract}/${encodeURIComponent(hash)}`
+        const {data, loaded} = useExplorerApi(endpoint)
+
+        return <StagedSorobanConfigChangesWrapper id={id}>
+            {loaded ? <StagedConfigInfo config={data} contract={contract} hash={hash}/> : <div className="loader"/>}
+        </StagedSorobanConfigChangesWrapper>
     } catch (e) {
-        error = 'Invalid ConfigUpgradeSetKey: ' + id
+        return <StagedSorobanConfigChangesWrapper id={id}>
+            <div className="segment error"><i className="icon-warning"/> Invalid ConfigUpgradeSetKey: {id}</div>
+        </StagedSorobanConfigChangesWrapper>
     }
-    const {data, loaded} = useExplorerApi(endpoint)
+}
+
+function StagedSorobanConfigChangesWrapper({id, children}){
     return <div>
-        <h2 className="word-break relative condensed">
-            Soroban Config Upgrade <span className="condensed">{id}</span>
+        <h2 className="condensed">
+            Soroban Config Upgrade <span className="condensed text-small text-monospace word-break">{id}</span>
         </h2>
         <div className="segment blank">
-            {error ? <div className="segment error"><i className="icon-warning"/> {error}</div> :
-                loaded ? <StagedConfigInfo config={data}/> : <div className="loader"/>}
+            {children}
         </div>
     </div>
 }
 
-function StagedConfigInfo({config}) {
+function StagedConfigInfo({config, contract, hash}) {
     if (!config || config.error)
         return <div className="segment error"><i className="icon-warning"/> Specified changes config not found</div>
     try {
@@ -39,10 +47,18 @@ function StagedConfigInfo({config}) {
         }
         const sorobanConfig = JSON.stringify(upgradeSet, null, '  ')
         return <div>
-            <h4>
-                Staged Soroban runtime config changes
-                <CopyToClipboard text={sorobanConfig} title="Copy configuration changes to the clipboard" className="text-small"/>
-            </h4>
+            <div className="row">
+                <div className="column column-50">
+                    <h3>
+                        Config changes proposal for Soroban runtime
+                        <CopyToClipboard text={sorobanConfig} title="Copy configuration changes to the clipboard" className="text-small"/>
+                    </h3>
+                </div>
+                <div className="column column-50 text-right text-small">
+                    Contract: <AccountAddress account={contract}/><br/>
+                    Content hash: <span className="text-monospace">{hash}</span>
+                </div>
+            </div>
             <CodeBlock lang="json">{sorobanConfig}</CodeBlock>
         </div>
     } catch (e) {

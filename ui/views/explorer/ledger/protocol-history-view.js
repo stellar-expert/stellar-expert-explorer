@@ -1,13 +1,21 @@
 import React from 'react'
-import {Amount, UtcTimestamp, InfoTooltip as Info, useExplorerApi, CodeBlock, CopyToClipboard} from '@stellar-expert/ui-framework'
+import {
+    Amount,
+    UtcTimestamp,
+    InfoTooltip as Info,
+    useExplorerApi,
+    CodeBlock,
+    CopyToClipboard,
+    formatExplorerLink
+} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 
 export default function ProtocolHistoryView() {
     const {data, loaded} = useExplorerApi('ledger/protocol-history')
     setPageMetadata({
-        title: `Protocol versions of Stellar ${config.activeNetwork} network`,
-        description: `History of the Stellar ${config.activeNetwork} network protocol upgrades.`
+        title: `Protocol upgrades history of Stellar ${config.activeNetwork} network`,
+        description: `All protocol upgrades of the Stellar ${config.activeNetwork} network.`
     })
     if (!loaded)
         return <div className="loader"/>
@@ -18,6 +26,7 @@ export default function ProtocolHistoryView() {
             This version number is incremented every time the protocol changes over time.
         </Info></h2>
         <div className="segment blank">
+            <StagedSorobanParamsUpdate/>
             {data.map(entry => <ProtocolHistoryEntry entry={entry} key={entry.sequence}/>)}
         </div>
     </div>
@@ -55,5 +64,15 @@ function ProtocolHistoryEntry({entry}) {
         </div>}
         <div className="space"/>
         <hr className="flare"/>
+    </div>
+}
+
+function StagedSorobanParamsUpdate() {
+    const updateKey = '2aLVwNcvW1rOGh0G2ymw3///cac/dzVpfMSrO+bHz9FD52KuJ6CZ2c5gxM9py4R/NpVv6LYZYYH5W+grDoGlDA=='
+    if (!updateKey)
+        return null
+    const link = formatExplorerLink('staged-soroban-config', encodeURIComponent(updateKey))
+    return <div className="text-right">
+        <a href={link} className="icon-box">Staged Soroban config changes proposal</a>
     </div>
 }
