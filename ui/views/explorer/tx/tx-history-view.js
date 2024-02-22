@@ -4,17 +4,17 @@ import {TxOperationsList, UtcTimestamp, ErrorBoundary} from '@stellar-expert/ui-
 import {useTxHistory, parseTxDetails, formatExplorerLink, withErrorBoundary} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 import GridDataActionsView from '../../components/grid-data-actions'
-import TxFilterView from './filters/tx-filter-view'
+import TxFilterView, {parseFiltersFromQuery} from './filters/tx-filter-view'
 
 export default withErrorBoundary(function TxHistoryView({presetFilter}) {
-    const [filters, setFilters] = useState(presetFilter ? deepMerge({}, presetFilter) : {})
+    const [filters, setFilters] = useState(presetFilter ? deepMerge(parseFiltersFromQuery(), presetFilter) : (parseFiltersFromQuery() || {}))
     const updateLocation = useCallback(function (params) {
         const res = {...params}
-        for (let [key,value] of Object.entries(params)){
-            const presetValue =presetFilter[key]
+        for (let [key, value] of Object.entries(params)) {
+            const presetValue = presetFilter[key]
             if (presetValue) {
-                if (value instanceof Array){
-                    res[key] = value.filter(av=>!presetValue.includes(av))
+                if (value instanceof Array) {
+                    res[key] = value.filter(av => !presetValue.includes(av))
                 } else {
                     delete res[key]
                 }
