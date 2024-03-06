@@ -1,4 +1,4 @@
-const {StrKey} = require('@stellar/stellar-sdk')
+const {StrKey, Asset} = require('@stellar/stellar-sdk')
 const {isValidContractAddress} = require('../validators')
 
 function normalizeType(code, type) {
@@ -108,6 +108,17 @@ class AssetDescriptor {
 
     toJSON() {
         return this.toString()
+    }
+
+    /**
+     * @return {Asset}
+     */
+    toStellarAsset() {
+        if (this.type === 4)
+            throw new TypeError('Cannot convert contract to Stellar asset')
+        if (this.isNative)
+            return Asset.native()
+        return new Asset(this.code, this.issuer)
     }
 
     /**
