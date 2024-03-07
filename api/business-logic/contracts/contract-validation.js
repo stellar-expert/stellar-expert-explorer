@@ -9,6 +9,11 @@ const {parseContractHash} = require('./contract-code')
 
 let authInfo
 
+const externalEndpoints = {
+    testnet: 'https://testopenapi.sorobanexp.com/api/verifycontract',
+    public: 'https://openapi.sorobanexp.com/api/verifycontract'
+}
+
 /**
  * @param {String} network
  * @param {Request} req
@@ -50,7 +55,7 @@ async function validateContract(network, req) {
         callback
     }
     //execute external validation request
-    const externalResponse = await apiRequest('https://testopenapi.sorobanexp.com/api/verifycontract', 'POST', externalRequestParams)
+    const externalResponse = await apiRequest(externalEndpoints[network], 'POST', externalRequestParams)
     if (externalResponse.statusCode !== 200)
         throw errors.badRequest('Failed to validate contract source code')
     //store validation info in the db
