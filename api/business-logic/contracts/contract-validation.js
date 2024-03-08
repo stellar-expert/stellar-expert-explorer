@@ -154,7 +154,7 @@ function isCacheExpired(cachedInfo) {
 
 function isValidationPending(validation) {
     //allow up to 10 minutes for the validation to conclude
-    return validation.status === 'pending' || validation.ts + 10 * timeUnits.minute / 1000 < unixNow()
+    return validation.status === 'pending' && validation.ts + 10 * timeUnits.minute / 1000 < unixNow()
 }
 
 /**
