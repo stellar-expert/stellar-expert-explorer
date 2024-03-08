@@ -1,5 +1,6 @@
 import React, {useCallback, useRef, useState} from 'react'
-import {Button} from '@stellar-expert/ui-framework'
+import {AccountAddress, Button, formatExplorerLink} from '@stellar-expert/ui-framework'
+import {navigation} from '@stellar-expert/navigation'
 import {useParams} from 'react-router'
 import {useContractInfo} from '../../../business-logic/api/contract-api'
 import {apiCall} from '../../../models/api'
@@ -10,12 +11,12 @@ import {setPageMetadata} from '../../../util/meta-tags-generator'
 export default function ContractValidationView() {
     const {id: address} = useParams()
     setPageMetadata({
-        title: `Contract Verification ${address}`,
-        description: `Submit contract verification request for the contract ${address}.`
+        title: `Contract Validation ${address}`,
+        description: `Submit source code validation request for the contract ${address}.`
     })
     return <div>
         <h2 className="condensed word-break">
-            <span className="dimmed">Contract Verification</span> {address}
+            <span className="dimmed">Contract Code Validation</span> <AccountAddress account={address} chars="all"/>
         </h2>
         <ContractValidationForm address={address}/>
     </div>
@@ -66,6 +67,7 @@ function ContractValidationForm({address}) {
                     })
                 }
                 console.log(validationStatus)
+                setTimeout(()=>navigation.navigate(), 2000)
                 setSourceLink('')
             } catch (e) {
                 notify({
@@ -134,7 +136,7 @@ function ContractValidationForm({address}) {
         <div className="row space">
             <div className="column column-50">
                 {inProgress && <div className="loader inline micro"/>}
-                {!!data.validation && data.validation.status !== 'unverified' && <>
+                {!!data.validation && !inProgress && data.validation.status !== 'unverified' && <>
                     <i className="icon-puzzle"/> <a href={data.validation.possibleSource} target="_blank" rel="noreferrer">Source code</a>
                     {' '}validation {data.validation.status}
                 </>}

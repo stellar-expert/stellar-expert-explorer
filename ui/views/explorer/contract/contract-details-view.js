@@ -64,11 +64,14 @@ function ContractValidationStatus({validation}) {
     return <>
         <dt>Source code:</dt>
         {status === 'unverified' ? <dd>
-            Unavailable - <a href={location.pathname + '/validate'}><i className="icon-add-circle"/>Provide source code</a>
+            Unavailable - <a href={location.pathname + '/validate'}><i className="icon-add-circle"/>provide source code</a>
         </dd> : source ? <dd>
             <a href={source} target="_blank" rel="noreferrer"><i className="icon-github"/>{parseSourceRepo(source)}</a> - confirmed
         </dd> : <dd>
             <i className="icon-warning-circle"/>Verification {status}
+            {status === 'failed' && <>
+                - <a href={location.pathname + '/validate'}><i className="icon-add-circle"/>resubmit source code</a>
+            </>}
             <Info>
                 <a href={possibleSource} target="_blank" rel="noreferrer">Contract code</a> validation for this contract has been requested.
                 If the process fails, you will be able to resubmit the validation request in an hour.
