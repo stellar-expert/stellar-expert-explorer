@@ -120,7 +120,7 @@ async function getValidationStatus(network, hash) {
             ts: sourceUpdated
         }
     //check if the validation is in progress
-    if (!validation || validation.ts < unixNow() - 4 * timeUnits.hour) //skip stale validation request details
+    if (!validation || (validation.ts + 4 * timeUnits.hour / 1000 < unixNow())) //skip stale validation request details
         return {status: 'unverified'}
 
     return {
@@ -154,7 +154,7 @@ function isCacheExpired(cachedInfo) {
 
 function isValidationPending(validation) {
     //allow up to 10 minutes for the validation to conclude
-    return validation.status === 'pending' || validation.ts > unixNow() - 10 * timeUnits.minute
+    return validation.status === 'pending' || validation.ts + 10 * timeUnits.minute / 1000 < unixNow()
 }
 
 /**
