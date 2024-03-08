@@ -47,8 +47,7 @@ async function validateContract(network, req) {
     //generate unique token for callback request verification
     const uid = crypto.randomBytes(32).toString('hex')
     //prepare params for the external validation request
-    const host = req.get('host')
-    const callback = `https://${host}/explorer/${network}/contract-validation/confirm/${uid}`
+    const callback = `https://api.stellar.expert/explorer/${network}/contract-validation/confirm/${uid}`
     const externalRequestParams = {
         contractId: contract,
         source,
