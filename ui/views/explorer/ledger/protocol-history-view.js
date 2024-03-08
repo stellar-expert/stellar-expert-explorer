@@ -1,15 +1,8 @@
 import React from 'react'
-import {
-    Amount,
-    UtcTimestamp,
-    InfoTooltip as Info,
-    useExplorerApi,
-    CodeBlock,
-    CopyToClipboard,
-    formatExplorerLink
-} from '@stellar-expert/ui-framework'
+import {Amount, UtcTimestamp, InfoTooltip as Info, CodeBlock, CopyToClipboard, useExplorerApi} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {StagedSorobanParamsUpdate} from './staged-soroban-config-changes-link-view'
 
 export default function ProtocolHistoryView() {
     const {data, loaded} = useExplorerApi('ledger/protocol-history')
@@ -64,15 +57,5 @@ function ProtocolHistoryEntry({entry}) {
         </div>}
         <div className="space"/>
         <hr className="flare"/>
-    </div>
-}
-
-function StagedSorobanParamsUpdate() {
-    const updateKey = '2aLVwNcvW1rOGh0G2ymw3///cac/dzVpfMSrO+bHz9FD52KuJ6CZ2c5gxM9py4R/NpVv6LYZYYH5W+grDoGlDA=='
-    if (!updateKey)
-        return null
-    const link = formatExplorerLink('staged-soroban-config', encodeURIComponent(updateKey))
-    return <div className="text-right">
-        <a href={link} className="icon-box">Staged Soroban config changes proposal</a>
     </div>
 }
