@@ -67,7 +67,7 @@ function ContractValidationForm({address}) {
                     })
                 }
                 console.log(validationStatus)
-                setTimeout(() => navigation.navigate(), 2000)
+                setTimeout(() => navigation.navigate(formatExplorerLink('contract', address)), 2000)
                 setSourceLink('')
             } catch (e) {
                 notify({
