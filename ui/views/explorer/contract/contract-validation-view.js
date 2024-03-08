@@ -77,7 +77,7 @@ function ContractValidationForm({address}) {
             console.error(e)
             notify({
                 type: 'error',
-                message: e.ext?.error || 'Internal error occured.'
+                message: e.ext?.error || 'Internal error occurred.'
             })
         } finally {
             setInProgress(false)
@@ -127,7 +127,8 @@ function ContractValidationForm({address}) {
         <div className="text-tiny dimmed">
             <i className="icon-warning-circle"/>{' '}
             Please make sure that you copy-pasted HTTPS repository link containing the commit hash to associate the contract WASM with the
-            particular point-in-time snapshot of the source code.
+            particular point-in-time snapshot of the source code. Primary reason why commit hash is required is that any other bookmark
+            (branch or tag name) can be updated after the successful validation, breaking the chain of trust.
         </div>
         <TurnstileCaptcha ref={captchaRef} sitekey={appSettings.turnstileKey}/>
         <div className="row space">
@@ -139,7 +140,7 @@ function ContractValidationForm({address}) {
                 </>}
             </div>
             <div className="column column-50">
-                <Button block onClick={requestVerification} disabled={disabled}>Verify</Button>
+                <Button block onClick={requestVerification} disabled={disabled}>Validate source code</Button>
             </div>
         </div>
     </div>

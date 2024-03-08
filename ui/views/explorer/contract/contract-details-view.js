@@ -1,5 +1,5 @@
 import React from 'react'
-import {AssetLink, AccountAddress, CopyToClipboard, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {AssetLink, AccountAddress, CopyToClipboard, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 import ContractStorageInfo from '../../components/contract-storage-info'
 
@@ -68,8 +68,11 @@ function ContractValidationStatus({validation}) {
         </dd> : source ? <dd>
             <a href={source} target="_blank" rel="noreferrer"><i className="icon-github"/>{parseSourceRepo(source)}</a> - confirmed
         </dd> : <dd>
-            <a href={possibleSource} target="_blank" rel="noreferrer"><i className="icon-warning-circle"/>
-                {parseSourceRepo(possibleSource)}</a> - verification {status}
+            <i className="icon-warning-circle"/>Verification {status}
+            <Info>
+                <a href={possibleSource} target="_blank" rel="noreferrer">Contract code</a> validation for this contract has been requested.
+                If the process fails, you will be able to resubmit the validation request in an hour.
+            </Info>
         </dd>}
     </>
 }
