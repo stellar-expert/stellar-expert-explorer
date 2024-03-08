@@ -105,7 +105,7 @@ async function validateContractCallback(network, callbackParams, uid) {
         await db[network]
             .collection('contract_code')
             .updateOne({_id: hash}, {
-                $set: {'source.status': 'failed'}
+                $set: {'validation.status': 'failed'}
             })
     }
     return {ok: 1}
