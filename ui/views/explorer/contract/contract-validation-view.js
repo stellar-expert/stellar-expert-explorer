@@ -67,7 +67,7 @@ function ContractValidationForm({address}) {
                     })
                 }
                 console.log(validationStatus)
-                setTimeout(()=>navigation.navigate(), 2000)
+                setTimeout(() => navigation.navigate(), 2000)
                 setSourceLink('')
             } catch (e) {
                 notify({
@@ -110,7 +110,7 @@ function ContractValidationForm({address}) {
             </div>
         </div>
 
-    const disabled = inProgress || data.validation?.status === 'pending'
+    const disabled = inProgress || (data.validation?.status === 'pending' && (data.validation.ts + 10 * 60) * 1000 > new Date().getTime())
 
     return <div className="segment blank">
         <div className="dimmed text-small">
