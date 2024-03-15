@@ -1,21 +1,30 @@
+import React, {useMemo} from 'react'
 import {useParams} from 'react-router'
 import {StrKey, xdr} from '@stellar/stellar-base'
 import {useExplorerApi, CopyToClipboard, CodeBlock, AccountAddress} from '@stellar-expert/ui-framework'
+import config from '../../../app-settings'
+import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {applySorobanConfigChanges} from './soroban-config-changes-tracker'
+import {SorobanConfigChangesView} from './soroban-config-changes-view'
 
 export default function StagedSorobanConfigChangesView() {
     let {id = ''} = useParams()
     if (id.includes('%')) { //URI-encoded
         id = decodeURIComponent(id)
     }
+    setPageMetadata({
+        title: `Staged Soroban config changes ${id} for ${config.activeNetwork} network`,
+        description: `Staged Soroban config changes ${id} for ${config.activeNetwork} network.`
+    })
     try {
         const configKey = xdr.ConfigUpgradeSetKey.fromXDR(id, 'base64')
         const contract = StrKey.encodeContract(configKey.contractId())
-        const hash = configKey.contentHash().toString('base64')
-        const endpoint = `contract-data/${contract}/${encodeURIComponent(hash)}`
+        const contentHash = configKey.contentHash()
+        const endpoint = `contract-data/${contract}/${encodeURIComponent(contentHash.toString('base64'))}`
         const {data, loaded} = useExplorerApi(endpoint)
 
         return <StagedSorobanConfigChangesWrapper id={id}>
-            {loaded ? <StagedConfigInfo config={data} contract={contract} hash={hash}/> : <div className="loader"/>}
+            {loaded ? <StagedConfigInfo config={data} contract={contract} hash={contentHash.toString('hex')}/> : <div className="loader"/>}
         </StagedSorobanConfigChangesWrapper>
     } catch (e) {
         return <StagedSorobanConfigChangesWrapper id={id}>
@@ -24,7 +33,7 @@ export default function StagedSorobanConfigChangesView() {
     }
 }
 
-function StagedSorobanConfigChangesWrapper({id, children}){
+function StagedSorobanConfigChangesWrapper({id, children}) {
     return <div>
         <h2 className="condensed">
             Soroban Config Upgrade <span className="condensed text-small text-monospace word-break">{id}</span>
@@ -38,6 +47,9 @@ function StagedSorobanConfigChangesWrapper({id, children}){
 function StagedConfigInfo({config, contract, hash}) {
     if (!config || config.error)
         return <div className="segment error"><i className="icon-warning"/> Specified changes config not found</div>
+    const {data, loaded: historyLoaded} = useExplorerApi('ledger/protocol-history')
+    if (!historyLoaded)
+        return <div className="loader"/>
     try {
         const ledgerEntryValue = xdr.ScVal.fromXDR(config.value, 'base64')
         const rawUpgradeSet = xdr.ConfigUpgradeSet.fromXDR(ledgerEntryValue._value)
@@ -45,21 +57,18 @@ function StagedConfigInfo({config, contract, hash}) {
         for (let v of rawUpgradeSet._attributes.updatedEntry) {
             upgradeSet[v._arm] = serializeSettingsValue(v._value)
         }
-        const sorobanConfig = JSON.stringify(upgradeSet, null, '  ')
+        const fullHistory = applySorobanConfigChanges([{config_changes: upgradeSet}, ...data])
         return <div>
-            <div className="row">
-                <div className="column column-50">
-                    <h3>
-                        Config changes proposal for Soroban runtime
-                        <CopyToClipboard text={sorobanConfig} title="Copy configuration changes to the clipboard" className="text-small"/>
-                    </h3>
+            <div className="dual-layout text-small">
+                <div>
+                    Container contract: <AccountAddress account={contract}/>
                 </div>
-                <div className="column column-50 text-right text-small">
-                    Contract: <AccountAddress account={contract}/><br/>
+                <div className="text-right">
                     Content hash: <span className="text-monospace">{hash}</span>
                 </div>
             </div>
-            <CodeBlock lang="json">{sorobanConfig}</CodeBlock>
+            <SorobanConfigChangesView configChanges={upgradeSet} changesAnnotation={fullHistory[0].changesAnnotation}
+                                      title="Config changes proposal for Soroban runtime" maxHeight="80vh"/>
         </div>
     } catch (e) {
         return <div className="segment error"><i className="icon-warning"/> Failed to parse config changes</div>
