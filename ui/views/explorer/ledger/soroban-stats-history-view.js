@@ -13,7 +13,7 @@ export default function SorobanStatsHistoryView() {
 
 function SorobanStatsChart({history, title, field}){
     const config = generateConfig(history, title, field)
-    return <Chart type="StockChart" title="Contract invocations" className="space" options={config} grouped range noLegend/>
+    return <Chart type="StockChart" title={title} className="space" options={config} grouped range noLegend/>
 }
 
 function generateConfig({loaded, data}, title, field) {
