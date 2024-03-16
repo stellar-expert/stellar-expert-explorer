@@ -6,8 +6,8 @@ export default function SorobanStatsHistoryView() {
     const history = useExplorerApi('contract-stats-history')
     return <div>
         <SorobanStatsChart history={history} title="Contract invocations" field="invocations"/>
-        <SorobanStatsChart history={history} title="Contracts created" field="newWasmUploaded"/>
-        <SorobanStatsChart history={history} title="Unique WASM uploads" field="newContractsCreated"/>
+        <SorobanStatsChart history={history} title="Contracts created" field="newContractsCreated"/>
+        <SorobanStatsChart history={history} title="Unique WASM uploads" field="newWasmUploaded"/>
     </div>
 }
 
