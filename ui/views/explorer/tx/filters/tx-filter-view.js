@@ -3,6 +3,7 @@ import {Dropdown} from '@stellar-expert/ui-framework'
 import {parseQuery} from '@stellar-expert/navigation'
 import {resolveOperationFilterEditor} from './tx-filter-editors'
 import './tx-filter.scss'
+import deepmerge from 'deepmerge'
 
 const fieldDescriptionMapping = {
     account: {
@@ -93,7 +94,7 @@ function FilterCondition({field, value, setValue, removeFilter, edit}) {
     </span>
 }
 
-function parseFiltersFromQuery() {
+export function parseFiltersFromQuery() {
     const params = parseQuery()
     const filters = {}
     let isEmpty = true
@@ -104,7 +105,7 @@ function parseFiltersFromQuery() {
         filters[key] = value
         isEmpty = false
     }
-    return isEmpty ? null : filters
+    return filters
 }
 
 function FiltersGroup({filters, replaceFilter, removeFilter, edit = false}) {
@@ -168,7 +169,7 @@ export default function TxFilterView({presetFilter, onChange}) {
         setSerializedFilter(prev => {
             const newValue = JSON.stringify(newFilters)
             if (prev !== newValue) {
-                setTimeout(() => onChange(newFilters), 100)
+                setTimeout(() => onChange(deepmerge(presetFilter, newFilters)), 100)
                 return newValue
             }
             return prev
@@ -177,8 +178,6 @@ export default function TxFilterView({presetFilter, onChange}) {
 
     useEffect(() => {
         const queryParams = parseFiltersFromQuery()
-        if (!queryParams)
-            return
         setFilters(queryParams)
         updateExternalFilters(queryParams)
     }, [])

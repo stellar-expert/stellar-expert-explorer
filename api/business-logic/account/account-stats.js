@@ -116,7 +116,7 @@ async function fetchActivity(network, accountId) {
             {
                 $match: {
                     _id: {
-                        $gte: new Long(now - timeUnits.month * 12, accountId),
+                        $gte: new Long(now - (timeUnits.month * 12) / 1000, accountId),
                         $lt: new Long(0, accountId + 1)
                     }
                 }
@@ -129,7 +129,7 @@ async function fetchActivity(network, accountId) {
                         $sum: {
                             $cond: [
                                 {
-                                    $gte: ['$_id', new Long(now - timeUnits.month, accountId)]
+                                    $gte: ['$_id', new Long(now - timeUnits.month / 1000, accountId)]
                                 },
                                 {
                                     $add: ['$payments', {$multiply: ['$trades', 0.5]}]

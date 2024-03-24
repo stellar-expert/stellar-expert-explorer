@@ -1,4 +1,5 @@
 import React from 'react'
+import {Tabs} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import LedgerActivity from '../ledger/ledger-activity-view'
@@ -9,14 +10,37 @@ import AssetsChart from '../ledger/charts/ledger-history-assets-trustlines-chart
 import PaymentsTradesChart from '../ledger/charts/ledger-history-payments-trades-chart-view'
 import SupplyChart from '../ledger/charts/ledger-supply-fee-chart-view'
 import FailedTransactions from '../ledger/charts/ledger-history-failed-transactions-chart-view'
+import SorobanGeneralStatsView from '../ledger/soroban-general-stats-view'
+import SorobanStatsHistoryView from '../ledger/soroban-stats-history-view'
 
 export default function NetworkActivityPageView() {
     setPageMetadata({
         title: `Activity on Stellar ${config.activeNetwork} network`,
         description: `Stats and activity indicators for Stellar ${config.activeNetwork} network.`
     })
+    const tabs = [
+        {
+            name: 'general',
+            title: 'General',
+            isDefault: true,
+            render: () => <GeneralNetworkStats/>
+        },
+        {
+            name: 'soroban',
+            title: 'Soroban',
+            render: () => <SorobanActivityPageView/>
+        }
+    ]
+
     return <>
         <h2>Network Stats</h2>
+        <div style={{marginBottom: '-2.6em'}}/>
+        <Tabs right tabs={tabs} queryParam="tab"/>
+    </>
+}
+
+function GeneralNetworkStats() {
+    return <>
         <div className="row">
             <div className="column column-50">
                 <div className="segment blank">
@@ -41,5 +65,14 @@ export default function NetworkActivityPageView() {
         <SupplyChart/>
         <div className="space"/>
         <FailedTransactions/>
+    </>
+}
+
+
+function SorobanActivityPageView() {
+    return <>
+        <SorobanGeneralStatsView/>
+        <div className="space"></div>
+        <SorobanStatsHistoryView/>
     </>
 }

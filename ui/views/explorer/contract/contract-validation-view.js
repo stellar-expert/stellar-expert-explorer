@@ -1,5 +1,6 @@
 import React, {useCallback, useRef, useState} from 'react'
-import {Button} from '@stellar-expert/ui-framework'
+import {AccountAddress, Button, formatExplorerLink} from '@stellar-expert/ui-framework'
+import {navigation} from '@stellar-expert/navigation'
 import {useParams} from 'react-router'
 import {useContractInfo} from '../../../business-logic/api/contract-api'
 import {apiCall} from '../../../models/api'
@@ -10,12 +11,12 @@ import {setPageMetadata} from '../../../util/meta-tags-generator'
 export default function ContractValidationView() {
     const {id: address} = useParams()
     setPageMetadata({
-        title: `Contract Verification ${address}`,
-        description: `Submit contract verification request for the contract ${address}.`
+        title: `Contract Validation ${address}`,
+        description: `Submit source code validation request for the contract ${address}.`
     })
     return <div>
         <h2 className="condensed word-break">
-            <span className="dimmed">Contract Verification</span> {address}
+            <span className="dimmed">Contract Code Validation</span> <AccountAddress account={address} chars="all"/>
         </h2>
         <ContractValidationForm address={address}/>
     </div>
@@ -66,6 +67,7 @@ function ContractValidationForm({address}) {
                     })
                 }
                 console.log(validationStatus)
+                setTimeout(() => navigation.navigate(formatExplorerLink('contract', address)), 2000)
                 setSourceLink('')
             } catch (e) {
                 notify({
@@ -77,7 +79,7 @@ function ContractValidationForm({address}) {
             console.error(e)
             notify({
                 type: 'error',
-                message: e.ext?.error || 'Internal error occured.'
+                message: e.ext?.error || 'Internal error occurred.'
             })
         } finally {
             setInProgress(false)
@@ -108,7 +110,7 @@ function ContractValidationForm({address}) {
             </div>
         </div>
 
-    const disabled = inProgress || data.validation?.status === 'pending'
+    const disabled = inProgress || (data.validation?.status === 'pending' && (data.validation.ts + 10 * 60) * 1000 > new Date().getTime())
 
     return <div className="segment blank">
         <div className="dimmed text-small">
@@ -127,19 +129,20 @@ function ContractValidationForm({address}) {
         <div className="text-tiny dimmed">
             <i className="icon-warning-circle"/>{' '}
             Please make sure that you copy-pasted HTTPS repository link containing the commit hash to associate the contract WASM with the
-            particular point-in-time snapshot of the source code.
+            particular point-in-time snapshot of the source code. Primary reason why commit hash is required is that any other bookmark
+            (branch or tag name) can be updated after the successful validation, breaking the chain of trust.
         </div>
         <TurnstileCaptcha ref={captchaRef} sitekey={appSettings.turnstileKey}/>
         <div className="row space">
             <div className="column column-50">
                 {inProgress && <div className="loader inline micro"/>}
-                {!!data.validation && data.validation.status !== 'unverified' && <>
+                {!!data.validation && !inProgress && data.validation.status !== 'unverified' && <>
                     <i className="icon-puzzle"/> <a href={data.validation.possibleSource} target="_blank" rel="noreferrer">Source code</a>
                     {' '}validation {data.validation.status}
                 </>}
             </div>
             <div className="column column-50">
-                <Button block onClick={requestVerification} disabled={disabled}>Verify</Button>
+                <Button block onClick={requestVerification} disabled={disabled}>Validate source code</Button>
             </div>
         </div>
     </div>

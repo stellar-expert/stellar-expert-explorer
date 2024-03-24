@@ -22,7 +22,7 @@ import LiquidityPoolView from './liquidity-pool/liquidity-pool-view'
 import AllLiquidityPoolsView from './liquidity-pool/all-liquidity-pools-view'
 import AccountClaimableBalancesView from './claimable-balance/account-claimable-balances-view'
 import ContractDataEntries from './contract/contract-data-entries-view'
-import StagedSorobanConfigChanges from './ledger/staged-soroban-config-changes-view'
+import StagedSorobanConfigChanges from './protocol/staged-soroban-config-changes-view'
 
 function ExplorerRouter({match}) {
     const {path} = match
@@ -53,7 +53,7 @@ function ExplorerRouter({match}) {
             </Route>
             <Route path={`${path}/protocol-history`}>
                 <Loadable moduleKey="protocol-history"
-                    load={() => import(/* webpackChunkName: "protocol-history" */ './ledger/protocol-history-view')}/>
+                    load={() => import(/* webpackChunkName: "protocol-history" */ './protocol/protocol-history-view')}/>
             </Route>
             <Route path={`${path}/search/new`} component={DedicatedSearchBoxView}/>
             <Route path={`${path}/search`} component={SearchRedirect}/>

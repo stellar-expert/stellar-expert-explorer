@@ -1,5 +1,5 @@
 import React from 'react'
-import {Amount, UtcTimestamp, InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {Amount, UtcTimestamp, InfoTooltip as Info, withErrorBoundary, AssetLink} from '@stellar-expert/ui-framework'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import AuthorizationFlags from '../account/account-authorization-flags-view'
 import LockStatus from '../account/account-lock-status-view'
@@ -17,6 +17,14 @@ function formatTrustlines({total, authorized, funded}) {
 export default withErrorBoundary(function AssetSummaryView({asset}) {
     const {descriptor, issuerInfo} = asset
     return <dl>
+        {!!asset.classicAsset && <>
+            <dt>Wrapped Classic asset:</dt>
+            <dd><AssetLink asset={asset.classicAsset}/></dd>
+        </>}
+        {!!asset.contractAsset && <>
+            <dt>Wrapped Soroban asset:</dt>
+            <dd><AssetLink asset={asset.contractAsset}/></dd>
+        </>}
         {!!asset.rating && <>
             <dt>Rating:</dt>
             <dd>{(asset.rating.average || 0).toFixed(1)}

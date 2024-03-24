@@ -1,8 +1,8 @@
 const cors = require('cors')
 const {Long} = require('mongodb')
-const {corsWhitelist} = require('../app.config')
 const billing = require('./billing')
 const apiCache = require('./api-cache')
+const corsMatcher = require('./cors-matcher')
 
 //increase stack trace depth
 Error.stackTraceLimit = 16
@@ -10,9 +10,9 @@ Error.stackTraceLimit = 16
 const corsMiddleware = {
     whitelist: cors(function (req, callback) {
         const origin = req.header('Origin')
-        if (!origin)
+        if (!origin) //TODO: should be !origin && req.billingProcessed
             return callback(null, true)
-        if (corsWhitelist.includes(origin) || req.billingProcessed)
+        if (corsMatcher.match(origin) || req.billingProcessed)
             return callback(null, true)
         const e = new Error(`Origin ${origin} is blocked by CORS.`)
         e.isBlockedByCors = true

@@ -473,6 +473,8 @@ class TxQuery {
             throw errors.notFound(`Transaction ${txIdOrHash} not found on the ${network} ledger`)
 
         const ledger = await fetchLedger(network, tx.id.high)
+        if (!ledger) // the ledger has not been processed by the ingestion pipeline yet
+            throw errors.notFound(`Transaction ${txIdOrHash} has not been been processed yet`)
         return TxQuery.prepareResponseEntry(tx, ledger)
     }
 

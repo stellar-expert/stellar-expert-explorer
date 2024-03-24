@@ -10,9 +10,9 @@ export default function AssetStatsHistoryView({asset}) {
             <AssetSupplyChart asset={asset}/>
             <div className="space mobile-only"/>
         </div>
-        <div className="space column column-50">
+        {asset.descriptor.type !== 4 && <div className="space column column-50">
             <AssetsPriceChart asset={asset}/>
             <div className="space mobile-only"/>
-        </div>
+        </div>}
     </>
 }

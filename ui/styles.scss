@@ -11,3 +11,10 @@
 @import "views/components/layouts/page-layout";
 @import "views/components/layouts/charts";
 @import "views/components/layouts/top-menu";
+
+.nowrap {
+  .account-address, .account-key {
+    white-space: nowrap !important;
+    word-break: unset !important;
+  }
+}

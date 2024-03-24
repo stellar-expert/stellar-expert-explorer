@@ -9,6 +9,11 @@ const {parseContractHash} = require('./contract-code')
 
 let authInfo
 
+const externalEndpoints = {
+    testnet: 'https://testopenapi.sorobanexp.com/api/verifycontract',
+    public: 'https://openapi.sorobanexp.com/api/verifycontract'
+}
+
 /**
  * @param {String} network
  * @param {Request} req
@@ -42,15 +47,14 @@ async function validateContract(network, req) {
     //generate unique token for callback request verification
     const uid = crypto.randomBytes(32).toString('hex')
     //prepare params for the external validation request
-    const host = req.get('host')
-    const callback = `https://${host}/explorer/${network}/contract-validation/confirm/${uid}`
+    const callback = `https://api.stellar.expert/explorer/${network}/contract-validation/confirm/${uid}`
     const externalRequestParams = {
         contractId: contract,
         source,
         callback
     }
     //execute external validation request
-    const externalResponse = await apiRequest('https://testopenapi.sorobanexp.com/api/verifycontract', 'POST', externalRequestParams)
+    const externalResponse = await apiRequest(externalEndpoints[network], 'POST', externalRequestParams)
     if (externalResponse.statusCode !== 200)
         throw errors.badRequest('Failed to validate contract source code')
     //store validation info in the db
@@ -101,7 +105,7 @@ async function validateContractCallback(network, callbackParams, uid) {
         await db[network]
             .collection('contract_code')
             .updateOne({_id: hash}, {
-                $set: {'source.status': 'failed'}
+                $set: {'validation.status': 'failed'}
             })
     }
     return {ok: 1}
@@ -116,7 +120,7 @@ async function getValidationStatus(network, hash) {
             ts: sourceUpdated
         }
     //check if the validation is in progress
-    if (!validation || validation.ts < unixNow() - 4 * timeUnits.hour) //skip stale validation request details
+    if (!validation || (validation.ts + 4 * timeUnits.hour / 1000 < unixNow())) //skip stale validation request details
         return {status: 'unverified'}
 
     return {
@@ -150,7 +154,7 @@ function isCacheExpired(cachedInfo) {
 
 function isValidationPending(validation) {
     //allow up to 10 minutes for the validation to conclude
-    return validation.status === 'pending' || validation.ts > unixNow() - 10 * timeUnits.minute
+    return validation.status === 'pending' && (validation.ts + 10 * timeUnits.minute / 1000 > unixNow())
 }
 
 /**

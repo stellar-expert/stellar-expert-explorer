@@ -1,4 +1,4 @@
-const {errors} = require('../business-logic/errors')
+const errors = require('../business-logic/errors')
 const {turnstileSecret} = require('../app.config')
 
 async function validateTurnstileToken(token) {

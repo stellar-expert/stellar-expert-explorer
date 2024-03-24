@@ -106,7 +106,6 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
     }
     sortOrder._id = 1
 
-
     search = (search || '').trim() //cleanup spaces
     let assets
     let isTextSearch = false
@@ -200,7 +199,7 @@ async function querySAL(network, limit = 50) {
     return {
         name: 'StellarExpert Top 50',
         provider: 'StellarExpert',
-        description: 'Dynamically generated list based on technical asset metrics, including payments and trading volumes, interoperability, userbase, etc. Assets included in this list were not verified by StellarExpert team. StellarExpert is not affiliated with issuers, and does not endorse or advertise assets in the list.',
+        description: 'Dynamically generated list based on technical asset metrics, including payments and trading volumes, interoperability, userbase, etc. Assets included in this list were not verified by StellarExpert team. StellarExpert is not affiliated with issuers, and does not endorse or advertise assets in the list. Assets reported for fraudulent activity removed from the list automatically.',
         version: '1.0',
         network,
         feedback: 'https://stellar.expert',

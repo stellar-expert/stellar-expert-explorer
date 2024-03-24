@@ -1,14 +1,18 @@
-import React from 'react'
-import {Amount, UtcTimestamp, InfoTooltip as Info, useExplorerApi, CodeBlock, CopyToClipboard} from '@stellar-expert/ui-framework'
+import React, {useMemo} from 'react'
+import {Amount, UtcTimestamp, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {StagedSorobanParamsUpdate} from './staged-soroban-config-changes-link-view'
+import {applySorobanConfigChanges} from './soroban-config-changes-tracker'
+import {SorobanConfigChangesView} from './soroban-config-changes-view'
 
 export default function ProtocolHistoryView() {
     const {data, loaded} = useExplorerApi('ledger/protocol-history')
     setPageMetadata({
-        title: `Protocol versions of Stellar ${config.activeNetwork} network`,
-        description: `History of the Stellar ${config.activeNetwork} network protocol upgrades.`
+        title: `Protocol upgrades history of Stellar ${config.activeNetwork} network`,
+        description: `All protocol upgrades of the Stellar ${config.activeNetwork} network.`
     })
+    const processedData = useMemo(() => applySorobanConfigChanges(data), [data])
     if (!loaded)
         return <div className="loader"/>
     return <div className="container narrow">
@@ -18,13 +22,13 @@ export default function ProtocolHistoryView() {
             This version number is incremented every time the protocol changes over time.
         </Info></h2>
         <div className="segment blank">
-            {data.map(entry => <ProtocolHistoryEntry entry={entry} key={entry.sequence}/>)}
+            <StagedSorobanParamsUpdate/>
+            {processedData.map(entry => <ProtocolHistoryEntry entry={entry} key={entry.sequence}/>)}
         </div>
     </div>
 }
 
 function ProtocolHistoryEntry({entry}) {
-    const sorobanConfig = entry.config_changes && JSON.stringify(entry.config_changes, null, '  ')
     return <div className="space">
         <h3>
             <div className="row">
@@ -46,13 +50,8 @@ function ProtocolHistoryEntry({entry}) {
             <dt>Base reserve amount:</dt>
             <dd><Amount amount={entry.base_reserve} asset="XLM" adjust issuer={false}/></dd>
         </dl>
-        {!!sorobanConfig && <div>
-            <h4>
-                Soroban runtime config changes
-                <CopyToClipboard text={sorobanConfig} title="Copy configuration changes to the clipboard" className="text-small"/>
-            </h4>
-            <CodeBlock lang="json" style={{maxHeight: '30em'}}>{sorobanConfig}</CodeBlock>
-        </div>}
+        {!!entry.config_changes &&
+            <SorobanConfigChangesView configChanges={entry.config_changes} changesAnnotation={entry.changesAnnotation}/>}
         <div className="space"/>
         <hr className="flare"/>
     </div>
