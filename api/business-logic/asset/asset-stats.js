@@ -1,5 +1,4 @@
 const {Long} = require('mongodb')
-const {Networks} = require('@stellar/stellar-sdk')
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
 const {validateNetwork, validateAssetName} = require('../validators')
@@ -69,7 +68,9 @@ async function queryAssetStats(network, asset) {
                 .limit(1)
                 .toArray()
         ])
-        res.fee_pool = poolHistory[0].fee_pool
+        if (poolHistory.length) {
+            res.fee_pool = poolHistory[0].fee_pool
+        }
         if (xlmHistory[0] && xlmHistory[0].reserve) {
             res.reserve = xlmHistory[0].reserve
         } else {
@@ -79,24 +80,6 @@ async function queryAssetStats(network, asset) {
             } else {
                 res.reserve = '0'
             }
-        }
-    }
-    if (assetInfo._id < (1 << 30)) { //classic asset - try of find soroban contract
-        const contractId = new AssetDescriptor(assetInfo.name).toStellarAsset().contractId(Networks[network.toUpperCase()])
-        //check if contract exists
-        const contractInfo = await db[network].collection('assets').findOne({name: contractId})
-        if (contractInfo) {
-            res.contractAsset = contractId
-        }
-    } else if (assetInfo.code) { //Soroban asset bound to classic asset
-        const query = {code: assetInfo.code}
-        if (assetInfo.issuer) {
-            query.issuer = assetInfo.issuer
-        } else if (assetInfo.code !== 'XLM')
-            throw new Error('Invalid contract asset code/issuer binding - ' + assetInfo.code)
-        const classicInfo = await db[network].collection('assets').findOne(query)
-        if (classicInfo) {
-            res.classicAsset = classicInfo.name
         }
     }
 
