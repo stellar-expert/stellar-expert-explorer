@@ -209,14 +209,20 @@ async function querySAL(network, limit = 50) {
                 code,
                 issuer,
                 contract: new Asset(code, issuer).contractId(Networks[network.toUpperCase()]),
-                name: a.tomlInfo?.name || a.code,
-                org: a.tomlInfo?.orgName || 'unknown',
-                domain: a.domain || null,
-                icon: a.tomlInfo?.image || null,
+                name: cleanupString(a.tomlInfo?.name || code),
+                org: cleanupString(a.tomlInfo?.orgName || 'unknown'),
+                domain: a.domain || undefined,
+                icon: a.tomlInfo?.image || undefined,
                 decimals: 7
             }
         })
     }
+}
+
+function cleanupString(value) {
+    if (!value)
+        return undefined
+    return value.replace(/[^\w\u0020.,-@]*/g, '')
 }
 
 module.exports = {queryAllAssets, querySAL}
