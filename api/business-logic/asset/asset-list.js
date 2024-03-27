@@ -204,16 +204,26 @@ async function querySAL(network, limit = 50) {
         network,
         feedback: 'https://stellar.expert',
         assets: assets.map(a => {
-            const [code, issuer] = a.name.split('-')
-            return {
-                code,
-                issuer,
-                contract: new Asset(code, issuer).contractId(Networks[network.toUpperCase()]),
-                name: cleanupString(a.tomlInfo?.name || code),
-                org: cleanupString(a.tomlInfo?.orgName || 'unknown'),
-                domain: a.domain || undefined,
-                icon: a.tomlInfo?.image || undefined,
-                decimals: 7
+            if (a.name.length === 56 && a.name[0] === 'C') { //wasm contract
+                return {
+                    contract: a.name,
+                    name: cleanupString(a.tomlInfo?.name || a.name),
+                    org: cleanupString(a.tomlInfo?.orgName || 'unknown'),
+                    domain: a.domain || undefined,
+                    icon: a.tomlInfo?.image || undefined
+                }
+            } else {
+                const [code, issuer] = a.name.split('-')
+                return {
+                    code,
+                    issuer,
+                    contract: new Asset(code, issuer).contractId(Networks[network.toUpperCase()]),
+                    name: cleanupString(a.tomlInfo?.name || code),
+                    org: cleanupString(a.tomlInfo?.orgName || 'unknown'),
+                    domain: a.domain || undefined,
+                    icon: a.tomlInfo?.image || undefined,
+                    decimals: 7
+                }
             }
         })
     }
