@@ -54,11 +54,6 @@ export default function AppRouter({history}) {
                             <Loadable moduleKey="blog"
                                       load={() => import(/* webpackChunkName: "blog" */ './blog/blog-router')}/>
                         </Route>
-                        {/*token lists*/}
-                        <Route path="/token-lists">
-                            <Loadable moduleKey="token-lists"
-                                      load={() => import(/* webpackChunkName: "token-lists" */ './token-lists/token-lists-router')}/>
-                        </Route>
                         {/*not found*/}
                         <Route component={NotFoundView}/>
                     </Switch>
