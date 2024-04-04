@@ -20,12 +20,14 @@ async function estimateContractValue(network, contract, currency = 'USD') {
             if (typeof value !== 'number') {
                 if (value.isZero())
                     return prev
-                value = value.toNumber()
+                value = value.toBigInt()
+            } else {
+                value = BigInt(value)
             }
-            if (!(value > 0))
+            if (!(value > 0n))
                 return prev
             return prev + value
-        }, 0),
+        }, 0n),
         currency
     }
 }
