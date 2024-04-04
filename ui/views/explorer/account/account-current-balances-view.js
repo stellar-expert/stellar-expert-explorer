@@ -23,17 +23,7 @@ export default withErrorBoundary(function AccountCurrentBalancesView({account, o
             <AccountTrustlineBalanceView key="xlm" account={ledgerData} trustline={xlmTrustline} onClick={onSelectAsset}/>
             {valueInfo.trustlines
                 .filter(t => t.asset !== 'XLM')
-                .map(t => <AccountTrustlineBalanceView key={getUniqueKey(t)} trustline={t} currency={valueInfo.currency} onClick={onSelectAsset}/>)}
+                .map(t => <AccountTrustlineBalanceView key={t.asset} trustline={t} currency={valueInfo.currency} onClick={onSelectAsset}/>)}
         </div>
     </>
 })
-
-function isPoolShare(balance) {
-    return balance.asset_type === 'liquidity_pool_shares'
-}
-
-function getUniqueKey(balance) {
-    return isPoolShare(balance) ?
-        balance.liquidity_pool_id :
-        balance.asset_type + balance.asset_code + balance.asset_issuer
-}

@@ -30,7 +30,7 @@ function Balance({trustline, currency}) {
         <span className="text-small">
             <AssetLink asset={trustline.asset} link={false} issuer={false}/>
             {((trustline.flags & 1) !== 1 && !isPoolShare(trustline)) &&
-                <i className="icon icon-lock" title={`Trustline to ${asset.toCurrency()} is not authorized by the asset issuer`}/>}
+                <i className="icon icon-lock" title={`Trustline to ${trustline.asset.split('-')[0]} is not authorized by the asset issuer`}/>}
         </span>
     </>
 }
