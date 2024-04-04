@@ -13,7 +13,7 @@ async function estimateContractValue(network, contract, currency = 'USD') {
     const trustlines = await estimateTrustlinesValue(network, accountId)
 
     return {
-        account: contract,
+        contract,
         trustlines,
         total: trustlines.reduce((prev, current) => {
             let {value} = current

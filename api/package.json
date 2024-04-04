@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.7.0",
-    "@stellar/stellar-sdk": "^11.1.0",
+    "@stellar/stellar-sdk": "^11.3.0",
     "@stellar-expert/api-billing-connector": "github:stellar-expert/api-billing-connector#v1.2.0",
     "body-parser": "^1.20.2",
     "bson": "^5.3.0",
