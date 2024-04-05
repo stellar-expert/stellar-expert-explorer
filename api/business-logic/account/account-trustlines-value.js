@@ -5,7 +5,8 @@ async function estimateTrustlinesValue(network, accountId) {
     return await db[network].collection('trustlines').aggregate([
         {
             $match: {
-                _id: {$gte: new Long(0, accountId), $lt: new Long(0, accountId + 1)}
+                _id: {$gte: new Long(0, accountId), $lt: new Long(0, accountId + 1)},
+                asset: {$gte: 0}
             }
         },
         {

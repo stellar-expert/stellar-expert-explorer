@@ -6,7 +6,7 @@ import {AssetLink, useOnScreen} from '@stellar-expert/ui-framework'
 export const AccountTrustlineBalanceView = React.memo(function AccountTrustlineBalanceView({trustline, currency, onClick}) {
     const root = useRef()
     const visible = useOnScreen(root)
-    const asset = AssetDescriptor.parse(trustline.asset)
+    const asset = AssetDescriptor.parse(trustline.asset || trustline.pool)
     const assetId = asset.toFQAN()
     const onBalanceClick = useCallback(() => {
         if (onClick) {
@@ -20,6 +20,7 @@ export const AccountTrustlineBalanceView = React.memo(function AccountTrustlineB
 
 function Balance({trustline, currency}) {
     const estimatedValue = resolveBalanceValue(trustline, currency)
+    const asset = trustline.asset || trustline.pool
     return <>
         <div className="condensed">
             {fromStroops(trustline.balance)}
@@ -28,15 +29,11 @@ function Balance({trustline, currency}) {
             {!!estimatedValue && <div>{estimatedValue}</div>}
         </div>
         <span className="text-small">
-            <AssetLink asset={trustline.asset} link={false} issuer={false}/>
-            {((trustline.flags & 1) !== 1 && !isPoolShare(trustline)) &&
-                <i className="icon icon-lock" title={`Trustline to ${trustline.asset.split('-')[0]} is not authorized by the asset issuer`}/>}
+            <AssetLink asset={asset} link={false} issuer={false}/>
+            {((trustline.flags & 1) !== 1 && trustline.asset) &&
+                <i className="icon icon-lock" title={`Trustline to ${(asset).split('-')[0]} is not authorized by the asset issuer`}/>}
         </span>
     </>
-}
-
-function isPoolShare(trustline) {
-    return trustline.asset.length === 64 && !trustline.asset.includes('-')
 }
 
 function resolveBalanceValue(trustline, currency = 'USD') {
