@@ -21,9 +21,10 @@ export const AccountTrustlineBalanceView = React.memo(function AccountTrustlineB
 function Balance({trustline, currency}) {
     const estimatedValue = resolveBalanceValue(trustline, currency)
     const asset = trustline.asset || trustline.pool
+    const balanceParts = formatWithPrecision(fromStroops(trustline.balance)).split('.')
     return <>
         <div className="condensed">
-            {formatWithPrecision(fromStroops(trustline.balance))}
+            {balanceParts[0]}{balanceParts !== undefined && <>.<span className="text-small">{balanceParts[1]}</span></>}
         </div>
         <div className="text-tiny condensed">
             {!!estimatedValue && <div>{estimatedValue}</div>}
