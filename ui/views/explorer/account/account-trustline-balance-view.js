@@ -1,6 +1,6 @@
 import React, {useCallback, useRef} from 'react'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
-import {formatWithAutoPrecision, fromStroops} from '@stellar-expert/formatter'
+import {formatWithAutoPrecision, formatWithPrecision, fromStroops} from '@stellar-expert/formatter'
 import {AssetLink, useOnScreen} from '@stellar-expert/ui-framework'
 
 export const AccountTrustlineBalanceView = React.memo(function AccountTrustlineBalanceView({trustline, currency, onClick}) {
@@ -23,7 +23,7 @@ function Balance({trustline, currency}) {
     const asset = trustline.asset || trustline.pool
     return <>
         <div className="condensed">
-            {fromStroops(trustline.balance)}
+            {formatWithPrecision(fromStroops(trustline.balance))}
         </div>
         <div className="text-tiny condensed">
             {!!estimatedValue && <div>{estimatedValue}</div>}
