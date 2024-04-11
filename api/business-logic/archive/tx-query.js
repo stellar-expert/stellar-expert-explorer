@@ -288,7 +288,7 @@ class TxQuery {
             this.isUnfeasible = true
             return
         }
-        filters.push({terms: {memo: memoIds}})
+        filters.push({terms: {memo: [...memos, ...memoIds]}})
     }
 
     /**
