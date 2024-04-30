@@ -24,7 +24,7 @@ function Balance({trustline, currency}) {
     const balanceParts = formatWithPrecision(fromStroops(trustline.balance)).split('.')
     return <>
         <div className="condensed">
-            {balanceParts[0]}{balanceParts !== undefined && <>.<span className="text-small">{balanceParts[1]}</span></>}
+            {balanceParts[0]}{balanceParts[1] !== undefined && <span className="text-small">.{balanceParts[1]}</span>}
         </div>
         <div className="text-tiny condensed">
             {!!estimatedValue && <div>{estimatedValue}</div>}
