@@ -18,8 +18,6 @@ export default function PaymentLocatorPage() {
                 <li>All operations are supported: PAYMENT, PATH_PAYMENT, CREATE_ACCOUNT, MERGE_ACCOUNT.</li>
                 <li>Find everything, no matter how long ago transactions were processed.</li>
                 <li>Works even with deleted(merged) accounts.</li>
-                <li><a target="_blank" rel="noreferrer noopener" href="/openapi.html#tag/Payment-Locator-API">
-                    Free API for developers.</a></li>
             </ul>
         </div>
         <div className="space">
