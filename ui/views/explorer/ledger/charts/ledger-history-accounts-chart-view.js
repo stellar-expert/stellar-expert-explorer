@@ -5,7 +5,7 @@ import {useLedgerStats} from '../../../../business-logic/api/ledger-stats-api'
 
 export default Chart.withErrorBoundary(function LedgerHistoryAccountsChartView({noTitle, className}) {
     const {data = [], loaded} = useLedgerStats()
-    if (!loaded)
+    if (!loaded || !(data instanceof Array))
         return <Chart.Loader/>
     const config = {
         yAxis: [{
