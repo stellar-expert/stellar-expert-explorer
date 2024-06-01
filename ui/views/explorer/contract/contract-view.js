@@ -41,6 +41,7 @@ export default function ContractView() {
                     <hr className="flare"/>
                     <ContractDetailsView contract={data}/>
                 </div>
+                <div className="space mobile-only"/>
             </div>
             <div className="column column-50">
                 <div className="segment blank">
