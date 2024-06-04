@@ -1056,5 +1056,4 @@ components:
         date: '2022-08-29T13:51:18.000Z'
 tags:
   - name: 'Directory API'
-  - name: 'Payment Locator API'
   - name: 'Asset Info API'
