@@ -28,7 +28,7 @@ export default function LedgerActivityView({title, updateMeta, className}) {
             protocol: 0,
             baseFee: 0,
             baseReserve: 0,
-            timeDelta: 4
+            timeDelta: 6
         }
 
     }, [title, className], () => {
@@ -54,9 +54,10 @@ export default function LedgerActivityView({title, updateMeta, className}) {
     }, [protocol, timeDelta, baseFee, baseReserve, updateMeta])
 
     function processLedger(ledger) {
-        if (unmounted) return
+        if (unmounted)
+            return
         const time = new Date(ledger.closed_at).getTime()
-        let timeDelta = 4
+        let timeDelta = 6
         if (lastLedgerClosedAt) {
             timeDelta = (time - lastLedgerClosedAt) / 1000
         }
@@ -74,7 +75,8 @@ export default function LedgerActivityView({title, updateMeta, className}) {
         })
     }
 
-    if (!sequence) return <div className="loader"/>
+    if (!sequence)
+        return <div className="loader"/>
 
     return <>
         <h3>

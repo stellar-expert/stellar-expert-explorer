@@ -74,13 +74,14 @@ export default function ContractView() {
         <h2 className="condensed word-break">
             <span className="dimmed">Contract</span> <AccountAddress account={address} link={false} chars="all"/>
         </h2>
-        <div className="row">
+        <div className="row space">
             <div className="column column-50">
                 <div className="segment blank">
                     <h3>Summary</h3>
                     <hr className="flare"/>
                     <ContractDetailsView contract={data}/>
                 </div>
+                <div className="space mobile-only"/>
             </div>
             <div className="column column-50">
                 <div className="segment blank">

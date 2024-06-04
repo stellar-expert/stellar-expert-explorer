@@ -1,34 +1,5 @@
 import React from 'react'
-import {AccountAddress, BlockSelect, UtcTimestamp} from '@stellar-expert/ui-framework'
-
-function EntryDiff({data, prop, changed}) {
-    const style = {}
-    if (changed) {
-        style.backgroundColor = 'var(--color-warning)'
-        style.padding = '0 0.2em'
-    }
-    let v = data[prop]
-    if (prop === 'tags') {
-        v = v.map(t => '#' + t).join(', ')
-    }
-    return <div>
-        <span className="dimmed">{prop}:</span> <b style={style}>{v}</b>
-    </div>
-}
-
-const diffKeys = ['name', 'domain', 'tags']
-
-function findDifference(prevState, newState) {
-    const res = {}
-    if (prevState) {
-        for (let key of diffKeys) {
-            if (JSON.stringify(prevState[key]) !== JSON.stringify(newState[key])) {
-                res[key] = 1
-            }
-        }
-    }
-    return res
-}
+import {UtcTimestamp} from '@stellar-expert/ui-framework'
 
 export default function DirectoryChangesHistoryView({address, changesHistory}) {
     let prevState
@@ -57,4 +28,33 @@ export default function DirectoryChangesHistoryView({address, changesHistory}) {
             </tbody>
         </table>
     </div>
+}
+
+const diffKeys = ['name', 'domain', 'tags']
+
+function EntryDiff({data, prop, changed}) {
+    const style = {}
+    if (changed) {
+        style.backgroundColor = 'var(--color-warning)'
+        style.padding = '0 0.2em'
+    }
+    let v = data[prop]
+    if (prop === 'tags') {
+        v = (v || []).map(t => '#' + t).join(', ')
+    }
+    return <div>
+        <span className="dimmed">{prop}:</span> <b style={style}>{v}</b>
+    </div>
+}
+
+function findDifference(prevState, newState) {
+    const res = {}
+    if (prevState) {
+        for (let key of diffKeys) {
+            if (JSON.stringify(prevState[key]) !== JSON.stringify(newState[key])) {
+                res[key] = 1
+            }
+        }
+    }
+    return res
 }

@@ -5,7 +5,8 @@ import {use24hLedgerStats} from '../../../business-logic/api/ledger-stats-api'
 
 export default function LedgerDailyStatsView({title = '24h Ledger Statistics'}) {
     const {loaded, data} = use24hLedgerStats(true)
-    if (!loaded) return <div className="loader"/>
+    if (!loaded || data?.error)
+        return <div className="loader"/>
     return <>
         <h3>
             {title}<EmbedWidgetTrigger path="network-activity/24h" title="Stellar Network 24h Stats"/>

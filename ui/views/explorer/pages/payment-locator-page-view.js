@@ -37,10 +37,11 @@ export default function PaymentLocatorPage() {
         <div className="segment blank">
             Explore transactions on Stellar {config.activeNetwork} network.
             <ul className="list checked">
-                {benefits.map((entry, i) => <li key={i}>
-                    {entry.link ?
-                        <a target="_blank" rel="noreferrer noopener" href={entry.link}>{entry.value}</a> :
-                        entry.value}</li>)}
+                <li>Lookup by transaction memo, asset, source/destination account.</li>
+                <li>Search by a single parameter or a complex criteria.</li>
+                <li>All operations are supported: PAYMENT, PATH_PAYMENT, CREATE_ACCOUNT, MERGE_ACCOUNT.</li>
+                <li>Find everything, no matter how long ago transactions were processed.</li>
+                <li>Works even with deleted(merged) accounts.</li>
             </ul>
         </div>
         <div className="space">

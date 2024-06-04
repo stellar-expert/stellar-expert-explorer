@@ -8,7 +8,6 @@ import {
     formatExplorerLink,
     fetchData,
     getCurrentStellarNetwork,
-    withErrorBoundary,
     setPageMetadata
 } from '@stellar-expert/ui-framework'
 import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
@@ -73,7 +72,7 @@ export function AccountClaimableBalancesSection({address}) {
     </div>
 }
 
-export default withErrorBoundary(function AccountClaimableBalancesView() {
+export default function AccountClaimableBalancesView() {
     const {id: address} = useParams()
     const cbResponse = useClaimableBalances(address, 40)
     const [metadata, setMetadata] = useState({
@@ -109,4 +108,4 @@ export default withErrorBoundary(function AccountClaimableBalancesView() {
             </div>
         </div>
     </>
-})
+}

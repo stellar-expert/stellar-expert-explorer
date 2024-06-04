@@ -67,6 +67,7 @@ export default function ContractDataEntriesView() {
                     })}
                     </tbody>
                 </table>
+                {!contractDataEntries.loaded && <div className="loader"/>}
                 <GridDataActionsView model={contractDataEntries}/>
             </div>
         </div>

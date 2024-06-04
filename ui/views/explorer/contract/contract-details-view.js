@@ -38,16 +38,12 @@ function ContractType({contract}) {
     if (contract.asset)
         return <>
             <dt>Type:</dt>
-            <dd>Contract from asset</dd>
-            <dt>Anchored asset:</dt>
-            <dd><AssetLink asset={contract.asset}/></dd>
+            <dd>Contract from asset <AssetLink asset={contract.asset}/></dd>
         </>
     if (contract.issuer)
         return <>
             <dt>Type:</dt>
-            <dd>Contract from address</dd>
-            <dt>Issuer address:</dt>
-            <dd><AccountAddress account={contract.issuer}/></dd>
+            <dd>Contract from address <AccountAddress account={contract.issuer}/></dd>
             <dt>Salt:</dt>
             <dd>{shortenString(contract.salt, 16)}<CopyToClipboard text={contract.salt}/></dd>
         </>

@@ -12,7 +12,7 @@ class AppSettings {
             this[key] = config[key]
         }
 
-        const networkFromUrl = (/^\/(?:\w+)\/(\w+)/i.exec(location.pathname) || [])[1]
+        const networkFromUrl = ((/^\/(?:\w+)\/(\w+)/i.exec(location.pathname) || [])[1] || '').toLowerCase()
         setStellarNetwork(networkFromUrl || Object.keys(this.networks)[0])
     }
 

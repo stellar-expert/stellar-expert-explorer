@@ -284,11 +284,7 @@ class TxQuery {
             throw errors.validationError('memo', `Too many memo conditions.`)
 
         const memoIds = await fetchMemoIds(this.network, memos)
-        if (!memoIds.length) {
-            this.isUnfeasible = true
-            return
-        }
-        filters.push({terms: {memo: memoIds}})
+        filters.push({terms: {memo: [...memos, ...memoIds]}})
     }
 
     /**
