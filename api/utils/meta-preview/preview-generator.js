@@ -493,7 +493,7 @@ class PreviewGenerator {
         }
         const offsetLeft = pos[0] + (maxWidth - iconSize.width) / 2
         await this.drawImage({
-            src: 'https://stellar.expert/img/stellar-expert-blue-broken.svg',
+            src: 'utils/meta-preview/stellar-expert-blue-broken.svg',
             width: iconSize.width,
             pos: [offsetLeft, pos[1] + this.padding]
         })
