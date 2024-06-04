@@ -7,8 +7,7 @@ import {
     initHorizon,
     formatExplorerLink,
     fetchData,
-    getCurrentStellarNetwork,
-    withErrorBoundary
+    getCurrentStellarNetwork
 } from '@stellar-expert/ui-framework'
 import AccountClaimableBalanceRowView from './account-claimable-balance-row-view'
 
@@ -69,7 +68,7 @@ export function AccountClaimableBalancesSection({address}) {
     </div>
 }
 
-export default withErrorBoundary(function AccountClaimableBalancesView() {
+export default function AccountClaimableBalancesView() {
     const {id: address} = useParams()
     const cbResponse = useClaimableBalances(address, 40)
     if (!cbResponse.data)
@@ -89,4 +88,4 @@ export default withErrorBoundary(function AccountClaimableBalancesView() {
             </div>
         </div>
     </>
-})
+}

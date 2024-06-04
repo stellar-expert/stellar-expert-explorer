@@ -33,7 +33,9 @@ async function queryAssetStats(network, asset) {
         volume7d: Math.round(assetInfo.volume7d),
         price7d: assetInfo.price7d
     }
-
+    if (assetInfo.contract) {
+        res.contract = assetInfo.contract
+    }
     if (res.trustlines.authorized < 0) {
         res.trustlines.authorized = 0
     }

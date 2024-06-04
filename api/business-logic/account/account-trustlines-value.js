@@ -6,8 +6,7 @@ async function estimateTrustlinesValue(network, accountId) {
         {
             $match: {
                 _id: {$gte: new Long(0, accountId), $lt: new Long(0, accountId + 1)},
-                asset: {$gte: 0},
-                balance: {$gt: 0}
+                asset: {$gte: 0}
             }
         },
         {
@@ -22,14 +21,16 @@ async function estimateTrustlinesValue(network, accountId) {
             $project: {
                 _id: 0,
                 balance: 1,
-                asset: {$first: '$assetInfo'}
+                asset: {$first: '$assetInfo'},
+                flags: 1
             }
         },
         {
             $project: {
                 asset: '$asset.name',
                 balance: 1,
-                value: {$floor: {$multiply: ['$balance', {$ifNull: ['$asset.lastPrice', 0]}]}}
+                value: {$floor: {$multiply: ['$balance', {$ifNull: ['$asset.lastPrice', 0]}]}},
+                flags: 1
             }
         }
     ]).toArray()

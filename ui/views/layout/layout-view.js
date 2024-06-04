@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import {withRouter} from 'react-router'
 import Alert from '../components/dialog'
 import Footer from './footer-view'
@@ -11,7 +10,7 @@ import CatcherView from './catcher-view'
  * @param {ReactNode} children - Page contents
  * @param {Object} menu - Top menu
  */
-function Layout ({children, menu}) {
+export default withRouter(function Layout ({children, menu}) {
     return <div className="page-wrapper">
         <div className="blue-ribbon"/>
         {menu}
@@ -19,12 +18,4 @@ function Layout ({children, menu}) {
         <Footer/>
         <Alert/>
     </div>
-}
-
-Layout.propTypes = {
-    children: PropTypes.node,
-    location: PropTypes.object.isRequired,
-    menu: PropTypes.element.isRequired
-}
-
-export default withRouter(Layout)
+})

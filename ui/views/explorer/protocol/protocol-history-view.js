@@ -40,16 +40,24 @@ function ProtocolHistoryEntry({entry}) {
                 </div>
             </div>
         </h3>
-        <dl>
-            <dt>Protocol version:</dt>
-            <dd>{entry.version}</dd>
-            <dt>Maximum transaction set size:</dt>
-            <dd>{entry.max_tx_set_size}</dd>
-            <dt>Base fee amount:</dt>
-            <dd><Amount amount={entry.base_fee} asset="XLM" adjust issuer={false}/></dd>
-            <dt>Base reserve amount:</dt>
-            <dd><Amount amount={entry.base_reserve} asset="XLM" adjust issuer={false}/></dd>
-        </dl>
+        <div className="row">
+            <div className="column column-50">
+                <dl>
+                    <dt>Protocol version:</dt>
+                    <dd>{entry.version}</dd>
+                    <dt>Maximum transaction set size:</dt>
+                    <dd>{entry.max_tx_set_size}</dd>
+                </dl>
+            </div>
+            <div className="column column-50">
+                <dl>
+                    <dt>Base fee amount:</dt>
+                    <dd><Amount amount={entry.base_fee} asset="XLM" adjust issuer={false}/></dd>
+                    <dt>Base reserve amount:</dt>
+                    <dd><Amount amount={entry.base_reserve} asset="XLM" adjust issuer={false}/></dd>
+                </dl>
+            </div>
+        </div>
         {!!entry.config_changes &&
             <SorobanConfigChangesView configChanges={entry.config_changes} changesAnnotation={entry.changesAnnotation}/>}
         <div className="space"/>
