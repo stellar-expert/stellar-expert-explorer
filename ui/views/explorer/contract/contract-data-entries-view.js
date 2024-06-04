@@ -1,6 +1,9 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import {useParams} from 'react-router'
-import {UtcTimestamp, AccountAddress, ScVal, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
+import {UtcTimestamp, AccountAddress, ScVal, useExplorerPaginatedApi, setPageMetadata} from '@stellar-expert/ui-framework'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import GridDataActionsView from '../../components/grid-data-actions'
 
 export default function ContractDataEntriesView() {
@@ -17,6 +20,21 @@ export default function ContractDataEntriesView() {
             //dynamic price spread
             //dataProcessingCallback: records => records.map(stat => AssetViewModel.fromStats(stat))
         })
+    const type = id.startsWith('C') ? 'Contract' : 'Account'
+    const [metadata, setMetadata] = useState({
+        title: `Stored Data for ${id}`,
+        description: `Stored Data for ${type} ${id} into Stellar Network`
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        previewUrlCreator(prepareMetadata({
+            title: 'Stored Data',
+            description: `${type} ${id}`
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
 
     return <div>
         <h2 className="word-break relative condensed">

@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from 'react'
 import cn from 'classnames'
-import {AccountAddress, useExplorerPaginatedApi, useDirectoryTags} from '@stellar-expert/ui-framework'
+import {AccountAddress, useExplorerPaginatedApi, useDirectoryTags, setPageMetadata} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {previewUrlCreator} from '../../business-logic/api/metadata-api'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
-import DirectoryTagsLineView from './directory-tags-line-view'
+import {prepareMetadata} from '../../util/prepareMetadata'
+import checkPageReadiness from '../../util/page-readiness'
 import GridDataActions from '../components/grid-data-actions'
 import {isDirectoryAdmin} from './is-directory-admin'
+import DirectoryTagsLineView from './directory-tags-line-view'
 import GithubLoginView from './github-login-view'
 import './directory-tags.scss'
 
@@ -38,13 +40,22 @@ export default function DirectoryView() {
             search: ''
         }
     })
+    const [metadata, setMetadata] = useState({
+        title: 'Directory of well-known Stellar XLM accounts',
+        description: 'Discover well-known Stellar accounts, filter data by account address, description, or tags.'
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
 
     useEffect(() => {
-        setPageMetadata({
-            title: `Directory of well-known Stellar XLM accounts`,
-            description: `Discover well-known Stellar accounts, filter data by account address, description, or tags.`
-        })
-    }, [])
+        if (!directoryTags.length)
+            return
+        previewUrlCreator(prepareMetadata({
+            title: 'Directory | Well-known Stellar Accounts',
+            tags: directoryTags.map(tag => tag.name)
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [directoryTags])
 
     const queryParams = {
         tag: Array.from(filters),

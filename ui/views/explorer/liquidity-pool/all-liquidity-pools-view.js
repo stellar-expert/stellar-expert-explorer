@@ -1,11 +1,13 @@
 import React, {useState, useEffect, useCallback} from 'react'
-import {Dropdown, AssetLink, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
+import {Dropdown, AssetLink, useExplorerPaginatedApi, setPageMetadata} from '@stellar-expert/ui-framework'
 import {formatPrice, formatWithAutoPrecision, formatWithPrecision, formatWithAbbreviation} from '@stellar-expert/formatter'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {navigation} from '@stellar-expert/navigation'
-import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {resolvePath} from '../../../business-logic/path'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
+import appSettings from '../../../app-settings'
 import GridDataActionsView from '../../components/grid-data-actions'
 
 const orderOptions = [
@@ -117,11 +119,16 @@ export default function AllLiquidityPoolsView() {
     })
     const {loaded, loading} = pools
 
+    const [metadata, setMetadata] = useState({
+        title: `Liquidity pools on Stellar ${appSettings.activeNetwork} network`,
+        description: `Volumes, earned fees, and trading statistics on Stellar ${appSettings.activeNetwork} network.`
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
     useEffect(() => {
-        setPageMetadata({
-            title: `Liquidity pools on Stellar ${appSettings.activeNetwork} network`,
-            description: `Volumes, earned fees, and trading statistics on Stellar ${appSettings.activeNetwork} network.`
-        })
+        previewUrlCreator(prepareMetadata(metadata))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
     }, [appSettings.activeNetwork])
 
     const updateSort = useCallback(function (sort = orderOptions[0].value) {

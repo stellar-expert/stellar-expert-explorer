@@ -1,7 +1,9 @@
-import React from 'react'
-import {Tabs} from '@stellar-expert/ui-framework'
+import React, {useEffect, useState} from 'react'
+import {Tabs, setPageMetadata} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import LedgerActivity from '../ledger/ledger-activity-view'
 import LedgerDailyStats from '../ledger/ledger-daily-stats'
 import OperationsChart from '../ledger/charts/ledger-history-operations-ledger-time-chart-view'
@@ -14,21 +16,35 @@ import SorobanGeneralStatsView from '../ledger/soroban-general-stats-view'
 import SorobanStatsHistoryView from '../ledger/soroban-stats-history-view'
 
 export default function NetworkActivityPageView() {
-    setPageMetadata({
+    const [previewMetadata, setPreviewMetadata] = useState()
+    const [metadata, setMetadata] = useState({
         title: `Activity on Stellar ${config.activeNetwork} network`,
         description: `Stats and activity indicators for Stellar ${config.activeNetwork} network.`
     })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        if (!previewMetadata)
+            return
+        previewUrlCreator(prepareMetadata({
+            ...previewMetadata,
+            title: `Activity on Stellar ${config.activeNetwork} network`
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [previewMetadata])
+
     const tabs = [
         {
             name: 'general',
             title: 'General',
             isDefault: true,
-            render: () => <GeneralNetworkStats/>
+            render: () => <GeneralNetworkStats updateMeta={setPreviewMetadata}/>
         },
         {
             name: 'soroban',
             title: 'Soroban',
-            render: () => <SorobanActivityPageView/>
+            render: () => <SorobanActivityPageView updateMeta={setPreviewMetadata}/>
         }
     ]
 
@@ -39,12 +55,12 @@ export default function NetworkActivityPageView() {
     </>
 }
 
-function GeneralNetworkStats() {
+function GeneralNetworkStats({updateMeta}) {
     return <>
         <div className="row">
             <div className="column column-50">
                 <div className="segment blank">
-                    <LedgerActivity/>
+                    <LedgerActivity updateMeta={updateMeta}/>
                 </div>
             </div>
             <div className="column column-50">
@@ -69,9 +85,9 @@ function GeneralNetworkStats() {
 }
 
 
-function SorobanActivityPageView() {
+function SorobanActivityPageView({updateMeta}) {
     return <>
-        <SorobanGeneralStatsView/>
+        <SorobanGeneralStatsView updateMeta={updateMeta}/>
         <div className="space"></div>
         <SorobanStatsHistoryView/>
     </>

@@ -7,10 +7,14 @@ import {
     parseTxDetails,
     useStellarNetwork,
     loadTransactions,
-    streamTransactions
+    streamTransactions,
+    setPageMetadata
 } from '@stellar-expert/ui-framework'
-import './activity-stream.scss'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import appSettings from '../../../app-settings'
+import './activity-stream.scss'
 
 export default function ActivityStreamView() {
     const network = useStellarNetwork()
@@ -19,6 +23,17 @@ export default function ActivityStreamView() {
     const [includeFailed, setIncludeFailed] = useState(false)
     const [_, refresh] = useState(0)
     const activityContainer = useRef()
+    const [metadata, setMetadata] = useState({
+        title: `Activity Live Stream`,
+        description: `Activity Live Stream for Stellar Network.`
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        previewUrlCreator(prepareMetadata({title: metadata.title}))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [network])
 
     const toggleIncludeFailed = useCallback(() => setIncludeFailed(prev => !prev), [])
 

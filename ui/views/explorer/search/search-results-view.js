@@ -1,11 +1,13 @@
 import React, {useState} from 'react'
 import {Federation} from '@stellar/stellar-sdk'
-import {useDependantState} from '@stellar-expert/ui-framework'
+import {useDependantState, setPageMetadata} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
-import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {detectSearchType} from '../../../business-logic/search'
 import {resolvePath} from '../../../business-logic/path'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
+import appSettings from '../../../app-settings'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import AssetSearchResultsView from './assets-search-results-view'
 import AccountSearchResultsView from './account-search-results-view'
@@ -103,12 +105,17 @@ function SearchResultsWrapper({originalTerm, children}) {
 
 export default function SearchResultsView() {
     const originalTerm = (navigation.query.term || '').trim()
+    const [metadata, setMetadata] = useState({
+        title: `Search "${originalTerm}"`,
+        description: `Search results for term "${originalTerm}" on Stellar ${appSettings.activeNetwork} network.`
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
 
     const [state, setState] = useDependantState(() => {
-        setPageMetadata({
-            title: `Search "${originalTerm}"`,
-            description: `Search results for term "${originalTerm}" on Stellar ${appSettings.activeNetwork} network.`
-        })
+        previewUrlCreator(prepareMetadata({title: metadata.title}))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+
         processSearchTerm(originalTerm)
             .then(newState => setState(newState))
 

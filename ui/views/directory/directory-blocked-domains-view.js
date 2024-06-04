@@ -1,8 +1,10 @@
 import React, {useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
-import {BlockSelect, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {BlockSelect, useExplorerPaginatedApi, setPageMetadata} from '@stellar-expert/ui-framework'
+import {previewUrlCreator} from '../../business-logic/api/metadata-api'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
+import {prepareMetadata} from '../../util/prepareMetadata'
+import checkPageReadiness from '../../util/page-readiness'
 import GridDataActions from '../components/grid-data-actions'
 import {isDirectoryAdmin} from './is-directory-admin'
 import GithubLoginView from './github-login-view'
@@ -12,12 +14,16 @@ export default function DirectoryBlockedDomainsView() {
     const [searchTerm, setSearchTerm] = useState(() => navigation.query.search || '')
     const [query, setQuery] = useState({search: searchTerm})
     const isAdmin = isDirectoryAdmin(githubUser)
+    const [metadata, setMetadata] = useState({
+        title: 'Block-list of malicious domains',
+        description: 'Community-maintained list of malicious domains related to Stellar ecosystem'
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
 
     useEffect(() => {
-        setPageMetadata({
-            title: `Block-list of malicious domains`,
-            description: `Community-maintained list of malicious domains related to Stellar ecosystem.`
-        })
+        previewUrlCreator(prepareMetadata(metadata))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
     }, [])
 
     const blocklist = useExplorerPaginatedApi({

@@ -1,4 +1,8 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
+import {setPageMetadata} from '@stellar-expert/ui-framework'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import appSettings from '../../../app-settings'
 import AssetList from '../asset/asset-list-view'
 import LedgerActivity from '../ledger/ledger-activity-view'
@@ -10,6 +14,25 @@ import AssetsOverallStatsView from '../asset/asset-overall-stats-view'
 
 export default function ExplorerHomePageView() {
     if (!appSettings.activeNetwork) return null
+
+    const [metaInfoList, setMetaInfoList] = useState()
+    const [metadata, setMetadata] = useState({
+        title: 'Ledger explorer and analytics platform for Stellar Network',
+        description: 'Analytics platform and ledger explorer for Stellar Network.'
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        if (!metaInfoList)
+            return
+        previewUrlCreator(prepareMetadata({
+            title: 'Ledger explorer and analytics platform',
+            infoList: metaInfoList
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [metaInfoList])
+
     return <div>
         <div className="space text-center">
             <h1>Ledger explorer and analytics platform for <a href="https://www.stellar.org/">Stellar Network</a></h1>
@@ -20,7 +43,7 @@ export default function ExplorerHomePageView() {
                 <div className="segment blank">
                     <h3>Asset Statistics</h3>
                     <hr className="flare"/>
-                    <AssetsOverallStatsView/>
+                    <AssetsOverallStatsView updateMeta={setMetaInfoList}/>
                 </div>
             </div>
             <div className="space mobile-only"/>

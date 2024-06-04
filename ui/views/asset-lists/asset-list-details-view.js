@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react'
-import {BlockSelect, CopyToClipboard, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {BlockSelect, CopyToClipboard, setPageMetadata, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {fetchAssetList} from '@stellar-asset-lists/sdk'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 import AssetListAssetsView from './asset-list-assets-view'
 
 export default function AssetListDetailsView({list}) {

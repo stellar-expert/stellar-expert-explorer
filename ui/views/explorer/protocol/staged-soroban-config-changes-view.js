@@ -1,9 +1,11 @@
-import React, {useMemo} from 'react'
+import React, {useEffect, useState} from 'react'
 import {useParams} from 'react-router'
 import {StrKey, xdr} from '@stellar/stellar-base'
-import {useExplorerApi, CopyToClipboard, CodeBlock, AccountAddress} from '@stellar-expert/ui-framework'
+import {useExplorerApi, setPageMetadata, AccountAddress} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import {applySorobanConfigChanges} from './soroban-config-changes-tracker'
 import {SorobanConfigChangesView} from './soroban-config-changes-view'
 
@@ -12,10 +14,20 @@ export default function StagedSorobanConfigChangesView() {
     if (id.includes('%')) { //URI-encoded
         id = decodeURIComponent(id)
     }
-    setPageMetadata({
+    const [metadata, setMetadata] = useState({
         title: `Staged Soroban config changes ${id} for ${config.activeNetwork} network`,
         description: `Staged Soroban config changes ${id} for ${config.activeNetwork} network.`
     })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        previewUrlCreator(prepareMetadata({
+            title: `Staged Soroban config changes ${id} for ${config.activeNetwork} network`,
+            description: `Staged Soroban config changes ${id} for ${config.activeNetwork} network.`
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
     try {
         const configKey = xdr.ConfigUpgradeSetKey.fromXDR(id, 'base64')
         const contract = StrKey.encodeContract(configKey.contractId())

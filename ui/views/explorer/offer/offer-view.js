@@ -1,15 +1,53 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {useRouteMatch} from 'react-router'
-import {AssetLink, AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
-import {formatWithPrecision, approximatePrice} from '@stellar-expert/formatter'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
-import appSettings from '../../../app-settings'
+import {
+    AssetLink,
+    AccountAddress,
+    BlockSelect,
+    UtcTimestamp,
+    InfoTooltip as Info,
+    useAssetMeta,
+    setPageMetadata
+} from '@stellar-expert/ui-framework'
+import {formatWithPrecision, approximatePrice, formatDateUTC} from '@stellar-expert/formatter'
 import {useDexOffer} from '../../../business-logic/api/offer-api'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
+import appSettings from '../../../app-settings'
 import OfferHistoryTabsView from './offer-history-tabs-view'
 
-function OfferDetailsView({offer}) {
+function OfferDetailsView({offer, metadata}) {
     if (!offer) return <div className="loader"/>
     if (offer.nonExistentOffer) return <h3>Offer {offer.id} does not exist</h3>
+    const sellingAssetMeta = useAssetMeta(offer.selling)
+    const buyingAssetMeta = useAssetMeta(offer.buying)
+
+    useEffect(() => {
+        if (!sellingAssetMeta || !buyingAssetMeta)
+            return null
+        const infoList = [
+            {name: 'Selling', value: sellingAssetMeta, type: 'asset'},
+            {name: 'Buying', value: buyingAssetMeta, type: 'asset'},
+            {name: 'Price', value: formatWithPrecision(approximatePrice(offer.price))},
+            {name: 'Total trades', value: formatWithPrecision(offer.trades || 0)},
+            {name: 'Created', value: `${formatDateUTC(offer.created)} UCT`}
+        ]
+        if (offer.deleted) {
+            infoList.push({name: 'Removed', value: `${formatDateUTC(offer.updated)} UCT`})
+        }
+        previewUrlCreator(prepareMetadata({
+            title: `Offer ${offer.id}`,
+            description: `Created by ${offer.account}`,
+            infoAssets: true,
+            infoList
+        }))
+            .then(previewUrl => {
+                setPageMetadata({...metadata, facebookImage: previewUrl})
+                checkPageReadiness({...metadata, facebookImage: previewUrl})
+            })
+    }, [sellingAssetMeta, buyingAssetMeta])
+
     return <>
         <div className="segment blank">
             <h3>Summary</h3>
@@ -66,13 +104,14 @@ export default function OfferView() {
     if (!loaded)
         return <div className="loader"/>
 
-    setPageMetadata({
+    const metadata = {
         title: `Offer ${offerId} on Stellar ${appSettings.activeNetwork} network DEX`,
         description: `Statistics and operations for offer ${offerId} on Stellar ${appSettings.activeNetwork} decentralized exchange.`
-    })
+    }
+    setPageMetadata(metadata)
 
     return <div className="offer-view">
         <h2><span className="dimmed">DEX offer</span> {offerId}</h2>
-        <OfferDetailsView offer={offer}/>
+        <OfferDetailsView offer={offer} metadata={metadata}/>
     </div>
 }

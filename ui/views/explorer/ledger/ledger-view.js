@@ -1,8 +1,20 @@
-import React from 'react'
-import {BlockSelect, Amount, UtcTimestamp, InfoTooltip as Info, useDependantState, formatExplorerLink, loadLedger} from '@stellar-expert/ui-framework'
-import appSettings from '../../../app-settings'
+import React, {useEffect, useState} from 'react'
+import {
+    BlockSelect,
+    Amount,
+    UtcTimestamp,
+    InfoTooltip as Info,
+    useDependantState,
+    formatExplorerLink,
+    loadLedger,
+    setPageMetadata
+} from '@stellar-expert/ui-framework'
+import {formatDateUTC, formatWithPrecision, fromStroops} from '@stellar-expert/formatter'
 import {resolvePath} from '../../../business-logic/path'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
+import appSettings from '../../../app-settings'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import Transactions from './ledger-transactions-view'
@@ -17,10 +29,6 @@ function formatTransactionsCount(ledger) {
 export default function LedgerView({match}) {
     const sequence = parseInt(match.params.sequence, 10) || 0
     const [{ledger, error}, setState] = useDependantState(() => {
-        setPageMetadata({
-            title: `Ledger ${sequence} on Stellar ${appSettings.activeNetwork} network`,
-            description: `Extensive blockchain information for the ledger ${sequence} on Stellar ${appSettings.activeNetwork} network.`
-        })
         loadLedger(sequence)
             .then(ledger => setState({ledger, error: null}))
             .catch(err => {
@@ -38,6 +46,34 @@ export default function LedgerView({match}) {
 
         return {ledger: null, error: null}
     }, [sequence])
+    const [metadata, setMetadata] = useState({
+        title: `Ledger ${sequence} on Stellar ${appSettings.activeNetwork} network`,
+        description: `Extensive blockchain information for the ledger ${sequence} on Stellar ${appSettings.activeNetwork} network.`
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        if (!ledger)
+            return
+        const infoList = [
+            {name: 'Base Fee', value: `${formatWithPrecision(fromStroops(ledger.base_fee_in_stroops))} XLM`},
+            {name: 'Fee Pool', value: `${formatWithPrecision(fromStroops(ledger.fee_pool))} XLM`},
+            {name: 'Protocol version', value: ledger.protocol_version}
+        ]
+        if (ledger.operation_count > 0) {
+            infoList.unshift({
+                name: 'Transactions',
+                value: ledger.successful_transaction_count + ` (${ledger.operation_count} operations)`
+            })
+        }
+        previewUrlCreator(prepareMetadata({
+            title: `Ledger ${sequence}`,
+            description: `Transactions block produced at ${formatDateUTC(ledger.closed_at)} UTC`,
+            infoList
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [ledger])
 
 
     if (error) return <ErrorNotificationBlock>{error}</ErrorNotificationBlock>

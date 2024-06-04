@@ -1,8 +1,23 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
 
-export default function SorobanGeneralStatsView() {
+export default function SorobanGeneralStatsView({updateMeta}) {
     const {loaded, data} = useExplorerApi('contract-stats')
+
+    useEffect(() => {
+        if (!data)
+            return
+        updateMeta({
+            description: 'Soroban network stats',
+            infoList: [
+                {name: 'Total contracts deployed', value: data.wasm + data.sac},
+                {name: 'SAC contracts', value: data.sac},
+                {name: 'Smart contracts', value: data.wasm},
+                {name: 'Payments', value: data.payments}
+            ]
+        })
+    }, [data, updateMeta])
+
     if (!loaded)
         return <div className="loader"/>
     return <div className="segment blank">

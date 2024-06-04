@@ -1,14 +1,27 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import {useParams} from 'react-router'
 import {StrKey} from '@stellar/stellar-base'
-import {BlockSelect, AccountAddress, InfoTooltip as Info, useDirectory, parseMuxedAccount} from '@stellar-expert/ui-framework'
+import {
+    BlockSelect,
+    AccountAddress,
+    InfoTooltip as Info,
+    useDirectory,
+    parseMuxedAccount,
+    setPageMetadata
+} from '@stellar-expert/ui-framework'
+import {fetchExplorerApi} from '@stellar-expert/ui-framework/api/explorer-api-call'
+import {ExplorerBatchInfoLoader} from '@stellar-expert/ui-framework/api/explorer-batch-info-loader'
+import {formatDateUTC} from '@stellar-expert/formatter'
+import {stringifyQuery} from '@stellar-expert/navigation'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import AccountQrCodeToggle from '../../components/account-qr-code-toggle'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
 import {useCompositeAccountInfo} from '../../../business-logic/api/account-api'
 import {useGithubOAuth} from '../../../business-logic/oauth/oauth-hooks'
 import {isDirectoryAdmin} from '../../directory/is-directory-admin'
+import checkPageReadiness from '../../../util/page-readiness'
 import AccountInfoView from './account-info-view'
 import AccountDirectoryInfoView from './account-directory-info-view'
 
@@ -28,6 +41,12 @@ function AccountDirectoryActionView({address}) {
     }
     return <a href={link} className="trigger icon icon-attach" target="_blank" title={title}/>
 }
+
+const infoLoader = new ExplorerBatchInfoLoader(batch => {
+    return fetchExplorerApi('directory' + stringifyQuery({address: batch}))
+}, entry => {
+    return {key: entry.address, info: entry}
+})
 
 export default function AccountView() {
     let {id: address} = useParams()
@@ -50,6 +69,29 @@ export default function AccountView() {
         </div>
 
     const {loaded, data: accountInfo} = useCompositeAccountInfo(address, muxedId)
+    const [metadata, setMetadata] = useState({
+        title: `Account ${address}`,
+        description: `Explore properties, balance, active offers, and full operations history for account ${address} on Stellar Network.`
+    })
+
+    useEffect(() => {
+        if (!accountInfo || metadata.facebookImage)
+            return
+        infoLoader.loadEntry(address)
+            .then(info => {
+                previewUrlCreator(prepareMetadata({
+                    account: {address, info},
+                    infoList: [
+                        {name: 'Total payments', value: accountInfo.payments},
+                        {name: 'Total trades', value: accountInfo.trades},
+                        {name: 'Last year activity', value: accountInfo.activity.yearly},
+                        {name: 'Last month activity', value: accountInfo.activity.monthly},
+                        {name: 'Created', value: formatDateUTC(accountInfo.created) + ' UTC'}
+                    ]
+                }))
+                    .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+            })
+    }, [accountInfo])
 
     if (!loaded)
         return <div className="loader"/>
@@ -68,10 +110,8 @@ export default function AccountView() {
 
 
     //TODO: provide extended meta info from directory if any
-    setPageMetadata({
-        title: `Account ${address}`,
-        description: `Explore properties, balance, active offers, and full operations history for account ${address} on Stellar Network.`
-    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
 
     return <div className="account-view">
         <h2 className="word-break relative condensed">

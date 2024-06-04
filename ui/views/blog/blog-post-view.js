@@ -1,21 +1,23 @@
 import React from 'react'
 import Markdown from 'markdown-to-jsx'
-import {CodeBlock, useDependantState} from '@stellar-expert/ui-framework'
+import {CodeBlock, useDependantState, setPageMetadata} from '@stellar-expert/ui-framework'
 import blogStorage from './blog-storage'
 import AllPosts from './blog-post-list-view'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {previewUrlCreator} from '../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../util/prepareMetadata'
+import checkPageReadiness from '../../util/page-readiness'
 import './blog.scss'
 
 function BlogImage({postId, title, alt, src}) {
     const img = <img src={blogStorage.resolveImagePath(postId, src)} alt={alt}/>
     if (src.includes('#noalign')) return img
-    return <p className="text-center">
+    return <span className="text-center">
         {img}
         {!!(title || alt) && <>
             <br/>
             <span className="dimmed text-small">{title || alt}</span>
         </>}
-    </p>
+    </span>
 }
 
 function CodeHandler(props) {
@@ -37,11 +39,19 @@ function BlogPostView({match}) {
                     meta[prop.trim()] = value.trim()
                 }
 
-                setPageMetadata({
+                const metadata = {
                     title: meta.title + ' | StellarExpert Blog',
                     description: meta.description,
                     image: blogStorage.resolveImagePath(postId, meta.image, true)
-                })
+                }
+                setPageMetadata(metadata)
+                checkPageReadiness(metadata)
+
+                previewUrlCreator(prepareMetadata({
+                    title: meta.title,
+                    image: metadata.image
+                }))
+                    .then(previewUrl => setPageMetadata({...metadata, facebookImage: previewUrl}))
 
                 updatePost({
                     post: text.replace(/^---\s+.+?---/s, '', ''),

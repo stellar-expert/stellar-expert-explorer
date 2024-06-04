@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {debounce} from 'throttle-debounce'
 import {
     Dropdown,
@@ -8,17 +8,20 @@ import {
     useDeepEffect,
     useForceUpdate,
     useExplorerPaginatedApi,
-    streamTrades
+    streamTrades,
+    setPageMetadata
 } from '@stellar-expert/ui-framework'
 import {formatPrice, formatWithAbbreviation} from '@stellar-expert/formatter'
 import {parseAssetFromObject, AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {navigation} from '@stellar-expert/navigation'
+import {resolvePath} from '../../../business-logic/path'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import GridDataActionsView from '../../components/grid-data-actions'
 import PriceDynamic from '../../components/price-dynamic'
 import AssetSparkLine from '../asset/charts/asset-sparkline-chart-view'
-import {resolvePath} from '../../../business-logic/path'
 
 const orderOptions = [
     {value: 'volume24h', title: 'daily volume'},
@@ -122,13 +125,19 @@ export default function AllMarketsView() {
         defaultQueryParams: {sort: orderOptions[0].value, order: 'desc', type: 'all'}
     })
     const {loaded} = markets
+    const [metadata, setMetadata] = useState({
+        title: `Active DEX markets on Stellar ${appSettings.activeNetwork} network`,
+        description: `Statistics and price dynamic of active markets on Stellar ${appSettings.activeNetwork} decentralized exchange.`
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        previewUrlCreator(prepareMetadata({...metadata, title: 'Active DEX markets'}))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
 
     useDeepEffect(() => {
-        setPageMetadata({
-            title: `Active DEX markets on Stellar ${appSettings.activeNetwork} network`,
-            description: `Statistics and price dynamic of active markets on Stellar ${appSettings.activeNetwork} decentralized exchange.`
-        })
-
         let stopTradesStream
         if (markets?.data?.length) {
             const scheduleTradesUpdate = debounce(400, () => stopTradesStream && forceUpdate())

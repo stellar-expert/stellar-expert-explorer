@@ -1,12 +1,15 @@
-import React, {useCallback} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {useRouteMatch} from 'react-router'
-import {AssetLink, Amount, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
+import {AssetLink, Amount, InfoTooltip as Info, useExplorerApi, setPageMetadata} from '@stellar-expert/ui-framework'
+import {useAssetMeta} from '@stellar-expert/ui-framework/asset/asset-meta-hooks'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import {navigation} from '@stellar-expert/navigation'
-import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {resolvePath} from '../../../business-logic/path'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
+import appSettings from '../../../app-settings'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import MarketPriceChartView from './market-price-chart-view'
 import Orderbook from './orderbook-details-view'
@@ -100,12 +103,36 @@ export default function MarketView() {
     const buying = AssetDescriptor.parse(params.buying)
     const buyingAsset = buying.toString()
     const sellingAsset = selling.toString()
+    const sellingAssetMeta = useAssetMeta(selling)
+    const buyingAssetMeta = useAssetMeta(buying)
     const {loading, error, data} = useExplorerApi(`market/${sellingAsset}/${buyingAsset}`)
 
-    setPageMetadata({
-        title: `Live market data of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} network DEX`,
-        description: `Statistics and price dynamic of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} decentralized exchange.`
+    const [metadata, setMetadata] = useState({
+        title: `Live market data for ${buying?.code}/${selling?.code} trading pair on Stellar ${appSettings.activeNetwork} network DEX`,
+        description: `Statistics and price dynamic for ${buying?.code}/${selling?.code} trading pair on Stellar ${appSettings.activeNetwork} decentralized exchange.`
     })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        if (!data || !sellingAssetMeta || !buyingAssetMeta)
+            return
+        const infoList = [
+            {'name': 'Base asset', value: buyingAssetMeta, type: 'asset'},
+            {'name': 'Quote asset', value: sellingAssetMeta, type: 'asset'},
+            {'name': 'Total trades', value: formatWithPrecision(data.trades)},
+            {'name': '24h trades', value: formatWithPrecision(data.trades24h)}
+        ]
+        if (data.slippage >= 0) {
+            infoList.push({'name': 'Slippage resilience', value: data.slippage * 100 + '%'})
+        }
+        const preparedMetadata = prepareMetadata({
+            title: `Live DEX trading data for ${buying?.code}/${selling?.code}`,
+            infoList
+        })
+        previewUrlCreator(prepareMetadata(preparedMetadata))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [data, sellingAssetMeta, buyingAssetMeta])
 
     const reverse = useCallback(function () {
         navigation.navigate(resolvePath(`market/${buyingAsset}/${sellingAsset}/`))

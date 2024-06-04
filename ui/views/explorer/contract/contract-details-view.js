@@ -13,7 +13,7 @@ export default function ContractDetailsView({contract}) {
             <dt>Creator:</dt>
             <dd><AccountAddress account={contract.creator}/></dd>
             <dt>Created:</dt>
-            <dd><UtcTimestamp date={contract.created}/></dd>
+            <dd><UtcTimestamp date={contract.created || 0}/></dd>
             {contract.payments > 0 && <>
                 <dt>Payments:</dt>
                 <dd>{contract.payments}</dd>

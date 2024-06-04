@@ -1,9 +1,10 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {Amount, UpdateHighlighter, useDependantState, streamLedgers, loadLedgers} from '@stellar-expert/ui-framework'
-import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
+import {fromStroops} from '@stellar-expert/formatter'
 import {resolvePath} from '../../../business-logic/path'
+import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 
-export default function LedgerActivityView({title, className}) {
+export default function LedgerActivityView({title, updateMeta, className}) {
     let ledgersStream
     let unmounted
     const [
@@ -38,6 +39,19 @@ export default function LedgerActivityView({title, className}) {
         }
     })
 
+    useEffect(() => {
+        if (!updateMeta || !protocol || !timeDelta || !baseFee || !baseReserve)
+            return
+        updateMeta({
+            description: 'General network stats',
+            infoList: [
+                {name: 'Ledger closing time', value: timeDelta + 's'},
+                {name: 'Protocol version', value: protocol},
+                {name: 'Base operation fee', value: `${fromStroops(baseFee)} XLM`},
+                {name: 'Base reserve', value: `${fromStroops(baseReserve)} XLM`}
+            ]
+        })
+    }, [protocol, timeDelta, baseFee, baseReserve, updateMeta])
 
     function processLedger(ledger) {
         if (unmounted) return

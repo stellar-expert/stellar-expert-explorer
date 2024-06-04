@@ -1,9 +1,12 @@
-import React from 'react'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import React, {useEffect, useState} from 'react'
+import {setPageMetadata} from '@stellar-expert/ui-framework'
+import {previewUrlCreator} from '../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../util/prepareMetadata'
 import {resolvePath} from '../../business-logic/path'
+import checkPageReadiness from '../../util/page-readiness'
 
 export default function NotFoundView() {
-    setPageMetadata({
+    const [metadata, setMetadata] = useState({
         title: 'Page not found',
         description: 'Sorry, the page you are looking for was not found. Start over from the home page.',
         customMeta: {
@@ -13,6 +16,17 @@ export default function NotFoundView() {
             ]
         }
     })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        previewUrlCreator(prepareMetadata({
+            title: 'Page not found',
+            description: 'Sorry, the page you are looking for was not found.',
+            notFound: true
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
 
     return <div className="row double-space" style={{height: '50vh'}}>
         <div className="column column-33 column-offset-34 column-center text-center">

@@ -1,7 +1,10 @@
-import React, {useState} from 'react'
-import {Button, useDirectoryTags} from '@stellar-expert/ui-framework'
+import React, {useEffect, useState} from 'react'
+import {Button, useDirectoryTags, setPageMetadata} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
+import {previewUrlCreator} from '../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../util/prepareMetadata'
+import checkPageReadiness from '../../util/page-readiness'
 import {isDirectoryAdmin} from './is-directory-admin'
 import {apiCall} from '../../models/api'
 
@@ -18,6 +21,17 @@ export default function DirectoryBlockDomainView() {
         [error, setError] = useState(null),
         [githubUser, githubApiProvider] = useGithubOAuth(),
         isAdmin = isDirectoryAdmin(githubUser)
+    const [metadata, setMetadata] = useState({
+        title: 'Add domain to block-list',
+        description: 'Request form for blocking malicious domains.'
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        previewUrlCreator(prepareMetadata(metadata))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
 
 
     async function saveEntry() {

@@ -42,7 +42,7 @@ export default function DirectoryChangesHistoryView({address, changesHistory}) {
             </tr>
             </thead>
             <tbody>
-            {changesHistory.map(ch => {
+            {changesHistory?.map(ch => {
                 const diff = findDifference(prevState, ch)
                 prevState = ch
                 return <tr>

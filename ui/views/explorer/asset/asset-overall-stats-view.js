@@ -1,12 +1,28 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {Amount, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import {useAssetOverallStats} from '../../../business-logic/api/asset-api'
 import {use24hLedgerStats} from '../../../business-logic/api/ledger-stats-api'
 
-export default function AssetsOverallStatsView() {
+export default function AssetsOverallStatsView({updateMeta}) {
     const {data: assetStats, loaded: assetStatsLoaded} = useAssetOverallStats()
     const {data: ledgerStats, loaded: ledgerStatsLoaded} = use24hLedgerStats()
+
+    useEffect(() => {
+        if (assetStats && ledgerStats && updateMeta) {
+            const circulationXLM = parseFloat(ledgerStats.total_xlm) - parseFloat(ledgerStats.reserve) - parseFloat(ledgerStats.fee_pool)
+            updateMeta([
+                {name: 'Unique assets', value: formatWithPrecision(assetStats.total_assets)},
+                {name: 'Overall payments', value: formatWithPrecision(assetStats.payments)},
+                {name: 'Overall DEX trades', value: formatWithPrecision(assetStats.trades)},
+                {name: 'Overall DEX volume', value: `${formatWithPrecision(assetStats.volume)} USD`},
+                {name: 'XLM in circulation', value: `${formatWithPrecision(circulationXLM)} XLM`},
+                {name: 'XLM reserved', value: `${formatWithPrecision(ledgerStats.reserve)} XLM`},
+                {name: 'XLM fee pool', value: `${formatWithPrecision(ledgerStats.fee_pool)} XLM`}
+            ])
+        }
+    }, [updateMeta, ledgerStats, assetStats])
+
     return <dl>
         {assetStatsLoaded ? <>
             <dt>Unique assets:</dt>
@@ -35,7 +51,7 @@ export default function AssetsOverallStatsView() {
             <dt>XLM in circulation:</dt>
             <dd>
                 <Amount amount={parseFloat(ledgerStats.total_xlm) - parseFloat(ledgerStats.reserve) - parseFloat(ledgerStats.fee_pool)}
-                    asset="XLM" round adjust issuer={false}/>
+                        asset="XLM" round adjust issuer={false}/>
                 <Info link="https://www.stellar.org/developers/guides/lumen-supply-metrics.html">Total number of
                     lumens in circulation.
                 </Info>

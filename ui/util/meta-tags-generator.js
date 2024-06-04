@@ -55,16 +55,12 @@ function generateOpenGraphMeta({description, title, image}) {
         {name: 'og:url', content: getCanonicalUrl()},
         {name: 'og:site_name', content: formatPageTitle(serviceTitle)},
         {name: 'og:description', content: description},
-        {name: 'og:type', content: 'website'}
+        {name: 'og:type', content: 'website'},
+        {name: 'og:image:type', content: 'image/png'},
+        {name: 'og:image:width', content: 1200},
+        {name: 'og:image:height', content: 630},
+        {name: 'og:image', content: image || facebookSocial}
     ]
-    if (image) {
-        tags.push({name: 'og:image', content: image})
-    } else {
-        tags = tags.concat([
-            {name: 'og:image', content: facebookSocial},
-            {name: 'og:image:width', content: 1200},
-            {name: 'og:image:height', content: 630}])
-    }
     return {
         locator: 'property',
         tags

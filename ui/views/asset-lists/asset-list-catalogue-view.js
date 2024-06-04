@@ -1,7 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Accordion, CodeBlock} from '@stellar-expert/ui-framework'
+import {Accordion, CodeBlock, setPageMetadata} from '@stellar-expert/ui-framework'
 import {fetchAvailableAssetLists} from '@stellar-asset-lists/sdk'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {previewUrlCreator} from '../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../util/prepareMetadata'
+import checkPageReadiness from '../../util/page-readiness'
 import AssetListDetailsView from './asset-list-details-view'
 import './asset-lists.scss'
 
@@ -19,21 +21,24 @@ export default function AssetListCatalogueView() {
     const [catalogue, setCatalogue] = useState()
     const [search, setSearch] = useState('')
     const filteredLists = catalogue?.filter(list => list.name.toLowerCase().includes(search.toLowerCase()))
+    const [metadata, setMetadata] = useState({
+        title: 'Catalogue of Stellar asset lists',
+        description: 'Community-managed catalogue of SEP-42 Stellar asset lists provided by ecosystem organizations.'
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
 
     useEffect(() => {
         fetchAvailableAssetLists()
             .then(catalogue => setCatalogue(catalogue))
             .catch(e => console.error(e))
+        previewUrlCreator(prepareMetadata(metadata))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
     }, [])
 
     const updateSearch = useCallback(e => {
         setSearch(e.target.value)
     }, [])
-
-    setPageMetadata({
-        title: 'Catalogue of Stellar asset lists',
-        description: 'Community-managed catalogue of SEP-42 Stellar asset lists provided by ecosystem organizations.'
-    })
 
     return <div>
         <h2>Community-managed catalogue of Stellar asset lists</h2>

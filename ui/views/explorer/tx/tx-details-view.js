@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import {
     BlockSelect,
     AccountAddress,
@@ -6,11 +6,16 @@ import {
     UtcTimestamp,
     InfoTooltip as Info,
     TxOperationsList,
-    parseTxDetails, withErrorBoundary
+    parseTxDetails,
+    withErrorBoundary,
+    setPageMetadata
 } from '@stellar-expert/ui-framework'
-import {shortenString} from '@stellar-expert/formatter'
+import {formatDateUTC, fromStroops, shortenString} from '@stellar-expert/formatter'
 import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import TxSignaturesView from './tx-signatures-view'
 import TxMemoView from './tx-memo-view'
 import TxHeaderView from './tx-header-view'
@@ -21,7 +26,7 @@ import TxPreconditionsView from './tx-preconditions-view'
  * @param {Boolean} embedded
  * @return {JSX.Element}
  */
-export default withErrorBoundary(function TxDetailsView({tx, embedded}) {
+export default withErrorBoundary(function TxDetailsView({tx, embedded, metadata}) {
     const parsedTx = parseTxDetails({
         network: appSettings.networkPassphrase,
         txEnvelope: tx.body,
@@ -41,6 +46,23 @@ export default withErrorBoundary(function TxDetailsView({tx, embedded}) {
     const source = transaction.source
     const memo = transaction.memo
     const feeEffect = parsedTx.effects.find(e => e.type === 'feeCharged')
+    const preparedMetadata = prepareMetadata({
+        title: `Transaction ${tx.id}`,
+        description: tx.hash,
+        infoList: [
+            {name: 'Status', value: parsedTx.successful ? 'Successful' : 'Failed'},
+            {name: 'Ledger', value: tx.ledger},
+            {name: 'Sequence Number', value: transaction.sequence},
+            {name: 'Processed', value: `${formatDateUTC(tx.ts)} UTC`},
+            {name: 'Fee Charged', value: `${fromStroops(feeEffect.charged)} XLM`},
+        ]
+    })
+    previewUrlCreator(preparedMetadata)
+        .then(previewUrl => {
+            setPageMetadata({...metadata, facebookImage: previewUrl})
+            checkPageReadiness({...metadata, facebookImage: previewUrl})
+        })
+
     return <>
         <TxHeaderView tx={tx} embedded={embedded}/>
         <div className="segment blank">

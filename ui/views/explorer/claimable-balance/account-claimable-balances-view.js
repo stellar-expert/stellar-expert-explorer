@@ -8,8 +8,12 @@ import {
     formatExplorerLink,
     fetchData,
     getCurrentStellarNetwork,
-    withErrorBoundary
+    withErrorBoundary,
+    setPageMetadata
 } from '@stellar-expert/ui-framework'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import AccountClaimableBalanceRowView from './account-claimable-balance-row-view'
 
 function useClaimableBalances(account, limit) {
@@ -72,6 +76,22 @@ export function AccountClaimableBalancesSection({address}) {
 export default withErrorBoundary(function AccountClaimableBalancesView() {
     const {id: address} = useParams()
     const cbResponse = useClaimableBalances(address, 40)
+    const [metadata, setMetadata] = useState({
+        title: `Pending Claimable Balances for ${address}`,
+        description: `Pending Claimable Balances for account ${address} on Stellar Network`
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        const type = address.startsWith('C') ? 'Contract' : 'Account'
+        previewUrlCreator(prepareMetadata({
+            title: `Pending Claimable Balances`,
+            description: `${type} ${address}`
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
+
     if (!cbResponse.data)
         return <div className="loader"/>
     return <>

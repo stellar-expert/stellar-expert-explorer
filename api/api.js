@@ -40,6 +40,7 @@
     require('./api/routes/demolisher-routes')(app)
     require('./api/routes/asset-list-routes')(app)
     require('./api/routes/server-info-routes')(app)
+    require('./api/routes/metadata-routes')(app)
 
     // error handler
     app.use((err, req, res, next) => {

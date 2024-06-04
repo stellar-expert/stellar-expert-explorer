@@ -1,9 +1,12 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import {useRouteMatch} from 'react-router'
-import {Amount, AssetLink, UtcTimestamp, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
-import {formatWithAutoPrecision} from '@stellar-expert/formatter'
+import {Amount, AssetLink, UtcTimestamp, InfoTooltip as Info, useExplorerApi, setPageMetadata} from '@stellar-expert/ui-framework'
+import {useAssetMeta} from '@stellar-expert/ui-framework/asset/asset-meta-hooks'
+import {formatDateUTC, formatWithAutoPrecision, fromStroops} from '@stellar-expert/formatter'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import appSettings from '../../../app-settings'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import LiquidityPoolTvlChartView from './liquidity-pool-tvl-chart-view'
@@ -22,11 +25,37 @@ function MultiAmount({amount, asset}) {
 function PoolSummaryView({poolInfo}) {
     if (!poolInfo) return <div className="loader"/>
     const [assetA, assetB] = poolInfo.assets.map(a => AssetDescriptor.parse(a.asset))
+    const AssetAMeta = useAssetMeta(assetA)
+    const AssetBMeta = useAssetMeta(assetB)
 
-    setPageMetadata({
+    const [metadata, setMetadata] = useState({
         title: `${assetB.toString()}/${assetA.toString()} liquidity pool on Stellar ${appSettings.activeNetwork} network`,
         description: `Statistics and analytics of ${assetB.toString()}/${assetA.toString()} liquidity pool on Stellar ${appSettings.activeNetwork} decentralized exchange.`
     })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        if (!AssetAMeta || !AssetBMeta)
+            return null
+        const infoList = [
+            {'name': 'Pool asset', value: AssetBMeta, type: 'asset'},
+            {'name': 'Pool asset', value: AssetAMeta, type: 'asset'},
+            {'name': 'Total value locked', value: `~${formatWithAutoPrecision(fromStroops(poolInfo.total_value_locked))} USD`},
+            {'name': 'Pool type', value: 'ConstantProduct'},
+            {'name': 'Pool fee', value: `${poolInfo.fee / 100}%`},
+            {'name': 'Created', value: formatDateUTC(poolInfo.created)},
+            {'name': 'Participants', value: formatWithAutoPrecision(poolInfo.accounts)},
+            {'name': 'Trades', value: formatWithAutoPrecision(poolInfo.trades)},
+        ]
+        previewUrlCreator(prepareMetadata({
+            title: `${assetB?.code}/${assetA?.code} liquidity pool`,
+            infoAssets: true,
+            infoList
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [AssetBMeta, AssetAMeta])
+
     return <>
         <div className="row">
             <div className="column column-50">

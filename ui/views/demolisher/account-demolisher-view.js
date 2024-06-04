@@ -1,14 +1,26 @@
 import React, {useEffect, useState} from 'react'
 import {StrKey, Keypair} from '@stellar/stellar-base'
 import {inspectAccountSigners} from '@stellar-expert/tx-signers-inspector'
-import {AccountAddress, Button, getDirectoryEntry} from '@stellar-expert/ui-framework'
+import {AccountAddress, Button, getDirectoryEntry, setPageMetadata} from '@stellar-expert/ui-framework'
+import {previewUrlCreator} from '../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../util/prepareMetadata'
+import checkPageReadiness from '../../util/page-readiness'
 import appSettings from '../../app-settings'
 import Demolisher from '../../business-logic/demolisher/demolisher-tx-builder'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 
 function filterInvalidKeyChars(value) {
     return value.replace(/\W/g, '')
 }
+
+const benefits = [
+    'Automatically closes open offers.',
+    'Automatically sells owned assets on Stellar DEX at market price.',
+    'Automatically removes trustlines, returning all unsold assets to the issuers.',
+    'Automatically removes existing data entries.',
+    'Allows merging directly to exchanges and other destinations that do not support merge operations out of the box.',
+    'Works with multisig accounts.',
+    'Absolutely free, you pay only for transaction fees.'
+]
 
 export default function AccountDemolisherView() {
     const [status, setStatus] = useState('')
@@ -19,13 +31,22 @@ export default function AccountDemolisherView() {
     const [destination, setDestination] = useState('')
     const [memo, setMemo] = useState('')
     const [signers, setSigners] = useState([])
+    const [metadata, setMetadata] = useState({
+        title: 'Account demolisher for Stellar XLM accounts',
+        description: 'Automatic Stellar accounts merge for exchanges. Removes trustlines, open offers, and data entries.'
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
 
     useEffect(() => {
-        setPageMetadata({
-            title: `Account demolisher for Stellar XLM accounts`,
-            description: `Automatic Stellar accounts merge for exchanges. Removes trustlines, open offers, and data entries.`
-        })
-    })
+        let infoList = benefits.filter(b => b.length < 65).map(b => ({icon: '•', value: b}))
+        previewUrlCreator(prepareMetadata({
+            title: 'Account demolisher',
+            description: 'Automatic Stellar accounts merge for exchanges.',
+            infoList
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
 
     function resetError() {
         setErrors(null)
@@ -194,15 +215,7 @@ export default function AccountDemolisherView() {
                 This tool provides a straightforward way to merge Stellar accounts automatically.
             </p>
             <ul className="list checked space">
-                <li>Automatically closes open offers.</li>
-                <li>Automatically sells owned assets on Stellar DEX at market price.</li>
-                <li>Automatically removes trustlines, returning all unsold assets to the issuers.</li>
-                <li>Automatically removes existing data entries.</li>
-                <li>Allows merging directly to exchanges and other destinations that do not support merge
-                    operations out of the box.
-                </li>
-                <li>Works with multisig accounts.</li>
-                <li>Absolutely free, you pay only for transaction fees.</li>
+                {benefits.map((entry, i) => <li key={i}>{entry}</li>)}
             </ul>
         </div>
         <div className="space segment blank">

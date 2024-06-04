@@ -1,18 +1,29 @@
-import React, {useEffect} from 'react'
-import {useDependantState} from '@stellar-expert/ui-framework'
+import React, {useEffect, useState} from 'react'
+import {useDependantState, setPageMetadata} from '@stellar-expert/ui-framework'
 import {navigation, parseQuery} from '@stellar-expert/navigation'
+import {previewUrlCreator} from '../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../util/prepareMetadata'
+import checkPageReadiness from '../../util/page-readiness'
 import DirectoryEntryPropsView from './directory-entry-props-view'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 
 export default function DirectoryAddNewEntryView() {
     const {address: addressFromQuery} = parseQuery()
     const [requestedAddress] = useDependantState(() => addressFromQuery || null, [addressFromQuery])
+    const [metadata, setMetadata] = useState({
+        title: 'Request address listing in StellarExpert Directory',
+        description: 'Request address listing | Provide account address, organization domain name, title, and tags.'
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
     useEffect(() => {
-        setPageMetadata({
-            title: `Request address listing in StellarExpert Directory`,
-            description: `Request address listing | Provide account address, organization domain name, title, and tags`
-        })
+        previewUrlCreator(prepareMetadata({
+            title: 'Request address listing',
+            description: 'Provide account address, organization domain name, title, and tags.'
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
     }, [])
+
     return <>
         <div className="desktop-only text-small" style={{float: 'right', paddingTop: '1em'}}>
             <a href="/directory">Back to Directory</a>

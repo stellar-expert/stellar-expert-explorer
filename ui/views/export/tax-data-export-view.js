@@ -1,19 +1,26 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {StrKey} from '@stellar/stellar-base'
-import {Dropdown, Button} from '@stellar-expert/ui-framework'
+import {Dropdown, Button, setPageMetadata} from '@stellar-expert/ui-framework'
 import TaxInfoExporter from '../../business-logic/tax-info-exporter'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {previewUrlCreator} from '../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../util/prepareMetadata'
+import checkPageReadiness from '../../util/page-readiness'
 
 const yearOptions = []
 for (let i = new Date().getFullYear(); i >= 2016; i--) {
     yearOptions.push({value: i, title: i.toString()})
 }
 
+const taxDataExportList = [
+    'BitcoinTax-compatible data export format.',
+    'Separate export files for income, spending, and trades.',
+    'Inflation payouts classified as "mining" profits.',
+    'All dates are represented as UTC timestamps.',
+    'Optional transaction fees export.',
+    'Fully anonymous and free of charge.'
+]
+
 export default function TaxDataExportView() {
-    setPageMetadata({
-        title: `Tax data export for Stellar network`,
-        description: `Free payments and trades tax data export for Stellar network in BitcoinTax-compatible format.`
-    })
     const [pk, setPk] = useState('')
     const [year, setYear] = useState(new Date().getFullYear() - 1)
     const [exportFees, setExportFees] = useState(false)
@@ -25,6 +32,21 @@ export default function TaxDataExportView() {
     const [errors, setErrors] = useState(null)
     const [files, setFiles] = useState(null)
     const isValid = !!pk && StrKey.isValidEd25519PublicKey(pk)
+    const [metadata, setMetadata] = useState({
+        title: `Tax data export for Stellar network`,
+        description: `Free payments and trades tax data export for Stellar network in BitcoinTax-compatible format.`
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        const infoList = taxDataExportList.map(b => ({icon: '•', value: b}))
+        previewUrlCreator(prepareMetadata({
+            title: 'Tax data export',
+            infoList
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
 
     const setPublicKey = useCallback(e => setPk(e.target.value.trim()), [])
     const toggleExportIncomingPayments = useCallback(() => setExportIncomingPayments(!exportFees), [exportIncomingPayments])
@@ -63,12 +85,7 @@ export default function TaxDataExportView() {
         <h2>Tax Data Export</h2>
         <div className="segment blank">
             <ul className="list checked space">
-                <li>BitcoinTax-compatible data export format.</li>
-                <li>Separate export files for income, spending, and trades.</li>
-                <li>Inflation payouts classified as "mining" profits.</li>
-                <li>All dates are represented as UTC timestamps.</li>
-                <li>Optional transaction fees export.</li>
-                <li>Fully anonymous and free of charge.</li>
+                {taxDataExportList.map((entry, i) => <li key={i}>{entry}</li>)}
             </ul>
             <div className="dimmed text-tiny">
                 <i className="icon-info"/> The service is free and provided as-is, without warranties. The responsibility of checking the

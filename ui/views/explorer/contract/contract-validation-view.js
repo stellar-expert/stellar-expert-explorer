@@ -1,19 +1,32 @@
-import React, {useCallback, useRef, useState} from 'react'
-import {AccountAddress, Button, formatExplorerLink} from '@stellar-expert/ui-framework'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
+import {AccountAddress, Button, formatExplorerLink, setPageMetadata} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import {useParams} from 'react-router'
 import {useContractInfo} from '../../../business-logic/api/contract-api'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
 import {apiCall} from '../../../models/api'
+import checkPageReadiness from '../../../util/page-readiness'
 import TurnstileCaptcha from '../../components/turnstile-captcha'
 import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 
 export default function ContractValidationView() {
     const {id: address} = useParams()
-    setPageMetadata({
+    const [metadata, setMetadata] = useState({
         title: `Contract Validation ${address}`,
         description: `Submit source code validation request for the contract ${address}.`
     })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        previewUrlCreator(prepareMetadata({
+            title: `Contract Validation`,
+            description: `Contract source code validation request for contracts.`
+        }))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
+
     return <div>
         <h2 className="condensed word-break">
             <span className="dimmed">Contract Code Validation</span> <AccountAddress account={address} chars="all"/>

@@ -1,4 +1,8 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
+import {setPageMetadata} from '@stellar-expert/ui-framework'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import SearchBoxView from './search-box-view'
 
 function SearchExample({term, children}) {
@@ -11,6 +15,18 @@ function SearchExample({term, children}) {
 }
 
 export default function DedicatedSearchBoxView() {
+    const [metadata, setMetadata] = useState({
+        title: 'Search in StellarExpert',
+        description: 'Search for any information on Stellar Network: tokens, accounts, ledgers, transactions, operations, offers, markets, and more.'
+    })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        previewUrlCreator(prepareMetadata({title: metadata.title}))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
+
     return <div className="container narrow">
         <h2>Search</h2>
         <div className="segment blank">
@@ -22,7 +38,7 @@ export default function DedicatedSearchBoxView() {
             <SearchBoxView shrinkable={false} className="primary"/>
             <p className="text-small dimmed text-center">
                 for example, try typing <SearchExample term="USD">USD</SearchExample>,
-                <SearchExample term="4651470">4651470</SearchExample>, or
+                <SearchExample term="4651470">4651470</SearchExample>, or&nbsp;
                 <SearchExample term="GA5XIGA5C7QTPTWXQHY6MCJRMTRZDOSHR6EFIBNDQTCQHG262N4GGKTM">GA5X...GKTM</SearchExample>
             </p>
             <div className="double-space"/>

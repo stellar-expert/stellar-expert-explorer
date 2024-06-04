@@ -1,17 +1,27 @@
-import React, {useMemo} from 'react'
-import {Amount, UtcTimestamp, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
+import React, {useEffect, useMemo, useState} from 'react'
+import {Amount, UtcTimestamp, InfoTooltip as Info, useExplorerApi, setPageMetadata} from '@stellar-expert/ui-framework'
+import {previewUrlCreator} from '../../../business-logic/api/metadata-api'
+import {prepareMetadata} from '../../../util/prepareMetadata'
+import checkPageReadiness from '../../../util/page-readiness'
 import config from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {StagedSorobanParamsUpdate} from './staged-soroban-config-changes-link-view'
 import {applySorobanConfigChanges} from './soroban-config-changes-tracker'
 import {SorobanConfigChangesView} from './soroban-config-changes-view'
 
 export default function ProtocolHistoryView() {
     const {data, loaded} = useExplorerApi('ledger/protocol-history')
-    setPageMetadata({
+    const [metadata, setMetadata] = useState({
         title: `Protocol upgrades history of Stellar ${config.activeNetwork} network`,
         description: `All protocol upgrades of the Stellar ${config.activeNetwork} network.`
     })
+    setPageMetadata(metadata)
+    checkPageReadiness(metadata)
+
+    useEffect(() => {
+        previewUrlCreator(prepareMetadata({...metadata, title: 'Protocol upgrades history'}))
+            .then(previewUrl => setMetadata(prev => ({...prev, facebookImage: previewUrl})))
+    }, [])
+
     const processedData = useMemo(() => applySorobanConfigChanges(data), [data])
     if (!loaded)
         return <div className="loader"/>
