@@ -443,6 +443,7 @@ class TxQuery {
             hash: tx.hash.toString('hex'),
             ledger: ledger._id,
             ts: ledger.ts,
+            protocol: ledger.version,
             body: tx.body.toString('base64'),
             meta: tx.meta.toString('base64'),
             result: tx.result.toString('base64')

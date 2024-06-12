@@ -28,7 +28,8 @@ export default withErrorBoundary(function TxDetailsView({tx, embedded}) {
         result: tx.result,
         meta: tx.meta,
         createdAt: tx.ts,
-        context: {}
+        context: {},
+        protocol: tx.protocol
     })
     let feeSource
     let {tx: transaction} = parsedTx
