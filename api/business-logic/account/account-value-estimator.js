@@ -23,7 +23,7 @@ async function estimateAccountValue(network, account, currency = 'USD') {
         total: trustlines.concat(pool_stakes).reduce((prev, current) => {
             let {value} = current
             if (typeof value !== 'number') {
-                if (value.isZero())
+                if (value === '0' || !value || value.isZero())
                     return prev
                 value = value.toBigInt()
             } else {

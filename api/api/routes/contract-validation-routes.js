@@ -5,7 +5,7 @@ const {validateContract, validateContractCallback, enqueueValidation} = require(
 apiCache.createBucket('contract-validation', 5000, '5 minutes')
 
 module.exports = function (app) {
-    registerRoute(app,
+    /*registerRoute(app,
         'contract-validation/match',
         {method: 'post'},
         req => enqueueValidation(req.params.network, req.body, req.ip))
@@ -13,7 +13,7 @@ module.exports = function (app) {
     registerRoute(app,
         'contract-validation/validate',
         {method: 'post'},
-        req => validateContract(req.params.network, req))
+        req => validateContract(req.params.network, req))*/
 
     registerRoute(app,
         'contract-validation/confirm/:uid',

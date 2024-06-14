@@ -114,28 +114,23 @@ async function validateContractCallback(network, callbackParams, uid) {
 }
 
 async function getValidationStatus(network, hash) {
-    const {validation, source, sourceUpdated} = await fetchCodeValidationDetails(network, hash)
-    if (source)
+    const match = await fetchCodeValidationDetails(network, hash)
+    if (match) {
+        const {_id, created, ...props} = match
         return {
+            //hash: match._id.buffer.toString('hex'),
             status: 'verified',
-            source,
-            ts: sourceUpdated
+            ...props,
+            ts: created
         }
-    //check if the validation is in progress
-    if (!validation || (validation.ts + 4 * timeUnits.hour / 1000 < unixNow())) //skip stale validation request details
-        return {status: 'unverified'}
-
-    return {
-        status: validation.status,
-        possibleSource: validation.source,
-        ts: validation.ts
     }
+    return {status: 'unverified'}
 }
 
 async function fetchCodeValidationDetails(network, hash) {
     return await db[network]
-        .collection('contract_code')
-        .findOne({_id: hash}, {projection: {validation: 1, source: 1, sourceUpdated: 1}})
+        .collection('contract_code_source')
+        .findOne({_id: hash})
 }
 
 function validateSourceLink(source) {
@@ -251,7 +246,7 @@ async function enqueueValidation(network, data, from) {
         await db[network]
             .collection('code_validation_queue')
             .insertOne(data)
-        return {ok:1}
+        return {ok: 1}
     }
 }
 

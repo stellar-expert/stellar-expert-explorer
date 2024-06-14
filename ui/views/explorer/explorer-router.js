@@ -7,7 +7,7 @@ import AssetsDashboard from './asset/assets-dashboard-view'
 import Asset from './asset/asset-view'
 import Account from './account/account-view'
 import Contract from './contract/contract-view'
-import ValidateContract from './contract/contract-validation-view'
+import ContractValidationInfo from './contract/contract-validation-view'
 import Ledger from './ledger/ledger-view'
 import Tx from './tx/tx-view'
 import MarketView from './market/market-view'
@@ -22,6 +22,7 @@ import LiquidityPoolView from './liquidity-pool/liquidity-pool-view'
 import AllLiquidityPoolsView from './liquidity-pool/all-liquidity-pools-view'
 import AccountClaimableBalancesView from './claimable-balance/account-claimable-balances-view'
 import ContractDataEntries from './contract/contract-data-entries-view'
+import ContractVersions from './contract/contract-versions-view'
 import StagedSorobanConfigChanges from './protocol/staged-soroban-config-changes-view'
 
 function ExplorerRouter({match}) {
@@ -34,10 +35,11 @@ function ExplorerRouter({match}) {
             <Route path={`${path}/account/:id/claimable-balances`} component={AccountClaimableBalancesView}/>
             <Route path={`${path}/account/:id/storage`} component={ContractDataEntries}/>
             <Route path={`${path}/account/:id`} component={Account}/>
-            <Route path={`${path}/contract/:id/validate`} component={ValidateContract}/>
+            <Route path={`${path}/contract/validation`} component={ContractValidationInfo}/>
             <Route path={`${path}/contract/:id/storage`} component={ContractDataEntries}/>
-            <Route path={`${path}/staged-soroban-config/:id`} component={StagedSorobanConfigChanges}/>
+            <Route path={`${path}/contract/:id/versions`} component={ContractVersions}/>
             <Route path={`${path}/contract/:id`} component={Contract}/>
+            <Route path={`${path}/staged-soroban-config/:id`} component={StagedSorobanConfigChanges}/>
             <Route path={`${path}/tx/:id`} component={Tx}/>
             <Route path={`${path}/market/:selling/:buying`} component={MarketView}/>
             <Route path={`${path}/market/`} component={MarketDashboard}/>

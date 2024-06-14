@@ -1,158 +1,105 @@
-import React, {useCallback, useRef, useState} from 'react'
-import {AccountAddress, Button, formatExplorerLink} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
-import {useParams} from 'react-router'
-import {useContractInfo} from '../../../business-logic/api/contract-api'
-import {apiCall} from '../../../models/api'
-import TurnstileCaptcha from '../../components/turnstile-captcha'
-import appSettings from '../../../app-settings'
+import React from 'react'
+import {CodeBlock} from '@stellar-expert/ui-framework'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 
-export default function ContractValidationView() {
-    const {id: address} = useParams()
+export default function ContractValidationInfoView() {
     setPageMetadata({
-        title: `Contract Validation ${address}`,
-        description: `Submit source code validation request for the contract ${address}.`
+        title: `Contract Code Validation`,
+        description: `Discover how to utilize GitHub Actions workflow to organize compilation and release process of Stellar smart contracts for Soroban WASM runtime with automatic validation.`
     })
-    return <div>
-        <h2 className="condensed word-break">
-            <span className="dimmed">Contract Code Validation</span> <AccountAddress account={address} chars="all"/>
+    return <>
+        <h2 className="condensed">
+            Contract Code Validation
         </h2>
-        <ContractValidationForm address={address}/>
-    </div>
+        <div className="segment blank">
+            <div className="row">
+                <div className="column column-50">
+                    <h3>Automatic code validation</h3>
+                    <p>
+                        Unlike some other smart contracts platforms, Stellar doesn't store the source code of contracts in the blockchain.
+                        So it's quite challenging for users to make sure that a contract they are going to invoke is not malicious
+                        and behaves as advertised. To solve this problem we provide for developers an
+                        automated <a href="https://github.com/stellar-expert/soroban-build-workflow">source code matching toolkit</a> based
+                        on GitHub Actions workflow which provides the ability to establish a trust chain from a smart contract deployed
+                        on Stellar Network to a specific commit in GitHub repository containing source code of this contract.
+                        It streamlines the compilation and release process of smart contracts for Soroban WASM runtime.
+                    </p>
+                    <p>
+                        When triggered, this workflow:
+                    </p>
+                    <ul className="list">
+                        <li>Compiles a smart contract (or multiple contracts) in the repository</li>
+                        <li>Creates an optimized WebAssembly file ready to be deployed to Soroban</li>
+                        <li>Publishes GitHub release with attached build artifacts</li>
+                        <li>Includes SHA256 hashes of complied WASM files into actions output for further verification</li>
+                        <li>Sends binary hash, repository name, and commit to StellarExpert</li>
+                    </ul>
+                    <p>
+                        Upon successful validation, anyone can see the associated Github repository link at StellarExpert and check the
+                        original contract code. Specifically, a particular point-in-time snapshot of the source code used to build
+                        the contract.
+                    </p>
+                </div>
+                <div className="column column-50">
+                    <h3>Setup (for developers)</h3>
+                    <ul className="list">
+                        <li>Create <code>.github/workflows/release.yml</code> workflow file in your repository</li>
+                        <li>Copy-paste basic workflow configuration displayed below</li>
+                        <li>Set <code>relative_path</code> or <code>make_target</code> parameters if needed</li>
+                        <li>Save the workflow configuration file</li>
+                        <li>Push new git tag to the repository to trigger the action</li>
+                        <li>Download compiled contract binary from the "Releases" section</li>
+                        <li>Deploy the contract on Stellar Network</li>
+                        <li>StellarExpert immediately displays the repository link on the contract page</li>
+                    </ul>
+                    <CodeBlock>{exampleSingle}</CodeBlock>
+                    <div className="text-small">
+                        The workflow expects the following inputs:
+                        <ul className="list">
+                            <li>
+                                <code>release_name</code> (required) - release name template (should include a release version variable)
+                            </li>
+                            <li>
+                                <code>package</code> (optional) - package name to build, builds contract in working directory by default
+                            </li>
+                            <li>
+                                <code>relative_path</code> (optional) - relative path to the contract source directory, defaults to the
+                                repository root directory
+                            </li>
+                            <li>
+                                <code>make_target</code> (optional) - make target to invoke, empty by default (useful for contracts
+                                with dependencies that must be built before the main contract)
+                            </li>
+                        </ul>
+                    </div>
+                    <p className="text-small">
+                        For more examples (building multiple contracts, alternative trigger conditions, custom workflow permissions), please
+                        refer to the <a href="https://github.com/stellar-expert/soroban-build-workflow" target="_blank">workflow
+                        documentation</a>.
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+    </>
 }
 
-function ContractValidationForm({address}) {
-    const {loaded, data} = useContractInfo(address)
-    const [sourceLink, setSourceLink] = useState('')
-    const [inProgress, setInProgress] = useState(false)
-    const updateSourceLink = useCallback(e => setSourceLink(e.target.value.trim()), [])
-    const captchaRef = useRef()
-    const requestVerification = useCallback(async function () {
-        const sourceWarning = validateSource(sourceLink)
-        if (sourceWarning)
-            return notify({
-                type: 'warning',
-                message: sourceWarning
-            })
-
-        try {
-            setInProgress(true)
-            //initialize anti-bot challenge
-            const captcha = captchaRef.current
-            captcha.execute()
-            const antiBotToken = await new Promise((resolve, reject) => setTimeout(() => {
-                //retrieve challenge result
-                const token = captcha.getResponse()
-                if (!token) {
-                    notify({
-                        type: 'warning',
-                        message: 'Failed to pass anti-bot verification test'
-                    })
-                    return reject()
-                }
-                //all good, token obtained
-                resolve(token)
-            }, 4000))
-            try {
-                const validationStatus = await apiCall(`contract-validation/validate`, {
-                    contract: address,
-                    source: sourceLink,
-                    antiBotToken
-                }, {method: 'POST'})
-                if (validationStatus.status === 'pending') {
-                    notify({
-                        type: 'success',
-                        message: 'Contract source code validation request submitted. Please wait for the verification result.'
-                    })
-                }
-                console.log(validationStatus)
-                setTimeout(() => navigation.navigate(formatExplorerLink('contract', address)), 2000)
-                setSourceLink('')
-            } catch (e) {
-                notify({
-                    type: 'error',
-                    message: e.ext?.error || 'Internal error while submitting validation request.'
-                })
-            }
-        } catch (e) {
-            console.error(e)
-            notify({
-                type: 'error',
-                message: e.ext?.error || 'Internal error occurred.'
-            })
-        } finally {
-            setInProgress(false)
-        }
-
-    }, [address, sourceLink])
-
-    if (!loaded)
-        return <div className="segment blank">
-            <div className="text-center">
-                <div className="loader"/>
-                <div className="dimmed text-tiny">Loading contract properties</div>
-            </div>
-        </div>
-
-    if (!data)
-        return <div className="segment blank">
-            <div className="segment error space">
-                <i className="icon icon-warning"/> Contract {address} not found on the ledger
-            </div>
-        </div>
-
-    if (data.validation?.status === 'verified')
-        return <div className="segment blank">
-            <div className="segment warning space">
-                <i className="icon icon-info"/> Contract {address} is already associated with the{' '}
-                <a href={data.validation?.source} target="_blank" rel="noreferrer">source code repository</a>.
-            </div>
-        </div>
-
-    const disabled = inProgress || (data.validation?.status === 'pending' && (data.validation.ts + 10 * 60) * 1000 > new Date().getTime())
-
-    return <div className="segment blank">
-        <div className="dimmed text-small">
-            Contract developers can request source code verification of the contract. This procedure is automatic, it matches the
-            hash of the smart contract compiled from sources with the hash of the contract deployed on the ledger. Upon successful
-            verification, all users will be able to see the associated Github repository link and check the original contract code.
-            Service provided in the collaboration with <a href="https://www.sorobanexp.com/" target="_blank">sorobanexp.com</a>.
-        </div>
-        <label className="double-space">
-            <div>
-                Github repository address of the contract source code
-            </div>
-            <input type="text" onChange={updateSourceLink} value={sourceLink} maxLength={300} disabled={disabled}
-                   placeholder="e.g. https://github.com/stellar/soroban-examples/tree/c7947120dc3ef92345d6e019737065d916cfae9d/cross_contract/contract_a"/>
-        </label>
-        <div className="text-tiny dimmed">
-            <i className="icon-warning-circle"/>{' '}
-            Please make sure that you copy-pasted HTTPS repository link containing the commit hash to associate the contract WASM with the
-            particular point-in-time snapshot of the source code. Primary reason why commit hash is required is that any other bookmark
-            (branch or tag name) can be updated after the successful validation, breaking the chain of trust.
-        </div>
-        <TurnstileCaptcha ref={captchaRef} sitekey={appSettings.turnstileKey}/>
-        <div className="row space">
-            <div className="column column-50">
-                {inProgress && <div className="loader inline micro"/>}
-                {!!data.validation && !inProgress && data.validation.status !== 'unverified' && <>
-                    <i className="icon-puzzle"/> <a href={data.validation.possibleSource} target="_blank" rel="noreferrer">Source code</a>
-                    {' '}validation {data.validation.status}
-                </>}
-            </div>
-            <div className="column column-50">
-                <Button block onClick={requestVerification} disabled={disabled}>Validate source code</Button>
-            </div>
-        </div>
-    </div>
-}
-
-function validateSource(sourceLink) {
-    if (!sourceLink)
-        return 'Please provide URL of the repository containing the contract source code'
-    if (!sourceLink.startsWith('https://github.com/'))
-        return 'Only Github repositories are supported at the moment'
-    if (!/\/tree\/[a-f0-9]{40}\//.test(sourceLink))
-        return 'Repository link should contain the commit hash to associate the contract WASM with the particular point-in-time snapshot of the source code'
-}
+const exampleSingle =
+    `name: Build and Release  # name it whatever you like
+on:
+  push:
+    tags:
+      - 'v*'  # triggered whenever a new tag (prefixed with "v") is pushed to the repository
+jobs:
+  release-contract-a:
+    uses: stellar-expert/soroban-build-workflow/.github/workflows/release.yml@main
+    with:
+      release_name: $\{{ github.ref_name }}          # use git tag as unique release name
+      release_description: 'Contract release'       # some boring placeholder text to attach
+      relative_path: '["src/my-awesome-contract"]'  # relative path to your really awesome contract
+      package: 'my-awesome-contract'                # package name to build
+      make_target: 'build-dependencies'             # make target to invoke
+    secrets:  # the authentication token will be automatically created by GitHub
+      release_token: $\{{ secrets.GITHUB_TOKEN }}    # don't modify this line
+`

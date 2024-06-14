@@ -18,7 +18,7 @@ async function estimateContractValue(network, contract, currency = 'USD') {
         total: trustlines.reduce((prev, current) => {
             let {value} = current
             if (typeof value !== 'number') {
-                if (value.isZero())
+                if (value === '0' || !value || value.isZero())
                     return prev
                 value = value.toBigInt()
             } else {
