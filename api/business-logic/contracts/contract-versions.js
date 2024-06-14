@@ -19,7 +19,7 @@ async function queryContractVersions(network, basePath, contract, {cursor, limit
     //fetch data entries
     let versions = await db[network].collection('contract_wasm_history')
         .find(query)
-        .sort({_id: parsedOrder})
+        .sort({ts: parsedOrder})
         .limit(limit)
         .project({_id: 1, wasm: 1, op: 1, ts: 1})
         .toArray()
