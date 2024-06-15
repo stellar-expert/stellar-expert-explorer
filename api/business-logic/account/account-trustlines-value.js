@@ -1,5 +1,6 @@
 const {Long} = require('bson')
 const db = require('../../connectors/mongodb-connector')
+const IdConstraints = require('../../utils/id-constraints')
 
 async function estimateTrustlinesValue(network, accountId) {
     const trustlines = await db[network].collection('trustlines').aggregate([
@@ -43,12 +44,14 @@ async function estimateTrustlinesValue(network, accountId) {
 
     const xlmIdx = trustlines.findIndex(t => t.asset === 'XLM')
     if (xlmIdx < 0) { //no XLM trustline found
-        trustlines.unshift({
-            asset: 'XLM',
-            balance: Long.ZERO,
-            value: 0,
-            flags: 0
-        })
+        if (!IdConstraints.isContractId(accountId)) {
+            trustlines.unshift({
+                asset: 'XLM',
+                balance: Long.ZERO,
+                value: 0,
+                flags: 1
+            })
+        }
     } else if (xlmIdx > 0) {
         const [xlmTrustline] = trustlines.splice(xlmIdx, 1)
         trustlines.unshift(xlmTrustline)
