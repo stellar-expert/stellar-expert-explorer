@@ -51,9 +51,7 @@ async function enqueueValidation(network, data, from) {
 }
 
 async function getValidationStatus(network, hash) {
-    const match = await db[network]
-        .collection('contract_code_source')
-        .findOne({_id: hash})
+    const match = await db.public.collection('contract_code_source').findOne({_id: hash}) //always fetch from public network
     if (match) {
         const {_id, created, ...props} = match
         return {
