@@ -1,6 +1,6 @@
 import React from 'react'
 import AllPosts from './blog-post-list-view'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {setPageMetadata} from '../../util/page-metadata-installer'
 
 function BlogIndexView() {
     setPageMetadata({

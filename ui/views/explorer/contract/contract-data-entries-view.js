@@ -1,6 +1,7 @@
 import React from 'react'
 import {useParams} from 'react-router'
 import {UtcTimestamp, AccountAddress, ScVal, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import GridDataActionsView from '../../components/grid-data-actions'
 
 export default function ContractDataEntriesView() {
@@ -17,6 +18,11 @@ export default function ContractDataEntriesView() {
             //dynamic price spread
             //dataProcessingCallback: records => records.map(stat => AssetViewModel.fromStats(stat))
         })
+    const type = id.startsWith('C') ? 'Contract' : 'Account'
+    setPageMetadata({
+        title: `Stored Data for ${id}`,
+        description: `Stored Data for ${type} ${id} into Stellar Network`
+    })
 
     return <div>
         <h2 className="word-break relative condensed">

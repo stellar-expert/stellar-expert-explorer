@@ -3,7 +3,7 @@ import Markdown from 'markdown-to-jsx'
 import {CodeBlock, useDependantState} from '@stellar-expert/ui-framework'
 import blogStorage from './blog-storage'
 import AllPosts from './blog-post-list-view'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {setPageMetadata} from '../../util/page-metadata-installer'
 import './blog.scss'
 
 function BlogImage({postId, title, alt, src}) {

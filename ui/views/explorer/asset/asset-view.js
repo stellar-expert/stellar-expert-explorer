@@ -1,7 +1,7 @@
 import React from 'react'
 import {getDirectoryEntry, useAssetMeta} from '@stellar-expert/ui-framework'
 import {useRouteMatch} from 'react-router'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import {useAssetInfo, useAssetIssuerInfo} from '../../../business-logic/api/asset-api'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import TomlInfo from '../toml/toml-info-view'

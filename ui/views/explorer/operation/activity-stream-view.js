@@ -9,8 +9,9 @@ import {
     loadTransactions,
     streamTransactions
 } from '@stellar-expert/ui-framework'
-import './activity-stream.scss'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import appSettings from '../../../app-settings'
+import './activity-stream.scss'
 
 export default function ActivityStreamView() {
     const network = useStellarNetwork()
@@ -21,6 +22,13 @@ export default function ActivityStreamView() {
     const activityContainer = useRef()
 
     const toggleIncludeFailed = useCallback(() => setIncludeFailed(prev => !prev), [])
+
+    useEffect(() => {
+        setPageMetadata({
+            title: `Activity Live Stream`,
+            description: `Activity Live Stream for Stellar Network.`
+        })
+    }, [])
 
     useEffect(() => {
         if (!activityContainer.current)

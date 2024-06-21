@@ -3,7 +3,7 @@ import {useParams} from 'react-router'
 import PropTypes from 'prop-types'
 import {BlockSelect, loadTransaction} from '@stellar-expert/ui-framework'
 import ErrorNotificationBlock from '../../components/error-notification-block'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import appSetting from '../../../app-settings'
 import TransactionDetails from './tx-details-view'
 

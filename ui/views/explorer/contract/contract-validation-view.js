@@ -6,7 +6,7 @@ import {useContractInfo} from '../../../business-logic/api/contract-api'
 import {apiCall} from '../../../models/api'
 import TurnstileCaptcha from '../../components/turnstile-captcha'
 import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 
 export default function ContractValidationView() {
     const {id: address} = useParams()

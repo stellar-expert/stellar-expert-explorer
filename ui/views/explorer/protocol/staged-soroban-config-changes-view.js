@@ -3,7 +3,7 @@ import {useParams} from 'react-router'
 import {StrKey, xdr} from '@stellar/stellar-base'
 import {useExplorerApi, CopyToClipboard, CodeBlock, AccountAddress} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import {applySorobanConfigChanges} from './soroban-config-changes-tracker'
 import {SorobanConfigChangesView} from './soroban-config-changes-view'
 

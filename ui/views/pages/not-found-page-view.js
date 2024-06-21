@@ -1,5 +1,5 @@
 import React from 'react'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {setPageMetadata} from '../../util/page-metadata-installer'
 import {resolvePath} from '../../business-logic/path'
 
 export default function NotFoundView() {

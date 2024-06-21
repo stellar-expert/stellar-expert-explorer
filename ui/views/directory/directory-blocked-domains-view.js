@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
 import {BlockSelect, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {setPageMetadata} from '../../util/page-metadata-installer'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
 import GridDataActions from '../components/grid-data-actions'
 import {isDirectoryAdmin} from './is-directory-admin'

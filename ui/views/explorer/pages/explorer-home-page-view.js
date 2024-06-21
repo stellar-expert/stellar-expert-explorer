@@ -1,4 +1,5 @@
 import React from 'react'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import appSettings from '../../../app-settings'
 import AssetList from '../asset/asset-list-view'
 import LedgerActivity from '../ledger/ledger-activity-view'
@@ -10,6 +11,7 @@ import AssetsOverallStatsView from '../asset/asset-overall-stats-view'
 
 export default function ExplorerHomePageView() {
     if (!appSettings.activeNetwork) return null
+    setPageMetadata({title: 'Ledger explorer and analytics platform for Stellar Network'})
     return <div>
         <div className="space text-center">
             <h1>Ledger explorer and analytics platform for <a href="https://www.stellar.org/">Stellar Network</a></h1>

@@ -2,9 +2,9 @@ import React, {useEffect, useState} from 'react'
 import {StrKey, Keypair} from '@stellar/stellar-base'
 import {inspectAccountSigners} from '@stellar-expert/tx-signers-inspector'
 import {AccountAddress, Button, getDirectoryEntry} from '@stellar-expert/ui-framework'
+import {setPageMetadata} from '../../util/page-metadata-installer'
 import appSettings from '../../app-settings'
 import Demolisher from '../../business-logic/demolisher/demolisher-tx-builder'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 
 function filterInvalidKeyChars(value) {
     return value.replace(/\W/g, '')

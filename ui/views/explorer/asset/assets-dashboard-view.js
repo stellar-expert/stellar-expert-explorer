@@ -1,5 +1,5 @@
 import React from 'react'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import AssetsChart from '../ledger/charts/ledger-history-assets-trustlines-chart-view'
 import AssetsOverallStatsView from './asset-overall-stats-view'
 import AssetList from './asset-list-view'

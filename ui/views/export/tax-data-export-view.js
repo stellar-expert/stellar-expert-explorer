@@ -2,7 +2,7 @@ import React, {useCallback, useState} from 'react'
 import {StrKey} from '@stellar/stellar-base'
 import {Dropdown, Button} from '@stellar-expert/ui-framework'
 import TaxInfoExporter from '../../business-logic/tax-info-exporter'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {setPageMetadata} from '../../util/page-metadata-installer'
 
 const yearOptions = []
 for (let i = new Date().getFullYear(); i >= 2016; i--) {
