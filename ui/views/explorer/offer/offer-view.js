@@ -3,8 +3,9 @@ import {useRouteMatch} from 'react-router'
 import {AssetLink, AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
 import {formatWithPrecision, approximatePrice} from '@stellar-expert/formatter'
 import {setPageMetadata} from '../../../util/page-metadata-installer'
-import appSettings from '../../../app-settings'
 import {useDexOffer} from '../../../business-logic/api/offer-api'
+import appSettings from '../../../app-settings'
+import CrawlerScreen from '../../components/crawler-screen'
 import OfferHistoryTabsView from './offer-history-tabs-view'
 
 function OfferDetailsView({offer}) {
@@ -55,7 +56,9 @@ function OfferDetailsView({offer}) {
                 </div>
             </div>
         </div>
-        <OfferHistoryTabsView offer={offer}/>
+        <CrawlerScreen>
+            <OfferHistoryTabsView offer={offer}/>
+        </CrawlerScreen>
     </>
 }
 

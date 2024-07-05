@@ -4,6 +4,7 @@ import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
 import {setPageMetadata} from '../../../util/page-metadata-installer'
 import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import Transactions from './ledger-transactions-view'
 
@@ -127,10 +128,12 @@ export default function LedgerView({match}) {
                 </div>
             </div>
         </div>
-        <div className="row">
-            <div className="column">
-                <Transactions ledgerSequence={ledger.sequence}/>
+        <CrawlerScreen>
+            <div className="row">
+                <div className="column">
+                    <Transactions ledgerSequence={ledger.sequence}/>
+                </div>
             </div>
-        </div>
+        </CrawlerScreen>
     </>
 }

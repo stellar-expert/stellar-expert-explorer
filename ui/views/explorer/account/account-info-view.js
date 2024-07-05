@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import {InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
 import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import TomlInfoView from '../toml/toml-info-view'
 import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 import {AccountClaimableBalancesSection} from '../claimable-balance/account-claimable-balances-view'
@@ -30,11 +31,13 @@ export default withErrorBoundary(function AccountInfoView({account}) {
                     <dl>
                         <AccountBasicPropertiesView account={account}/>
                     </dl>
-                    <AccountIssuedAssets address={account.address}/>
-                    <AccountSignersView account={account}/>
-                    <AccountDataEntries account={account}/>
-                    <AccountSponsoredInfoView account={account}/>
-                    <AccountClaimableBalancesSection address={account.address}/>
+                    <CrawlerScreen>
+                        <AccountIssuedAssets address={account.address}/>
+                        <AccountSignersView account={account}/>
+                        <AccountDataEntries account={account}/>
+                        <AccountSponsoredInfoView account={account}/>
+                        <AccountClaimableBalancesSection address={account.address}/>
+                    </CrawlerScreen>
                 </div>
                 <div className="mobile-only space"/>
             </div>
@@ -47,16 +50,18 @@ export default withErrorBoundary(function AccountInfoView({account}) {
                             The number of lumens and other assets held by the account.
                         </Info>
                     </h3>
-                    <hr className="flare"/>
-                    <AccountCurrentBalancesView account={account} onSelectAsset={setSelectedAsset}/>
-                    <div className="space">
-                        <AccountBalanceChart account={account} externallySelectedAsset={selectedAsset}/>
-                    </div>
+                    <CrawlerScreen>
+                        <hr className="flare"/>
+                        <AccountCurrentBalancesView account={account} onSelectAsset={setSelectedAsset}/>
+                        <div className="space">
+                            <AccountBalanceChart account={account} externallySelectedAsset={selectedAsset}/>
+                        </div>
+                    </CrawlerScreen>
                 </div>
             </div>
         </div>
         {account.ledgerData && account.ledgerData.home_domain &&
             <TomlInfoView account={account.address} homeDomain={account.ledgerData.home_domain} className="space"/>}
-        <AccountHistoryTabs account={account}/>
+        <CrawlerScreen><AccountHistoryTabs account={account}/></CrawlerScreen>
     </div>
 })

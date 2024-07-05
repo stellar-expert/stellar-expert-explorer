@@ -3,8 +3,9 @@ import {useParams} from 'react-router'
 import {StrKey} from '@stellar/stellar-base'
 import {AccountAddress} from '@stellar-expert/ui-framework'
 import {setPageMetadata} from '../../../util/page-metadata-installer'
-import ErrorNotificationBlock from '../../components/error-notification-block'
 import {useContractInfo} from '../../../business-logic/api/contract-api'
+import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import ContractBalancesView from './contract-balances-view'
 import ContractDetailsView from './contract-details-view'
 import ContractTabsView from './contract-tabs-view'
@@ -47,7 +48,9 @@ export default function ContractView() {
                 <div className="segment blank">
                     <h3>Contract balances</h3>
                     <hr className="flare"/>
-                    <ContractBalancesView address={address}/>
+                    <CrawlerScreen>
+                        <ContractBalancesView address={address}/>
+                    </CrawlerScreen>
                 </div>
             </div>
         </div>

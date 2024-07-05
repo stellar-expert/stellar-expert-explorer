@@ -1,6 +1,7 @@
 import React from 'react'
 import {setPageMetadata} from '../../../util/page-metadata-installer'
 import appSettings from '../../../app-settings'
+import CrawlerScreen from '../../components/crawler-screen'
 import AssetList from '../asset/asset-list-view'
 import LedgerActivity from '../ledger/ledger-activity-view'
 import LedgerDailyStats from '../ledger/ledger-daily-stats'
@@ -40,20 +41,24 @@ export default function ExplorerHomePageView() {
         </div>
         <div className="row space">
             <div className="column column-50">
-                <div>
+                <CrawlerScreen as={<h3>Ledger Performance</h3>}>
                     <OperationsChart/>
+                </CrawlerScreen>
                     <div className="space"/>
+                <CrawlerScreen as={<h3>Accounts</h3>}>
                     <AccountsChart/>
+                </CrawlerScreen>
                     <div className="space"/>
+                <CrawlerScreen as={<h3>New Assets and Trustlines</h3>}>
                     <AssetsChart/>
-                </div>
+                </CrawlerScreen>
             </div>
             <div className="space mobile-only"/>
             <div className="column column-50">
                 <div className="segment blank">
                     <h3>Assets on the Ledger</h3>
                     <hr className="flare"/>
-                    <AssetList compact/>
+                    <CrawlerScreen><AssetList compact/></CrawlerScreen>
                 </div>
             </div>
         </div>
