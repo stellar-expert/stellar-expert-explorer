@@ -46,6 +46,10 @@ async function queryContractStats(network, contractAddress) {
     if (contract.wasm) {
         res.validation = await getValidationStatus(network, contract.wasm)
     }
+    const versions = await db[network].collection('contract_wasm_history').count({contract: {$in: [contract._id, contract.address]}})
+    if (versions > 1) {
+        res.versions = versions
+    }
     return res
 }
 

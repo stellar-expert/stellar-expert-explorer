@@ -24,7 +24,7 @@ export default withErrorBoundary(function AccountCurrentBalancesView({account, o
             {valueInfo.trustlines
                 .filter(t => t.asset !== 'XLM')
                 .concat(valueInfo.pool_stakes)
-                .map(t => <AccountTrustlineBalanceView key={t.asset} trustline={t} currency={valueInfo.currency} onClick={onSelectAsset}/>)}
+                .map(t => <AccountTrustlineBalanceView key={t.asset || t.pool} trustline={t} currency={valueInfo.currency} onClick={onSelectAsset}/>)}
         </div>
     </>
 })

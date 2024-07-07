@@ -21,10 +21,9 @@ export const AccountTrustlineBalanceView = React.memo(function AccountTrustlineB
 function Balance({trustline, currency}) {
     const estimatedValue = resolveBalanceValue(trustline, currency)
     const asset = trustline.asset || trustline.pool
-    const balanceParts = formatWithPrecision(fromStroops(trustline.balance)).split('.')
     return <>
         <div className="condensed">
-            {balanceParts[0]}{balanceParts[1] !== undefined && <span className="text-small">.{balanceParts[1]}</span>}
+            <BalanceAmount trustline={trustline}/>
         </div>
         <div className="text-tiny condensed">
             {!!estimatedValue && <div>{estimatedValue}</div>}
@@ -35,6 +34,16 @@ function Balance({trustline, currency}) {
                 <i className="icon icon-lock" title={`Trustline to ${(asset).split('-')[0]} is not authorized by the asset issuer`}/>}
         </span>
     </>
+}
+
+function BalanceAmount({trustline}) {
+    if (trustline.balance !== undefined) {
+        const balanceParts = formatWithPrecision(fromStroops(trustline.balance)).split('.')
+        return <>{balanceParts[0]}{balanceParts[1] !== undefined && <span className="text-small">.{balanceParts[1]}</span>}</>
+    }
+    if (trustline.stake)
+        return <>{trustline.stake}</>
+    return null
 }
 
 function resolveBalanceValue(trustline, currency = 'USD') {

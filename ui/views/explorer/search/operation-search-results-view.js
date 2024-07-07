@@ -25,7 +25,8 @@ export default function OperationSearchResultsView({term, onLoaded}) {
                     result: txResponse.result,
                     meta: txResponse.meta,
                     createdAt: txResponse.ts,
-                    context: {}
+                    context: {},
+                    protocol: txResponse.protocol
                 })
                 parsedTx.id = txResponse.id
                 parsedTx.ledger = txResponse.ledger

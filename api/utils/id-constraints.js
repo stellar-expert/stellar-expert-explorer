@@ -42,6 +42,10 @@ class IdConstraints {
         }
         return timeConstraints
     }
+
+    static isContractId(id) {
+        return id >= (1 << 30) && id < (((1 << 31) >>> 0) - 1)
+    }
 }
 
 module.exports = IdConstraints

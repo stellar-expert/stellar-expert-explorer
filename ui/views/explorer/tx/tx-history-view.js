@@ -32,7 +32,8 @@ export default withErrorBoundary(function TxHistoryView({presetFilter}) {
                 result: tx.result,
                 meta: tx.meta,
                 context: filters,
-                createdAt: tx.ts
+                createdAt: tx.ts,
+                protocol: tx.protocol
             })
         } catch (e) {
             console.error(e)

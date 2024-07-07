@@ -1,7 +1,8 @@
 import React from 'react'
-import {AssetLink, AccountAddress, CopyToClipboard, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {AssetLink, AccountAddress, CopyToClipboard, UtcTimestamp, formatExplorerLink} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 import ContractStorageInfo from '../../components/contract-storage-info'
+import ContractCodeValidationStatusView from './contract-code-validation-status-view'
 
 export default function ContractDetailsView({contract}) {
     if (!contract)
@@ -9,7 +10,7 @@ export default function ContractDetailsView({contract}) {
     return <div>
         <dl>
             <ContractType contract={contract}/>
-            <ContractValidationStatus validation={contract.validation}/>
+            <ContractCodeValidationStatusView validation={contract.validation}/>
             <dt>Creator:</dt>
             <dd><AccountAddress account={contract.creator}/></dd>
             <dt>Created:</dt>
@@ -21,6 +22,10 @@ export default function ContractDetailsView({contract}) {
             {contract.trades > 0 && <>
                 <dt>Trades:</dt>
                 <dd>{contract.trades}</dd>
+            </>}
+            {contract.versions > 0 && <>
+                <dt>Versions:</dt>
+                <dd><a href={formatExplorerLink('contract', contract.address + '/versions')}>{contract.versions}</a></dd>
             </>}
             <ContractStorageInfo stats={contract}/>
         </dl>
@@ -51,34 +56,4 @@ function ContractType({contract}) {
         <dt>Type:</dt>
         <dd>Unknown</dd>
     </>
-}
-
-function ContractValidationStatus({validation}) {
-    if (!validation)
-        return null
-    const {status, source, possibleSource} = validation
-    return <>
-        <dt>Source code:</dt>
-        {status === 'unverified' ? <dd>
-            Unavailable - <a href={location.pathname + '/validate'}><i className="icon-add-circle"/>provide source code</a>
-        </dd> : source ? <dd>
-            <a href={source} target="_blank" rel="noreferrer"><i className="icon-github"/>{parseSourceRepo(source)}</a> - confirmed
-        </dd> : <dd>
-            <i className="icon-warning-circle"/>Verification {status}
-            {status === 'failed' && <>
-                - <a href={location.pathname + '/validate'}><i className="icon-add-circle"/>resubmit source code</a>
-            </>}
-            <Info>
-                <a href={possibleSource} target="_blank" rel="noreferrer">Contract code</a> validation for this contract has been requested.
-                If the process fails, you will be able to resubmit the validation request in an hour.
-            </Info>
-        </dd>}
-    </>
-}
-
-function parseSourceRepo(source) {
-    const [_, owner, repo] = /github.com\/(.*?)\/(.*?)\//.exec(source.toLowerCase())
-    if (!owner || !repo)
-        return 'repository'
-    return owner + '/' + repo
 }

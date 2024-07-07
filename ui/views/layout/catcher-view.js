@@ -2,7 +2,5 @@ import React from 'react'
 import {ErrorBoundary} from '@stellar-expert/ui-framework'
 
 export default function CatcherView({children}) {
-    return <div className="container space">
-        <ErrorBoundary>{children}</ErrorBoundary>
-    </div>
+    return <ErrorBoundary wrapper="div" className="container space segment blank">{children}</ErrorBoundary>
 }
