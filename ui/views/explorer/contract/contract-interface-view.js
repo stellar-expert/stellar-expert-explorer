@@ -38,7 +38,7 @@ function parseRustInterface(meta) {
         for (const e of meta.enums) {
             res += `#[contracttype]
 enum ${e.name} {
-    ${e.cases.map(c => c.name + ' = ' + c.value).join(',\n    ')}
+    ${Object.entries(e.cases).map(([name, value]) => name + ' = ' + value.toString()).join(',\n    ')}
 }\n\n`
         }
     }
