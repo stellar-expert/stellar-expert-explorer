@@ -1,7 +1,7 @@
 import React from 'react'
 import {Redirect} from 'react-router'
 import {parseStellarGenericId} from '@stellar-expert/ui-framework'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
 

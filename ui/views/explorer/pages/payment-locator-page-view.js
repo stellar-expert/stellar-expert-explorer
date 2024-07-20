@@ -1,5 +1,5 @@
 import React from 'react'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import config from '../../../app-settings'
 import TxHistoryView from '../tx/tx-history-view'
 

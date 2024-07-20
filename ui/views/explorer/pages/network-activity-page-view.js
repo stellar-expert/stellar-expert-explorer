@@ -1,7 +1,8 @@
 import React from 'react'
 import {Tabs} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
+import CrawlerScreen from '../../components/crawler-screen'
 import LedgerActivity from '../ledger/ledger-activity-view'
 import LedgerDailyStats from '../ledger/ledger-daily-stats'
 import OperationsChart from '../ledger/charts/ledger-history-operations-ledger-time-chart-view'
@@ -54,17 +55,17 @@ function GeneralNetworkStats() {
             </div>
         </div>
         <div className="space"/>
-        <OperationsChart/>
+        <CrawlerScreen><OperationsChart/></CrawlerScreen>
         <div className="space"/>
-        <AccountsChart/>
+        <CrawlerScreen><AccountsChart/></CrawlerScreen>
         <div className="space"/>
-        <AssetsChart/>
+        <CrawlerScreen><AssetsChart/></CrawlerScreen>
         <div className="space"/>
-        <PaymentsTradesChart/>
+        <CrawlerScreen><PaymentsTradesChart/></CrawlerScreen>
         <div className="space"/>
-        <SupplyChart/>
+        <CrawlerScreen><SupplyChart/></CrawlerScreen>
         <div className="space"/>
-        <FailedTransactions/>
+        <CrawlerScreen><FailedTransactions/></CrawlerScreen>
     </>
 }
 

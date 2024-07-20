@@ -4,7 +4,7 @@ import {formatPrice, formatWithAutoPrecision, formatWithPrecision, formatWithAbb
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {navigation} from '@stellar-expert/navigation'
 import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import {resolvePath} from '../../../business-logic/path'
 import GridDataActionsView from '../../components/grid-data-actions'
 

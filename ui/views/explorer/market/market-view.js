@@ -1,13 +1,14 @@
-import React, {useCallback} from 'react'
+import React, {useCallback, useEffect} from 'react'
 import {useRouteMatch} from 'react-router'
-import {AssetLink, Amount, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
+import {AssetLink, Amount, InfoTooltip as Info, useExplorerApi, useAssetMeta} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import {navigation} from '@stellar-expert/navigation'
 import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import {resolvePath} from '../../../business-logic/path'
 import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import MarketPriceChartView from './market-price-chart-view'
 import Orderbook from './orderbook-details-view'
 import MarketTrades from './market-trades-view'
@@ -69,7 +70,9 @@ function MarketSummaryView({marketInfo, buying, selling}) {
                 </div>
             </div>
             <div className="column column-50 relative">
-                <MarketPriceChartView buying={buying} selling={selling} currency={selling.toCurrency()}/>
+                <CrawlerScreen>
+                    <MarketPriceChartView buying={buying} selling={selling} currency={selling.toCurrency()}/>
+                </CrawlerScreen>
             </div>
         </div>
         <div className="row space">
@@ -77,17 +80,21 @@ function MarketSummaryView({marketInfo, buying, selling}) {
                 <div className="segment blank">
                     <h3>Orderbook</h3>
                     <hr className="flare"/>
-                    <div style={{marginTop: '-2em'}}/>
-                    <Orderbook selling={buying} buying={selling}/>
+                    <CrawlerScreen>
+                        <div style={{marginTop: '-2em'}}/>
+                        <Orderbook selling={buying} buying={selling}/>
+                    </CrawlerScreen>
                 </div>
             </div>
             <div className="column column-50">
                 <div className="segment blank">
                     <h3>Recent Trades</h3>
                     <hr className="flare"/>
-                    <div className="relative" style={{height: 'calc(100% - 3em)'}}>
-                        <MarketTrades baseAsset={buying} counterAsset={selling}/>
-                    </div>
+                    <CrawlerScreen>
+                        <div className="relative" style={{height: 'calc(100% - 3em)'}}>
+                            <MarketTrades baseAsset={buying} counterAsset={selling}/>
+                        </div>
+                    </CrawlerScreen>
                 </div>
             </div>
         </div>
@@ -102,10 +109,12 @@ export default function MarketView() {
     const sellingAsset = selling.toString()
     const {loading, error, data} = useExplorerApi(`market/${sellingAsset}/${buyingAsset}`)
 
-    setPageMetadata({
-        title: `Live market data of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} network DEX`,
-        description: `Statistics and price dynamic of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} decentralized exchange.`
-    })
+    useEffect(() => {
+        setPageMetadata({
+            title: `Live market data of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} network DEX`,
+            description: `Statistics and price dynamic of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} decentralized exchange.`
+        })
+    }, [buyingAsset, sellingAsset])
 
     const reverse = useCallback(function () {
         navigation.navigate(resolvePath(`market/${buyingAsset}/${sellingAsset}/`))

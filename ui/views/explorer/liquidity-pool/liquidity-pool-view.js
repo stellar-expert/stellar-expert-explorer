@@ -3,9 +3,10 @@ import {useRouteMatch} from 'react-router'
 import {Amount, AssetLink, UtcTimestamp, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import appSettings from '../../../app-settings'
 import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import LiquidityPoolTvlChartView from './liquidity-pool-tvl-chart-view'
 import LiquidityPoolTradesChartView from './liquidity-pool-trades-chart-view'
 import LiquidityPoolFeesChartView from './liquidity-pool-fees-chart-view'
@@ -78,16 +79,22 @@ function PoolSummaryView({poolInfo}) {
             </div>
             <div className="micro-space mobile-only"/>
             <div className="column column-50 relative">
-                <LiquidityPoolTvlChartView id={poolInfo.id}/>
+                <CrawlerScreen>
+                    <LiquidityPoolTvlChartView id={poolInfo.id}/>
+                </CrawlerScreen>
             </div>
         </div>
         <div className="row space">
             <div className="column column-50 relative">
-                <LiquidityPoolTradesChartView id={poolInfo.id}/>
+                <CrawlerScreen>
+                    <LiquidityPoolTradesChartView id={poolInfo.id}/>
+                </CrawlerScreen>
             </div>
             <div className="micro-space mobile-only"/>
             <div className="column column-50 relative">
-                <LiquidityPoolFeesChartView id={poolInfo.id}/>
+                <CrawlerScreen>
+                    <LiquidityPoolFeesChartView id={poolInfo.id}/>
+                </CrawlerScreen>
             </div>
         </div>
         <LiquidityPoolHistoryTabsView id={poolInfo.id}/>

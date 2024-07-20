@@ -2,7 +2,7 @@ import React, {useEffect} from 'react'
 import {useDependantState} from '@stellar-expert/ui-framework'
 import {navigation, parseQuery} from '@stellar-expert/navigation'
 import DirectoryEntryPropsView from './directory-entry-props-view'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {setPageMetadata} from '../../util/page-metadata-installer'
 
 export default function DirectoryAddNewEntryView() {
     const {address: addressFromQuery} = parseQuery()

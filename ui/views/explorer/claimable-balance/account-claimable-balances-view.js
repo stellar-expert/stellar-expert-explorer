@@ -10,6 +10,7 @@ import {
     getCurrentStellarNetwork
 } from '@stellar-expert/ui-framework'
 import AccountClaimableBalanceRowView from './account-claimable-balance-row-view'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 
 function useClaimableBalances(account, limit) {
     const [response, setResponse] = useState([])
@@ -73,6 +74,12 @@ export default function AccountClaimableBalancesView() {
     const cbResponse = useClaimableBalances(address, 40)
     if (!cbResponse.data)
         return <div className="loader"/>
+    const type = address.startsWith('C') ? 'Contract' : 'Account'
+    setPageMetadata({
+        title: `Pending Claimable Balances`,
+        description: `${type} ${address}`
+    })
+
     return <>
         <h2>Pending claimable balances for account <AccountAddress account={address}/></h2>
         <div className="segment blank">

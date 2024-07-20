@@ -1,7 +1,7 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {getDirectoryEntry, useAssetMeta} from '@stellar-expert/ui-framework'
 import {useRouteMatch} from 'react-router'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import {useAssetInfo, useAssetIssuerInfo} from '../../../business-logic/api/asset-api'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import TomlInfo from '../toml/toml-info-view'
@@ -13,6 +13,31 @@ export default function AssetView() {
     const {data: asset, loaded} = useAssetInfo(params.asset)
     const assetMeta = useAssetMeta(asset?.descriptor)
     const issuerInfo = useAssetIssuerInfo(asset?.descriptor)
+    const {code, issuer} = asset?.descriptor || {}
+
+    useEffect(() => {
+        if (!asset)
+            return
+        const title = !issuer ? 'Stellar Lumens' : `${code} by ${issuer}`
+        //TODO: fetch TOML metadata instead
+        setPageMetadata({
+            title,
+            description: `Stats, price history, and analytic reports for ${title}.`
+        })
+        if (issuer) {
+            getDirectoryEntry(issuer)
+                .then(data => {
+                    if (data) {
+                        const title = `${code} by [${data.name}]${issuer}`
+                        setPageMetadata({
+                            title,
+                            description: `Stats, price history, and analytic reports for ${title}.`
+                        })
+                    }
+                })
+        }
+    }, [asset])
+
     if (!loaded) return <div className="loader"/>
     if (issuerInfo) {
         asset.issuerInfo = issuerInfo
@@ -31,26 +56,6 @@ export default function AssetView() {
         </ErrorNotificationBlock>
     }
 
-    const {code, issuer} = asset.descriptor
-    const title = !issuer ? 'Stellar Lumens' : `${code} by ${issuer}`
-    //TODO: fetch TOML metadata instead
-    setPageMetadata({
-        title,
-        description: `Stats, price history, and analytic reports for ${title}.`
-    })
-
-    if (issuer) {
-        getDirectoryEntry(issuer)
-            .then(data => {
-                if (data) {
-                    const title = `${code} by [${data.name}]${issuer}`
-                    setPageMetadata({
-                        title,
-                        description: `Stats, price history, and analytic reports for ${title}.`
-                    })
-                }
-            })
-    }
     return <>
         <AssetDetailsView asset={asset}/>
         {!!issuerInfo?.home_domain &&

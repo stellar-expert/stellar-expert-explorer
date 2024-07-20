@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import {Tabs} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
+import CrawlerScreen from '../../components/crawler-screen'
 import TxHistoryView from '../tx/tx-history-view'
 import TradesView from '../effect/trades-history-view'
 import AssetTokenHoldersList from './asset-holders-list-view'
@@ -27,7 +28,7 @@ export default function AssetHistoryTabsView({asset}) {
             name: 'history',
             title: 'History',
             isDefault: true,
-            render: () => <TxHistoryView {...operationsHistoryProps}/>
+            render: () => <CrawlerScreen><TxHistoryView {...operationsHistoryProps}/></CrawlerScreen>
         },
         {
             name: 'trades',

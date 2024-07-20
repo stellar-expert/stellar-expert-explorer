@@ -1,6 +1,6 @@
 import React from 'react'
 import {CodeBlock} from '@stellar-expert/ui-framework'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 
 export default function ContractValidationInfoView() {
     setPageMetadata({

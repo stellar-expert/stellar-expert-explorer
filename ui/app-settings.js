@@ -20,6 +20,8 @@ class AppSettings {
 
     apiEndpoint
 
+    templateServer
+
     networks
 
     oauth

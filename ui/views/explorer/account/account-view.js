@@ -5,7 +5,7 @@ import {BlockSelect, AccountAddress, InfoTooltip as Info, useDirectory, parseMux
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import AccountQrCodeToggle from '../../components/account-qr-code-toggle'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {setPageMetadata} from '../../../util/page-metadata-installer'
 import {useCompositeAccountInfo} from '../../../business-logic/api/account-api'
 import {useGithubOAuth} from '../../../business-logic/oauth/oauth-hooks'
 import {isDirectoryAdmin} from '../../directory/is-directory-admin'

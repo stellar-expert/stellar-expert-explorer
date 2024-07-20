@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {Accordion, CodeBlock} from '@stellar-expert/ui-framework'
 import {fetchAvailableAssetLists} from '@stellar-asset-lists/sdk'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {setPageMetadata} from '../../util/page-metadata-installer'
 import AssetListDetailsView from './asset-list-details-view'
 import './asset-lists.scss'
 
