@@ -39,6 +39,18 @@ function parseDate(ts) {
 }
 
 /**
+ * Serialize date object to string
+ * @param {Date|Number} date
+ * @return {String}
+ */
+function formatDateTime(date){
+    if (!(date instanceof Date)) {
+        date = new Date(date)
+    }
+    return date.toISOString().replace('T', ' ').replace(/\.\d{3}Z/, '')
+}
+
+/**
  * Convert DateTime to Unix timestamp
  * @param {Date|Number} ts - Date object or number of milliseconds
  * @return {Number}
@@ -75,6 +87,7 @@ module.exports = {
     timeUnits,
     maxUnixTime,
     parseDate,
+    formatDateTime,
     trimDate,
     toUnixTime,
     unixNow

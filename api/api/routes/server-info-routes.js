@@ -4,6 +4,6 @@ const {registerRoute} = require('../router'),
 module.exports = function (app) {
     registerRoute(app,
         '',
-        {prefix:'/'},
+        {prefix: '/', headers: {'Cache-Control': 'no-store'}},
         () => getServerInfo())
 }
