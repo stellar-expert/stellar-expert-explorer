@@ -4,11 +4,13 @@ const db = require('../../connectors/mongodb-connector')
 const {unixNow, formatDateTime} = require('../../utils/date-utils')
 
 async function getServerInfo() {
+    const networks = await processRecentLedgers()
     return {
         timezone: 'UTC',
         serverTime: formatDateTime(new Date()),
         version,
-        networks: await processRecentLedgers()
+        networks,
+        ingestion: !Object.values(networks).some(v => v.status !== 'synced') ? 'healthy' : 'problems'
     }
 }
 
