@@ -32,6 +32,6 @@ export default function AccountClaimableBalanceRowView({account, amount, value, 
         <Amount asset={AssetDescriptor.parse(asset)} amount={amount}/>{' '}
         {!!value && <span className="dimmed text-tiny condensed">({formatBalanceValue(value)} USD) </span>}
         sent by <AccountAddress account={sponsor} chars={8}/>{' '}
-        <UtcTimestamp date={last_modified_time} dateOnly/>
+        {last_modified_time ? <UtcTimestamp date={last_modified_time} dateOnly/> : null}
     </div>
 }
