@@ -18,7 +18,11 @@ async function processRecentLedgers() {
     const networks = {}
     for (const network of Object.keys(config.networks)) {
         const lastLedger = await db[network].collection('ledgers').findOne({}, {sort: {_id: -1}})
-        const isStale = (unixNow() - lastLedger.ts) > 30 // consider stale if more than 30 seconds elapsed from the last processed ledger
+        const now = unixNow()
+        if ((now - lastLedger.ts) > 20) {
+            console.warn(`Ingestion delay of ${now - lastLedger.ts - 6} seconds on ${network} network`)
+        }
+        const isStale = (now - lastLedger.ts) > 60 // consider stale if more than 1 minute elapsed from the last processed ledger
         const timestamp = formatDateTime(new Date(lastLedger.ts * 1000))
         networks[network] = {
             sequence: lastLedger._id,
