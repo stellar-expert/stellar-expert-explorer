@@ -1,13 +1,21 @@
 const db = require('../../connectors/mongodb-connector')
-const {validateNetwork} = require('../validators')
+const {validateNetwork, isValidContractAddress} = require('../validators')
 const errors = require('../errors')
 
-async function queryContractCode(network, hash) {
+async function queryContractCode(network, contractOrHash) {
     validateNetwork(network)
+    if (isValidContractAddress(contractOrHash)) {
+        const contractInfo = await db[network]
+            .collection('contracts')
+            .findOne({address: contractOrHash}, {projection: {wasm: 1}})
+        if (!contractInfo?.wasm)
+            throw errors.notFound('Contract was not found on the ledger. Check if you specified contract address correctly.')
+        contractOrHash = contractInfo.wasm.toString('hex')
+    }
 
     const code = await db[network]
         .collection('contract_code')
-        .findOne({_id: parseContractHash(hash)}, {projection: {wasm:1}})
+        .findOne({_id: parseContractHash(contractOrHash)}, {projection: {wasm: 1}})
 
     if (!code)
         throw errors.notFound('Contract code was not found on the ledger. Check if you specified contract hash correctly.')
@@ -24,7 +32,7 @@ function parseContractHash(hash) {
         } catch (e) {
         }
     }
-    throw errors.validationError('contract_hash', 'Invalid contract hash.')
+    throw errors.validationError('hash', 'Invalid contract hash.')
 }
 
 module.exports = {queryContractCode, parseContractHash}
