@@ -1,13 +1,18 @@
 const db = require('../../connectors/mongodb-connector')
 const QueryBuilder = require('../query-builder')
-const {validateNetwork} = require('../validators')
+const {validateNetwork, validateAssetName} = require('../validators')
 const {calculateSequenceOffset, preparePagedData, addPagingToken, normalizeOrder} = require('../api-helpers')
 const {matchPoolAssets} = require('./liquidity-pool-asset-matcher')
+const {resolveAssetId} = require('../asset/asset-resolver')
 
-async function queryAllLiquidityPools(network, basePath, {sort, order, cursor, limit}) {
+async function queryAllLiquidityPools(network, basePath, {asset, sort, order, cursor, limit}) {
     validateNetwork(network)
-
-    const q = new QueryBuilder({accounts: {$gt: 2}})
+    const query = {accounts: {$gt: 0}}
+    if (asset) {
+        validateAssetName(asset)
+        query.asset = await resolveAssetId(network, asset)
+    }
+    const q = new QueryBuilder(query)
         .setSkip(calculateSequenceOffset(0, limit, cursor, order))
         .setLimit(limit)
 
@@ -38,7 +43,6 @@ async function queryAllLiquidityPools(network, basePath, {sort, order, cursor, l
         case 'tvl':
         default:
             sortOrder = {'tvl': -1}
-
             break
     }
 
