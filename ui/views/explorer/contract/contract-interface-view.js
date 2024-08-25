@@ -19,8 +19,6 @@ export function ContractInterfaceView({hash}) {
     </div>
 }
 
-const indent = '    '
-
 function parseRustInterface(meta) {
     let res = `// RUST version: ${meta.rustVersion}\n// SDK version: ${meta.sdkVersion}\n\n`
     if (meta.functions) {
@@ -38,8 +36,8 @@ function parseRustInterface(meta) {
     if (meta.enums) {
         res += '// ENUMS\n\n'
         for (const [name, e] of Object.entries(meta.enums)) {
-            res += '#[contracttype]\n' + insertDocs(e) + `enum ${name} {
-    ${Object.entries(e.cases).map(([name, props]) => insertDocs(props, 1) + indent + name + ' = ' + props.value.toString()).join(',\n' + indent)}
+            res += insertDocs(e) + `#[contracttype]\nenum ${name} {
+${Object.entries(e.cases).map(([name, props]) => insertDocs(props, 1) + indent(name, 1) + ' = ' + props.value.toString()).join(',\n')}
 }\n\n`
         }
     }
@@ -47,8 +45,8 @@ function parseRustInterface(meta) {
     if (meta.structs) {
         res += '// STRUCTS\n\n'
         for (const [name, s] of Object.entries(meta.structs)) {
-            res += '#[contracttype]\n' + insertDocs(s) + `struct ${name} {
-    ${Object.entries(s.fields).map(([name, field]) => insertDocs(field, 1) + name + ': ' + field.type).join(',\n' + indent)}
+            res += insertDocs(s) + `#[contracttype]\nstruct ${name} {
+${Object.entries(s.fields).map(([name, field]) => insertDocs(field, 1) + indent(name, 1) + ': ' + field.type).join(',\n')}
 }\n\n`
         }
     }
@@ -56,31 +54,30 @@ function parseRustInterface(meta) {
     if (meta.unions) {
         res += '// UNIONS\n\n'
         for (const [name, u] of Object.entries(meta.unions)) {
-            res += '#[contracttype]\n' + insertDocs(u) + `enum ${name} {
-    ${Object.entries(u.cases).map(([name, value]) => insertDocs(value, 1) + `${name}(${value === 'void' ? '' : value.join(', ')})`).join(',\n' + indent)}
+            res += insertDocs(u) + `#[contracttype]\nenum ${name} {
+${Object.entries(u.cases).map(([name, value]) => insertDocs(value, 1) + `${indent(name, 1)}(${value === 'void' ? '' : value.join(', ')})`).join(',\n')}
 }\n\n`
         }
     }
 
     if (meta.errors) {
         res += '// ERRORS\n\n'
-        for (const [name, e] of Object.entries(meta.errors)) {
-            res += '#[contracttype]\n' + insertDocs(e) + `enum ${name} {
-    ${Object.entries(e.cases).map(([name, props]) => insertDocs(props, 1) + name + ' = ' + props.value).join(',\n' + indent)}
+        res += `#[contracterror]\nenum Errors {
+${Object.entries(meta.errors).map(([name, props]) => insertDocs(props, 1) + indent(name, 1) + ' = ' + props.value).join(',\n')}
 }\n\n`
-        }
     }
     return res
 }
 
-function insertDocs(props, indentLevel = 0, prefix = '') {
+function insertDocs(props, level = 0, prefix = '') {
     if (!props.doc)
         return ''
-    let res = '/// ' + prefix + props.doc + '\n'
-    if (indentLevel > 0) {
-        for (let i = 0; i < indentLevel; i++) {
-            res = indent + res
-        }
-    }
-    return res
+    let res = '/// ' + prefix + props.doc.replaceAll('\n', '\n' + indent('/// ', level)) + '\n'
+    return indent(res, level)
+}
+
+function indent(value, level) {
+    if (!level)
+        return value
+    return '  '.repeat(level) + value
 }
