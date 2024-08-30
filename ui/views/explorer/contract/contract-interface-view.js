@@ -24,7 +24,7 @@ function parseRustInterface(meta) {
     if (meta.functions) {
         res += '// FUNCTIONS\n\n'
         for (const [name, fn] of Object.entries(meta.functions)) {
-            res += Object.entries(fn.inputs).map(([name, input]) => insertDocs(input, 0, name + ': ')).join('\n')
+            res += Object.entries(fn.inputs).map(([name, input]) => insertDocs(input, 0, name + ': ')).filter(v => !!v).join('\n')
             res += insertDocs(fn) + `fn ${name}(${Object.entries(fn.inputs).map(([name, props]) => name + ': ' + props.type).join(', ')})`
             if (fn.outputs?.length) {
                 res += ' -> ' + (fn.outputs.length > 1 ? `(${fn.outputs.join(', ')})` : fn.outputs[0])
