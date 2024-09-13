@@ -4,7 +4,7 @@ import {CodeBlock} from '@stellar-expert/ui-framework'
 function useIpfsTomlContent(cid) {
     const [content, setContent] = useState()
     useEffect(() => {
-        fetch('https://ipfs.io/ipfs/' + cid)
+        fetch('https://stellar.myfilebase.com/ipfs/' + cid)
             .then(res => res.text())
             .then(data => setContent(data))
     }, [cid])
