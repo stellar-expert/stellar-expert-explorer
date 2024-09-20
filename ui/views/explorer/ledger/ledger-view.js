@@ -1,71 +1,33 @@
 import React from 'react'
 import {xdr} from '@stellar/stellar-base'
-import {
-    BlockSelect,
-    Amount,
-    UtcTimestamp,
-    InfoTooltip as Info,
-    useDependantState,
-    formatExplorerLink,
-    useStellarNetwork
-} from '@stellar-expert/ui-framework'
-import {fetchExplorerApi} from '@stellar-expert/ui-framework/api/explorer-api-call'
-import appSettings from '../../../app-settings'
+import {BlockSelect, Amount, UtcTimestamp, InfoTooltip as Info, formatExplorerLink, useExplorerApi} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../../business-logic/path'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import Transactions from './ledger-transactions-view'
 
-function formatTransactionsCount(ledger) {
-    if (ledger.operation_count > 0) return <BlockSelect>
-        {ledger.successful_transaction_count} ({ledger.operation_count} operations)
-    </BlockSelect>
-    return 'no transactions'
-}
-
 export default function LedgerView({match}) {
-    const network = useStellarNetwork()
     const sequence = parseInt(match.params.sequence, 10) || 0
-    const [{ledger, error}, setState] = useDependantState(() => {
-        setPageMetadata({
-            title: `Ledger ${sequence} on Stellar ${appSettings.activeNetwork} network`,
-            description: `Extensive blockchain information for the ledger ${sequence} on Stellar ${appSettings.activeNetwork} network.`
-        })
-        fetchExplorerApi(network + '/ledger/' + sequence)
-            .then(response => {
-                const parsed = xdr.LedgerHeader.fromXDR(response.xdr, 'base64')
-                const ledger = {
-                    sequence: parsed.ledgerSeq(),
-                    ts: Number(parsed.scpValue().closeTime().toBigInt()/1000n),
-                    protocol: parsed.ledgerVersion(),
-                    xlm: parsed.totalCoins().toBigInt(),
-                    baseFee: parsed.baseFee(),
-                    feePool: parsed.feePool().toBigInt()
-                }
-                setState({ledger, error: null})
-            })
-            .catch(err => {
-                let errorText = `Failed to load ledger ${sequence}.`
-                if (err) {
-                    console.error(err)
-                    if (err.message === 'Not Found' || err.status === 404) {
-                        errorText = 'Ledger not found. The requested sequence is greater than last known Horizon sequence.'
-                    } else if (err.message === 'Bad Request') {
-                        errorText = 'Ledger not found. Invalid ledger sequence.'
-                    }
-                }
-                setState({ledger: null, error: errorText})
-            })
-
-        return {ledger: null, error: null}
-    }, [sequence])
-
-
-    if (error)
-        return <ErrorNotificationBlock>{error}</ErrorNotificationBlock>
-    if (!ledger)
+    const ledgerInfo = useExplorerApi('ledger/' + sequence)
+    if (!ledgerInfo.loaded)
         return <div className="loader"/>
+    if (ledgerInfo.error || ledgerInfo.data.status) {
+        let error = `Failed to load ledger ${sequence}.`
+        if (ledgerInfo.data.status === 404) {
+            error = 'Ledger not found. The requested sequence is greater than last known Horizon sequence.'
+        }
+        return <ErrorNotificationBlock>{error}</ErrorNotificationBlock>
+    }
+    const parsed = xdr.LedgerHeader.fromXDR(ledgerInfo.data.xdr, 'base64')
+    const ledger = {
+        sequence: parsed.ledgerSeq(),
+        ts: Number(parsed.scpValue().closeTime().toBigInt() / 1000n),
+        protocol: parsed.ledgerVersion(),
+        xlm: parsed.totalCoins().toBigInt(),
+        baseFee: parsed.baseFee(),
+        feePool: parsed.feePool().toBigInt()
+    }
+
     return <>
         <div style={{float: 'right', margin: '0.4em -0.4em 0px 0px', position: 'relative', zIndex: 1}}>
             <div className="text-small">
