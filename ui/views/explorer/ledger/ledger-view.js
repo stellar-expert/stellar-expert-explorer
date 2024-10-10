@@ -21,7 +21,7 @@ export default function LedgerView({match}) {
     const parsed = xdr.LedgerHeader.fromXDR(ledgerInfo.data.xdr, 'base64')
     const ledger = {
         sequence: parsed.ledgerSeq(),
-        ts: Number(parsed.scpValue().closeTime().toBigInt() / 1000n),
+        ts: Number(parsed.scpValue().closeTime().toBigInt()),
         protocol: parsed.ledgerVersion(),
         xlm: parsed.totalCoins().toBigInt(),
         baseFee: parsed.baseFee(),
