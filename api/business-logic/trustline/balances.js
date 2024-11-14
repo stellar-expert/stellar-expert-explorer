@@ -50,7 +50,7 @@ async function queryBalances(network, parentId) {
             created: t.created
         }
         if (asset.price > 0) {
-            res.value = t.balance.toNumber() * asset.price
+            res.value = Math.floor(t.balance.toNumber() * asset.price).toString()
         }
         return res
     })

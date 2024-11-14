@@ -18,6 +18,7 @@ async function queryContractStats(network, contractAddress) {
 
     const res = {
         account: contract.address,
+        contract: contract.address,
         created: contract.created,
         creator: await resolveAccountAddress(network, contract.creator),
         payments: contract.payments,
