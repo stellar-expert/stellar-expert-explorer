@@ -6,6 +6,7 @@ const {estimateContractValue} = require('../../business-logic/contracts/contract
 const {queryContractBalances} = require('../../business-logic/contracts/contract-balances')
 const {queryContractCode} = require('../../business-logic/contracts/contract-code')
 const {queryContractVersions} = require('../../business-logic/contracts/contract-versions')
+const {queryContractTopUsers, queryContractInvocationStats} = require('../../business-logic/contracts/contract-invocations')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -41,6 +42,16 @@ module.exports = function (app) {
         'contract/:contract/value',
         {cache: 'stats'},
         ({params, query}) => estimateContractValue(params.network, params.contract, query.currency))
+
+    registerRoute(app,
+        'contract/:contract/users',
+        {cache: 'stats'},
+        ({params, query}) => queryContractTopUsers(params.network, params.contract, query.func, query.since))
+
+    registerRoute(app,
+        'contract/:contract/invocation-stats',
+        {cache: 'stats'},
+        ({params, query}) => queryContractInvocationStats(params.network, params.contract, query.func, query.since))
 
     registerRoute(app,
         'wasm/:hash',

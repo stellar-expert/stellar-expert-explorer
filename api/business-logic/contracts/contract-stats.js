@@ -17,8 +17,8 @@ async function queryContractStats(network, contractAddress) {
         throw errors.notFound('Contract was not found on the ledger. Check if you specified contract address correctly.')
 
     const res = {
-        account: contract.address,
         contract: contract.address,
+        account: contract.address,
         created: contract.created,
         creator: await resolveAccountAddress(network, contract.creator),
         payments: contract.payments,
@@ -51,6 +51,29 @@ async function queryContractStats(network, contractAddress) {
     if (versions > 1) {
         res.versions = versions
     }
+    const functions = await db[network]
+        .collection('invocations')
+        .aggregate([
+            {
+                $match: {contract: contract._id}
+            },
+            {
+                $group: {
+                    _id: '$function',
+                    invocations: {$sum: 1},
+                    //errors: {$sum: '$errors'},
+                    subinvocations: {$sum: '$nested'}
+                }
+            },
+            {
+                $sort: {invocations: -1}
+            }
+        ]).toArray()
+
+    res.functions = functions.map(({_id, ...props}) => {
+        props.function = _id
+        return props
+    })
     return res
 }
 

@@ -13,7 +13,7 @@ function AccountOffersView({address}) {
 
     if (!offers) return <div className="loader"/>
     if (!offers.length) return <div className="space dimmed text-center">(no active offers)</div>
-    return <div>
+    return <div className="segment blank">
         <table className="table exportable" data-export-prefix={address + '-offers'}>
             <thead>
             <tr>
@@ -26,8 +26,8 @@ function AccountOffersView({address}) {
             </thead>
             <tbody>
             {offers.map(offer => {
-                const selling = parseAssetFromObject(offer.selling),
-                    buying = parseAssetFromObject(offer.buying)
+                const selling = parseAssetFromObject(offer.selling)
+                const buying = parseAssetFromObject(offer.buying)
                 return <tr key={offer.id}>
                     <td data-header="Offer ID: ">
                         <OfferLink offer={offer.id}/>

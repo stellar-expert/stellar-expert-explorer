@@ -3,6 +3,7 @@ import {Tabs} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import TxHistoryView from '../tx/tx-history-view'
 import {ContractInterfaceView} from './contract-interface-view'
+import ContractUsersView from './contract-users-view'
 
 export default function ContractTabsView({contract}) {
     const {query} = navigation
@@ -32,6 +33,11 @@ export default function ContractTabsView({contract}) {
             render: () => <ContractInterfaceView hash={contract.wasm}/>
         })
     }
+    tabs.push({
+        name: 'users',
+        title: 'Contract Activity',
+        render: () => <ContractUsersView contract={contract.address} functions={contract.functions}/>
+    })
 
     return <Tabs right tabs={tabs} className="space" selectedTab={operationsFilter} onChange={selectTab}/>
 }

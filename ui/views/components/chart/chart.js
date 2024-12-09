@@ -51,7 +51,8 @@ export default function Chart({
 
     useDeepEffect(() => {
         destroyChart()
-        if (!options) return
+        if (!options)
+            return
 
         const mergedOptions = prepareChartOptions(options, {grouped, range, noLegend, modules})
 
@@ -61,9 +62,8 @@ export default function Chart({
     }, [options, modules, type, inline, title])
 
 
-    if (!options) {
+    if (!options)
         return <ChartLoader title={title}/>
-    }
     const containerStyle = {...style}
     if (inline) {
         containerStyle.display = 'inline-block'

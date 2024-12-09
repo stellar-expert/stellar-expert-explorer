@@ -2,11 +2,11 @@
     const http = require('http')
     const express = require('express')
     const bodyParser = require('body-parser')
-    const cors = require('cors')
 
     process.env.TZ = 'Etc/UTC'
 
     await require('./connectors/mongodb-connector').init()
+    await require('./connectors/elastic-connector').enumerateIndexes()
     const {port} = require('./app.config')
 
     const proxyValidator = require('./business-logic/proxy-validator')
