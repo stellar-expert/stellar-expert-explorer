@@ -40,7 +40,7 @@ export default withErrorBoundary(function ContractStatsHistoryView({contract, fu
             <div className="space dimmed text-center text-small">(invocations history not available)</div>
         </div>
 
-    const invocationsChartTitle = <>Contract metrics</>
+    const invocationsChartTitle = 'Contract metrics'
     return <div className="segment blank">
         <div>
             Function: <ContractFunctionSelectorView functions={functions} onChange={setFunc} func={func}/>&emsp;
@@ -160,5 +160,5 @@ function SorobanInvocationsStatsChart({history, title}) {
         data: subinvocations,
         minPointSize: 5
     })
-    return <Chart type="Chart" title={title} options={config} container="" grouped noLegend/>
+    return <Chart type="Chart" title="Contract invocations" options={config} container="" grouped noLegend/>
 }

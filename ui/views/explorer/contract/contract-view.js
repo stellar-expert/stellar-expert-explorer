@@ -21,7 +21,7 @@ export default function ContractView() {
         </>
     if (!loaded)
         return <div className="loader"/>
-    if (!data)
+    if (!data || data.error)
         return <>
             <h2 className="word-break condensed"><span className="dimmed">Contract</span> {address}</h2>
             <ErrorNotificationBlock>Contract not found on the ledger</ErrorNotificationBlock>
