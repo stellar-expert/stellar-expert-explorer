@@ -46,8 +46,10 @@ async function processSearchTerm(originalTerm) {
         } else if (searchTypes[0] === 'sorobandomains') {
             const resolved = await fetch(`https://sorobandomains-query.lightsail.network/api/v1/query?q=${originalTerm.trim().toLowerCase()}&type=domain`)
                 .then(res => res.json())
-            term = resolved.address
-            searchTypes = ['account']
+            if (resolved?.address) {
+                term = resolved.address
+                searchTypes = ['account']
+            }
         }
         return {term, originalTerm, searchTypes, error: null}
 
