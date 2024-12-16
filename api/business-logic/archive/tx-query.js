@@ -407,7 +407,7 @@ class TxQuery {
         let res = []
         for (let year = this.yearConstraints.to; year >= this.yearConstraints.from; year--) {
             queryRequest.index = this.generateOpIndexName(year)
-            queryRequest.size = size - res.length
+            queryRequest.size = size
             const elasticResponse = await elastic.search(queryRequest)
             //retrieve transaction IDs from the response
             const ids = elasticResponse.hits.hits.map(h => BigInt(h._id))//& 0x7ffffffffffff000n)
