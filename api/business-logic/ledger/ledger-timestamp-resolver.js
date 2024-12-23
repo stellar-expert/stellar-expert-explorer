@@ -62,21 +62,28 @@ function queryTimestampFromSequence(network, query) {
         })
 }
 
-function querySequenceFromTimestamp(network, query) {
+async function querySequenceFromTimestamp(network, query) {
     validateNetwork(network)
     const ts = parseDate(query.timestamp)
     if (isNaN(ts) || ts === null || ts < 0 || ts > 2147483647)
         throw errors.validationError('timestamp')
-    return resolveSequenceFromTimestamp(network, ts)
-        .then(sequence => {
-            if (sequence === undefined)
-                throw errors.notFound(`Ledger matching timestamp ${query.timestamp} not found`)
-            return {
-                sequence,
-                timestamp: ts,
-                date: new Date(ts * 1000).toISOString()
-            }
-        })
+    if (ts > unixNow() - 1)
+        throw errors.badRequest('Cannot resolve ledgers from the timestamp in the future')
+    let ledger = await db[network].collection('ledgers')
+        .findOne({ts: {$lte: ts}}, {sort: {ts: -1}, projection: {_id: 1, ts: 1}})
+    if (!ledger) {
+        const firstLedger = await getFirstLedgerTimestamp(network)
+        if (firstLedger > ts) {
+            ledger = firstLedger
+        }
+    }
+    if (!ledger)
+        throw errors.notFound(`Ledger matching timestamp ${query.timestamp} not found`)
+    return {
+        sequence: ledger._id,
+        timestamp: ledger.ts,
+        date: new Date(ledger.ts * 1000).toISOString()
+    }
 }
 
 module.exports = {resolveSequenceFromTimestamp, resolveTimestampFromSequence, queryTimestampFromSequence, querySequenceFromTimestamp}
