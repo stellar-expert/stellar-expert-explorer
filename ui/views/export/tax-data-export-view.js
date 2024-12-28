@@ -56,7 +56,7 @@ export default function TaxDataExportView() {
                 setFiles(null)
             })
             .finally(() => setInProgress(false))
-    }, [isValid, year, exportIncomingPayments, exportOutgoingPayments, exportTrades, exportFees, ignoreSpam])
+    }, [pk, isValid, year, exportIncomingPayments, exportOutgoingPayments, exportTrades, exportFees, ignoreSpam])
 
 
     return <div className="container narrow">
