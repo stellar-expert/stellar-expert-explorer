@@ -405,7 +405,11 @@ class TxQuery {
     async search(queryRequest) {
         let {size} = queryRequest
         let res = []
-        for (let year = this.yearConstraints.to; year >= this.yearConstraints.from; year--) {
+        let years = new Array(this.yearConstraints.to - this.yearConstraints.from + 1).fill(0)
+        years = this.order === 'desc' ?
+            years.map((v, i) => this.yearConstraints.to - i) :
+            years.map((v, i) => this.yearConstraints.from + i)
+        for (let year of years) {
             queryRequest.index = this.generateOpIndexName(year)
             queryRequest.size = size
             const elasticResponse = await elastic.search(queryRequest)
