@@ -1,6 +1,6 @@
 import React from 'react'
 import {withRouter} from 'react-router'
-import Alert from '../components/dialog'
+import {SystemDialog} from '@stellar-expert/ui-framework'
 import Footer from './footer-view'
 import CatcherView from './catcher-view'
 
@@ -16,6 +16,6 @@ export default withRouter(function Layout ({children, menu}) {
         {menu}
         <div className="page-container"><CatcherView>{children}</CatcherView></div>
         <Footer/>
-        <Alert/>
+        <SystemDialog/>
     </div>
 })

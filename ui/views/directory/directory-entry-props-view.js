@@ -160,7 +160,7 @@ export default function DirectoryEntryPropsView({existingEntry, requestedAddress
 
     async function deleteEntry() {
         if (!isAdmin) return
-        if (!confirm('Do you really want to remove this directory entry?')) return
+        if (!(await confirm('Do you really want to remove this directory entry?'))) return
         const {address, notes, version} = entry
         setStatus('authentication')
         try {
