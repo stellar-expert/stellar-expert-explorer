@@ -1,7 +1,7 @@
-import React, {useMemo} from 'react'
+import React from 'react'
 import {useParams} from 'react-router'
 import {StrKey, xdr} from '@stellar/stellar-base'
-import {useExplorerApi, CopyToClipboard, CodeBlock, AccountAddress} from '@stellar-expert/ui-framework'
+import {useExplorerApi, AccountAddress} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {applySorobanConfigChanges} from './soroban-config-changes-tracker'
@@ -20,7 +20,7 @@ export default function StagedSorobanConfigChangesView() {
         const configKey = xdr.ConfigUpgradeSetKey.fromXDR(id, 'base64')
         const contract = StrKey.encodeContract(configKey.contractId())
         const contentHash = configKey.contentHash()
-        const endpoint = `contract-data/${contract}/${encodeURIComponent(contentHash.toString('base64'))}`
+        const endpoint = `contract-data/${contract}/temporary/${encodeURIComponent(xdr.ScVal.scvBytes(contentHash).toXDR('base64'))}`
         const {data, loaded} = useExplorerApi(endpoint)
 
         return <StagedSorobanConfigChangesWrapper id={id}>

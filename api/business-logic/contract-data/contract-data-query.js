@@ -1,4 +1,4 @@
-const {StrKey, nativeToScVal} = require('@stellar/stellar-sdk')
+const {StrKey, xdr} = require('@stellar/stellar-sdk')
 const db = require('../../connectors/mongodb-connector')
 const {resolveAccountId} = require('../account/account-resolver')
 const {resolveContractId} = require('../contracts/contract-resolver')
@@ -60,9 +60,16 @@ async function queryContractData(network, basePath, parentAddress, {cursor, dura
     return preparePagedData(basePath, {cursor, limit, order: parsedOrder === 1 ? 'asc' : 'desc'}, dataEntries)
 }
 
-async function fetchContractDataEntry(network, parentAddress, key) {
+async function fetchContractDataEntry(network, parentAddress, key, durability) {
     validateNetwork(network)
-    const contractDataKey = parseContractDataKey(key)
+    const contractDataKey = xdr.LedgerKey.contractData(new xdr.LedgerKeyContractData({
+        contract: xdr.ScAddress.scAddressTypeContract(StrKey.decodeContract(parentAddress)),
+        key: parseContractDataKey(key),
+        durability: durability === 'temporary' ?
+            xdr.ContractDataDurability.temporary() :
+            xdr.ContractDataDurability.persistent()
+    })).toXDR()
+
     const parentId = await fetchParentId(network, parentAddress)
     const entry = await db[network].collection('contract_data')
         .findOne({_id: generateContractDataId(parentId, contractDataKey)}, {projection: {_id: 0, key: 1, value: 1, updated: 1}})
@@ -101,7 +108,7 @@ function parseCursor(cursor, parentId) {
 
 function parseContractDataKey(rawKey) {
     try {
-        return nativeToScVal(Buffer.from(rawKey, 'base64')).toXDR('raw')
+        return xdr.ScVal.fromXDR(rawKey, 'base64')
     } catch (e) {
         throw errors.validationError('Invalid contract data key: ' + rawKey)
     }
@@ -117,15 +124,17 @@ function isValidContract(address) {
 }
 
 /**
- * @param {Number} contractId - Contract identifier
+ * @param {Number} ownerId - Contract identifier
  * @param {Buffer} key - XDR-encoded state key
  * @return {Buffer} 32-byte contract_id + hash combination
  */
-function generateContractDataId(contractId, key) {
-    if (typeof contractId !== 'number')
-        throw new Error('Invalid contract id: ' + contractId)
-    const res = computeHash(key, 'binary')
-    res.writeInt32BE(contractId)
+function generateContractDataId(ownerId, key) {
+    if (typeof ownerId !== 'number')
+        throw new Error('Invalid contract id: ' + ownerId)
+    const keyHash = computeHash(key, 'binary')
+    const res = Buffer.allocUnsafe(36)
+    res.writeInt32BE(ownerId)
+    keyHash.copy(res, 4)
     return res
 }
 
