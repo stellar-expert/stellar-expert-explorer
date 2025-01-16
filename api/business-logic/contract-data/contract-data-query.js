@@ -96,7 +96,7 @@ async function fetchParentId(network, parent) {
 function parseCursor(cursor, parentId) {
     try {
         const raw = Buffer.from(cursor, 'base64')
-        if (raw.length !== 32)
+        if (raw.length !== 36)
             throw new Error('Invalid length')
         if (raw.readInt32BE() !== parentId)
             throw new Error('Cursor doesn\'t relate to the parent id')
