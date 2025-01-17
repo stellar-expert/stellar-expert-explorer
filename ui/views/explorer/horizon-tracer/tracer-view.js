@@ -110,11 +110,13 @@ export default function TracerView({endpoint}) {
                 &nbsp;Do not show navigation links
             </label>
         </div>}
-        {actions && <ButtonGroup className="space">
-            {actions.map(action => <Button small className="text-small" key={action.title} onClick={e => load(action.endpoint)}>
-                {action.title}
-            </Button>)}
-        </ButtonGroup>}
+        {actions && <div className="space">
+            <ButtonGroup>
+                {actions.map(action => <Button small className="text-small" key={action.title} onClick={e => load(action.endpoint)}>
+                    {action.title}
+                </Button>)}
+            </ButtonGroup>
+        </div>}
     </div>
 }
 

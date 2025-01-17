@@ -8,10 +8,7 @@ import './embed-widget-trigger.scss'
 
 export default function EmbedWidgetTrigger({title, path}) {
     const triggerClass = cn('trigger icon icon-embed')
-    const trigger = <a href="#" className={triggerClass} onClick={() => alert({
-        content: <WidgetCode path={`${location.origin}/widget/${appSettings.activeNetwork}/${path}`}/>,
-        header: `${title} - widget code`
-    })}/>
+    const trigger = <a href="#" className={triggerClass} onClick={() => alert(<WidgetCode path={`${location.origin}/widget/${appSettings.activeNetwork}/${path}`}/>,{title: `${title} - widget code`})}/>
 
     return <Tooltip trigger={trigger}>Get embeddable widget code for this block</Tooltip>
 }

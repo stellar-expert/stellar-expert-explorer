@@ -5,11 +5,7 @@ import {Tooltip} from '@stellar-expert/ui-framework'
 function invokeTracer(endpoint, e) {
     e.preventDefault()
     import(/* webpackChunkName: "tracer" */ './tracer-view')
-        .then(({default: Tracer}) => alert({
-            content: <Tracer endpoint={endpoint}/>,
-            actions: null,
-            header: 'Horizon API Tracer'
-        }))
+        .then(({default: Tracer}) => alert(<Tracer endpoint={endpoint}/>, {title: 'Horizon API Tracer'}))
 }
 
 function TracerIconView({endpoint}) {

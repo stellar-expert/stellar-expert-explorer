@@ -34,6 +34,10 @@
 }
 
 .asset-list-assets {
+  max-height: calc(100vh - 20em);
+  overflow-y: auto;
+  overflow-x: hidden;
+
   .asset-icon {
     width: 2.4em;
     margin-top: 0.2em;

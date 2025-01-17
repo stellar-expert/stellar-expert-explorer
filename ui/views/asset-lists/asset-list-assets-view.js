@@ -1,5 +1,6 @@
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {InfoTooltip as Info, AssetLink, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {memo} from 'react'
 
 export default withErrorBoundary(function AssetListAssetsView({assetList}) {
     if (!assetList)
@@ -17,11 +18,9 @@ export default withErrorBoundary(function AssetListAssetsView({assetList}) {
                     <div className="asset-info">
                         <AssetLink asset={descriptor || asset.contract} icon={false}/> {asset.name}
                         <div className="text-tiny">
-                            <div className="row">
-                                <div className="column column-66">
-                                    by <a href={'https://' + asset.domain} target="_blank" rel="noreferrer">{asset.org}</a>
-                                </div>
-                                <div className="column column-33 text-right dimmed">Decimals: {asset.decimals}</div>
+                            <div>
+                                <AssetDomain asset={asset}/>
+                                <span className="dimmed">Decimals: {asset.decimals}</span>
                             </div>
                             {!!asset.comment && <div title="Comment from the list provider">
                                 {asset.comment}
@@ -32,4 +31,12 @@ export default withErrorBoundary(function AssetListAssetsView({assetList}) {
             })}
         </div>
     </>
+})
+
+const AssetDomain = memo(function AssetDomain({asset}) {
+    if (!asset?.domain)
+        return null
+    return <span>
+        by <a href={'https://' + asset.domain} target="_blank" rel="noreferrer">{asset.org || asset.domain}</a>&emsp;
+    </span>
 })
