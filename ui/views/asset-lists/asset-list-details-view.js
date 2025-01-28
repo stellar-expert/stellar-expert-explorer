@@ -34,26 +34,26 @@ export default function AssetListDetailsView({list}) {
         </div>
 
     return <>
-        <dl className="text-small">
+        <div className="text-small">
             <div>
-                <dt>Provider:</dt>
-                <dd>
-                    <a href={assetList.feedback} target="_blank" rel="noreferrer">{assetList.provider}</a>,
-                    version {assetList.version}
-                </dd>
+                <span className="dimmed">Provider: </span>
+                <span>
+                <a href={assetList.feedback} target="_blank" rel="noreferrer">{assetList.provider}</a>,
+                version {assetList.version}
+            </span>
             </div>
             <div>
-                <dt>Description:</dt>
-                <dd className="text-justify">{assetList.description}</dd>
+                <span className="dimmed">Description: </span>
+                <span className="text-justify">{assetList.description}</span>
             </div>
             <div>
-                <dt>List URL:</dt>
-                <dd>
-                    <code><BlockSelect>{list}</BlockSelect></code>
-                    <CopyToClipboard text={list}/>
-                </dd>
+                <span className="dimmed">List&nbsp;URL: </span>
+                <span className="text-monospace">
+                <BlockSelect inline wrap>{list}</BlockSelect>
+                <CopyToClipboard text={list}/>
+            </span>
             </div>
-        </dl>
+        </div>
         <AssetListAssetsView assetList={assetList}/>
     </>
 }

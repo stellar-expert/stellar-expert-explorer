@@ -1,17 +1,21 @@
 const {Long} = require('mongodb')
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
-const {validateNetwork, validateAssetName} = require('../validators')
+const {validateNetwork, validateAssetName, isValidContractAddress} = require('../validators')
 const {anyToNumber} = require('../../utils/formatter')
 const AssetDescriptor = require('./asset-descriptor')
 
 async function queryAssetStats(network, asset) {
     validateNetwork(network)
-    validateAssetName(asset)
-
+    let query
+    if (isValidContractAddress(asset)) {
+        query = {$or: [{contract: asset}, {name: asset}]}
+    } else {
+        validateAssetName(asset)
+        query = {name: new AssetDescriptor(asset).toFQAN()}
+    }
     const assetInfo = await db[network].collection('assets')
-        .findOne({name: new AssetDescriptor(asset).toFQAN()})
-
+        .findOne(query)
     if (!assetInfo)
         throw errors.notFound('Asset statistics were not found on the ledger. Check if you specified the asset correctly.')
 

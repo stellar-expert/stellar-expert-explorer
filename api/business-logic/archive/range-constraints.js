@@ -1,7 +1,16 @@
-class IdConstraints {
-    to = undefined
+class RangeConstraints {
+    /**
+     * @param [from]
+     * @param [to]
+     */
+    constructor(from, to) {
+        this.to = to
+        this.from = from
+    }
 
-    from = undefined
+    to
+
+    from
 
     get isEmpty() {
         return this.to === undefined
@@ -14,18 +23,12 @@ class IdConstraints {
             && this.to < this.from
     }
 
-    /**
-     * @param {BigInt} constraint
-     */
     addBottomConstraint(constraint) {
         if (this.from === undefined || constraint > this.from) {
             this.from = constraint
         }
     }
 
-    /**
-     * @param {BigInt} constraint
-     */
     addTopConstraint(constraint) {
         if (this.to === undefined || constraint < this.to) {
             this.to = constraint
@@ -42,10 +45,6 @@ class IdConstraints {
         }
         return timeConstraints
     }
-
-    static isContractId(id) {
-        return id >= (1 << 30) && id < (((1 << 31) >>> 0) - 1)
-    }
 }
 
-module.exports = IdConstraints
+module.exports = RangeConstraints

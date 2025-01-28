@@ -2,15 +2,16 @@ const config = require('../../app.config.json')
 const errors = require('../errors')
 const db = require('../../connectors/mongodb-connector')
 const elastic = require('../../connectors/elastic-connector')
+const {parseGenericId} = require('../../utils/id-utils')
 const Asset = require('../asset/asset-descriptor')
-const IdConstraints = require('../../utils/id-constraints')
+const {accountResolver} = require('../account/account-resolver')
 const {validateNetwork, validateOfferId, validatePoolId, isValidContractAddress} = require('../validators')
 const {preparePagedData, normalizeLimit, normalizeOrder} = require('../api-helpers')
-const {resolveSequenceFromTimestamp} = require('../ledger/ledger-timestamp-resolver')
-const {accountResolver} = require('../account/account-resolver')
+const {resolveSequenceFromTimestamp, resolveTimestampFromSequence} = require('../ledger/ledger-timestamp-resolver')
+const {fetchLedgers, fetchLedger} = require('../ledger/ledger-resolver')
 const {fetchMemoIds} = require('../memo/memo-resolver')
 const {fetchArchiveTransactions, fetchSingleArchiveTransaction, fetchArchiveLedgerTransactions} = require('./archive-locator')
-const {fetchLedgers, fetchLedger} = require('../ledger/ledger-resolver')
+const RangeConstraints = require('./range-constraints')
 
 class TxQuery {
     constructor(network, basePath, {order = 'desc', cursor, limit, ...extraParams}) {
@@ -22,7 +23,8 @@ class TxQuery {
             throw new errors.validationError('order', 'Invalid sorting order')
         this.order = order
         this.limit = normalizeLimit(limit)
-        this.constraints = new IdConstraints()
+        this.idConstraints = new RangeConstraints()
+        this.yearConstraints = new RangeConstraints(elastic.indexBoundaries[network].min, new Date().getUTCFullYear())
         this.params = extraParams
     }
 
@@ -35,9 +37,13 @@ class TxQuery {
      */
     network
     /**
-     * @type {IdConstraints}
+     * @type {RangeConstraints}
      */
-    constraints
+    idConstraints
+    /**
+     * @type {RangeConstraints}
+     */
+    yearConstraints
     /**
      * @type {{}}
      */
@@ -63,7 +69,7 @@ class TxQuery {
      * Apply cursor parameters
      * @private
      */
-    addCursorFilter() {
+    async addCursorFilter() {
         if (!this.cursor)
             return
         try {
@@ -71,9 +77,19 @@ class TxQuery {
             if (cursor < 0n)
                 return
             if (this.order === 'asc') {
-                this.constraints.addBottomConstraint(cursor + 1n)
+                this.idConstraints.addBottomConstraint(cursor + 1n)
+                try {
+                    const ts = await resolveTimestampFromSequence(this.network, parseGenericId(cursor).ledger)
+                    this.yearConstraints.addBottomConstraint(new Date(ts * 1000).getUTCFullYear())
+                } catch (e) {
+                }
             } else {
-                this.constraints.addTopConstraint(cursor - 1n)
+                this.idConstraints.addTopConstraint(cursor - 1n)
+                try {
+                    const ts = await resolveTimestampFromSequence(this.network, parseGenericId(cursor).ledger)
+                    this.yearConstraints.addTopConstraint(new Date(ts * 1000).getUTCFullYear())
+                } catch (e) {
+                }
             }
         } catch (e) {
             throw errors.validationError('cursor', `Invalid paging cursor: "${this.cursor}".`)
@@ -90,13 +106,15 @@ class TxQuery {
         const promises = []
         if (to !== undefined) {
             const constraint = resolveSequenceFromTimestamp(this.network, parseInt(to, 10))
-                .then(sequence => this.constraints.addTopConstraint(BigInt((sequence + 1) >>> 0) << 32n))
+                .then(sequence => this.idConstraints.addTopConstraint(BigInt((sequence + 1) >>> 0) << 32n))
             promises.push(constraint)
+            this.yearConstraints.addTopConstraint(new Date(to * 1000).getUTCFullYear())
         }
         if (from !== undefined) {
             const constraint = resolveSequenceFromTimestamp(this.network, parseInt(from, 10))
-                .then(sequence => this.constraints.addBottomConstraint(BigInt(sequence >>> 0) << 32n))
+                .then(sequence => this.idConstraints.addBottomConstraint(BigInt(sequence >>> 0) << 32n))
             promises.push(constraint)
+            this.yearConstraints.addBottomConstraint(new Date(from * 1000).getUTCFullYear())
         }
         if (promises.length) {
             await Promise.all(promises)
@@ -293,18 +311,28 @@ class TxQuery {
      * @private
      */
     addIdRangeFilter(filters) {
-        const {constraints} = this
-        if (constraints.isEmpty)
+        const {idConstraints} = this
+        if (idConstraints.isEmpty)
             return
-        if (constraints.isUnfeasible) {
+        if (idConstraints.isUnfeasible) {
             this.isUnfeasible = true
             return
         }
         filters.push({
             range: {
-                id: constraints.resolve()
+                id: idConstraints.resolve()
             }
         })
+    }
+
+    /**
+     * Generate sharded index name based on year
+     * @param {number} year
+     * @return {string}
+     */
+    generateOpIndexName(year) {
+        const {opIndex} = config.networks[this.network]
+        return opIndex + year
     }
 
     /**
@@ -314,21 +342,13 @@ class TxQuery {
      * @private
      */
     buildQuery(filter) {
-        const {opIndex} = config.networks[this.network]
         return {
-            index: opIndex,
             _source: false,
             size: this.limit,
             timeout: '5s',
             track_total_hits: this.limit,
-            sort: [
-                {
-                    id: {order: this.order}
-                }
-            ],
-            query: {
-                bool: {filter}
-            },
+            sort: [{id: {order: this.order}}],
+            query: {bool: {filter}},
             fields: ['id']
         }
     }
@@ -361,12 +381,12 @@ class TxQuery {
             if (this.isUnfeasible)
                 return []
         }
+        if (this.yearConstraints.isUnfeasible)
+            return []
         //prepare and execute index query
         const queryRequest = this.buildQuery(filter)
-        const elasticResponse = await elastic.search(queryRequest)
-        //retrieve transaction IDs from the response
-        const ids = elasticResponse.hits.hits.map(h => BigInt(h._id))//& 0x7ffffffffffff000n)
-        if (!ids.length)
+        const ids = await this.search(queryRequest)
+        if (!ids?.length)
             return []
         //fetch transactions from archive and corresponding ledgers
         const [transactions, ledgers] = await Promise.all([
@@ -375,6 +395,34 @@ class TxQuery {
         ])
         //prepare response, merge data from transactions and ledgers responses
         return transactions.map(tx => TxQuery.prepareResponseEntry(tx, ledgers[tx.id.high], true))
+    }
+
+    /**
+     * @param {{}} queryRequest
+     * @return {Promise<BigInt[]>}
+     * @private
+     */
+    async search(queryRequest) {
+        let {size} = queryRequest
+        let res = []
+        let years = new Array(this.yearConstraints.to - this.yearConstraints.from + 1).fill(0)
+        years = this.order === 'desc' ?
+            years.map((v, i) => this.yearConstraints.to - i) :
+            years.map((v, i) => this.yearConstraints.from + i)
+        for (let year of years) {
+            queryRequest.index = this.generateOpIndexName(year)
+            queryRequest.size = size
+            const elasticResponse = await elastic.search(queryRequest)
+            //retrieve transaction IDs from the response
+            const ids = elasticResponse.hits.hits.map(h => BigInt(h._id))//& 0x7ffffffffffff000n)
+            if (ids.length) {
+                res = res.concat(ids)
+                size -= ids.length
+                if (size <= 0)
+                    break
+            }
+        }
+        return res
     }
 
     /**
@@ -415,7 +463,7 @@ class TxQuery {
      */
     async toArray() {
         //do not query data if unfeasible conditions detected
-        if (this.isUnfeasible || this.constraints.isUnfeasible)
+        if (this.isUnfeasible || this.idConstraints.isUnfeasible)
             return this.emptyResponse()
         //fetch data
         const records = await this.fetchData()

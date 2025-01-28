@@ -1,0 +1,337 @@
+openapi: 3.1.0
+info:
+  title: StellarExpert Contracts API
+  version: 0.2.0
+  termsOfService: 'https://stellar.expert/'
+  contact:
+    url: 'https://stellar.expert/'
+    email: info@stellar.expert
+  license:
+    name: MIT
+    url: 'https://tldrlegal.com/license/mit-license'
+  x-logo:
+    url: 'https://stellar.expert/img/stellar-expert-blue.svg'
+servers:
+  - url: 'https://api.stellar.expert'
+security:
+  - ApiKeyAuth: [ ]
+paths:
+  /explorer/{network}/contract/{contract}:
+    get:
+      operationId: getContract
+      summary: Load contract info
+      description: Retrieve general information for a given smart contract
+      tags: [ Contracts ]
+      parameters:
+        - name: network
+          $ref: '#/components/parameters/network'
+        - name: contract
+          $ref: '#/components/parameters/contract'
+      responses:
+        200:
+          description: Contract info loaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractInfo'
+        400:
+          description: Invalid contract address
+        404:
+          description: Contract not found
+  /explorer/{network}/contract/{contract}/version:
+    get:
+      operationId: listContractVersions
+      summary: List contract versions
+      description: Fetch WASM versions history for a contract
+      tags: [ Contracts ]
+      parameters:
+        - name: network
+          $ref: '#/components/parameters/network'
+        - name: contract
+          $ref: '#/components/parameters/contract'
+      responses:
+        200:
+          description: List of contract versions loaded
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ListApiResponse'
+                  - type: object
+                    properties:
+                      _embedded:
+                        type: object
+                        properties:
+                          records:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/ContractVersion'
+              example:
+                _links:
+                  self:
+                    href: /explorer/public/contract/CALI2BYU2JE6WVRUFYTS6MSBNEHGJ35P4AVCZYF3B6QOE3QKOB2PLE6M/versions
+                  prev:
+                    href: /explorer/public/contract/CALI2BYU2JE6WVRUFYTS6MSBNEHGJ35P4AVCZYF3B6QOE3QKOB2PLE6M/versions?order=asc&limit=20&cursor=QAAAhyMa2PNmQlVT3Tz0VJHXt3NeeFcxRmv8KUYAhgg%3D
+                  next:
+                    href: /explorer/public/contract/CALI2BYU2JE6WVRUFYTS6MSBNEHGJ35P4AVCZYF3B6QOE3QKOB2PLE6M/versions?order=desc&limit=20&cursor=QAAAh1At8yZl5d56iZjcfYphV1oR1sD71MYNEN%2Fij%2Fo%3D
+                _embedded:
+                  records:
+                    - wasm: 'df88820e231ad8f3027871e5dd3cf45491d7b7735e785731466bfc2946008608'
+                      operation: '221863802760450049'
+                      ts: 1715623251
+                      paging_token: 'QAAAhyMa2PNmQlVT3Tz0VJHXt3NeeFcxRmv8KUYAhgg='
+                    - wasm: '4a64c8c8502df326f4ce06d98998dc7d8a61575a11d6c0fbd4c60d10dfe28ffa'
+                      operation: '217515307287302145'
+                      ts: 1709563514
+                      paging_token: 'QAAAh1At8yZl5d56iZjcfYphV1oR1sD71MYNEN/ij/o='
+        400:
+          description: Invalid contract address
+        404:
+          description: Contract not found
+  /explorer/{network}/contract/{contract}/balance:
+    get:
+      operationId: getContractBalances
+      summary: Retrieve contract balances
+      description: Fetch balances of all tokens that have been transferred to the contract address
+      tags: [ Contracts ]
+      parameters:
+        - name: network
+          $ref: '#/components/parameters/network'
+        - name: contract
+          $ref: '#/components/parameters/contract'
+      responses:
+        200:
+          description: Contract balances loaded
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContractBalance'
+              example:
+                - asset: 'XLM'
+                  balance: '7272238951539'
+                  flags: 1
+                  created: 1710181047
+                  value: '887420889608'
+                - asset: 'USDC-GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN-1'
+                  balance: '885869880849'
+                  flags: 1
+                  created: 1710181047
+                  value: '885976371251'
+                - asset: 'CAM7DY53G63XA4AJRS24Z6VFYAFSSF76C3RZ45BE5YU3FQS5255OOABP'
+                  balance: '515978224624'
+                  flags: 1
+                  created: 1711776322
+        400:
+          description: Invalid contract address
+        404:
+          description: Contract not found
+  /explorer/{network}/wasm/{wasm}:
+    get:
+      operationId: loadContractWasmByHash
+      summary: Download contract WASM
+      description: Download WASM binary
+      tags: [ Contracts ]
+      parameters:
+        - name: network
+          $ref: '#/components/parameters/network'
+        - name: wasm
+          description: WASM hash or contract address
+          in: path
+          required: true
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/Hash'
+              - $ref: '#/components/schemas/ContractAddress'
+      responses:
+        200:
+          description: WASM binary loaded
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: WASM binary not found
+components:
+  schemas:
+    AccountAddress:
+      description: Account address (ED25519 public key)
+      type: string
+      pattern: '/^G[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]{55}$/'
+      example: 'GAB6FD5BCBVVQINU5USYV5K4JDAEO6RDL2GZU4K5BILPI6B4FIOF6QWW'
+    Asset:
+      description: Asset descriptor in {CODE}-{ISSUER}-{TYPE} format (or "XLM" for Stellar lumens)
+      type: string
+      example: 'BTC-GDKIIIL2YPRSCSFAYT7FQCH4VXF34YNBIORTYCOKJK5CZ762LX2ND4L4-1'
+    ContractAddress:
+      description: ED25519-encoded contract address
+      type: string
+      pattern: '/^C[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]{55}$/'
+      example: 'CCBWOUL7XW5XSWD3UKL76VWLLFCSZP4D4GUSCFBHUQCEAW23QVKJZ7ON'
+    Timestamp:
+      description: Ledger timestamp in UNIX format
+      type: integer
+      minimum: 0
+      example: 1731402776
+    Hash:
+      description: SHA256 hash
+      type: string
+      pattern: '/^[0-9a-f]{64}$/'
+      example: 'df88820e231ad8f3027871e5dd3cf45491d7b7735e785731466bfc2946008608'
+    Network:
+      description: Stellar network
+      type: string
+      enum:
+        - 'public'
+        - 'testnet'
+      example: public
+    ContractInfo:
+      description: ED25519-encoded contract address
+      type: object
+      properties:
+        contract:
+          $ref: '#/components/schemas/ContractAddress'
+        created:
+          $ref: '#/components/schemas/Timestamp'
+        creator:
+          $ref: '#/components/schemas/AccountAddress'
+        payments:
+          type: integer
+          description: Number of payments (using SAC contracts) executed with this contract
+          example: 312
+        wasm:
+          $ref: '#/components/schemas/Hash'
+          description: Contract WASM hash (for WASM-based contracts)
+        asset:
+          $ref: '#/components/schemas/Asset'
+          description: Asset descriptor (for contracts created from classic assets)
+        code:
+          type: string
+          description: Asset issuer (for contracts created from classic assets)
+          example: 'USD'
+        issuer:
+          $ref: '#/components/schemas/AccountAddress'
+          description: Asset issuer (for contracts created from classic assets or from issuer account)
+        salt:
+          $ref: '#/components/schemas/Hash'
+          description: Token issuer salt (for contracts created from issuer account)
+        storage_entries:
+          type: integer
+          description: Number of storage entries associated with the contract
+          example: 11
+        versions:
+          type: integer
+          description: Number of contract WASM updates (for WASM contracts that have been upgraded at least once)
+          example: 3
+        validation:
+          $ref: '#/components/schemas/ContractValidationStatus'
+          description: Validation information (for contracts with turned on validation workflow)
+      required:
+        - contract
+        - created
+        - creator
+    ContractValidationStatus:
+      description: ED25519-encoded contract address
+      type: object
+      properties:
+        status:
+          description: Validation status
+          type: string
+          enum: [ verified,unverified ]
+        ts:
+          description: Validation timestamp
+          $ref: '#/components/schemas/Timestamp'
+        repository:
+          type: string
+          description: GitHub repository URL
+          example: 'https://github.com/reflector-network/reflector-contract'
+        commit:
+          type: string
+          description: Commit hash
+          example: '391f37e39a849ddf7543a5d7f1488e055811cb68'
+    ContractVersion:
+      description: Contract WASM updates history entry
+      type: object
+      properties:
+        wasm:
+          description: WASM hash
+          $ref: '#/components/schemas/Hash'
+        operation:
+          description: ID of the operation that updated contract hash
+          type: string
+          example: '860750015589427'
+        ts:
+          description: Validation timestamp
+          $ref: '#/components/schemas/Timestamp'
+        paging_token:
+          type: string
+          description: Token for API paging
+          example: 'd460a0e8b702bf'
+    ContractBalance:
+      description: Balance of tokens transferred to the contract address
+      type: object
+      properties:
+        asset:
+          description: Asset identifier
+          $ref: '#/components/schemas/Asset'
+        balance:
+          description: Balance amount
+          type: string
+          example: '7272238951539'
+        flags:
+          description: Authorization flags
+          type: integer
+          example: 1
+        created:
+          description: Balance creation timestamp
+          $ref: '#/components/schemas/Timestamp'
+        value:
+          description: Estimated balance value in USD (if available)
+          type: string
+          example: '887420889608'
+    ListApiResponse:
+      description: List API response
+      type: object
+      properties:
+        _links:
+          type: object
+          properties:
+            self:
+              $ref: '#/components/schemas/ListApiResponseNavLink'
+            prev:
+              $ref: '#/components/schemas/ListApiResponseNavLink'
+            next:
+              $ref: '#/components/schemas/ListApiResponseNavLink'
+        _embedded:
+          type: object
+          properties:
+            records:
+              type: array
+    ListApiResponseNavLink:
+      type: object
+      properties:
+        href:
+          type: string
+  parameters:
+    contract:
+      name: contract
+      description: Contract id
+      in: path
+      schema:
+        $ref: '#/components/schemas/ContractAddress'
+      required: true
+    network:
+      name: network
+      description: Stellar network
+      in: path
+      schema:
+        $ref: '#/components/schemas/Network'
+      required: true
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      description: Access to private API endpoints with dedicated API key
+      name: Authorization
+      in: header

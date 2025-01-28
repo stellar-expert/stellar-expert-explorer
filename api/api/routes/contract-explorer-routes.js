@@ -6,6 +6,7 @@ const {estimateContractValue} = require('../../business-logic/contracts/contract
 const {queryContractBalances} = require('../../business-logic/contracts/contract-balances')
 const {queryContractCode} = require('../../business-logic/contracts/contract-code')
 const {queryContractVersions} = require('../../business-logic/contracts/contract-versions')
+const {queryContractTopUsers, queryContractInvocationStats} = require('../../business-logic/contracts/contract-invocations')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -18,8 +19,12 @@ module.exports = function (app) {
         {cache: 'stats'},
         ({params, query}) => queryContractStats(params.network, params.contract, query))
 
-    registerRoute(app,
+    registerRoute(app, //TODO: remove legacy route
         'contract/:contract/versions',
+        {cache: 'stats'},
+        ({params, path, query}) => queryContractVersions(params.network, path, params.contract, query))
+    registerRoute(app,
+        'contract/:contract/version',
         {cache: 'stats'},
         ({params, path, query}) => queryContractVersions(params.network, path, params.contract, query))
 
@@ -39,14 +44,33 @@ module.exports = function (app) {
         ({params, query}) => estimateContractValue(params.network, params.contract, query.currency))
 
     registerRoute(app,
-        'contract/wasm/:hash',
+        'contract/:contract/users',
+        {cache: 'stats'},
+        ({params, query}) => queryContractTopUsers(params.network, params.contract, query.func, query.since))
+
+    registerRoute(app,
+        'contract/:contract/invocation-stats',
+        {cache: 'stats'},
+        ({params, query}) => queryContractInvocationStats(params.network, params.contract, query.func, query.since))
+
+    registerRoute(app,
+        'wasm/:hash',
         {cache: 'stats'},
         async ({params}, res) => {
+            const code = await queryContractCode(params.network, params.hash)
             res.type('application/octet-stream')
             res.set('Content-Disposition', `attachment;filename=${params.hash}.wasm`)
-            const code = await queryContractCode(params.network, params.hash)
             res.send(code)
             res.end()
         })
-
+    registerRoute(app, //TODO: remove legacy route
+        'contract/wasm/:hash',
+        {cache: 'stats'},
+        async ({params}, res) => {
+            const code = await queryContractCode(params.network, params.hash)
+            res.type('application/octet-stream')
+            res.set('Content-Disposition', `attachment;filename=${params.hash}.wasm`)
+            res.send(code)
+            res.end()
+        })
 }

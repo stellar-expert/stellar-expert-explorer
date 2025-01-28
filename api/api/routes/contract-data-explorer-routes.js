@@ -3,9 +3,9 @@ const {queryContractData, fetchContractDataEntry} = require('../../business-logi
 
 module.exports = function (app) {
     registerRoute(app,
-        'contract-data/:parent/:key',
+        'contract-data/:parent/:durability/:key',
         {cache: 'stats'},
-        ({params}) => fetchContractDataEntry(params.network, params.parent, params.key))
+        ({params}) => fetchContractDataEntry(params.network, params.parent, params.key, params.durability))
 
     registerRoute(app,
         'contract-data/:parent',

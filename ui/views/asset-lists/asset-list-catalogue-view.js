@@ -7,10 +7,7 @@ import './asset-lists.scss'
 
 function showList(e) {
     const {name, list} = e.currentTarget.dataset
-    alert({
-        header: name,
-        content: <AssetListDetailsView list={list}/>
-    })
+    alert(<AssetListDetailsView list={list}/>,{title: name})
 }
 
 const sep42Link = 'https://github.com/stellar/stellar-protocol/pull/1409'

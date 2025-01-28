@@ -13,7 +13,7 @@ const searchTypeMap = {
 /**
  * Determine appropriate query type for the autolookup.
  * @param {string} query - Raw query.
- * @return {Array<('account'|'text'|'federation'|'tx'|'ledger')>}
+ * @return {Array<('account'|'asset'|'contract'|'tx'|'ledger'|'text'|'federation'|'sorobandomains')>}
  */
 function detectSearchType(query) {
     const res = []
@@ -27,6 +27,7 @@ function detectSearchType(query) {
         //tx hash
         if (query.length === 64 && /^[a-f0-9]{64}$/.test(query)) return ['transaction']
         //federation address
+        if (/^([a-z0-9-+]+)\.xlm$/i.test(query)) return ['sorobandomains']
         if (/^(.+)\*([^.]+\..+)$/.test(query)) return ['federation']
         //ledger, offer, tx/op generic id
         if (/^\d{1,19}$/.test(query)) {

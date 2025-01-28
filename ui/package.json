@@ -1,7 +1,7 @@
 {
   "name": "ui.stellar.expert",
   "private": true,
-  "version": "0.26.14",
+  "version": "0.27.9",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
@@ -9,7 +9,7 @@
     "build": "webpack --mode=production --config ./webpack-config.js",
     "dev-server": "webpack serve --mode development --config ./webpack-config.js",
     "test": "cross-env NODE_ENV=test node_modules/.bin/mocha --require @babel/register",
-    "build-api-docs": "pnpm dlx redoc-cli build open-api/openapi.yml -t open-api/openapi-template.hbs -o public/openapi.html --options.disableSearch --options.hideDownloadButton --options.hideLoading --options.expandSingleSchemaField --options.onlyRequiredInSamples --options.theme.colors.primary.main=#0691B7 --options.theme.typography.fontFamily=ClearSans --options.theme.typography.headings.fontFamily=RobotoCondensed --options.theme.typography.code.fontFamily=\"Consolas, 'Liberation Mono', Menlo, Courier, monospace\" --options.theme.typography.headings.fontWeight=300 --options.theme.typography.fontWeightRegular=300 --options.theme.typography.fontSize=16px --options.theme.logo.maxHeight=60px --options.theme.logo.gutter=8px --options.theme.spacing.sectionVertical=24px --options.theme.typography.headings.lineHeight=1.3em --options.theme.typography.menu.level1Items.textTransform=uppercase"
+    "build-api-docs": "pnpm --package=@redocly/cli dlx openapi build-docs open-api/openapi.yml -t open-api/openapi-template.hbs -o public/openapi.html"
   },
   "browserslist": [
     "> 1%",
@@ -29,11 +29,11 @@
     "@stellar-expert/contract-wasm-interface-parser": "^3.2.0",
     "@stellar-expert/formatter": "^2.3.0",
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
-    "@stellar-expert/tx-meta-effects-parser": "6.2.0",
+    "@stellar-expert/tx-meta-effects-parser": "6.3.1",
     "@stellar-expert/tx-signers-inspector": "^1.8.2",
-    "@stellar-expert/ui-framework": "1.13.6",
-    "@stellar/stellar-base": "12.1.0",
-    "@stellar/stellar-sdk": "12.2.0",
+    "@stellar-expert/ui-framework": "1.14.2",
+    "@stellar/stellar-base": "13.0.1",
+    "@stellar/stellar-sdk": "13.0.0",
     "classnames": "^2.3.2",
     "deepmerge": "^4.2.2",
     "highcharts": "8.1.0",
@@ -52,6 +52,6 @@
     "@stellar-expert/eslint-config-js": "^1.1.0",
     "@stellar-expert/eslint-config-react": "^1.1.0",
     "@stellar-expert/webpack-template": "1.4.0",
-    "redoc-cli": "^0.13.15"
+    "@redocly/cli": "^1.25.11"
   }
 }

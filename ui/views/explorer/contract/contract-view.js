@@ -7,6 +7,7 @@ import ErrorNotificationBlock from '../../components/error-notification-block'
 import ContractBalancesView from './contract-balances-view'
 import ContractDetailsView from './contract-details-view'
 import ContractTabsView from './contract-tabs-view'
+import ContractStatsHistoryView from './contract-stats-history-view'
 
 export default function ContractView() {
     const {id: address} = useParams()
@@ -20,7 +21,7 @@ export default function ContractView() {
         </>
     if (!loaded)
         return <div className="loader"/>
-    if (!data)
+    if (!data || data.error)
         return <>
             <h2 className="word-break condensed"><span className="dimmed">Contract</span> {address}</h2>
             <ErrorNotificationBlock>Contract not found on the ledger</ErrorNotificationBlock>
@@ -49,6 +50,9 @@ export default function ContractView() {
                     <ContractBalancesView address={address}/>
                 </div>
             </div>
+        </div>
+        <div className="space">
+            <ContractStatsHistoryView contract={address} functions={data.functions}/>
         </div>
         <div>
             <ContractTabsView contract={data}/>

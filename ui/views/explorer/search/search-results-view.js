@@ -43,6 +43,13 @@ async function processSearchTerm(originalTerm) {
             const {account_id} = await Federation.Server.resolve(originalTerm)
             term = account_id
             searchTypes = ['account']
+        } else if (searchTypes[0] === 'sorobandomains') {
+            const resolved = await fetch(`https://sorobandomains-query.lightsail.network/api/v1/query?q=${originalTerm.trim().toLowerCase()}&type=domain`)
+                .then(res => res.json())
+            if (resolved?.address) {
+                term = resolved.address
+                searchTypes = ['account']
+            }
         }
         return {term, originalTerm, searchTypes, error: null}
 

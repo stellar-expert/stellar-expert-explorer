@@ -54,17 +54,17 @@ module.exports = {
         } = options
 
         middleware.unshift(corsMiddleware[cors])
-        if (billingCategory) {
-            middleware.unshift((req, res, next) => {
-                const charged = billing.charge(req.headers, billingCategory)
-                if (charged) {
-                    req.billingProcessed = true
-                    return next()
-                }
-                res.status(402)
-                res.send('Payment Required')
-            })
-        }
+        middleware.unshift((req, res, next) => {
+            const charged = billing.charge(req.headers, billingCategory)
+            if (charged) {
+                req.billingProcessed = true
+                return next()
+            }
+            if (!billingCategory)
+                return next() //allow public APIs
+            res.status(402)
+            res.send('Payment Required')
+        })
 
         if (cache) {
             middleware.push(apiCache.cache(cache))

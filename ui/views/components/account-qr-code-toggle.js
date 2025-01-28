@@ -2,10 +2,7 @@ import React from 'react'
 
 function showQR(address) {
     import(/* webpackChunkName: "qr" */ './account-qr-code')
-        .then(({default: QR}) => alert({
-            header: 'QR code',
-            content: <QR address={address}/>
-        }))
+        .then(({default: QR}) => alert(<QR address={address}/>,{title:'QR code'}))
 }
 
 export default function AccountQrCodeToggle({account}) {

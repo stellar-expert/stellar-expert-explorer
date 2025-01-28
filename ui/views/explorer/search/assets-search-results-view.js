@@ -1,14 +1,15 @@
 import React from 'react'
 import {AssetLink, UtcTimestamp, useExplorerApi} from '@stellar-expert/ui-framework'
 import {formatPrice} from '@stellar-expert/formatter'
-import SearchResultsSectionView from './search-results-section-view'
 import {resolvePath} from '../../../business-logic/path'
+import SearchResultsSectionView from './search-results-section-view'
 
 const limit = 20
 
 export default function AssetSearchResultsView({term, onLoaded}) {
     const response = useExplorerApi(`asset?search=${encodeURIComponent(term)}&limit=${limit}`)
-    if (!response.loaded) return null
+    if (!response.loaded)
+        return null
     const results = []
     let more
     if (term.toLowerCase() === 'xlm') {

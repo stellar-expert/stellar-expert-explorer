@@ -12,8 +12,10 @@ export default function TradesHistoryView({endpoint}) {
     })
     const {loaded, loading, data} = trades
 
-    if (!loaded) return <div className="loader"/>
-    if (!data.length) return <div className="space dimmed text-center">(no trades)</div>
+    if (!loaded)
+        return <div className="loader"/>
+    if (!data.length)
+        return <div className="space dimmed text-center">(no trades)</div>
 
     return <div className="relative segment blank space">
         {loading && data.length > 0 && <div className="loader cover"/>}

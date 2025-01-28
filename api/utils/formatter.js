@@ -113,4 +113,16 @@ function toStroops(value) {
     }
 }
 
-module.exports = {formatAmount, formatWithPrecision, formatPercentage, adjustAmount, anyToNumber, toStroops}
+/**
+ * Round value to specified precision
+ * @param {number} value
+ * @param {number} decimals
+ * @return {number}
+ */
+function round(value, decimals = 3) {
+    if (!value)
+        return 0
+    return parseFloat(value.toFixed(decimals))
+}
+
+module.exports = {formatAmount, formatWithPrecision, formatPercentage, adjustAmount, anyToNumber, round}
