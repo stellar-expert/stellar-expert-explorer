@@ -1,5 +1,6 @@
 import React from 'react'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
+import CrawlerScreen from '../../components/crawler-screen'
 import AssetsChart from '../ledger/charts/ledger-history-assets-trustlines-chart-view'
 import AssetsOverallStatsView from './asset-overall-stats-view'
 import AssetList from './asset-list-view'
@@ -20,12 +21,14 @@ export default function AssetsDashboard() {
                 </div>
             </div>
             <div className="column column-60">
-                <AssetsChart/>
+                <CrawlerScreen><AssetsChart/></CrawlerScreen>
             </div>
         </div>
-        <div className="segment blank space">
-            <div className="double-space"></div>
-            <AssetList/>
-        </div>
+        <CrawlerScreen>
+            <div className="segment blank space">
+                <div className="double-space"></div>
+                <AssetList/>
+            </div>
+        </CrawlerScreen>
     </>
 }

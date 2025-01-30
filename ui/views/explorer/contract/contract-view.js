@@ -4,6 +4,7 @@ import {StrKey} from '@stellar/stellar-base'
 import {AccountAddress, useContractInfo} from '@stellar-expert/ui-framework'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import ContractBalancesView from './contract-balances-view'
 import ContractDetailsView from './contract-details-view'
 import ContractTabsView from './contract-tabs-view'
@@ -43,19 +44,23 @@ export default function ContractView() {
                 </div>
                 <div className="space mobile-only"/>
             </div>
-            <div className="column column-50">
-                <div className="segment blank">
-                    <h3>Contract balances</h3>
-                    <hr className="flare"/>
-                    <ContractBalancesView address={address}/>
+            <CrawlerScreen>
+                <div className="column column-50">
+                    <div className="segment blank">
+                        <h3>Contract balances</h3>
+                        <hr className="flare"/>
+                        <ContractBalancesView address={address}/>
+                    </div>
                 </div>
+            </CrawlerScreen>
+        </div>
+        <CrawlerScreen>
+            <div className="space">
+                <ContractStatsHistoryView contract={address} functions={data.functions}/>
             </div>
-        </div>
-        <div className="space">
-            <ContractStatsHistoryView contract={address} functions={data.functions}/>
-        </div>
-        <div>
-            <ContractTabsView contract={data}/>
-        </div>
+            <div>
+                <ContractTabsView contract={data}/>
+            </div>
+        </CrawlerScreen>
     </>
 }
