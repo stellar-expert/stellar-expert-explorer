@@ -157,7 +157,7 @@ function parseBoundaries({from = 0, to, resolution = 'auto', order}) {
 
     order = normalizeOrder(order, 1)
     resolution = optimizeResolution(from, to, resolution)
-    if (to !== undefined) {
+    if (to === undefined) {
         to = Math.min(from + resolution * 200, maxUnixTime)
     }
     return {from, to, order, resolution}
