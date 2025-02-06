@@ -2,7 +2,7 @@ const {Long, ObjectId} = require('bson')
 const db = require('../../connectors/mongodb-connector')
 const {normalizeOrder} = require('../api-helpers')
 const {formatWithPrecision} = require('../../utils/formatter')
-const {maxUnixTime, unixNow, timeUnits, trimDate} = require('../../utils/date-utils')
+const {maxUnixTime} = require('../../utils/date-utils')
 const errors = require('../errors')
 
 const standardResolutions = [
@@ -110,9 +110,15 @@ function reverseRecordSides(record) {
  * @return {Number}
  */
 function optimizeResolution(from, to, originalResolution) {
+    //upper boundary not specified
+    if (to === undefined) {
+        if (!standardResolutions.includes(originalResolution))
+            return standardResolutions[standardResolutions.length - 1]
+        return originalResolution
+    }
+    //auto-adjust
     const span = to - from
     if (originalResolution && originalResolution !== 'auto') {
-        originalResolution = parseInt(originalResolution, 10)
         if (standardResolutions.includes(originalResolution)) {
             if (span / originalResolution <= 200)
                 return originalResolution
@@ -132,18 +138,28 @@ function optimizeResolution(from, to, originalResolution) {
  * @param {Number|String} order
  * @return {{from: Number, to: Number, order: Number, resolution: Number}}
  */
-function parseBoundaries({from = 0, to = maxUnixTime, resolution = 'auto', order}) {
+function parseBoundaries({from = 0, to, resolution = 'auto', order}) {
     from = parseInt(from, 10)
-    to = parseInt(to, 10)
     if (isNaN(from) || from < 0 || from > maxUnixTime)
         throw errors.validationError('from')
-    if (isNaN(to) || to < 0 || to > 2147483647)
-        throw errors.validationError('to')
-    if (to <= from)
-        throw errors.badRequest('Parameter "to" should be larger than "from".')
+    if (to !== undefined) {
+        to = parseInt(to, 10)
+        if (isNaN(to) || to < 0 || to > maxUnixTime)
+            throw errors.validationError('to')
+        if (to <= from)
+            throw errors.badRequest('Parameter "to" should be larger than "from".')
+    }
+    if (resolution !== 'auto') {
+        resolution = parseInt(resolution, 10)
+        if (!standardResolutions.includes(resolution))
+            throw errors.validationError('resolution')
+    }
 
     order = normalizeOrder(order, 1)
     resolution = optimizeResolution(from, to, resolution)
+    if (to !== undefined) {
+        to = Math.min(from + resolution * 200, maxUnixTime)
+    }
     return {from, to, order, resolution}
 }
 
@@ -178,4 +194,4 @@ function encodeMarketOhlcvtId(assetIds, timestamp) {
     return new ObjectId(raw)
 }
 
-module.exports = {aggregateOhlcvt, optimizeResolution, parseBoundaries, encodeAssetOhlcvtId, encodeMarketOhlcvtId, OHLCVT}
+module.exports = {aggregateOhlcvt, parseBoundaries, encodeAssetOhlcvtId, encodeMarketOhlcvtId, OHLCVT}
