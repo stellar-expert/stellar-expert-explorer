@@ -4,6 +4,7 @@ import {useRouteMatch} from 'react-router'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {useAssetInfo, useAssetIssuerInfo} from '../../../business-logic/api/asset-api'
 import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import TomlInfo from '../toml/toml-info-view'
 import AssetDetailsView from './asset-details-view'
 import AssetHistoryTabsView from './asset-history-tabs-view'
@@ -55,6 +56,6 @@ export default function AssetView() {
         <AssetDetailsView asset={asset}/>
         {!!issuerInfo?.home_domain &&
             <TomlInfo homeDomain={issuerInfo.home_domain} assetMeta={assetMeta} account={issuer} className="space"/>}
-        <AssetHistoryTabsView asset={asset}/>
+        <CrawlerScreen><AssetHistoryTabsView asset={asset}/></CrawlerScreen>
     </>
 }

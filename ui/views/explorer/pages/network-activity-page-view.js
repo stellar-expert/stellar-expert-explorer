@@ -2,6 +2,7 @@ import React from 'react'
 import {Tabs} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
+import CrawlerScreen from '../../components/crawler-screen'
 import LedgerActivity from '../ledger/ledger-activity-view'
 import LedgerDailyStats from '../ledger/ledger-daily-stats'
 import OperationsChart from '../ledger/charts/ledger-history-operations-ledger-time-chart-view'
@@ -53,18 +54,20 @@ function GeneralNetworkStats() {
                 </div>
             </div>
         </div>
-        <div className="space"/>
-        <OperationsChart/>
-        <div className="space"/>
-        <AccountsChart/>
-        <div className="space"/>
-        <AssetsChart/>
-        <div className="space"/>
-        <PaymentsTradesChart/>
-        <div className="space"/>
-        <SupplyChart/>
-        <div className="space"/>
-        <FailedTransactions/>
+        <CrawlerScreen>
+            <div className="space"/>
+            <OperationsChart/>
+            <div className="space"/>
+            <AccountsChart/>
+            <div className="space"/>
+            <AssetsChart/>
+            <div className="space"/>
+            <PaymentsTradesChart/>
+            <div className="space"/>
+            <SupplyChart/>
+            <div className="space"/>
+            <FailedTransactions/>
+        </CrawlerScreen>
     </>
 }
 
@@ -72,7 +75,9 @@ function GeneralNetworkStats() {
 function SorobanActivityPageView() {
     return <>
         <SorobanGeneralStatsView/>
-        <div className="space"></div>
-        <SorobanStatsHistoryView/>
+        <CrawlerScreen>
+            <div className="space"></div>
+            <SorobanStatsHistoryView/>
+        </CrawlerScreen>
     </>
 }

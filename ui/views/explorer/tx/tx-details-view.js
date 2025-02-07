@@ -11,6 +11,7 @@ import {
 import {shortenString} from '@stellar-expert/formatter'
 import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
+import CrawlerScreen from '../../components/crawler-screen'
 import TxSignaturesView from './tx-signatures-view'
 import TxMemoView from './tx-memo-view'
 import TxHeaderView from './tx-header-view'
@@ -144,7 +145,7 @@ export default withErrorBoundary(function TxDetailsView({tx, embedded}) {
             <div className="segment blank space">
                 <TxOperationsList parsedTx={parsedTx}/>
             </div>
-            <TxSignaturesView parsedTx={parsedTx}/>
+            <CrawlerScreen><TxSignaturesView parsedTx={parsedTx}/></CrawlerScreen>
         </>}
     </>
 })

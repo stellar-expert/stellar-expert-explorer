@@ -8,6 +8,7 @@ import appSettings from '../../../app-settings'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {resolvePath} from '../../../business-logic/path'
 import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import MarketPriceChartView from './market-price-chart-view'
 import Orderbook from './orderbook-details-view'
 import MarketTrades from './market-trades-view'
@@ -69,28 +70,30 @@ function MarketSummaryView({marketInfo, buying, selling}) {
                 </div>
             </div>
             <div className="column column-50 relative">
-                <MarketPriceChartView buying={buying} selling={selling} currency={selling.toCurrency()}/>
+                <CrawlerScreen><MarketPriceChartView buying={buying} selling={selling} currency={selling.toCurrency()}/></CrawlerScreen>
             </div>
         </div>
-        <div className="row space">
-            <div className="column column-50">
-                <div className="segment blank">
-                    <h3>Orderbook</h3>
-                    <hr className="flare"/>
-                    <div style={{marginTop: '-2em'}}/>
-                    <Orderbook selling={buying} buying={selling}/>
+        <CrawlerScreen>
+            <div className="row space">
+                <div className="column column-50">
+                    <div className="segment blank">
+                        <h3>Orderbook</h3>
+                        <hr className="flare"/>
+                        <div style={{marginTop: '-2em'}}/>
+                        <Orderbook selling={buying} buying={selling}/>
+                    </div>
                 </div>
-            </div>
-            <div className="column column-50">
-                <div className="segment blank">
-                    <h3>Recent Trades</h3>
-                    <hr className="flare"/>
-                    <div className="relative" style={{height: 'calc(100% - 3em)'}}>
-                        <MarketTrades baseAsset={buying} counterAsset={selling}/>
+                <div className="column column-50">
+                    <div className="segment blank">
+                        <h3>Recent Trades</h3>
+                        <hr className="flare"/>
+                        <div className="relative" style={{height: 'calc(100% - 3em)'}}>
+                            <MarketTrades baseAsset={buying} counterAsset={selling}/>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </CrawlerScreen>
     </>
 }
 

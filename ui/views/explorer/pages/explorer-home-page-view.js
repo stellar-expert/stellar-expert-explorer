@@ -1,5 +1,6 @@
 import React from 'react'
 import appSettings from '../../../app-settings'
+import CrawlerScreen from '../../components/crawler-screen'
 import AssetList from '../asset/asset-list-view'
 import LedgerActivity from '../ledger/ledger-activity-view'
 import LedgerDailyStats from '../ledger/ledger-daily-stats'
@@ -36,24 +37,26 @@ export default function ExplorerHomePageView() {
                 </div>
             </div>
         </div>
-        <div className="row space">
-            <div className="column column-50">
-                <div>
-                    <OperationsChart/>
-                    <div className="space"/>
-                    <AccountsChart/>
-                    <div className="space"/>
-                    <AssetsChart/>
+        <CrawlerScreen>
+            <div className="row space">
+                <div className="column column-50">
+                    <div>
+                        <OperationsChart/>
+                        <div className="space"/>
+                        <AccountsChart/>
+                        <div className="space"/>
+                        <AssetsChart/>
+                    </div>
+                </div>
+                <div className="space mobile-only"/>
+                <div className="column column-50">
+                    <div className="segment blank">
+                        <h3>Assets on the Ledger</h3>
+                        <hr className="flare"/>
+                        <AssetList compact/>
+                    </div>
                 </div>
             </div>
-            <div className="space mobile-only"/>
-            <div className="column column-50">
-                <div className="segment blank">
-                    <h3>Assets on the Ledger</h3>
-                    <hr className="flare"/>
-                    <AssetList compact/>
-                </div>
-            </div>
-        </div>
+        </CrawlerScreen>
     </div>
 }
