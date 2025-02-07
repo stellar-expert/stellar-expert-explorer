@@ -32,49 +32,49 @@ function MarketsListContentView({markets}) {
     return <>
         <table className="table compact exportable active" data-export-prefix="markets">
             <thead>
-                <tr>
-                    <th rowSpan={2}>Market pair</th>
-                    <th className="collapsing text-right nowrap" rowSpan={2}>Price</th>
-                    <th className="collapsing text-center nowrap" rowSpan={2}>Orderbook<br/>Spread</th>
-                    {/*<th colSpan={2} className="collapsing text-center">Change</th>*/}
-                    <th colSpan={2} className="collapsing text-center">Volume</th>
-                    <th colSpan={2} className="collapsing text-center">Trades</th>
-                    <th className="collapsing text-center export-ignore nowrap" style={{minWidth: '5.8em'}}
-                        rowSpan={2}>Dynamic
-                    </th>
-                </tr>
-                <tr>
-                    {/*<th className="collapsing text-center nowrap">24h</th>
+            <tr>
+                <th rowSpan={2}>Market pair</th>
+                <th className="collapsing text-right nowrap" rowSpan={2}>Price</th>
+                <th className="collapsing text-center nowrap" rowSpan={2}>Orderbook<br/>Spread</th>
+                {/*<th colSpan={2} className="collapsing text-center">Change</th>*/}
+                <th colSpan={2} className="collapsing text-center">Volume</th>
+                <th colSpan={2} className="collapsing text-center">Trades</th>
+                <th className="collapsing text-center export-ignore nowrap" style={{minWidth: '5.8em'}}
+                    rowSpan={2}>Dynamic
+                </th>
+            </tr>
+            <tr>
+                {/*<th className="collapsing text-center nowrap">24h</th>
                     <th className="collapsing text-center nowrap">7d</th>*/}
-                    <th className="collapsing text-right nowrap">24h</th>
-                    <th className="collapsing text-right nowrap">7d</th>
-                    <th className="collapsing text-right nowrap">24h</th>
-                    <th className="collapsing text-right nowrap">Total</th>
-                </tr>
+                <th className="collapsing text-right nowrap">24h</th>
+                <th className="collapsing text-right nowrap">7d</th>
+                <th className="collapsing text-right nowrap">24h</th>
+                <th className="collapsing text-right nowrap">Total</th>
+            </tr>
             </thead>
             <tbody className="condensed">
-                {data.map(market => {
-                    const sellingAsset = AssetDescriptor.parse(market.asset[0])
-                    const buyingAsset = AssetDescriptor.parse(market.asset[1])
+            {data.map(market => {
+                const sellingAsset = AssetDescriptor.parse(market.asset[0])
+                const buyingAsset = AssetDescriptor.parse(market.asset[1])
 
-                    return <tr key={market.id}
-                               onClick={() => navigation.navigate(resolvePath(`market/${sellingAsset.toString()}/${buyingAsset.toString()}`))}>
-                        <td data-header="Market pair: ">
-                            <div>
-                                <AssetLink asset={buyingAsset} issuer link={false} className="nowrap"/>
-                            </div>
-                            <div>
-                                <AssetLink asset={sellingAsset} issuer link={false} className="nowrap"/>
-                            </div>
-                        </td>
-                        <td className="nowrap text-right" data-header="Price: ">
-                            <UpdateHighlighter>{!market.price ? null : formatPrice(1 / market.price, 4)}</UpdateHighlighter>{' '}
-                            <span className="dimmed text-tiny">{buyingAsset.toCurrency()}/{sellingAsset.toCurrency()}</span>
-                        </td>
-                        <td className="nowrap text-right" data-header="Spread: ">
-                            <UpdateHighlighter>{!market.spread ? null : (formatPrice(market.spread * 100, 3) + '%')}</UpdateHighlighter>
-                        </td>
-                        {/*<td className="nowrap text-center" data-header="Change 24h: ">
+                return <tr key={market.id}
+                           onClick={() => navigation.navigate(resolvePath(`market/${sellingAsset.toString()}/${buyingAsset.toString()}`))}>
+                    <td data-header="Market pair: ">
+                        <div>
+                            <AssetLink asset={buyingAsset} issuer link={false} className="nowrap"/>
+                        </div>
+                        <div>
+                            <AssetLink asset={sellingAsset} issuer link={false} className="nowrap"/>
+                        </div>
+                    </td>
+                    <td className="nowrap text-right" data-header="Price: ">
+                        <UpdateHighlighter>{!market.price ? null : formatPrice(1 / market.price, 4)}</UpdateHighlighter>{' '}
+                        <span className="dimmed text-tiny">{buyingAsset.toCurrency()}/{sellingAsset.toCurrency()}</span>
+                    </td>
+                    <td className="nowrap text-right" data-header="Spread: ">
+                        <UpdateHighlighter>{!market.spread ? null : (formatPrice(market.spread * 100, 3) + '%')}</UpdateHighlighter>
+                    </td>
+                    {/*<td className="nowrap text-center" data-header="Change 24h: ">
                             {market.change24h != undefined &&
                                 <PriceDynamic change={market.change24h} standalone allowZero/>}
                         </td>
@@ -82,27 +82,27 @@ function MarketsListContentView({markets}) {
                             {market.change7d != undefined &&
                                 <PriceDynamic change={market.change7d} standalone allowZero/>}
                         </td>*/}
-                        <td className="nowrap text-right" data-header="Volume 24h: ">
-                            {formatWithAbbreviation(market.counterVolume24h / 10000000, 2)}&thinsp;
-                            <AssetLink asset={market.asset[0]} link={false} icon={false} issuer={false} className="dimmed text-tiny"/>
-                        </td>
-                        <td className="nowrap text-right" data-header="Volume 7d: ">
-                            {formatWithAbbreviation(market.counterVolume7d / 10000000, 2)}&thinsp;
-                            <AssetLink asset={market.asset[0]} link={false} icon={false} issuer={false} className="dimmed text-tiny"/>
-                        </td>
-                        <td className="nowrap text-right" data-header="Trades 24h: ">
-                            {formatPrice(market.trades24h)}
-                        </td>
-                        <td className="nowrap text-right" data-header="Total trades: ">
-                            {formatPrice(market.trades)}
-                        </td>
-                        <td className="sparkline-container text-right export-ignore" data-header="Price 7d: "
-                            colSpan={2}>
-                            {market.price7d && <AssetSparkLine sparklineData={market.price7d}
-                                                               currency={AssetDescriptor.parse(market.asset[0]).toCurrency()}/>}
-                        </td>
-                    </tr>
-                })}
+                    <td className="nowrap text-right" data-header="Volume 24h: ">
+                        {formatWithAbbreviation(market.counterVolume24h / 10000000, 2)}&thinsp;
+                        <AssetLink asset={market.asset[0]} link={false} icon={false} issuer={false} className="dimmed text-tiny"/>
+                    </td>
+                    <td className="nowrap text-right" data-header="Volume 7d: ">
+                        {formatWithAbbreviation(market.counterVolume7d / 10000000, 2)}&thinsp;
+                        <AssetLink asset={market.asset[0]} link={false} icon={false} issuer={false} className="dimmed text-tiny"/>
+                    </td>
+                    <td className="nowrap text-right" data-header="Trades 24h: ">
+                        {formatPrice(market.trades24h || 0)}
+                    </td>
+                    <td className="nowrap text-right" data-header="Total trades: ">
+                        {formatPrice(market.trades)}
+                    </td>
+                    <td className="sparkline-container text-right export-ignore" data-header="Price 7d: "
+                        colSpan={2}>
+                        {market.price7d && <AssetSparkLine sparklineData={market.price7d}
+                                                           currency={AssetDescriptor.parse(market.asset[0]).toCurrency()}/>}
+                    </td>
+                </tr>
+            })}
             </tbody>
         </table>
         <GridDataActionsView model={markets}/>
