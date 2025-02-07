@@ -1,4 +1,5 @@
 import React from 'react'
+import CrawlerScreen from '../../components/crawler-screen'
 import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 import AssetHeader from './asset-header-view'
 import AssetRatingChart from './charts/asset-rating-chart-view'
@@ -21,11 +22,13 @@ export default function AssetDetailsView({asset}) {
                 </div>
                 <div className="space mobile-only"/>
             </div>
-            {!descriptor.isNative && rating && <div className="space column column-50">
-                <AssetRatingChart asset={asset}/>
-                <div className="space mobile-only"/>
-            </div>}
-            <AssetStatsHistoryView asset={asset}/>
+            <CrawlerScreen>
+                {!descriptor.isNative && rating && <div className="space column column-50">
+                    <AssetRatingChart asset={asset}/>
+                    <div className="space mobile-only"/>
+                </div>}
+                <AssetStatsHistoryView asset={asset}/>
+            </CrawlerScreen>
         </div>
     </>
 }

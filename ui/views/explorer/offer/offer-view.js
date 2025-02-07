@@ -5,6 +5,7 @@ import {formatWithPrecision, approximatePrice} from '@stellar-expert/formatter'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import appSettings from '../../../app-settings'
 import {useDexOffer} from '../../../business-logic/api/offer-api'
+import CrawlerScreen from '../../components/crawler-screen'
 import OfferHistoryTabsView from './offer-history-tabs-view'
 
 function OfferDetailsView({offer}) {
@@ -55,7 +56,7 @@ function OfferDetailsView({offer}) {
                 </div>
             </div>
         </div>
-        <OfferHistoryTabsView offer={offer}/>
+        <CrawlerScreen><OfferHistoryTabsView offer={offer}/></CrawlerScreen>
     </>
 }
 

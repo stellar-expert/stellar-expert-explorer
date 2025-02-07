@@ -1,9 +1,10 @@
 import React, {useState} from 'react'
 import {InfoTooltip as Info, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {AccountClaimableBalancesSection} from '../claimable-balance/account-claimable-balances-view'
+import CrawlerScreen from '../../components/crawler-screen'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import TomlInfoView from '../toml/toml-info-view'
 import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
-import {AccountClaimableBalancesSection} from '../claimable-balance/account-claimable-balances-view'
 import AccountBasicPropertiesView from './account-basic-properties-view'
 import AccountIssuedAssets from './account-issued-assets-view'
 import AccountSignersView from './account-signers-view'
@@ -30,33 +31,37 @@ export default withErrorBoundary(function AccountInfoView({account}) {
                     <dl>
                         <AccountBasicPropertiesView account={account}/>
                     </dl>
-                    <AccountIssuedAssets address={account.address}/>
-                    <AccountSignersView account={account}/>
-                    <AccountDataEntries account={account}/>
-                    <AccountSponsoredInfoView account={account}/>
-                    <AccountClaimableBalancesSection address={account.address}/>
+                    <CrawlerScreen>
+                        <AccountIssuedAssets address={account.address}/>
+                        <AccountSignersView account={account}/>
+                        <AccountDataEntries account={account}/>
+                        <AccountSponsoredInfoView account={account}/>
+                        <AccountClaimableBalancesSection address={account.address}/>
+                    </CrawlerScreen>
                 </div>
                 <div className="mobile-only space"/>
             </div>
-            <div className="column column-50">
-                <div className="segment blank">
-                    <h3>
-                        Account Balances
-                        <EmbedWidgetTrigger path={`account/balances/${account.address}`} title="Current Account Balance"/>
-                        <Info link="https://www.stellar.org/developers/guides/concepts/accounts.html#balance">
-                            The number of lumens and other assets held by the account.
-                        </Info>
-                    </h3>
-                    <hr className="flare"/>
-                    <AccountCurrentBalancesView account={account} onSelectAsset={setSelectedAsset}/>
-                    <div className="space">
-                        <AccountBalanceChart account={account} externallySelectedAsset={selectedAsset}/>
+            <CrawlerScreen>
+                <div className="column column-50">
+                    <div className="segment blank">
+                        <h3>
+                            Account Balances
+                            <EmbedWidgetTrigger path={`account/balances/${account.address}`} title="Current Account Balance"/>
+                            <Info link="https://www.stellar.org/developers/guides/concepts/accounts.html#balance">
+                                The number of lumens and other assets held by the account.
+                            </Info>
+                        </h3>
+                        <hr className="flare"/>
+                        <AccountCurrentBalancesView account={account} onSelectAsset={setSelectedAsset}/>
+                        <div className="space">
+                            <AccountBalanceChart account={account} externallySelectedAsset={selectedAsset}/>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </CrawlerScreen>
         </div>
         {account.ledgerData && account.ledgerData.home_domain &&
             <TomlInfoView account={account.address} homeDomain={account.ledgerData.home_domain} className="space"/>}
-        <AccountHistoryTabs account={account}/>
+        <CrawlerScreen><AccountHistoryTabs account={account}/></CrawlerScreen>
     </div>
 })

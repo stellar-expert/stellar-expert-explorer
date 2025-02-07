@@ -6,6 +6,7 @@ import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {setPageMetadata} from '../../../util/meta-tags-generator'
 import appSettings from '../../../app-settings'
 import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import LiquidityPoolTvlChartView from './liquidity-pool-tvl-chart-view'
 import LiquidityPoolTradesChartView from './liquidity-pool-trades-chart-view'
 import LiquidityPoolFeesChartView from './liquidity-pool-fees-chart-view'
@@ -76,21 +77,25 @@ function PoolSummaryView({poolInfo}) {
                     </dl>
                 </div>
             </div>
-            <div className="micro-space mobile-only"/>
-            <div className="column column-50 relative">
-                <LiquidityPoolTvlChartView id={poolInfo.id}/>
-            </div>
+            <CrawlerScreen>
+                <div className="micro-space mobile-only"/>
+                <div className="column column-50 relative">
+                    <LiquidityPoolTvlChartView id={poolInfo.id}/>
+                </div>
+            </CrawlerScreen>
         </div>
-        <div className="row space">
-            <div className="column column-50 relative">
-                <LiquidityPoolTradesChartView id={poolInfo.id}/>
+        <CrawlerScreen>
+            <div className="row space">
+                <div className="column column-50 relative">
+                    <LiquidityPoolTradesChartView id={poolInfo.id}/>
+                </div>
+                <div className="micro-space mobile-only"/>
+                <div className="column column-50 relative">
+                    <LiquidityPoolFeesChartView id={poolInfo.id}/>
+                </div>
             </div>
-            <div className="micro-space mobile-only"/>
-            <div className="column column-50 relative">
-                <LiquidityPoolFeesChartView id={poolInfo.id}/>
-            </div>
-        </div>
-        <LiquidityPoolHistoryTabsView id={poolInfo.id}/>
+            <LiquidityPoolHistoryTabsView id={poolInfo.id}/>
+        </CrawlerScreen>
     </>
 }
 

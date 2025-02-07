@@ -3,6 +3,7 @@ import {xdr} from '@stellar/stellar-base'
 import {BlockSelect, Amount, UtcTimestamp, InfoTooltip as Info, formatExplorerLink, useExplorerApi} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../../business-logic/path'
 import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import Transactions from './ledger-transactions-view'
 
@@ -98,10 +99,12 @@ export default function LedgerView({match}) {
                 </div>
             </div>
         </div>
-        <div className="row">
-            <div className="column">
-                <Transactions ledgerSequence={ledger.sequence}/>
+        <CrawlerScreen>
+            <div className="row">
+                <div className="column">
+                    <Transactions ledgerSequence={ledger.sequence}/>
+                </div>
             </div>
-        </div>
+        </CrawlerScreen>
     </>
 }

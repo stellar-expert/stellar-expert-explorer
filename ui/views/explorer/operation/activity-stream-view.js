@@ -51,7 +51,7 @@ export default function ActivityStreamView() {
         activityContainer.current.addEventListener('scroll', scrollHandler)
         return () => {
             activity.stopStreaming()
-            activityContainer.current.removeEventListener('scroll', scrollHandler)
+            activityContainer.current?.removeEventListener('scroll', scrollHandler)
         }
     }, [network, includeFailed])
 
