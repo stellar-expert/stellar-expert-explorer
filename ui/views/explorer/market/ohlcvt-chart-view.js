@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState, useCallback} from 'react'
 import {useExplorerApi} from '@stellar-expert/ui-framework'
-import {formatWithAutoPrecision, formatPrice} from '@stellar-expert/formatter'
+import {formatWithAutoPrecision, formatPrice, toUnixTimestamp} from '@stellar-expert/formatter'
 import Chart from '../../components/chart/chart'
 
 /**
@@ -30,6 +30,10 @@ function processData(data) {
 function buildUrl(baseEndpoint, from, to) {
     let endpoint = `${baseEndpoint}/candles`
     const queryParams = []
+    if (!from && !to) {
+        to = toUnixTimestamp(new Date())
+        from = to - 3 * 30 * 24 * 60 * 60 // 3 months
+    }
     if (from) {
         queryParams.push('from=' + from)
     }
