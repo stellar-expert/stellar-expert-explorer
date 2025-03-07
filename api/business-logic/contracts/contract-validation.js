@@ -50,7 +50,7 @@ async function enqueueValidation(network, data, from) {
     }
 }
 
-async function getValidationStatus(network, hash) {
+async function getValidationStatus(network, hash, skipUnverified = false) {
     const match = await db.public.collection('contract_code_source').findOne({_id: hash}) //always fetch from public network
     if (match) {
         const {_id, created, ...props} = match
@@ -61,7 +61,7 @@ async function getValidationStatus(network, hash) {
             ts: created
         }
     }
-    return {status: 'unverified'}
+    return skipUnverified ? undefined : {status: 'unverified'}
 }
 
 module.exports = {enqueueValidation, getValidationStatus}
