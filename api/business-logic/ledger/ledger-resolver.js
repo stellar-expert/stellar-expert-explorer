@@ -20,4 +20,8 @@ async function fetchLedger(network, sequence) {
     return await db[network].collection('ledgers').findOne({_id: sequence})
 }
 
-module.exports = {fetchLedgers, fetchLedger}
+async function fetchLastLedger(network){
+    return await db[network].collection('ledgers').findOne({}, {sort: {_id: -1}, projection: {_id: 1}})
+}
+
+module.exports = {fetchLedgers, fetchLedger, fetchLastLedger}

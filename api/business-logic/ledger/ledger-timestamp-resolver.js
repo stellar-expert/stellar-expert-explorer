@@ -2,6 +2,7 @@ const db = require('../../connectors/mongodb-connector')
 const {unixNow, parseDate} = require('../../utils/date-utils')
 const {validateNetwork} = require('../validators')
 const errors = require('../errors')
+const {fetchLastLedger} = require('./ledger-resolver')
 
 const firstTs = {}
 
@@ -27,7 +28,7 @@ async function resolveSequenceFromTimestamp(network, ts) {
     const first = await getFirstLedgerTimestamp(network)
     if (ts < first.ts) return undefined
     //looks like it's the last ledger
-    const last = await db[network].collection('ledgers').findOne({}, {sort: {ts: -1}, projection: {_id: 1}})
+    const last = await fetchLastLedger(network)
     return last._id
 }
 

@@ -6,7 +6,8 @@ function generateError({message, status}) {
 }
 
 function withDetails(message, details) {
-    if (!details) return message
+    if (!details)
+        return message
     return message + ' ' + details
 }
 
@@ -41,5 +42,11 @@ module.exports = {
     },
     validationError: function (invalidParamName, details = null) {
         return this.badRequest(withDetails(`Invalid parameter: "${invalidParamName}".`, details))
+    },
+    serviceUnavailable: function (details = null) {
+        return generateError({
+            message: withDetails('Service unavailable.', details),
+            status: 503
+        })
     }
 }

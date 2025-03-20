@@ -1,7 +1,7 @@
 const config = require('../../app.config.json')
 const {version} = require('../../package')
-const db = require('../../connectors/mongodb-connector')
 const {unixNow, formatDateTime} = require('../../utils/date-utils')
+const {fetchLastLedger} = require('../ledger/ledger-resolver')
 
 async function getServerInfo() {
     const networks = await processRecentLedgers()
@@ -17,7 +17,7 @@ async function getServerInfo() {
 async function processRecentLedgers() {
     const networks = {}
     for (const network of Object.keys(config.networks)) {
-        const lastLedger = await db[network].collection('ledgers').findOne({}, {sort: {_id: -1}})
+        const lastLedger = await fetchLastLedger(network)
         const now = unixNow()
         if ((now - lastLedger.ts) > 20) {
             console.warn(`Ingestion delay of ${now - lastLedger.ts - 6} seconds on ${network} network`)
