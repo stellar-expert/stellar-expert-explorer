@@ -21,9 +21,23 @@ async function estimateClaimableBalancesValue(network, basePath, query) {
         return bid
     })
 
-    const assetResolver = new AssetJSONResolver(network)
+    const res = await aggregateEstimatedClaimableBalancesValue(network, bids)
 
-    const res = await db[network].collection('claimable_balances').aggregate([
+    const assetResolver = new AssetJSONResolver(network)
+    for (const cb of res) {
+        cb.asset = assetResolver.resolve(cb.asset)
+    }
+
+    await assetResolver.fetchAll()
+    return {
+        claimable_balances: res,
+        total: res.reduce((prev, current) => prev + current.value, 0),
+        currency
+    }
+}
+
+async function aggregateEstimatedClaimableBalancesValue(network, bids) {
+    return await db[network].collection('claimable_balances').aggregate([
         {
             $match: {_id: {$in: bids}}
         },
@@ -52,17 +66,6 @@ async function estimateClaimableBalancesValue(network, basePath, query) {
             }
         }
     ]).toArray()
-
-    for (const cb of res) {
-        cb.asset = assetResolver.resolve(cb.asset)
-    }
-
-    await assetResolver.fetchAll()
-    return {
-        claimable_balances: res,
-        total: res.reduce((prev, current) => prev + current.value, 0),
-        currency
-    }
 }
 
-module.exports = {estimateClaimableBalancesValue}
+module.exports = {estimateClaimableBalancesValue, aggregateEstimatedClaimableBalancesValue}
