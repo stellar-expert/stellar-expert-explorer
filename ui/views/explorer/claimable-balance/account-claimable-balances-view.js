@@ -36,7 +36,7 @@ export function AccountClaimableBalancesSection({address}) {
 
 export default function AccountClaimableBalancesView() {
     const {id: address} = useParams()
-    const balances = useClaimableBalances(address, 10)
+    const balances = useClaimableBalances(address, 40)
     if (!balances.data)
         return <div className="loader"/>
     return <>
