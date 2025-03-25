@@ -44,15 +44,13 @@ export default function ContractView() {
                 </div>
                 <div className="space mobile-only"/>
             </div>
-            <CrawlerScreen>
-                <div className="column column-50">
-                    <div className="segment blank">
-                        <h3>Contract balances</h3>
-                        <hr className="flare"/>
-                        <ContractBalancesView address={address}/>
-                    </div>
+            <div className="column column-50">
+                <div className="segment blank">
+                    <h3>Contract balances</h3>
+                    <hr className="flare"/>
+                    <ContractBalancesView address={address}/>
                 </div>
-            </CrawlerScreen>
+            </div>
         </div>
         <CrawlerScreen>
             <div className="space">

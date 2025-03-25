@@ -22,11 +22,11 @@ export default function AssetDetailsView({asset}) {
                 </div>
                 <div className="space mobile-only"/>
             </div>
+            {!descriptor.isNative && rating && <div className="space column column-50">
+                <AssetRatingChart asset={asset}/>
+                <div className="space mobile-only"/>
+            </div>}
             <CrawlerScreen>
-                {!descriptor.isNative && rating && <div className="space column column-50">
-                    <AssetRatingChart asset={asset}/>
-                    <div className="space mobile-only"/>
-                </div>}
                 <AssetStatsHistoryView asset={asset}/>
             </CrawlerScreen>
         </div>

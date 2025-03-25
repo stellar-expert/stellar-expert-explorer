@@ -33,35 +33,39 @@ export default withErrorBoundary(function AccountInfoView({account}) {
                     </dl>
                     <CrawlerScreen>
                         <AccountIssuedAssets address={account.address}/>
-                        <AccountSignersView account={account}/>
-                        <AccountDataEntries account={account}/>
-                        <AccountSponsoredInfoView account={account}/>
+                    </CrawlerScreen>
+                    <AccountSignersView account={account}/>
+                    <AccountDataEntries account={account}/>
+                    <AccountSponsoredInfoView account={account}/>
+                    <CrawlerScreen>
                         <AccountClaimableBalancesSection address={account.address}/>
                     </CrawlerScreen>
                 </div>
                 <div className="mobile-only space"/>
             </div>
-            <CrawlerScreen>
-                <div className="column column-50">
-                    <div className="segment blank">
-                        <h3>
-                            Account Balances
-                            <EmbedWidgetTrigger path={`account/balances/${account.address}`} title="Current Account Balance"/>
-                            <Info link="https://www.stellar.org/developers/guides/concepts/accounts.html#balance">
-                                The number of lumens and other assets held by the account.
-                            </Info>
-                        </h3>
-                        <hr className="flare"/>
-                        <AccountCurrentBalancesView account={account} onSelectAsset={setSelectedAsset}/>
+            <div className="column column-50">
+                <div className="segment blank">
+                    <h3>
+                        Account Balances
+                        <EmbedWidgetTrigger path={`account/balances/${account.address}`} title="Current Account Balance"/>
+                        <Info link="https://www.stellar.org/developers/guides/concepts/accounts.html#balance">
+                            The number of lumens and other assets held by the account.
+                        </Info>
+                    </h3>
+                    <hr className="flare"/>
+                    <AccountCurrentBalancesView account={account} onSelectAsset={setSelectedAsset}/>
+                    <CrawlerScreen>
                         <div className="space">
                             <AccountBalanceChart account={account} externallySelectedAsset={selectedAsset}/>
                         </div>
-                    </div>
+                    </CrawlerScreen>
                 </div>
-            </CrawlerScreen>
+            </div>
         </div>
         {account.ledgerData && account.ledgerData.home_domain &&
             <TomlInfoView account={account.address} homeDomain={account.ledgerData.home_domain} className="space"/>}
-        <CrawlerScreen><AccountHistoryTabs account={account}/></CrawlerScreen>
+        <CrawlerScreen>
+            <AccountHistoryTabs account={account}/>
+        </CrawlerScreen>
     </div>
 })
