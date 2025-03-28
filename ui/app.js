@@ -13,7 +13,7 @@ if (preLoader) { //skip initialization of pre-rendered pages
     bindClickNavHandler(appContainer)
 
     window.explorerFrontendOrigin = window.origin
-    window.explorerApiOrigin = appSettings.apiEndpoint
+    window.explorerApiOrigin = window.forcedExplorerApiOrigin || appSettings.apiEndpoint
     window.horizonOrigin = appSettings.horizonUrl
 
     subscribeToStellarNetworkChange(function () {

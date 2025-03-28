@@ -23,7 +23,7 @@ function apiCall(relativeApiPath, data, params) {
     params = {method: 'GET', includeNetwork: true, ...params}
     const networkSegment = params.includeNetwork ? appSettings.activeNetwork + '/' : ''
     let fetchParams = {}
-    let url = `${appSettings.apiEndpoint}/explorer/${networkSegment}${relativeApiPath}`
+    let url = `${explorerApiOrigin}/explorer/${networkSegment}${relativeApiPath}`
     if (params.method && params.method !== 'GET') {
         fetchParams = {
             ...params,

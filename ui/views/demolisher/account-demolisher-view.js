@@ -70,7 +70,7 @@ export default function AccountDemolisherView() {
         }
 
         const accountDemolisher = new Demolisher({
-            endpoint: `${appSettings.apiEndpoint.replace(/\/$/, '')}/demolisher/${appSettings.activeNetwork}`,
+            endpoint: `${explorerApiOrigin}/demolisher/${appSettings.activeNetwork}`,
             mediator: demolisher,
             networkPassphrase: passphrase,
             baseFee: 200,
