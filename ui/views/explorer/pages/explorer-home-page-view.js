@@ -10,7 +10,8 @@ import AssetsChart from '../ledger/charts/ledger-history-assets-trustlines-chart
 import AssetsOverallStatsView from '../asset/asset-overall-stats-view'
 
 export default function ExplorerHomePageView() {
-    if (!appSettings.activeNetwork) return null
+    if (!appSettings.activeNetwork)
+        return null
     return <div>
         <div className="space text-center">
             <h1>Ledger explorer and analytics platform for <a href="https://www.stellar.org/">Stellar Network</a></h1>
@@ -33,30 +34,30 @@ export default function ExplorerHomePageView() {
             <div className="space mobile-only"/>
             <div className="column column-34">
                 <div className="segment blank">
-                    <LedgerActivity/>
+                    <CrawlerScreen>
+                        <LedgerActivity/>
+                    </CrawlerScreen>
                 </div>
             </div>
         </div>
-        <CrawlerScreen>
-            <div className="row space">
-                <div className="column column-50">
-                    <div>
-                        <OperationsChart/>
-                        <div className="space"/>
-                        <AccountsChart/>
-                        <div className="space"/>
-                        <AssetsChart/>
-                    </div>
-                </div>
-                <div className="space mobile-only"/>
-                <div className="column column-50">
-                    <div className="segment blank">
-                        <h3>Assets on the Ledger</h3>
-                        <hr className="flare"/>
-                        <AssetList compact/>
-                    </div>
+        <div className="row space">
+            <div className="column column-50">
+                <div>
+                    <OperationsChart/>
+                    <div className="space"/>
+                    <AccountsChart/>
+                    <div className="space"/>
+                    <AssetsChart/>
                 </div>
             </div>
-        </CrawlerScreen>
+            <div className="space mobile-only"/>
+            <div className="column column-50">
+                <div className="segment blank">
+                    <h3>Assets on the Ledger</h3>
+                    <hr className="flare"/>
+                    <AssetList compact/>
+                </div>
+            </div>
+        </div>
     </div>
 }
