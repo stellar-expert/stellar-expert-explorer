@@ -54,6 +54,10 @@ export default function AppRouter({history}) {
                             <Loadable moduleKey="blog"
                                       load={() => import(/* webpackChunkName: "blog" */ './blog/blog-router')}/>
                         </Route>
+                        <Route path="/info">
+                            <Loadable moduleKey="info"
+                                      load={() => import(/* webpackChunkName: "info" */ './info/info-router')}/>
+                        </Route>
                         {/*not found*/}
                         <Route component={NotFoundView}/>
                     </Switch>
@@ -62,11 +66,6 @@ export default function AppRouter({history}) {
         </Switch>
     </Router>
 }
-
-//<Route path="/terms" component={loadable(() =>
-//   import(/* webpackChunkName: "legal" */ './terms/legal-router'))}/>
-/*<Route path="/info">
-    <Loadable moduleKey="info" load={() => import(/!* webpackChunkName: "info" *!/ './info/info-router')}/></Route>*/
 
 AppRouter.propTypes = {
     history: PropTypes.object.isRequired

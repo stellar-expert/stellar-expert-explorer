@@ -13,10 +13,14 @@ export default function Footer() {
                 <a href="https://github.com/orbitlens/stellar-expert-explorer/issues/" target="_blank" rel="noreferrer noopener" className="nowrap">
                     <i className="icon icon-github"/> Report a bug
                 </a>&emsp;
-                <a href="https://stellarexpert.statuspage.io/" target="_blank" rel="noreferrer noopener" className="nowrap">
-                    <i className="icon icon-activity"/> Status
-                </a>&emsp;
                 <ThemeSelector/>
+            </div>
+            <div>
+                <a href="/info/tos">Terms of use</a>&emsp;
+                <a href="/info/privacy">Privacy policy</a>&emsp;
+                <a href="https://stellarexpert.statuspage.io/" target="_blank" rel="noreferrer noopener" className="nowrap">
+                    Status
+                </a>
             </div>
             <div>
                 <a href="https://twitter.com/orbitlens" target="_blank" rel="noreferrer noopener" className="nowrap">
