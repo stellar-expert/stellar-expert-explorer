@@ -26,7 +26,8 @@ class CorsMatcher {
     match(origin) {
         if (this.list.has(origin))
             return true
-        if (this.wildcards.has(/\w+\.\w+$/.exec(origin)[0]))
+        const match = /\w+\.\w+$/.exec(origin)
+        if (match && this.wildcards.has(match[0]))
             return true
         return false
     }
