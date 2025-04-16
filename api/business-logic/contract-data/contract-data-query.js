@@ -30,7 +30,8 @@ async function queryContractData(network, basePath, parentAddress, {cursor, dura
         _id: {
             $gte: generateContractDataIdFilter(parentId),
             $lt: generateContractDataIdFilter(parentId + 1)
-        }
+        },
+        deleted: {$exists: false}
     }
     if (durability) {
         query.durability = durability
