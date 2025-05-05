@@ -1,8 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {StrKey} from '@stellar/stellar-base'
 import ForceGraph2D from 'react-force-graph-2d'
-import {useWindowWidth} from '@stellar-expert/ui-framework'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {usePageMetadata, useWindowWidth} from '@stellar-expert/ui-framework'
 import {drawNode, getLinkColor} from './graph-drawing-primitives'
 import {useGraphState} from './state/graph-state'
 import AccountRelationsListView from './account-relations-list-view'
@@ -61,12 +60,10 @@ export default function GraphView() {
     const windowWidth = useWindowWidth()
     const gRef = useRef()
 
-    useEffect(() => {
-        setPageMetadata({
-            title: `Account relations graph`,
-            description: `Explore relations graph for accounts on Stellar Network.`
-        })
-    }, [])
+    usePageMetadata({
+        title: `Account relations graph`,
+        description: `Explore relations graph for accounts on Stellar Network.`
+    })
 
     useEffect(() => {
         const handler = () => forceRefresh(v => v + 1)

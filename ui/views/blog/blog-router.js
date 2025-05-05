@@ -4,7 +4,7 @@ import BlogIndex from './blog-index-view'
 import BlogPost from './blog-post-view'
 import NotFoundView from '../pages/not-found-page-view'
 
-function BlogRouter({match}) {
+export default function BlogRouter({match}) {
     const {path} = match
     return <div className="container">
         <Switch>
@@ -14,5 +14,3 @@ function BlogRouter({match}) {
         </Switch>
     </div>
 }
-
-export default BlogRouter

@@ -1,17 +1,11 @@
 import React from 'react'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {usePageMetadata} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../business-logic/path'
 
 export default function NotFoundView() {
-    setPageMetadata({
+    usePageMetadata({
         title: 'Page not found',
-        description: 'Sorry, the page you are looking for was not found. Start over from the home page.',
-        customMeta: {
-            locator: 'name',
-            tags: [
-                {name: 'prerender-status-code', content: '404'}
-            ]
-        }
+        description: 'Sorry, the page you are looking for was not found. Start over from the home page.'
     })
 
     return <div className="row double-space" style={{height: '50vh'}}>

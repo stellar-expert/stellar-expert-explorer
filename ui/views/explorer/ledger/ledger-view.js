@@ -1,6 +1,15 @@
 import React from 'react'
 import {xdr} from '@stellar/stellar-base'
-import {BlockSelect, Amount, UtcTimestamp, InfoTooltip as Info, formatExplorerLink, useExplorerApi} from '@stellar-expert/ui-framework'
+import {
+    BlockSelect,
+    Amount,
+    UtcTimestamp,
+    InfoTooltip as Info,
+    formatExplorerLink,
+    useExplorerApi,
+    usePageMetadata
+} from '@stellar-expert/ui-framework'
+import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import CrawlerScreen from '../../components/crawler-screen'
@@ -10,6 +19,10 @@ import Transactions from './ledger-transactions-view'
 export default function LedgerView({match}) {
     const sequence = parseInt(match.params.sequence, 10) || 0
     const ledgerInfo = useExplorerApi('ledger/' + sequence)
+    usePageMetadata({
+        title: `Ledger ${sequence} on Stellar ${appSettings.activeNetwork} network`,
+        description: `All transactions and metadata for ledger ${sequence} on Stellar ${appSettings.activeNetwork} network.`
+    })
     if (!ledgerInfo.loaded)
         return <div className="loader"/>
     if (ledgerInfo.error || ledgerInfo.data.status) {

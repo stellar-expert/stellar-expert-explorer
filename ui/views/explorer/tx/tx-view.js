@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react'
 import {useParams} from 'react-router'
 import PropTypes from 'prop-types'
-import {BlockSelect, loadTransaction} from '@stellar-expert/ui-framework'
+import {BlockSelect, loadTransaction, usePageMetadata} from '@stellar-expert/ui-framework'
 import ErrorNotificationBlock from '../../components/error-notification-block'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import appSetting from '../../../app-settings'
 import TransactionDetails from './tx-details-view'
 
@@ -21,13 +20,13 @@ export default function TxView({id}) {
             })
             .then(setTxData)
     }, [txId])
+    usePageMetadata({
+        title: `Transaction ${txId} on Stellar ${appSetting.activeNetwork} network`,
+        description: `Comprehensive blockchain information for the transaction ${txId} ${txData?.ts ? `(${new Date(txData.ts * 1000).toISOString()}) ` : ''}on Stellar ${appSetting.activeNetwork} network.`
+    })
     if (!txData)
         return <div className="loader"/>
     const txHash = txData.id
-    setPageMetadata({
-        title: `Transaction ${txHash} on Stellar ${appSetting.activeNetwork} network`,
-        description: `Extensive blockchain information for the transaction ${txHash} on Stellar ${appSetting.activeNetwork} network.`
-    })
     if (txData.error) return <>
         <h2 className="word-break relative">Transaction&nbsp;<BlockSelect>{txHash}</BlockSelect></h2>
         <ErrorNotificationBlock>

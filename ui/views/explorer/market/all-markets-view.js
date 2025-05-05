@@ -1,20 +1,11 @@
 import React, {useCallback, useState} from 'react'
 import {debounce} from 'throttle-debounce'
-import {
-    Dropdown,
-    Tabs,
-    AssetLink,
-    UpdateHighlighter,
-    useDeepEffect,
-    useForceUpdate,
-    useExplorerPaginatedApi,
-    streamTrades
-} from '@stellar-expert/ui-framework'
+import {Dropdown, Tabs, AssetLink, UpdateHighlighter} from '@stellar-expert/ui-framework'
+import {useDeepEffect, useForceUpdate, useExplorerPaginatedApi, streamTrades, usePageMetadata} from '@stellar-expert/ui-framework'
 import {formatPrice, formatWithAbbreviation} from '@stellar-expert/formatter'
 import {parseAssetFromObject, AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {navigation} from '@stellar-expert/navigation'
 import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import GridDataActionsView from '../../components/grid-data-actions'
 import PriceDynamic from '../../components/price-dynamic'
 import AssetSparkLine from '../asset/charts/asset-sparkline-chart-view'
@@ -123,11 +114,12 @@ export default function AllMarketsView() {
     })
     const {loaded} = markets
 
+    usePageMetadata({
+        title: `Active DEX markets on Stellar ${appSettings.activeNetwork} network`,
+        description: `Statistics and price dynamic of active markets on Stellar ${appSettings.activeNetwork} decentralized exchange.`
+    })
+
     useDeepEffect(() => {
-        setPageMetadata({
-            title: `Active DEX markets on Stellar ${appSettings.activeNetwork} network`,
-            description: `Statistics and price dynamic of active markets on Stellar ${appSettings.activeNetwork} decentralized exchange.`
-        })
 
         let stopTradesStream
         if (markets?.data?.length) {

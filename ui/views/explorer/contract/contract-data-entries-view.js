@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {xdr} from '@stellar/stellar-base'
 import {useParams} from 'react-router'
-import {UtcTimestamp, AccountAddress, ScVal, useExplorerPaginatedApi, Dropdown} from '@stellar-expert/ui-framework'
+import {UtcTimestamp, AccountAddress, ScVal, useExplorerPaginatedApi, Dropdown, usePageMetadata} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import GridDataActionsView from '../../components/grid-data-actions'
 
@@ -24,6 +24,10 @@ export default function ContractDataEntriesView() {
             //dynamic price spread
             //dataProcessingCallback: records => records.map(stat => AssetViewModel.fromStats(stat))
         })
+    usePageMetadata({
+        title: `Stored data for ${id}`,
+        description: `Data entries stored on Stellar ledger for ${id.startsWith('C') ? 'contract' : 'account'} ${id}`
+    })
 
     return <div>
         <h2 className="word-break relative condensed">

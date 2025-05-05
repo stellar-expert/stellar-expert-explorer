@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react'
 import {useParams} from 'react-router'
-import {AccountAddress, formatExplorerLink, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
+import {AccountAddress, formatExplorerLink, useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
 import {AccountClaimableBalanceRowView, AccountClaimableBalanceRecordView} from './account-claimable-balance-row-view'
 
@@ -36,6 +36,10 @@ export function AccountClaimableBalancesSection({address}) {
 
 export default function AccountClaimableBalancesView() {
     const {id: address} = useParams()
+    usePageMetadata({
+        title: 'Pending claimable balances for account ' + address,
+        description: `Explorer list of all payments sent to account ${address} without trustline.`
+    })
     const balances = useClaimableBalances(address, 40)
     if (!balances.data)
         return <div className="loader"/>

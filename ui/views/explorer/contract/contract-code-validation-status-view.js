@@ -28,10 +28,11 @@ function VerifiedStatus({validation}) {
     return <>
         <a href={repoLink} target="_blank" rel="noreferrer"><i className="icon-github"/>{sourceRepo}</a>
         <Info link={formatExplorerLink('contract', 'validation')}>
-            Contract source code confirmed <UtcTimestamp date={ts}/><br/>
-            {sourceRepo}<br/>
-            at&nbsp;commit<br/>
-            {commit}
+            <div style={{textAlign: 'left'}}>
+                Source code confirmed <UtcTimestamp date={ts}/><br/>
+                <i className="icon-github"/>{sourceRepo}<br/>
+                at git commit <span title={commit}>{commit.substring(0, 7)}</span>
+            </div>
         </Info>
     </>
 }

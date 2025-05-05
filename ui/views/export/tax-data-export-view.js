@@ -1,8 +1,7 @@
 import React, {useCallback, useState} from 'react'
 import {StrKey} from '@stellar/stellar-base'
-import {Dropdown, Button} from '@stellar-expert/ui-framework'
+import {Dropdown, Button, usePageMetadata} from '@stellar-expert/ui-framework'
 import TaxInfoExporter from '../../business-logic/tax-info-exporter'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 
 const yearOptions = []
 for (let i = new Date().getFullYear(); i >= 2016; i--) {
@@ -10,7 +9,7 @@ for (let i = new Date().getFullYear(); i >= 2016; i--) {
 }
 
 export default function TaxDataExportView() {
-    setPageMetadata({
+    usePageMetadata({
         title: `Tax data export for Stellar network`,
         description: `Free payments and trades tax data export for Stellar network in BitcoinTax-compatible format.`
     })

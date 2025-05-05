@@ -1,11 +1,10 @@
 import React, {useCallback} from 'react'
 import {useRouteMatch} from 'react-router'
-import {AssetLink, Amount, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
+import {AssetLink, Amount, InfoTooltip as Info, useExplorerApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import {navigation} from '@stellar-expert/navigation'
 import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {resolvePath} from '../../../business-logic/path'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import CrawlerScreen from '../../components/crawler-screen'
@@ -105,8 +104,8 @@ export default function MarketView() {
     const sellingAsset = selling.toString()
     const {loading, error, data} = useExplorerApi(`market/${sellingAsset}/${buyingAsset}`)
 
-    setPageMetadata({
-        title: `Live market data of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} network DEX`,
+    usePageMetadata({
+        title: `Live market data of ${buyingAsset.split('-')[0]}/${sellingAsset.split('-')[0]} trading pair on Stellar ${appSettings.activeNetwork} network DEX`,
         description: `Statistics and price dynamic of ${buyingAsset}/${sellingAsset} trading pair on Stellar ${appSettings.activeNetwork} decentralized exchange.`
     })
 

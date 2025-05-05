@@ -1,6 +1,7 @@
 import React from 'react'
 
 export default function DirectoryCreateIncidentView() {
+
     return <>
         <h2>Complaint form - phishing/scam/theft</h2>
         <div className="segment blank">

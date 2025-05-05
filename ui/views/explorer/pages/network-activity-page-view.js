@@ -1,7 +1,6 @@
 import React from 'react'
-import {Tabs} from '@stellar-expert/ui-framework'
+import {Tabs, usePageMetadata} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import CrawlerScreen from '../../components/crawler-screen'
 import LedgerActivity from '../ledger/ledger-activity-view'
 import LedgerDailyStats from '../ledger/ledger-daily-stats'
@@ -15,7 +14,7 @@ import SorobanGeneralStatsView from '../ledger/soroban-general-stats-view'
 import SorobanStatsHistoryView from '../ledger/soroban-stats-history-view'
 
 export default function NetworkActivityPageView() {
-    setPageMetadata({
+    usePageMetadata({
         title: `Activity on Stellar ${config.activeNetwork} network`,
         description: `Stats and activity indicators for Stellar ${config.activeNetwork} network.`
     })

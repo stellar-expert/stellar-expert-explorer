@@ -1,10 +1,9 @@
 import React from 'react'
-import {CodeBlock} from '@stellar-expert/ui-framework'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {CodeBlock, usePageMetadata} from '@stellar-expert/ui-framework'
 
 export default function ContractValidationInfoView() {
-    setPageMetadata({
-        title: `Contract Code Validation`,
+    usePageMetadata({
+        title: `Contract code validation`,
         description: `Discover how to utilize GitHub Actions workflow to organize compilation and release process of Stellar smart contracts for Soroban WASM runtime with automatic validation.`
     })
     return <>

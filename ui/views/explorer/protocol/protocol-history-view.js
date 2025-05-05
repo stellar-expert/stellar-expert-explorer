@@ -1,14 +1,13 @@
 import React, {useMemo} from 'react'
-import {Amount, UtcTimestamp, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
+import {Amount, UtcTimestamp, InfoTooltip as Info, useExplorerApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {StagedSorobanParamsUpdate} from './staged-soroban-config-changes-link-view'
 import {applySorobanConfigChanges} from './soroban-config-changes-tracker'
 import {SorobanConfigChangesView} from './soroban-config-changes-view'
 
 export default function ProtocolHistoryView() {
     const {data, loaded} = useExplorerApi('ledger/protocol-history')
-    setPageMetadata({
+    usePageMetadata({
         title: `Protocol upgrades history of Stellar ${config.activeNetwork} network`,
         description: `All protocol upgrades of the Stellar ${config.activeNetwork} network.`
     })

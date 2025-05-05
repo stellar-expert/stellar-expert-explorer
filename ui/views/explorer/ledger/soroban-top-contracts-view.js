@@ -1,10 +1,16 @@
 import {useState} from 'react'
-import {AccountAddress, Dropdown, useExplorerApi} from '@stellar-expert/ui-framework'
+import {AccountAddress, Dropdown, useExplorerApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {formatWithGrouping} from '@stellar-expert/formatter'
+import appSettings from '../../../app-settings'
 
 export default function SorobanTopContractsView() {
     const [metric, setMetric] = useState('invocations')
     const top = useExplorerApi('top-contracts/' + metric)
+
+    usePageMetadata({
+        title: `Top smart contracts`,
+        description: `Discover most popular smart contract on Stellar ${appSettings.activeNetwork} network.`
+    })
 
     return <div>
         <div className="row">

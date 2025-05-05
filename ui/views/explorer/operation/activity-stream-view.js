@@ -6,7 +6,7 @@ import {
     TxOperationsList,
     parseTxDetails,
     useStellarNetwork,
-    loadLedgerTransactions
+    loadLedgerTransactions, usePageMetadata
 } from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 import {ledgerStream} from '../../../business-logic/api/ledger-stream'
@@ -55,6 +55,12 @@ export default function ActivityStreamView() {
             activityContainer.current?.removeEventListener('scroll', scrollHandler)
         }
     }, [network, includeFailed])
+
+
+    usePageMetadata({
+        title: `Recent activity on Stellar ${appSettings.activeNetwork} network`,
+        description: `Live transactions feed for Stellar ${appSettings.activeNetwork} network.`
+    })
 
     return <div className="container narrow">
         <h2>Activity Live Stream</h2>

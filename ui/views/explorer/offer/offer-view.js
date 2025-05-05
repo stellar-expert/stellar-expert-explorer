@@ -1,16 +1,17 @@
 import React from 'react'
 import {useRouteMatch} from 'react-router'
-import {AssetLink, AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {AssetLink, AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info, usePageMetadata} from '@stellar-expert/ui-framework'
 import {formatWithPrecision, approximatePrice} from '@stellar-expert/formatter'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import appSettings from '../../../app-settings'
 import {useDexOffer} from '../../../business-logic/api/offer-api'
 import CrawlerScreen from '../../components/crawler-screen'
 import OfferHistoryTabsView from './offer-history-tabs-view'
 
 function OfferDetailsView({offer}) {
-    if (!offer) return <div className="loader"/>
-    if (offer.nonExistentOffer) return <h3>Offer {offer.id} does not exist</h3>
+    if (!offer)
+        return <div className="loader"/>
+    if (offer.nonExistentOffer)
+        return <h3>Offer {offer.id} does not exist</h3>
     return <>
         <div className="segment blank">
             <h3>Summary</h3>
@@ -64,13 +65,16 @@ export default function OfferView() {
     const {params} = useRouteMatch()
     const {id: offerId} = params
     const {data: offer, loaded} = useDexOffer(offerId)
+    let extendedInfo = ''
+    if (offer?.account) {
+        extendedInfo = `${offer.buying.split('-')[0]}/${offer.selling.split('-')[0]} by account ${offer.account} `
+    }
+    usePageMetadata({
+        title: `Offer ${offerId} ${extendedInfo}on Stellar ${appSettings.activeNetwork} network DEX`,
+        description: `Statistics and operations for offer ${offerId} ${extendedInfo}on Stellar ${appSettings.activeNetwork} decentralized exchange.`
+    })
     if (!loaded)
         return <div className="loader"/>
-
-    setPageMetadata({
-        title: `Offer ${offerId} on Stellar ${appSettings.activeNetwork} network DEX`,
-        description: `Statistics and operations for offer ${offerId} on Stellar ${appSettings.activeNetwork} decentralized exchange.`
-    })
 
     return <div className="offer-view">
         <h2><span className="dimmed">DEX offer</span> {offerId}</h2>

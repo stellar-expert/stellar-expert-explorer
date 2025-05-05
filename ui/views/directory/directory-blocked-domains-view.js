@@ -1,7 +1,6 @@
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
-import {BlockSelect, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
-import {setPageMetadata} from '../../util/meta-tags-generator'
+import {BlockSelect, useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
 import GridDataActions from '../components/grid-data-actions'
 import {isDirectoryAdmin} from './is-directory-admin'
@@ -12,13 +11,10 @@ export default function DirectoryBlockedDomainsView() {
     const [searchTerm, setSearchTerm] = useState(() => navigation.query.search || '')
     const [query, setQuery] = useState({search: searchTerm})
     const isAdmin = isDirectoryAdmin(githubUser)
-
-    useEffect(() => {
-        setPageMetadata({
-            title: `Block-list of malicious domains`,
-            description: `Community-maintained list of malicious domains related to Stellar ecosystem.`
-        })
-    }, [])
+    usePageMetadata({
+        title: `Block-list of malicious domains`,
+        description: `Community-maintained list of malicious domains related to Stellar ecosystem.`
+    })
 
     const blocklist = useExplorerPaginatedApi({
         path: 'directory/blocked-domains',

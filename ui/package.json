@@ -1,7 +1,7 @@
 {
   "name": "ui.stellar.expert",
   "private": true,
-  "version": "0.27.15",
+  "version": "0.27.16",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
@@ -31,7 +31,7 @@
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
     "@stellar-expert/tx-meta-effects-parser": "6.3.1",
     "@stellar-expert/tx-signers-inspector": "^1.8.2",
-    "@stellar-expert/ui-framework": "1.14.8",
+    "@stellar-expert/ui-framework": "1.14.15",
     "@stellar/stellar-base": "13.0.1",
     "@stellar/stellar-sdk": "13.1.0",
     "classnames": "^2.3.2",
@@ -49,9 +49,18 @@
     "throttle-debounce": "^5.0.0"
   },
   "devDependencies": {
+    "@redocly/cli": "^1.25.11",
     "@stellar-expert/eslint-config-js": "^1.1.0",
     "@stellar-expert/eslint-config-react": "^1.1.0",
-    "@stellar-expert/webpack-template": "1.4.0",
-    "@redocly/cli": "^1.25.11"
+    "@stellar-expert/webpack-template": "1.4.0"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "protobufjs"
+    ],
+    "onlyBuiltDependencies": [
+      "core-js",
+      "node-sass"
+    ]
   }
 }

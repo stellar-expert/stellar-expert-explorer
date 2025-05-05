@@ -1,7 +1,7 @@
 import React from 'react'
 import {useParams} from 'react-router'
 import {StrKey} from '@stellar/stellar-base'
-import {AccountAddress, UtcTimestamp, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
+import {AccountAddress, UtcTimestamp, useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import GridDataActionsView from '../../components/grid-data-actions'
 import {resolvePath} from '../../../business-logic/path'
@@ -25,6 +25,10 @@ export default function ContractVersionsView() {
             </ErrorNotificationBlock>
         </>
 
+    usePageMetadata({
+        title: `Contract code version history for ${address}`,
+        description: `Detailed source code versions history for contract ${address}.`
+    })
     return <div>
         <h2 className="word-break relative condensed">
             <span className="dimmed">Contract version history </span>

@@ -1,8 +1,14 @@
 import React from 'react'
 import InfoLayout from './info-layout'
+import {usePageMetadata} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../business-logic/path'
 
 export default function LostPaymentView() {
+    usePageMetadata({
+        title: `Lost payment on Stellar Network`,
+        description: `Haven't received your money within two hours? Let's try to find your transaction.`
+    })
+
     return <InfoLayout section="Lost payments" description="Can't see a payment in your wallet or exchange account?">
         <p>
             Transactions on Stellar Network are processed within a few seconds, but sometimes payments to custodial

@@ -1,4 +1,5 @@
 import React from 'react'
+import {usePageMetadata} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 import CrawlerScreen from '../../components/crawler-screen'
 import AssetList from '../asset/asset-list-view'
@@ -12,6 +13,10 @@ import AssetsOverallStatsView from '../asset/asset-overall-stats-view'
 export default function ExplorerHomePageView() {
     if (!appSettings.activeNetwork)
         return null
+    usePageMetadata({
+        title: `Stellar ${appSettings.activeNetwork} network block explorer and analytics platform`,
+        description:`Explore detailed stats, price history, and analytic reports for all assets on Stellar ${appSettings.activeNetwork} network. View comprehensive account history, search transactions and payments, examine well-known accounts, analyze XLM and Stellar Network performance.`
+    })
     return <div>
         <div className="space text-center">
             <h1>Ledger explorer and analytics platform for <a href="https://www.stellar.org/">Stellar Network</a></h1>

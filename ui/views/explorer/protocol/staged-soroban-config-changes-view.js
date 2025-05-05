@@ -1,9 +1,8 @@
 import React from 'react'
 import {useParams} from 'react-router'
 import {StrKey, xdr} from '@stellar/stellar-base'
-import {useExplorerApi, AccountAddress} from '@stellar-expert/ui-framework'
+import {useExplorerApi, AccountAddress, usePageMetadata} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {applySorobanConfigChanges} from './soroban-config-changes-tracker'
 import {SorobanConfigChangesView} from './soroban-config-changes-view'
 
@@ -12,9 +11,9 @@ export default function StagedSorobanConfigChangesView() {
     if (id.includes('%')) { //URI-encoded
         id = decodeURIComponent(id)
     }
-    setPageMetadata({
-        title: `Staged Soroban config changes ${id} for ${config.activeNetwork} network`,
-        description: `Staged Soroban config changes ${id} for ${config.activeNetwork} network.`
+    usePageMetadata({
+        title: `Staged Soroban config changes ${id} for Stellar ${config.activeNetwork} network`,
+        description: `Staged Soroban config changes ${id} for Stellar ${config.activeNetwork} network.`
     })
     try {
         const configKey = xdr.ConfigUpgradeSetKey.fromXDR(id, 'base64')

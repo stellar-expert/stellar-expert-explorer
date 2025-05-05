@@ -1,6 +1,12 @@
 import React from 'react'
+import {usePageMetadata} from '../../../../ui-framework'
 
 export default function TOS() {
+    usePageMetadata({
+        title: `StellarExpert Terms of Use`,
+        description: `Welcome to StellarExpert administered and maintained by Verdalinhado Unipessoal LDA.`
+    })
+
     return <>
         <h2>Terms of Use</h2>
         <div className="segment blank">

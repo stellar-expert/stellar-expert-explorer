@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {AccountAddress, getDirectoryEntry} from '@stellar-expert/ui-framework'
+import {AccountAddress, getDirectoryEntry, usePageMetadata} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import DirectoryEntryPropsView from './directory-entry-props-view'
 
@@ -22,6 +22,12 @@ export default function DirectoryEditExistingEntryView({match}) {
         getDirectoryEntry(address, {extended: true})
             .then(di => setDirectoryInfo(di))
     }, [address])
+
+    usePageMetadata({
+        title: `Modify Directory entry for ${address}`,
+        description: `Modify Directory entry for ${address} on Stellar Network.`
+    })
+
 
     if (directoryInfo === undefined) return <EditDirectoryLayoutView address={address}>
         <div className="loader"/>

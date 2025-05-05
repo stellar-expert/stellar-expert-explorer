@@ -1,6 +1,11 @@
 import React from 'react'
+import {usePageMetadata} from '../../../../ui-framework'
 
 export default function PrivacyPageView() {
+    usePageMetadata({
+        title: `StellarExpert Privacy Policy`,
+        description: `Welcome to StellarExpert administered and maintained by Verdalinhado Unipessoal LDA.`
+    })
     return <>
         <h2>Privacy Policy</h2>
         <div className="segment blank">

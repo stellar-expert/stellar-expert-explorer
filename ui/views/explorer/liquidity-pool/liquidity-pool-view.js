@@ -1,9 +1,8 @@
 import React from 'react'
 import {useRouteMatch} from 'react-router'
-import {Amount, AssetLink, UtcTimestamp, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
+import {Amount, AssetLink, UtcTimestamp, InfoTooltip as Info, useExplorerApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import appSettings from '../../../app-settings'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import CrawlerScreen from '../../components/crawler-screen'
@@ -21,13 +20,9 @@ function MultiAmount({amount, asset}) {
 }
 
 function PoolSummaryView({poolInfo}) {
-    if (!poolInfo) return <div className="loader"/>
+    if (!poolInfo)
+        return <div className="loader"/>
     const [assetA, assetB] = poolInfo.assets.map(a => AssetDescriptor.parse(a.asset))
-
-    setPageMetadata({
-        title: `${assetB.toString()}/${assetA.toString()} liquidity pool on Stellar ${appSettings.activeNetwork} network`,
-        description: `Statistics and analytics of ${assetB.toString()}/${assetA.toString()} liquidity pool on Stellar ${appSettings.activeNetwork} decentralized exchange.`
-    })
     return <>
         <div className="row">
             <div className="column column-50">
@@ -102,6 +97,11 @@ function PoolSummaryView({poolInfo}) {
 export default function LiquidityPoolView() {
     const {params} = useRouteMatch()
     const {loaded, error, data} = useExplorerApi(`liquidity-pool/${params.id}`)
+
+    usePageMetadata({
+        title: `Liquidity pool ${data?.assets ? data.assets.map(a => a.asset.split('-')[0]).join('/') : params.id}`,
+        description: `Classic liquidity pool ${data?.assets ? data.assets.map(a => a.asset).join('/') : params.id}.`
+    })
 
     return <div>
         <h2><span className="dimmed">Liquidity Pool</span> <AssetLink asset={params.id} link={false} issuer={true}/></h2>

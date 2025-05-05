@@ -1,12 +1,12 @@
 import React from 'react'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {usePageMetadata} from '@stellar-expert/ui-framework'
 import CrawlerScreen from '../../components/crawler-screen'
 import AssetsChart from '../ledger/charts/ledger-history-assets-trustlines-chart-view'
 import AssetsOverallStatsView from './asset-overall-stats-view'
 import AssetList from './asset-list-view'
 
 export default function AssetsDashboard() {
-    setPageMetadata({
+    usePageMetadata({
         title: 'Analytics for all assets, anchors, ICOs, tokens issued on Stellar Network',
         description: 'Comprehensive analytics, key technical parameters, trading volume, and price dynamics for all Stellar assets, anchors, ICOs, utility tokens.'
     })

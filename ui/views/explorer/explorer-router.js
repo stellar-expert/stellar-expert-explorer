@@ -26,7 +26,7 @@ import ContractVersions from './contract/contract-versions-view'
 import StagedSorobanConfigChanges from './protocol/staged-soroban-config-changes-view'
 import SorobanTopContractsView from './ledger/soroban-top-contracts-view'
 
-function ExplorerRouter({match}) {
+export default function ExplorerRouter({match}) {
     const {path} = match
     return <div className="container">
         <Switch>
@@ -66,5 +66,3 @@ function ExplorerRouter({match}) {
         </Switch>
     </div>
 }
-
-export default ExplorerRouter

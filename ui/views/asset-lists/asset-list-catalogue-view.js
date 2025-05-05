@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Accordion, CodeBlock} from '@stellar-expert/ui-framework'
+import {Accordion, CodeBlock, usePageMetadata} from '@stellar-expert/ui-framework'
 import {fetchAvailableAssetLists} from '@stellar-asset-lists/sdk'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 import AssetListDetailsView from './asset-list-details-view'
 import './asset-lists.scss'
 
@@ -22,15 +21,14 @@ export default function AssetListCatalogueView() {
             .then(catalogue => setCatalogue(catalogue))
             .catch(e => console.error(e))
     }, [])
+    usePageMetadata({
+        title: 'Catalogue of Stellar asset lists',
+        description: 'Community-managed catalogue of SEP-42 Stellar asset lists provided by ecosystem organizations.'
+    })
 
     const updateSearch = useCallback(e => {
         setSearch(e.target.value)
     }, [])
-
-    setPageMetadata({
-        title: 'Catalogue of Stellar asset lists',
-        description: 'Community-managed catalogue of SEP-42 Stellar asset lists provided by ecosystem organizations.'
-    })
 
     return <div>
         <h2>Community-managed catalogue of Stellar asset lists</h2>

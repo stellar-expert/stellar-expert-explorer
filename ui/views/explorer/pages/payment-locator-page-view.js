@@ -1,10 +1,10 @@
 import React from 'react'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {usePageMetadata} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
 import TxHistoryView from '../tx/tx-history-view'
 
 export default function PaymentLocatorPage() {
-    setPageMetadata({
+    usePageMetadata({
         title: `Payment locator`,
         description: `Explore payments on the Stellar ${config.activeNetwork} network. Search by amount, assets, transaction memo, source/destination account.`
     })

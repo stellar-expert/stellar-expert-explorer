@@ -1,18 +1,15 @@
-import React, {useEffect} from 'react'
-import {useDependantState} from '@stellar-expert/ui-framework'
+import React from 'react'
+import {useDependantState, usePageMetadata} from '@stellar-expert/ui-framework'
 import {navigation, parseQuery} from '@stellar-expert/navigation'
 import DirectoryEntryPropsView from './directory-entry-props-view'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 
 export default function DirectoryAddNewEntryView() {
     const {address: addressFromQuery} = parseQuery()
     const [requestedAddress] = useDependantState(() => addressFromQuery || null, [addressFromQuery])
-    useEffect(() => {
-        setPageMetadata({
-            title: `Request address listing in StellarExpert Directory`,
-            description: `Request address listing | Provide account address, organization domain name, title, and tags`
-        })
-    }, [])
+    usePageMetadata({
+        title: `Request address listing in StellarExpert Directory`,
+        description: `Request address listing | Provide account address, organization domain name, title, and tags`
+    })
     return <>
         <div className="desktop-only text-small" style={{float: 'right', paddingTop: '1em'}}>
             <a href="/directory">Back to Directory</a>

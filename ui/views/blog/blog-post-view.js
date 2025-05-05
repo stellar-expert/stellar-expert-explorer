@@ -1,9 +1,8 @@
 import React from 'react'
 import Markdown from 'markdown-to-jsx'
-import {CodeBlock, useDependantState} from '@stellar-expert/ui-framework'
+import {CodeBlock, useDependantState, usePageMetadata} from '@stellar-expert/ui-framework'
 import blogStorage from './blog-storage'
 import AllPosts from './blog-post-list-view'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 import './blog.scss'
 
 function BlogImage({postId, title, alt, src}) {
@@ -19,11 +18,12 @@ function BlogImage({postId, title, alt, src}) {
 }
 
 function CodeHandler(props) {
-    if (props.className?.indexOf('lang') === 0) return <CodeBlock {...props}/>
+    if (props.className?.indexOf('lang') === 0)
+        return <CodeBlock {...props}/>
     return <code>{props.children}</code>
 }
 
-function BlogPostView({match}) {
+export default function BlogPostView({match}) {
     const postId = match.params.id
     const [postData, updatePost] = useDependantState(() => {
         blogStorage.fetchPost(match.params.id)
@@ -37,11 +37,6 @@ function BlogPostView({match}) {
                     meta[prop.trim()] = value.trim()
                 }
 
-                setPageMetadata({
-                    title: meta.title + ' | StellarExpert Blog',
-                    description: meta.description,
-                    image: blogStorage.resolveImagePath(postId, meta.image, true)
-                })
 
                 updatePost({
                     post: text.replace(/^---\s+.+?---/s, '', ''),
@@ -52,8 +47,15 @@ function BlogPostView({match}) {
         return {}
     }, [postId])
 
+    usePageMetadata({
+        title: (postData.title || '') + ' | StellarExpert Blog',
+        description: (postData.description || '') + ' | StellarExpert Blog',
+        image: blogStorage.resolveImagePath(postId, postData.image, true)
+    })
+
     const {post, title, description, date, image} = postData
-    if (!post) return <div className="loader"/>
+    if (!post)
+        return <div className="loader"/>
 
     const markdownOptions = {
         overrides: {
@@ -91,5 +93,3 @@ function BlogPostView({match}) {
         </div>
     </div>
 }
-
-export default BlogPostView

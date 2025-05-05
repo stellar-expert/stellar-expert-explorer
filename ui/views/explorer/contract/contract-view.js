@@ -1,10 +1,10 @@
 import React from 'react'
 import {useParams} from 'react-router'
 import {StrKey} from '@stellar/stellar-base'
-import {AccountAddress, useContractInfo} from '@stellar-expert/ui-framework'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
+import {AccountAddress, useContractInfo, usePageMetadata} from '@stellar-expert/ui-framework'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import CrawlerScreen from '../../components/crawler-screen'
+import appSettings from '../../../app-settings'
 import ContractBalancesView from './contract-balances-view'
 import ContractDetailsView from './contract-details-view'
 import ContractTabsView from './contract-tabs-view'
@@ -12,7 +12,6 @@ import ContractStatsHistoryView from './contract-stats-history-view'
 
 export default function ContractView() {
     const {id: address} = useParams()
-    const {data, loaded} = useContractInfo(address)
     if (!StrKey.isValidContract(address))
         return <>
             <h2 className="word-break condensed"><span className="dimmed">Contract</span> {address}</h2>
@@ -20,6 +19,12 @@ export default function ContractView() {
                 Invalid smart contract address. Make sure that you copied it correctly.
             </ErrorNotificationBlock>
         </>
+    const {data, loaded} = useContractInfo(address)
+    const srcRepoInfo = data?.validation?.repository ? ` from ${data?.validation?.repository.replace('https://github.com/', '')}` : ''
+    usePageMetadata({
+        title: `Contract ${address}${srcRepoInfo}`,
+        description: `Explore properties, interface, invocation stats, and full operations history for smart contract ${address}${srcRepoInfo} on Stellar ${appSettings.activeNetwork} network.`
+    })
     if (!loaded)
         return <div className="loader"/>
     if (!data || data.error)
@@ -27,10 +32,6 @@ export default function ContractView() {
             <h2 className="word-break condensed"><span className="dimmed">Contract</span> {address}</h2>
             <ErrorNotificationBlock>Contract not found on the ledger</ErrorNotificationBlock>
         </>
-    setPageMetadata({
-        title: `Contract ${address}`,
-        description: `Explore properties, balance, active offers, and full operations history for contract ${address} on Stellar Network.`
-    })
     return <>
         <h2 className="condensed word-break">
             <span className="dimmed">Contract</span> <AccountAddress account={address} link={false} chars="all"/>

@@ -1,9 +1,8 @@
 import React, {useState} from 'react'
 import {Federation} from '@stellar/stellar-sdk'
-import {useDependantState} from '@stellar-expert/ui-framework'
+import {useDependantState, usePageMetadata} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import appSettings from '../../../app-settings'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {detectSearchType} from '../../../business-logic/search'
 import {resolvePath} from '../../../business-logic/path'
 import ErrorNotificationBlock from '../../components/error-notification-block'
@@ -112,7 +111,7 @@ export default function SearchResultsView() {
     const originalTerm = (navigation.query.term || '').trim()
 
     const [state, setState] = useDependantState(() => {
-        setPageMetadata({
+        usePageMetadata({
             title: `Search "${originalTerm}"`,
             description: `Search results for term "${originalTerm}" on Stellar ${appSettings.activeNetwork} network.`
         })

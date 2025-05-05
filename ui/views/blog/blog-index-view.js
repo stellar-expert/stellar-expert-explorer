@@ -1,9 +1,9 @@
 import React from 'react'
+import {usePageMetadata} from '@stellar-expert/ui-framework'
 import AllPosts from './blog-post-list-view'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 
-function BlogIndexView() {
-    setPageMetadata({
+export default function BlogIndexView() {
+    usePageMetadata({
         title: 'StellarExpert Blog',
         description: 'Deep dive into Stellar Network intrinsics, historical data researches, fascinating facts about blockchains, and of course, our platform news.'
     })
@@ -15,5 +15,3 @@ function BlogIndexView() {
         </div>
     </div>
 }
-
-export default BlogIndexView

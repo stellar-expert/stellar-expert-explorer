@@ -1,11 +1,11 @@
 import React from 'react'
 import {useParams} from 'react-router'
 import {StrKey} from '@stellar/stellar-base'
-import {BlockSelect, AccountAddress, InfoTooltip as Info, useDirectory, parseMuxedAccount} from '@stellar-expert/ui-framework'
+import {BlockSelect, AccountAddress, InfoTooltip as Info, useStellarNetwork} from '@stellar-expert/ui-framework'
+import {useDirectory, parseMuxedAccount, usePageMetadata} from '@stellar-expert/ui-framework'
 import Tracer from '../horizon-tracer/tracer-icon-view'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import AccountQrCodeToggle from '../../components/account-qr-code-toggle'
-import {setPageMetadata} from '../../../util/meta-tags-generator'
 import {useCompositeAccountInfo} from '../../../business-logic/api/account-api'
 import {useGithubOAuth} from '../../../business-logic/oauth/oauth-hooks'
 import {isDirectoryAdmin} from '../../directory/is-directory-admin'
@@ -31,6 +31,7 @@ function AccountDirectoryActionView({address}) {
 
 export default function AccountView() {
     let {id: address} = useParams()
+    const network = useStellarNetwork()
     let originalAddress = address
     let isMuxed = address.indexOf('M') === 0 && StrKey.isValidMed25519PublicKey(address)
     let muxedId
@@ -41,20 +42,26 @@ export default function AccountView() {
         muxedId = parsed.muxedId
     }
 
-    if (!StrKey.isValidEd25519PublicKey(address))
+    if (!StrKey.isValidEd25519PublicKey(address)) {
+        usePageMetadata({
+            title: `Invalid account address: ${address}`,
+            description: 'Invalid Stellar account address. Make sure that you copied it correctly.'
+        })
         return <div className="account-view">
             <h2 className="word-break condensed">{originalAddress}</h2>
             <ErrorNotificationBlock>
                 Invalid Stellar account address. Make sure that you copied it correctly.
             </ErrorNotificationBlock>
         </div>
-
+    }
+    const directoryInfo = useDirectory(address)
     const {loaded, data: accountInfo} = useCompositeAccountInfo(address, muxedId)
 
-    if (!loaded)
-        return <div className="loader"/>
-
-    if (accountInfo.nonExistentAccount)
+    if (accountInfo?.nonExistentAccount) {
+        usePageMetadata({
+            title: `Account ${address} doesn't exist`,
+            description: `Account ${address} doesn't exist on Stellar ${network}.`
+        })
         return <div className="account-view">
             <h2 className="word-break condensed">{address}</h2>
             <ErrorNotificationBlock>
@@ -62,16 +69,18 @@ export default function AccountView() {
                 least one payment to this address.
             </ErrorNotificationBlock>
         </div>
+    }
 
-    if (accountInfo.error)
+    if (accountInfo?.error)
         throw accountInfo.error instanceof Error ? accountInfo.error : new Error(accountInfo.error)
 
-
-    //TODO: provide extended meta info from directory if any
-    setPageMetadata({
-        title: `Account ${address}`,
-        description: `Explore properties, balance, active offers, and full operations history for account ${address} on Stellar Network.`
+    usePageMetadata({
+        title: `Account ${directoryInfo ? directoryInfo.name + ' ' : ''}${address}${directoryInfo ? ` ${directoryInfo.domain || ''} [${directoryInfo.tags.join()}]` : ''}`,
+        description: `Explore properties, balance, active offers, and full operations history for account ${address} ${directoryInfo ? `${directoryInfo.name} ${directoryInfo.domain || ''} [${directoryInfo.tags.join()}]` : ' '}on Stellar ${network}.`
     })
+
+    if (!loaded)
+        return <div className="loader"/>
 
     return <div className="account-view">
         <h2 className="word-break relative condensed">

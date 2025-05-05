@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 import {StrKey, Keypair} from '@stellar/stellar-base'
 import {inspectAccountSigners} from '@stellar-expert/tx-signers-inspector'
-import {AccountAddress, Button, getDirectoryEntry} from '@stellar-expert/ui-framework'
+import {AccountAddress, Button, getDirectoryEntry, usePageMetadata} from '@stellar-expert/ui-framework'
 import appSettings from '../../app-settings'
 import Demolisher from '../../business-logic/demolisher/demolisher-tx-builder'
-import {setPageMetadata} from '../../util/meta-tags-generator'
 
 function filterInvalidKeyChars(value) {
     return value.replace(/\W/g, '')
@@ -20,11 +19,9 @@ export default function AccountDemolisherView() {
     const [memo, setMemo] = useState('')
     const [signers, setSigners] = useState([])
 
-    useEffect(() => {
-        setPageMetadata({
-            title: `Account demolisher for Stellar XLM accounts`,
-            description: `Automatic Stellar accounts merge for exchanges. Removes trustlines, open offers, and data entries.`
-        })
+    usePageMetadata({
+        title: `Account demolisher for Stellar Network accounts`,
+        description: `Automatic Stellar accounts merge for exchanges. Removes trustlines, open offers, and data entries.`
     })
 
     function resetError() {
