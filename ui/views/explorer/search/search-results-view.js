@@ -109,12 +109,12 @@ function SearchResultsWrapper({originalTerm, children}) {
 
 export default function SearchResultsView() {
     const originalTerm = (navigation.query.term || '').trim()
+    usePageMetadata({
+        title: `Search "${originalTerm}"`,
+        description: `Search results for term "${originalTerm}" on Stellar ${appSettings.activeNetwork} network.`
+    })
 
     const [state, setState] = useDependantState(() => {
-        usePageMetadata({
-            title: `Search "${originalTerm}"`,
-            description: `Search results for term "${originalTerm}" on Stellar ${appSettings.activeNetwork} network.`
-        })
         processSearchTerm(originalTerm)
             .then(newState => setState(newState))
 
