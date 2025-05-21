@@ -1,5 +1,6 @@
 import {CodeBlock, generateContractSourceLink, useContractSource} from '@stellar-expert/ui-framework'
 import {parseContractMetadata} from '@stellar-expert/contract-wasm-interface-parser'
+//import SACInterface from './sac-interface.txt'
 
 export function ContractInterfaceView({hash}) {
     const source = useContractSource(hash)

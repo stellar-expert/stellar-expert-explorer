@@ -20,16 +20,20 @@ async function getFirstLedgerTimestamp(network) {
  * @return {Promise<Number>} - Sequence of the ledger closest to the given timestamp
  */
 async function resolveSequenceFromTimestamp(network, ts) {
-    if (ts > unixNow() - 1) return undefined
+    if (ts > unixNow() - 1) {
+        //looks like it's the last ledger
+        const last = await fetchLastLedger(network)
+        return last._id
+    }
     const ledger = await db[network].collection('ledgers')
         .findOne({ts: {$lte: ts}}, {sort: {ts: -1}, projection: {_id: 1}})
 
-    if (ledger) return ledger._id
+    if (ledger)
+        return ledger._id
     const first = await getFirstLedgerTimestamp(network)
     if (ts < first.ts) return undefined
-    //looks like it's the last ledger
-    const last = await fetchLastLedger(network)
-    return last._id
+    return first.ts
+
 }
 
 /**
