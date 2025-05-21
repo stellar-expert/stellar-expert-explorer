@@ -8,7 +8,7 @@ import {
     TxOperationsList,
     parseTxDetails, withErrorBoundary
 } from '@stellar-expert/ui-framework'
-import {shortenString} from '@stellar-expert/formatter'
+import {fromStroops, shortenString} from '@stellar-expert/formatter'
 import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
 import CrawlerScreen from '../../components/crawler-screen'
@@ -43,6 +43,19 @@ export default withErrorBoundary(function TxDetailsView({tx, embedded}) {
     const source = transaction.source
     const memo = transaction.memo
     const feeEffect = parsedTx.effects.find(e => e.type === 'feeCharged')
+    let contractFee
+    const [firstOp] = transaction.operations
+    if (firstOp?.type === 'invokeHostFunction') {
+        let metrics = firstOp.effects.find(e => e.type === 'contractMetrics')
+        if (metrics) {
+            contractFee = metrics.fee
+            /*{
+                "nonrefundable": 475334,
+                "refundable": 205021,
+                "rent": 204981
+            }*/
+        }
+    }
     return <>
         <TxHeaderView tx={tx} embedded={embedded}/>
         <div className="segment blank">
@@ -108,6 +121,9 @@ export default withErrorBoundary(function TxDetailsView({tx, embedded}) {
                         <dt>Fee Charged:</dt>
                         <dd>
                             <BlockSelect><Amount asset="XLM" amount={feeEffect.charged} adjust issuer={false}/></BlockSelect>
+                            {!!contractFee && <span class="dimmed text-tiny">
+                                &nbsp;({fromStroops(contractFee.nonrefundable)} non-refundable + {fromStroops(contractFee.refundable)} refundable + {fromStroops(100)} min op fee)
+                            </span>}
                             <Info link="https://www.stellar.org/developers/guides/concepts/transactions.html#fee">Actually
                                 charged fee which can be lower than the fee specified in the transaction. Each
                                 transaction sets a fee that is paid by the source account. The more operations in the

@@ -1,5 +1,5 @@
 import React from 'react'
-import {usePageMetadata} from '../../../../ui-framework'
+import {usePageMetadata} from '@stellar-expert/ui-framework'
 
 export default function TOS() {
     usePageMetadata({
