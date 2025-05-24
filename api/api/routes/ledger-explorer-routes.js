@@ -4,7 +4,7 @@ const {queryProtocolHistory} = require('../../business-logic/ledger/protocol-ver
 const {queryTimestampFromSequence, querySequenceFromTimestamp} = require('../../business-logic/ledger/ledger-timestamp-resolver')
 const {fetchArchiveLedger} = require('../../business-logic/archive/archive-locator')
 const {waitForLedger} = require('../../business-logic/ledger/ledger-stream')
-const {fetchLastLedger} = require('../../business-logic/ledger/ledger-resolver')
+const {fetchLastLedger, fetchLedger} = require('../../business-logic/ledger/ledger-resolver')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -40,11 +40,29 @@ module.exports = function (app) {
     registerRoute(app,
         'ledger/last',
         {},
-        ({params}) => fetchLastLedger(params.network).then(res => ({ledger: res._id})))
+        async ({params}) => prepareLedgerData(params.network, await fetchLastLedger(params.network)))
 
     registerRoute(app,
         'ledger/:sequence',
         {},
-        ({params}) => fetchArchiveLedger(params.network, params.sequence))
+        async ({params}) => prepareLedgerData(params.network, await fetchLedger(params.network, parseInt(params.sequence, 10))))
+}
 
+async function prepareLedgerData(network, stats) {
+    if (!stats)
+        return null
+    const fromArchive = await fetchArchiveLedger(network, stats?._id)
+    if (stats?._id !== fromArchive?.sequence)
+        throw new Error('Ledgers mismatch')
+    return {
+        sequence: stats.sequence,
+        ts: stats.ts,
+        protocol: stats.version,
+        xlm: stats.xlm.toString(),
+        feePool: stats.pool.toString(),
+        txSuccess: stats.tx,
+        txFailed: stats.failed,
+        operations: stats.ops,
+        ...fromArchive
+    }
 }

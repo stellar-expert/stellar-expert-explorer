@@ -14,13 +14,18 @@ async function fetchLedgers(network, sequences) {
  * Fetch multiple ledgers from analytics db
  * @param {String} network - Stellar network
  * @param {Number} sequence - Ledger sequences to fetch
- * @return {Promise<{}[]>}
+ * @return {Promise<{}>}
  */
 async function fetchLedger(network, sequence) {
     return await db[network].collection('ledgers').findOne({_id: sequence})
 }
 
-async function fetchLastLedger(network){
+/**
+ * Fetch the most recent ledger processed by the network
+ * @param {String} network
+ * @return {Promise<{}>}
+ */
+async function fetchLastLedger(network) {
     return await db[network].collection('ledgers').findOne({}, {sort: {_id: -1}})
 }
 
