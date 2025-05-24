@@ -1,94 +1,88 @@
-import React from 'react'
-import {Amount, UpdateHighlighter, useDependantState, streamLedgers, loadLedgers} from '@stellar-expert/ui-framework'
-import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
+import React, {useCallback, useEffect, useState} from 'react'
+import {Amount, UpdateHighlighter, ledgerStream, retrieveLedgerInfo} from '@stellar-expert/ui-framework'
+import {apiCall} from '../../../models/api'
 import {resolvePath} from '../../../business-logic/path'
+import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 
 export default function LedgerActivityView({title, className}) {
-    let ledgersStream
     let unmounted
-    const [
-        {sequence, protocol, txSuccess, txFailed, operations, timeDelta, baseFee, baseReserve, lastLedgerClosedAt},
-        setState
-    ] = useDependantState(() => {
-        //load latest ledger
-        loadLedgers({order: 'desc', limit: 1})
-            .then(ledgers => {
-                processLedger(ledgers[0])
-                //start ledgers updates streaming
-                if (!ledgersStream) {
-                    ledgersStream = streamLedgers('now', ledger => processLedger(ledger))
-                }
-            })
-
-        return {
-            sequence: 0,
-            txSuccess: 0,
-            txFailed: 0,
-            protocol: 0,
-            baseFee: 0,
-            baseReserve: 0,
-            timeDelta: 6
-        }
-
-    }, [title, className], () => {
-        unmounted = true
-        if (ledgersStream) {
-            ledgersStream()
-            ledgersStream = undefined
-        }
+    let lastLedgerClosedAt = 0
+    const [ledgerInfo, setLedgerInfo] = useState({
+        sequence: 0,
+        txSuccess: 0,
+        txFailed: 0,
+        protocol: 0,
+        baseFee: 0,
+        baseReserve: 0,
+        timeDelta: 6
     })
 
-
-    function processLedger(ledger) {
+    const processLedger = useCallback(ledger => {
         if (unmounted)
             return
-        const time = new Date(ledger.closed_at).getTime()
+        ledger = retrieveLedgerInfo(ledger)
         let timeDelta = 6
         if (lastLedgerClosedAt) {
-            timeDelta = (time - lastLedgerClosedAt) / 1000
+            timeDelta = (ledger.ts - lastLedgerClosedAt)
         }
-
-        setState({
+        lastLedgerClosedAt = ledger.ts
+        setLedgerInfo({
             sequence: ledger.sequence,
-            protocol: ledger.protocol_version,
-            operations: ledger.operation_count,
-            txSuccess: ledger.successful_transaction_count,
-            txFailed: ledger.failed_transaction_count,
-            baseFee: ledger.base_fee_in_stroops,
-            baseReserve: ledger.base_reserve_in_stroops,
-            timeDelta,
-            lastLedgerClosedAt: time
+            protocol: ledger.protocol,
+            operations: ledger.operations,
+            txSuccess: ledger.txSuccess,
+            txFailed: ledger.txFailed,
+            baseFee: ledger.baseFee,
+            baseReserve: ledger.baseReserve,
+            timeDelta
         })
-    }
+    }, [])
 
-    if (!sequence)
+    useEffect(() => {
+        const onNewLedger = sequence => apiCall('ledger/' + sequence).then(processLedger)
+        ledgerStream.getLast()
+            .then(ledger => {
+                processLedger(ledger)
+                //start ledgers updates streaming
+                ledgerStream.on(onNewLedger)
+            })
+
+        return () => {
+            unmounted = true
+            ledgerStream.off(onNewLedger)
+        }
+    }, [])
+
+    if (!ledgerInfo.sequence)
         return <div className="loader"/>
 
     return <>
         <h3>
             {title || 'Ledger '}
-            <UpdateHighlighter><a href={resolvePath(`ledger/${sequence}`)}>{sequence}</a></UpdateHighlighter>
+            <UpdateHighlighter><a href={resolvePath(`ledger/${ledgerInfo.sequence}`)}>{ledgerInfo.sequence}</a></UpdateHighlighter>
             <EmbedWidgetTrigger path="network-activity/ledger" title="Stellar Network Stats"/>
         </h3>
         <hr className="flare"/>
         <dl>
             <dt>Transactions:</dt>
-            <dd><UpdateHighlighter>{txSuccess} succeeded{txFailed > 0 && ` / ${txFailed} failed`}</UpdateHighlighter></dd>
+            <dd>
+                <UpdateHighlighter>{ledgerInfo.txSuccess} succeeded{ledgerInfo.txFailed > 0 && ` / ${ledgerInfo.txFailed} failed`}</UpdateHighlighter>
+            </dd>
 
             <dt>Operations:</dt>
-            <dd><UpdateHighlighter>{operations}</UpdateHighlighter></dd>
+            <dd><UpdateHighlighter>{ledgerInfo.operations}</UpdateHighlighter></dd>
 
             <dt>Ledger closing time:</dt>
-            <dd><UpdateHighlighter>{timeDelta}s</UpdateHighlighter></dd>
+            <dd><UpdateHighlighter>{ledgerInfo.timeDelta}s</UpdateHighlighter></dd>
 
             <dt>Protocol version:</dt>
-            <dd><UpdateHighlighter><a href={resolvePath('protocol-history', 'explorer')}>{protocol}</a></UpdateHighlighter></dd>
+            <dd><UpdateHighlighter><a href={resolvePath('protocol-history', 'explorer')}>{ledgerInfo.protocol}</a></UpdateHighlighter></dd>
 
             <dt>Base operation fee:</dt>
-            <dd><UpdateHighlighter><Amount amount={baseFee} asset="XLM" issuer={false} adjust/></UpdateHighlighter></dd>
+            <dd><UpdateHighlighter><Amount amount={ledgerInfo.baseFee} asset="XLM" issuer={false} adjust/></UpdateHighlighter></dd>
 
             <dt>Base reserve:</dt>
-            <dd><UpdateHighlighter><Amount amount={baseReserve} asset="XLM" issuer={false} adjust/></UpdateHighlighter></dd>
+            <dd><UpdateHighlighter><Amount amount={ledgerInfo.baseReserve} asset="XLM" issuer={false} adjust/></UpdateHighlighter></dd>
         </dl>
         <div className="micro-space text-small">
             <a href={resolvePath('operations-live-stream', 'explorer')}>View operations live stream</a>

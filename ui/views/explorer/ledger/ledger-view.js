@@ -1,14 +1,6 @@
 import React from 'react'
-import {xdr} from '@stellar/stellar-base'
-import {
-    BlockSelect,
-    Amount,
-    UtcTimestamp,
-    InfoTooltip as Info,
-    formatExplorerLink,
-    useExplorerApi,
-    usePageMetadata
-} from '@stellar-expert/ui-framework'
+import {BlockSelect, Amount, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
+import {formatExplorerLink, useExplorerApi, usePageMetadata, retrieveLedgerInfo} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
 import ErrorNotificationBlock from '../../components/error-notification-block'
@@ -28,19 +20,12 @@ export default function LedgerView({match}) {
     if (ledgerInfo.error || ledgerInfo.data.status) {
         let error = `Failed to load ledger ${sequence}.`
         if (ledgerInfo.data.status === 404) {
-            error = 'Ledger not found. The requested sequence is greater than last known Horizon sequence.'
+            error = 'Ledger not found. The requested sequence is greater than the last known Horizon sequence.'
         }
         return <ErrorNotificationBlock>{error}</ErrorNotificationBlock>
     }
-    const parsed = xdr.LedgerHeader.fromXDR(ledgerInfo.data.xdr, 'base64')
-    const ledger = {
-        sequence: parsed.ledgerSeq(),
-        ts: Number(parsed.scpValue().closeTime().toBigInt()),
-        protocol: parsed.ledgerVersion(),
-        xlm: parsed.totalCoins().toBigInt(),
-        baseFee: parsed.baseFee(),
-        feePool: parsed.feePool().toBigInt()
-    }
+
+    const ledger = retrieveLedgerInfo(ledgerInfo.data)
 
     return <>
         <div style={{float: 'right', margin: '0.4em -0.4em 0px 0px', position: 'relative', zIndex: 1}}>

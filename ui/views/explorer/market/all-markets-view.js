@@ -1,15 +1,13 @@
 import React, {useCallback, useState} from 'react'
-import {debounce} from 'throttle-debounce'
 import {Dropdown, Tabs, AssetLink, UpdateHighlighter} from '@stellar-expert/ui-framework'
-import {useDeepEffect, useForceUpdate, useExplorerPaginatedApi, streamTrades, usePageMetadata} from '@stellar-expert/ui-framework'
+import {useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {formatPrice, formatWithAbbreviation} from '@stellar-expert/formatter'
-import {parseAssetFromObject, AssetDescriptor} from '@stellar-expert/asset-descriptor'
+import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {navigation} from '@stellar-expert/navigation'
 import appSettings from '../../../app-settings'
-import GridDataActionsView from '../../components/grid-data-actions'
-import PriceDynamic from '../../components/price-dynamic'
-import AssetSparkLine from '../asset/charts/asset-sparkline-chart-view'
 import {resolvePath} from '../../../business-logic/path'
+import GridDataActionsView from '../../components/grid-data-actions'
+import AssetSparkLine from '../asset/charts/asset-sparkline-chart-view'
 
 const orderOptions = [
     {value: 'volume24h', title: 'daily volume'},
@@ -102,7 +100,6 @@ function MarketsListContentView({markets}) {
 
 export default function AllMarketsView() {
     const {asset} = navigation.query
-    const forceUpdate = useForceUpdate()
     const [type, setType] = useState(navigation.query.type || 'all')
     const [sort, setSort] = useState(navigation.query.sort || orderOptions[0].value)
 
@@ -118,38 +115,6 @@ export default function AllMarketsView() {
         title: `Active DEX markets on Stellar ${appSettings.activeNetwork} network`,
         description: `Statistics and price dynamic of active markets on Stellar ${appSettings.activeNetwork} decentralized exchange.`
     })
-
-    useDeepEffect(() => {
-
-        let stopTradesStream
-        if (markets?.data?.length) {
-            const scheduleTradesUpdate = debounce(400, () => stopTradesStream && forceUpdate())
-            stopTradesStream = streamTrades('now', trade => {
-                const {data} = markets
-                const baseAsset = parseAssetFromObject(trade, 'base_').toFQAN()
-                const counterAsset = parseAssetFromObject(trade, 'counter_').toFQAN()
-                const match = [baseAsset, counterAsset].join()
-                const reverseMatch = [counterAsset, baseAsset].join()
-
-                for (const market of data) {
-                    const a = market.asset.join()
-                    if (a === match) {
-                        market.price = trade.price.d / trade.price.n
-                        return scheduleTradesUpdate()
-                    }
-                    if (a === reverseMatch) {
-                        market.price = trade.price.n / trade.price.d
-                        return scheduleTradesUpdate()
-                    }
-                }
-            })
-        }
-
-        return () => {
-            stopTradesStream && stopTradesStream()
-            stopTradesStream = undefined
-        }
-    }, [appSettings.activeNetwork, markets.data])
 
     const updateSort = useCallback(function (sort = orderOptions[0].value) {
         setSort(sort)

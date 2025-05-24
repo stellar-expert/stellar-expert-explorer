@@ -1,17 +1,9 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {throttle} from 'throttle-debounce'
-import {
-    ElapsedTime,
-    TxLink,
-    TxOperationsList,
-    parseTxDetails,
-    useStellarNetwork,
-    loadLedgerTransactions, usePageMetadata
-} from '@stellar-expert/ui-framework'
+import {ElapsedTime, TxLink, TxOperationsList} from '@stellar-expert/ui-framework'
+import {parseTxDetails, useStellarNetwork, loadLedgerTransactions, usePageMetadata, ledgerStream} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
-import {ledgerStream} from '../../../business-logic/api/ledger-stream'
 import './activity-stream.scss'
-import {apiCall} from '../../../models/api'
 
 export default function ActivityStreamView() {
     const network = useStellarNetwork()
@@ -20,8 +12,6 @@ export default function ActivityStreamView() {
     const [includeFailed, setIncludeFailed] = useState(false)
     const [_, refresh] = useState(0)
     const activityContainer = useRef()
-
-    const toggleIncludeFailed = useCallback(() => setIncludeFailed(prev => !prev), [])
 
     useEffect(() => {
         if (!activityContainer.current)
@@ -216,16 +206,11 @@ class RecentActivity {
         if (this.finalizeStream)
             return
         this.records = []
-        this.cursor = (await apiCall(`ledger/last`)).ledger
+        this.cursor = await ledgerStream.getLastSequence()
         await this.loadNextPage()
         const onNewLedger = sequence => this.loadLedger(sequence)
         ledgerStream.on(onNewLedger)
         this.finalizeStream = () => ledgerStream.off(onNewLedger)
-
-        /**
-
-
-         */
     }
 
     /**
