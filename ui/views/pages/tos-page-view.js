@@ -10,7 +10,7 @@ export default function TOS() {
     return <>
         <h2>Terms of Use</h2>
         <div className="segment blank">
-            <div className="dimmed text-right text-small">Last updated: 12 March 2025</div>
+            <div className="dimmed text-right text-small">Last updated: 29 May 2025</div>
             <br/>
             <h3>INTRO</h3>
             <p>
@@ -91,6 +91,8 @@ export default function TOS() {
                 We do not monitor or have any control over, and make no claim or representation regarding third-party websites.
                 To the extent such links are provided by us, they are provided only as a convenience, and a link to a third-party website
                 does not imply our endorsement, adoption or sponsorship of, or affiliation with, such third-party websites.
+                Some of third-party links on our Platform may be "affiliate links". When users click such links, our Company may receive
+                compensation from the referenced third party in the form of digital or fiat currency, services or products.
             </p>
             <p>
                 When you leave the Platform, whether via a link contained on the Platform or through the use of your web browser, mobile
