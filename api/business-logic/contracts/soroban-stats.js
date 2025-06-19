@@ -73,7 +73,7 @@ async function fetchContractCreationHistory(network) {
 async function fetchContractMetricsHistory(network) {
     const pipeline = [
         {
-            $match: {ts: {$gte: trimDate(unixNow() - 90 * day)}}
+            $match: {ts: {$gte: trimDate(unixNow() - 30 * day)}}
         },
         {
             $group: {
@@ -117,7 +117,7 @@ async function fetchContractMetricsHistory(network) {
 async function queryContractFeeStatHistory(network) {
     const pipeline = [
         {
-            $match: {ts: {$gte: trimDate(unixNow() - 90 * day)}}
+            $match: {ts: {$gte: trimDate(unixNow() - 30 * day)}}
         },
         {
             $group: {
@@ -156,7 +156,7 @@ async function queryContractFeeStatHistory(network) {
 async function queryTopContractsByInvocations(network, limit = 100) {
     const pipeline = [
         {
-            $match: {ts: {$gte: trimDate(unixNow() - 90 * day)}}
+            $match: {ts: {$gte: trimDate(unixNow() - 30 * day)}}
         },
         {
             $group: {
@@ -189,7 +189,7 @@ async function queryTopContractsByInvocations(network, limit = 100) {
 async function queryTopContractsBySubInvocations(network) {
     const pipeline = [
         {
-            $match: {ts: {$gte: trimDate(unixNow() - 90 * day)}}
+            $match: {ts: {$gte: trimDate(unixNow() - 30 * day)}}
         },
         {
             $match: {nested: {$exists: true}}
