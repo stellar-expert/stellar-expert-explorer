@@ -43,7 +43,7 @@ function prepareRecord({_id, balance, max}, lastValue) {
 function extendHistory(res, history) {
     const lastRecord = history[0]
     if (lastRecord.balance.toString() === '0' && lastRecord.max && lastRecord.max.toNumber() > 0n) {
-        res.unshift([res[0][0] + timeUnits.day / 1000, '0'])
+        res.unshift([res[0][0] + timeUnits.day / timeUnits.second, '0'])
     }
     return res
 }

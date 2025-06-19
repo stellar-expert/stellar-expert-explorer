@@ -4,6 +4,8 @@ const {trimDate, unixNow, timeUnits} = require('../../utils/date-utils')
 const {AccountAddressJSONResolver} = require('../account/account-resolver')
 const {validateNetwork} = require('../validators')
 
+const day = timeUnits.day / timeUnits.second
+
 function queryGeneralSorobanStats(network) {
     validateNetwork(network)
     const pipeline = [{
@@ -52,7 +54,7 @@ async function fetchContractCreationHistory(network) {
     const pipeline = [
         {
             $group: {
-                _id: {$floor: {$divide: ['$created', timeUnits.day]}},
+                _id: {$floor: {$divide: ['$created', day]}},
                 contracts_created: {$sum: 1}
             }
         },
@@ -62,7 +64,7 @@ async function fetchContractCreationHistory(network) {
     ]
     const res = await db[network].collection('contracts').aggregate(pipeline).toArray()
     return res.map(entry => {
-        entry.ts = entry._id * timeUnits.day
+        entry.ts = entry._id * day
         delete entry._id
         return entry
     })
@@ -71,11 +73,11 @@ async function fetchContractCreationHistory(network) {
 async function fetchContractMetricsHistory(network) {
     const pipeline = [
         {
-            $match: {ts: {$gte: trimDate(unixNow() - 90 * timeUnits.day)}}
+            $match: {ts: {$gte: trimDate(unixNow() - 90 * day)}}
         },
         {
             $group: {
-                _id: {$floor: {$divide: ['$ts', timeUnits.day]}},
+                _id: {$floor: {$divide: ['$ts', day]}},
                 total_read_entry: {$sum: '$metrics.read_entry'},
                 total_write_entry: {$sum: '$metrics.write_entry'},
                 total_ledger_read_byte: {$sum: '$metrics.ledger_read_byte'},
@@ -103,7 +105,7 @@ async function fetchContractMetricsHistory(network) {
     return db[network].collection('invocations').aggregate(pipeline)
         .toArray()
         .then(res => res.map(({_id, ...entry}) => {
-            entry.ts = _id * timeUnits.day
+            entry.ts = _id * day
             entry.avg_invoke_time = round(entry.avg_invoke_time, 0)
             entry.avg_nonrefundable_fee = round(entry.avg_nonrefundable_fee, 0)
             entry.avg_refundable_fee = round(entry.avg_refundable_fee, 0)
@@ -115,11 +117,11 @@ async function fetchContractMetricsHistory(network) {
 async function queryContractFeeStatHistory(network) {
     const pipeline = [
         {
-            $match: {ts: {$gte: trimDate(unixNow() - 90 * timeUnits.day)}}
+            $match: {ts: {$gte: trimDate(unixNow() - 90 * day)}}
         },
         {
             $group: {
-                _id: {$floor: {$divide: ['$ts', timeUnits.day]}},
+                _id: {$floor: {$divide: ['$ts', day]}},
                 avgnonrefundable: {$avg: {$toInt: '$metrics.fee.nonrefundable'}},
                 avgrefundable: {$avg: {$toInt: '$metrics.fee.refundable'}},
                 avgrent: {$avg: {$toInt: '$metrics.fee.rent'}},
@@ -131,7 +133,7 @@ async function queryContractFeeStatHistory(network) {
         {
             $project: {
                 _id: 0,
-                ts: {$multiply: ['$_id', timeUnits.day]},
+                ts: {$multiply: ['$_id', day]},
                 avgFees: {
                     nonrefundable: '$avgnonrefundable',
                     refundable: '$avgrefundable',
@@ -154,7 +156,7 @@ async function queryContractFeeStatHistory(network) {
 async function queryTopContractsByInvocations(network, limit = 100) {
     const pipeline = [
         {
-            $match: {ts: {$gte: trimDate(unixNow() - 90 * timeUnits.day)}}
+            $match: {ts: {$gte: trimDate(unixNow() - 90 * day)}}
         },
         {
             $group: {
@@ -187,7 +189,7 @@ async function queryTopContractsByInvocations(network, limit = 100) {
 async function queryTopContractsBySubInvocations(network) {
     const pipeline = [
         {
-            $match: {ts: {$gte: trimDate(unixNow() - 90 * timeUnits.day)}}
+            $match: {ts: {$gte: trimDate(unixNow() - 90 * day)}}
         },
         {
             $match: {nested: {$exists: true}}
