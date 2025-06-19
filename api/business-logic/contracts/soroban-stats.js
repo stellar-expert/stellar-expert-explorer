@@ -53,7 +53,7 @@ async function querySorobanInteractionHistory(network) {
 async function fetchContractCreationHistory(network) {
     const pipeline = [
         {
-            $match: {ts: {$gte: trimDate(unixNow() - 30 * day)}}
+            $match: {created: {$gte: trimDate(unixNow() - 30 * day)}}
         },
         {
             $group: {
