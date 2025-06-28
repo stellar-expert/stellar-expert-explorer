@@ -29,7 +29,7 @@ async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}
             batch = []
         } else {
             batch = [{
-                account: account.address,
+                address: account.address,
                 created: account.created,
                 deleted: account.deleted,
                 payments: account.payments,
@@ -69,8 +69,6 @@ async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}
         if (!account) {
             account = {address: d, deleted: true, payments: 0, trades: 0, created: 0}
         }
-        account.account = account.address
-        delete account.address
         return account
     })
     addPagingToken(res, q.skip)
