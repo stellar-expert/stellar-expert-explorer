@@ -18,17 +18,17 @@ export default function ContractSearchResultsView({term, onLoaded}) {
         onLoaded(null)
         return null
     }
-    const results = records.map(({contract, created, trades = 0, payments = 0}) => {
+    const results = records.map(({address, created, trades = 0, payments = 0}) => {
         return {
             link: resolvePath(`contract/${term}`),
-            title: <>Account <AccountAddress account={term} link={false} chars={12}/></>,
+            title: <>Contract <AccountAddress account={term} link={false} chars={12}/></>,
             description: <>
                 <>Created&nbsp;<UtcTimestamp date={created} dateOnly/></>{' | '}
                 {formatPrice(payments)}&nbsp;payments{', '}
                 {formatPrice(trades)}&nbsp;trades
             </>,
             links: <>
-                <a href={formatLink(contract)}>Transactions history</a>
+                <a href={formatLink(address)}>Transactions history</a>
             </>
         }
     })

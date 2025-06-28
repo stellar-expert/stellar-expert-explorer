@@ -22,11 +22,11 @@ export default function AccountSearchResultsView({term, onLoaded}) {
         onLoaded(null)
         return null
     }
-    const results = records.map(({account, created, trades=0, payments=0, deleted}) => {
-        const address = account === accountAddress ? term : account //replace result for a muxed account
+    const results = records.map(({address, created, trades=0, payments=0, deleted}) => {
+        const key = address === accountAddress ? term : address //replace result for a muxed account
         return {
-            link: resolvePath(`account/${address}`),
-            title: <>Account <AccountAddress account={address} link={false} chars={12}/>{deleted &&
+            link: resolvePath(`account/${key}`),
+            title: <>Account <AccountAddress account={key} link={false} chars={12}/>{deleted &&
                 <span className="details">(deleted)</span>}</>,
             description: <>
                 {created > 0 ? <>Created&nbsp;<UtcTimestamp date={created} dateOnly/></> : <>Signing key</>}{' | '}
@@ -34,9 +34,9 @@ export default function AccountSearchResultsView({term, onLoaded}) {
                 {formatPrice(trades)}&nbsp;trades
             </>,
             links: <>
-                <a href={formatLink(account)}>Transactions history</a>&emsp;
-                <a href={formatLink(account, 'trades')}>Trades history</a>&emsp;
-                <a href={formatLink(account, 'active-offers')}>Active DEX offers</a>
+                <a href={formatLink(address)}>Transactions history</a>&emsp;
+                <a href={formatLink(address, 'trades')}>Trades history</a>&emsp;
+                <a href={formatLink(address, 'active-offers')}>Active DEX offers</a>
             </>
         }
     })
