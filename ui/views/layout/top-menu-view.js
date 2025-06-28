@@ -11,7 +11,7 @@ const services = [
     {title: 'Payment Locator', href: resolvePath('payment-locator')},
     {title: 'Operations Live Stream', href: resolvePath('operations-live-stream')},
     {title: 'Account Demolisher', href: resolvePath('', 'demolisher')},
-    {title: 'Tax Data Export', href: resolvePath('', 'tax-export')},
+    {title: 'Tax Data Export', href: "https://ledgers.tax/"},
     {title: 'Protocol Versions History', href: resolvePath('protocol-history')},
     {title: 'Asset Lists Catalogue', href: '/asset-lists'}
     //{title: 'Account Demolisher', href: resolvePath('', 'demolisher')}
@@ -41,7 +41,7 @@ export default function TopMenuView() {
                     <a href={resolvePath('', 'directory/blocked-domains')} className="mobile-only">Domains BlockList</a>
                     <a href={resolvePath('payment-locator')} className="mobile-only">Payment Locator</a>
                     <a href={resolvePath('operations-live-stream')} className="mobile-only">Operations Live Stream</a>
-                    <a href={resolvePath('tax-export')} className="mobile-only">Tax Data Export</a>
+                    <a href="https://ledgers.tax/" target="_blank" className="mobile-only">Tax Data Export</a>
                     <a href={resolvePath('protocol-history')} className="mobile-only">Protocol Versions History</a>
                     <a href="/asset-lists" className="mobile-only">Asset Lists Catalogue</a>
                 </div>

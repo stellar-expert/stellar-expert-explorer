@@ -3,7 +3,7 @@ import {getCurrentStellarNetwork} from '@stellar-expert/ui-framework'
 /**
  * Build a relative url path.
  * @param {String} relativePath
- * @param {'explorer'|'directory'|'anchor'|'demolisher'|'tax-export'|'blog'} [predicate]
+ * @param {'explorer'|'directory'|'anchor'|'demolisher'|'blog'} [predicate]
  * @return {String}
  */
 export function resolvePath(relativePath, predicate = 'explorer') {

@@ -41,11 +41,6 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://stellar.expert/tax-export/public</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>https://stellar.expert/explorer/public/protocol-history</loc>
     <changefreq>monthly</changefreq>
     <priority>0.2</priority>

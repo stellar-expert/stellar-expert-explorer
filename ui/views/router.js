@@ -22,17 +22,12 @@ export default function AppRouter({history}) {
                         <Redirect from="/" to="/explorer/public" exact/>
                         {/*<Route path="/" exact component={Home}/>*/}
                         {/*tools*/}
-                        <Route path="/tax-export/:network/" layout="Layout">
-                            <Loadable moduleKey="tax-export"
-                                      load={() => import(/* webpackChunkName: "tax-export" */ './export/tax-data-export-view')}/>
-                        </Route>
                         <Route path="/directory">
                             <Loadable moduleKey="directory"
                                       load={() => import(/* webpackChunkName: "directory" */ './directory/directory-router')}/>
                         </Route>
                         {/*old paths fixed*/}
                         <Redirect from="/explorer/:network/directory" to="/directory" push={true}/>
-                        <Redirect from="/explorer/:network/tax-export" to="/tax-export/:network/" push={true}/>
                         {/*explorer*/}
                         <Route path="/explorer/:network">
                             <Loadable moduleKey="explorer-router"
