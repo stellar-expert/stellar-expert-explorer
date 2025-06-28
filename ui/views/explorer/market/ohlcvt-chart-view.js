@@ -32,7 +32,7 @@ function buildUrl(baseEndpoint, from, to) {
     const queryParams = []
     if (!from && !to) {
         to = toUnixTimestamp(new Date())
-        from = to - 3 * 30 * 24 * 60 * 60 // 3 months
+        from = to - 20 * 365 * 24 * 60 * 60 // 20 years
     }
     if (from) {
         queryParams.push('from=' + from)
