@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useMemo, useState} from 'react'
 import {Dropdown, useExplorerApi, withErrorBoundary} from '@stellar-expert/ui-framework'
 import Chart from '../../components/chart/chart'
 import ContractFunctionSelectorView from './contract-function-selector-view'
@@ -25,7 +25,7 @@ export default withErrorBoundary(function ContractStatsHistoryView({contract, fu
     const [func, setFunc] = useState('all')
     const [period, setPeriod] = useState(30)
     const [metric, setMetric] = useState('avg_ledger_read_byte')
-    const since = Math.floor(new Date().getTime() / 1000) - period * 24 * 60 * 60
+    const since = useMemo(() => Math.floor(new Date().getTime() / 1000) - period * 24 * 60 * 60, [contract])
     let apiUrl = `contract/${contract}/invocation-stats?since=${since}`
     if (func !== 'all') {
         apiUrl += '&func=' + encodeURIComponent(func)
