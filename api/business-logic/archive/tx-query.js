@@ -226,7 +226,8 @@ class TxQuery {
                     throw errors.validationError(param, `Invalid account address: ${address}.`)
             }
 
-            const matchedAccounts = await accountResolver.resolveIds(this.network, addresses)
+            let matchedAccounts = await accountResolver.resolveIds(this.network, addresses)
+            matchedAccounts = matchedAccounts.filter(a => typeof a === 'number')
 
             if (!matchedAccounts.length) {
                 this.isUnfeasible = true
