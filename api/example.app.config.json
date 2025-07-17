@@ -50,5 +50,6 @@
       "assetCandles": 10
     }
   },
+  "crawlers": [],
   "turnstileSecret": "1x0000000000000000000000000000000AA"
 }
