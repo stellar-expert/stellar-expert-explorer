@@ -1,7 +1,7 @@
 {
   "name": "api.stellar.expert",
   "private": true,
-  "version": "0.27.17",
+  "version": "0.28.0",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "api.js",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.16.2",
-    "@stellar/stellar-sdk": "^13.0.0",
+    "@stellar/stellar-sdk": "^14.0.0-rc.3",
     "@stellar-expert/api-billing-connector": "github:stellar-expert/api-billing-connector#v1.4.0",
     "body-parser": "^1.20.3",
     "bson": "^5.3.0",
