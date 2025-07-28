@@ -15,7 +15,7 @@ export default function AssetView() {
     const assetMeta = useAssetMeta(asset?.descriptor)
     const issuerInfo = useAssetIssuerInfo(asset?.descriptor)
     useEffect(() => {
-        if (loaded && asset) {
+        if (loaded && asset?.descriptor) {
             const {issuer} = asset.descriptor
             getDirectoryEntry(issuer)
                 .then(data => {
