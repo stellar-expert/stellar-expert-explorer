@@ -10,6 +10,16 @@ module.exports = function (app) {
         {cache: 'tx', billingCategory: 'txHistory'},
         ({params, path, query}) => new TxQuery(params.network, path, query).toArray())
 
+    registerRoute(app,
+        'tx/count',
+        {cache: 'tx'/*, billingCategory: 'txHistory'*/},
+        async ({params, path, query}) => {
+            const res = await new TxQuery(params.network, path, query).count()
+            return {
+                transactions: res
+            }
+        })
+
     //transaction by id or hash
     registerRoute(app,
         'tx/:id',
