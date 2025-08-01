@@ -337,29 +337,10 @@ class TxQuery {
     }
 
     /**
-     * Prepare Elastic query
-     * @param {[]} filter - Filters aggregator
-     * @return {{}}
-     * @private
+     * Prepare terms query
+     * @return {Promise<[]|null>}
      */
-    buildQuery(filter) {
-        return {
-            _source: false,
-            size: this.limit,
-            timeout: '5s',
-            track_total_hits: this.limit,
-            sort: [{id: {order: this.order}}],
-            query: {bool: {filter}},
-            fields: ['id']
-        }
-    }
-
-    /**
-     * Fetch data from Elastic index and archive DB
-     * @return {Promise<TxQueryResponse[]>}
-     * @private
-     */
-    async fetchData() {
+    async buildQueryParams() {
         const filter = []
         //process filter builder pipeline
         const pipeline = [
@@ -380,13 +361,58 @@ class TxQuery {
             }
             //skip index lookup and return empty results set if the result is unfeasible
             if (this.isUnfeasible)
-                return []
+                return null
         }
         if (this.yearConstraints.isUnfeasible)
+            return null
+        return filter
+    }
+
+    /**
+     * @param {{}} queryRequest
+     * @param {'search'|'count'} method
+     * @param {function} dataCallback
+     * @return {Promise}
+     * @private
+     */
+    async queryElastic(queryRequest, method, dataCallback) {
+        let {size} = queryRequest
+        let years = new Array(this.yearConstraints.to - this.yearConstraints.from + 1).fill(0)
+        years = this.order === 'desc' ?
+            years.map((v, i) => this.yearConstraints.to - i) :
+            years.map((v, i) => this.yearConstraints.from + i)
+        for (let year of years) {
+            queryRequest.index = this.generateOpIndexName(year)
+            if (size !== undefined) {
+                queryRequest.size = size
+            }
+            const elasticResponse = await elastic[method](queryRequest)
+            const shouldContinue = dataCallback(elasticResponse)
+            if (shouldContinue !== false)
+                break
+        }
+    }
+
+    /**
+     * Fetch data from Elastic index and archive DB
+     * @return {Promise<TxQueryResponse[]>}
+     * @private
+     */
+    async fetchTransactions() {
+        const filter = await this.buildQueryParams()
+        if (filter === null)
             return []
         //prepare and execute index query
-        const queryRequest = this.buildQuery(filter)
-        const ids = await this.search(queryRequest)
+        const queryRequest = {
+            _source: false,
+            size: this.limit,
+            timeout: '5s',
+            track_total_hits: this.limit,
+            sort: [{id: {order: this.order}}],
+            query: {bool: {filter}},
+            fields: ['id']
+        }
+        const ids = await this.executeSearchQuery(queryRequest)
         if (!ids?.length)
             return []
         //fetch transactions from archive and corresponding ledgers
@@ -403,26 +429,47 @@ class TxQuery {
      * @return {Promise<BigInt[]>}
      * @private
      */
-    async search(queryRequest) {
+    async executeSearchQuery(queryRequest) {
         let {size} = queryRequest
         let res = []
-        let years = new Array(this.yearConstraints.to - this.yearConstraints.from + 1).fill(0)
-        years = this.order === 'desc' ?
-            years.map((v, i) => this.yearConstraints.to - i) :
-            years.map((v, i) => this.yearConstraints.from + i)
-        for (let year of years) {
-            queryRequest.index = this.generateOpIndexName(year)
-            queryRequest.size = size
-            const elasticResponse = await elastic.search(queryRequest)
+        await this.queryElastic(queryRequest, 'search', elasticResponse => {
             //retrieve transaction IDs from the response
             const ids = elasticResponse.hits.hits.map(h => BigInt(h._id))//& 0x7ffffffffffff000n)
             if (ids.length) {
                 res = res.concat(ids)
-                size -= ids.length
-                if (size <= 0)
-                    break
+                if (size !== undefined) {
+                    size -= ids.length
+                    if (size <= 0)
+                        return false
+                }
             }
+            return true
+        })
+        return res
+    }
+
+    /**
+     *
+     * @return {Promise<number>}
+     */
+    async count() {
+        if (this.isUnfeasible || this.idConstraints.isUnfeasible)
+            return 0
+        const filter = await this.buildQueryParams()
+        if (filter === null)
+            return 0
+        //prepare and execute index query
+        const queryRequest = {
+            terminate_after: 10_000,
+            //track_total_hits: this.limit,
+            query: {bool: {filter}}
         }
+
+        let res = 0
+        await this.queryElastic(queryRequest, 'count', elasticResponse => {
+            res += elasticResponse.count
+            return true
+        })
         return res
     }
 
@@ -467,7 +514,7 @@ class TxQuery {
         if (this.isUnfeasible || this.idConstraints.isUnfeasible)
             return this.emptyResponse()
         //fetch data
-        const records = await this.fetchData()
+        const records = await this.fetchTransactions()
 
         return preparePagedData(this.basePath, {
             sort: 'id',
