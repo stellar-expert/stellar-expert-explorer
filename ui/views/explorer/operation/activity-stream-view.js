@@ -3,6 +3,7 @@ import {throttle} from 'throttle-debounce'
 import {ElapsedTime, TxLink, TxOperationsList} from '@stellar-expert/ui-framework'
 import {parseTxDetails, useStellarNetwork, loadLedgerTransactions, usePageMetadata, ledgerStream} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
+import ErrorNotificationBlock from '../../components/error-notification-block'
 import './activity-stream.scss'
 
 export default function ActivityStreamView() {
@@ -46,11 +47,16 @@ export default function ActivityStreamView() {
         }
     }, [network, includeFailed])
 
-
     usePageMetadata({
         title: `Recent activity on Stellar ${appSettings.activeNetwork} network`,
         description: `Live transactions feed for Stellar ${appSettings.activeNetwork} network.`
     })
+
+    if (activity?.isFetchError) {
+        return <ErrorNotificationBlock>
+            Failed to fetch Activity Live Stream.
+        </ErrorNotificationBlock>
+    }
 
     return <div className="container narrow">
         <h2>Activity Live Stream</h2>
@@ -91,7 +97,7 @@ class RecentActivity {
      */
     network = 'public'
     /**
-     * Recent tansactions history
+     * Recent transactions history
      * @type {Array<ParsedTxDetails>}
      * @readonly
      */
@@ -129,6 +135,8 @@ class RecentActivity {
     onLoadingStateChanged = null
 
     onRefresh = null
+
+    isFetchError = null
 
     get streamingMode() {
         return !!this.finalizeStream
@@ -183,6 +191,7 @@ class RecentActivity {
             }
         } catch (e) {
             if (e.name !== 'NotFoundError') {
+                this.isFetchError = true
                 console.error(e)
             } else {
                 this.hasMore = false
@@ -193,6 +202,8 @@ class RecentActivity {
 
     async loadLedger(sequence) { //this.includeFailed
         const transactions = await loadLedgerTransactions(sequence)
+        if (!(transactions instanceof Array))
+            return null
         for (let transaction of transactions) {
             this.addNewTx(processTransactionRecord(this.network, transaction))
         }

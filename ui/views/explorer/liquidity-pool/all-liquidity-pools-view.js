@@ -6,6 +6,7 @@ import {navigation} from '@stellar-expert/navigation'
 import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
 import GridDataActionsView from '../../components/grid-data-actions'
+import ErrorNotificationBlock from '../../components/error-notification-block'
 
 const orderOptions = [
     {value: 'tvl', title: 'total value locked'},
@@ -126,6 +127,11 @@ export default function AllLiquidityPoolsView() {
         navigation.updateQuery({sort, cursor: undefined, order: 'desc'})
     }, [])
 
+    if (pools.data?.error) {
+        return <ErrorNotificationBlock>
+            Failed to load active DEX markets.
+        </ErrorNotificationBlock>
+    }
     return <>
         <h2>Liquidity Pools {asset && <>for asset <AssetLink asset={asset}/></>}</h2>
         <div className="segment blank">

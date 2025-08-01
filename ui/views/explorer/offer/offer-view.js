@@ -5,6 +5,7 @@ import {formatWithPrecision, approximatePrice} from '@stellar-expert/formatter'
 import appSettings from '../../../app-settings'
 import {useDexOffer} from '../../../business-logic/api/offer-api'
 import CrawlerScreen from '../../components/crawler-screen'
+import ErrorNotificationBlock from '../../components/error-notification-block'
 import OfferHistoryTabsView from './offer-history-tabs-view'
 
 function OfferDetailsView({offer}) {
@@ -75,6 +76,11 @@ export default function OfferView() {
     })
     if (!loaded)
         return <div className="loader"/>
+    if (offer?.error) {
+        return <ErrorNotificationBlock>
+            Failed to fetch DEX offer.
+        </ErrorNotificationBlock>
+    }
 
     return <div className="offer-view">
         <h2><span className="dimmed">DEX offer</span> {offerId}</h2>

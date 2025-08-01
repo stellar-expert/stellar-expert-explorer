@@ -14,6 +14,8 @@ export default function GridDataActions({model, allowExport = true}) {
     const navigate = useCallback(function (page) {
         model.load(page)
             .then(() => {
+                if (!container.current)
+                    return null
                 const grid = locateParentGrid(container.current.parentElement)
                 grid.parentElement.scrollIntoView({behavior: 'smooth'})
             })

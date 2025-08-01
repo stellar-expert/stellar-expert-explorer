@@ -52,7 +52,7 @@ function SorobanStatsChart({history, title, field, suffix}) {
 }
 
 function generateSingleFieldConfig({loaded, data}, title, field, suffix) {
-    if (!loaded)
+    if (!loaded || !(data instanceof Array))
         return null
     const config = {
         plotOptions: {
@@ -92,7 +92,7 @@ function generateSingleFieldConfig({loaded, data}, title, field, suffix) {
 }
 
 function SorobanInvocationsStatsChart({history, title}) {
-    if (!history.loaded)
+    if (!history.loaded || !(history?.data instanceof Array))
         return <Chart.Loader/>
     const config = {
         plotOptions: {
@@ -139,7 +139,7 @@ function SorobanInvocationsStatsChart({history, title}) {
 
 
 function SorobanFeeStatsChart({history, title}) {
-    if (!history.loaded)
+    if (!history.loaded || !(history?.data instanceof Array))
         return <Chart.Loader/>
     const config = {
         plotOptions: {

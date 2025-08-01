@@ -16,7 +16,9 @@ function AssetStats() {
     if (!assetStatsLoaded)
         return <div className="loader"/>
     if (assetStats.error)
-        return null
+        return <div className="segment warning space">
+            <div className="text-center"><i className="icon-warning-circle"/> Failed to fetch asset statistics</div>
+        </div>
     return <>
         <dt>Unique assets:</dt>
         <dd>
@@ -46,7 +48,9 @@ function LedgerStats() {
     if (!loaded)
         return <div className="loader"/>
     if (ledgerStats.error)
-        return null
+        return <div className="segment warning space">
+            <div className="text-center"><i className="icon-warning-circle"/> Failed to fetch ledger statistics</div>
+        </div>
     return <>
         <dt>XLM in circulation:</dt>
         <dd>

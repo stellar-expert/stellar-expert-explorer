@@ -103,6 +103,12 @@ export default function LiquidityPoolView() {
         description: `Classic liquidity pool ${data?.assets ? data.assets.map(a => a.asset).join('/') : params.id}.`
     })
 
+    if (loaded && data?.error) {
+        return <ErrorNotificationBlock>
+            Failed to load liquidity pool data.
+        </ErrorNotificationBlock>
+    }
+
     return <div>
         <h2><span className="dimmed">Liquidity Pool</span> <AssetLink asset={params.id} link={false} issuer={true}/></h2>
         {!loaded && <div className="loader"/>}
