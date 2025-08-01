@@ -71,9 +71,6 @@ export default function AccountView() {
         </div>
     }
 
-    if (accountInfo?.error)
-        throw accountInfo.error instanceof Error ? accountInfo.error : new Error(accountInfo.error)
-
     usePageMetadata({
         title: `Account ${directoryInfo ? directoryInfo.name + ' ' : ''}${address}${directoryInfo ? ` ${directoryInfo.domain || ''} [${directoryInfo.tags.join()}]` : ''}`,
         description: `Explore properties, balance, active offers, and full operations history for account ${address} ${directoryInfo ? `${directoryInfo.name} ${directoryInfo.domain || ''} [${directoryInfo.tags.join()}]` : ' '}on Stellar ${network}.`
@@ -81,6 +78,12 @@ export default function AccountView() {
 
     if (!loaded)
         return <div className="loader"/>
+
+    if (accountInfo?.error) {
+        return <ErrorNotificationBlock>
+            Failed to fetch account info.
+        </ErrorNotificationBlock>
+    }
 
     return <div className="account-view">
         <h2 className="word-break relative condensed">

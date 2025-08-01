@@ -9,7 +9,7 @@ export default withErrorBoundary(function AccountCurrentBalancesView({account, o
     const {data: valueInfo} = useExplorerApi(`account/${address}/value`)
     if (deleted)
         return <div className="dimmed space">Balances unavailable</div>
-    if (!valueInfo)
+    if (!valueInfo || valueInfo?.error)
         return null
     const xlmTrustline = valueInfo.trustlines.find(t => t.asset === 'XLM')
     return <>

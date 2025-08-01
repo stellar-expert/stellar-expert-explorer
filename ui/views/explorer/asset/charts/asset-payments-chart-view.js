@@ -4,7 +4,7 @@ import {useAssetHistory} from '../../../../business-logic/api/asset-api'
 
 export default Chart.withErrorBoundary(function AssetPaymentsChartView({asset}) {
     const {data, loaded} = useAssetHistory(asset)
-    if (!loaded)
+    if (!loaded || !(data?.history instanceof Array))
         return <Chart.Loader/>
     const code = asset.toCurrency()
     const title = `Total transferred ${code} amount`

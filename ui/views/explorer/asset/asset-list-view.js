@@ -46,7 +46,8 @@ export default function AssetListView({rows = 30, compact = false}) {
         setState({sort, order})
     }, [])
 
-    if (!assets.loaded) return <div className="loader"/>
+    if (!assets.loaded || !assets.data.length)
+        return <div className="loader"/>
     return <div className="asset-list-view">
         <div className="double-space mobile-only"/>
         <div className="text-right mobile-left text-small" style={{marginTop: '-3em'}}>

@@ -21,6 +21,7 @@ export default function AssetsDashboard() {
                 </div>
             </div>
             <div className="column column-60">
+                <div className="mobile-only space"/>
                 <CrawlerScreen><AssetsChart/></CrawlerScreen>
             </div>
         </div>
