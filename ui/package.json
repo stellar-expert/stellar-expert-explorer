@@ -1,7 +1,7 @@
 {
   "name": "ui.stellar.expert",
   "private": true,
-  "version": "0.28.3",
+  "version": "0.28.4",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
@@ -29,11 +29,11 @@
     "@stellar-expert/contract-wasm-interface-parser": "^3.2.0",
     "@stellar-expert/formatter": "^2.5.0",
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
-    "@stellar-expert/tx-meta-effects-parser": "7.0.0-rc.5",
+    "@stellar-expert/tx-meta-effects-parser": "7.0.0-rc.6",
     "@stellar-expert/tx-signers-inspector": "^1.8.2",
-    "@stellar-expert/ui-framework": "1.15.0-rc.5",
-    "@stellar/stellar-base": "14.0.0-rc.2",
-    "@stellar/stellar-sdk": "14.0.0-rc.3",
+    "@stellar-expert/ui-framework": "1.15.0-rc.8",
+    "@stellar/stellar-base": "14.0.0",
+    "@stellar/stellar-sdk": "14.0.0",
     "classnames": "^2.3.2",
     "deepmerge": "^4.2.2",
     "highcharts": "8.1.0",
@@ -55,8 +55,8 @@
     "@stellar-expert/webpack-template": "1.4.0"
   },
   "overrides": {
-    "@stellar/stellar-sdk": "14.0.0-rc.3",
-    "@stellar/stellar-base": "14.0.0-rc.2"
+    "@stellar/stellar-sdk": "14.0.0",
+    "@stellar/stellar-base": "14.0.0"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
