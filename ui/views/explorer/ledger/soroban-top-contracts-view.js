@@ -1,7 +1,8 @@
-import {useState} from 'react'
+import React, {useState} from 'react'
 import {AccountAddress, Dropdown, useExplorerApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {formatWithGrouping} from '@stellar-expert/formatter'
 import appSettings from '../../../app-settings'
+import ErrorNotificationBlock from '../../components/error-notification-block'
 
 export default function SorobanTopContractsView() {
     const [metric, setMetric] = useState('invocations')
@@ -12,6 +13,11 @@ export default function SorobanTopContractsView() {
         description: `Discover most popular smart contract on Stellar ${appSettings.activeNetwork} network.`
     })
 
+    if (top.data?.error) {
+        return <ErrorNotificationBlock>
+            Failed to load top smart contracts.
+        </ErrorNotificationBlock>
+    }
     return <div>
         <div className="row">
             <div className="column column-50">

@@ -1,6 +1,7 @@
 import React, {useMemo} from 'react'
 import {Amount, UtcTimestamp, InfoTooltip as Info, useExplorerApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'
+import ErrorNotificationBlock from '../../components/error-notification-block'
 import {StagedSorobanParamsUpdate} from './staged-soroban-config-changes-link-view'
 import {applySorobanConfigChanges} from './soroban-config-changes-tracker'
 import {SorobanConfigChangesView} from './soroban-config-changes-view'
@@ -14,6 +15,11 @@ export default function ProtocolHistoryView() {
     const processedData = useMemo(() => applySorobanConfigChanges(data), [data])
     if (!loaded)
         return <div className="loader"/>
+    if (processedData.error) {
+        return <ErrorNotificationBlock>
+            Failed to fetch protocol upgrades history.
+        </ErrorNotificationBlock>
+    }
     return <div className="container narrow">
         <h2>Protocol Upgrades History<Info
             link="https://www.stellar.org/developers/stellar-core/software/security-protocol-release-notes.html#list-of-releases">

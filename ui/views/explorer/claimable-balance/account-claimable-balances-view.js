@@ -2,6 +2,7 @@ import React, {useEffect} from 'react'
 import {useParams} from 'react-router'
 import {AccountAddress, formatExplorerLink, useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
+import ErrorNotificationBlock from '../../components/error-notification-block'
 import {AccountClaimableBalanceRowView, AccountClaimableBalanceRecordView} from './account-claimable-balance-row-view'
 
 function useClaimableBalances(account, limit) {
@@ -43,6 +44,11 @@ export default function AccountClaimableBalancesView() {
     const balances = useClaimableBalances(address, 40)
     if (!balances.data)
         return <div className="loader"/>
+    if (balances.data?.error) {
+        return <ErrorNotificationBlock>
+            Failed to load claimable balances.
+        </ErrorNotificationBlock>
+    }
     return <>
         <h2>Pending claimable balances for account <AccountAddress account={address}/></h2>
         <div className="segment blank">
@@ -59,7 +65,7 @@ export default function AccountClaimableBalancesView() {
                 {balances.data.map(({id, ...props}) => <AccountClaimableBalanceRowView key={id} account={address} {...props}/>)}
                 </tbody>
             </table>
-            {balances.loaded && !balances.data.length && <div className="dimmed text-small">(no claimable balances)</div>}
+            {balances.loaded && !balances.data.length && <div className="dimmed text-center text-small">(no claimable balances)</div>}
             {!balances.loaded && <div className="loader"/>}
             <GridDataActionsView model={balances}/>
         </div>

@@ -94,15 +94,15 @@ export default function DirectoryView() {
                            value={searchTerm} style={{maxWidth: '36em'}} className="primary"
                            placeholder="Search accounts by domain, company name, or public key"/>
                 </form>
-                <div>
+                {directoryTags instanceof Array && <div>
                     <div className="dimmed text-small">
                         Filter by tag:
                     </div>
                     <DirectoryBlockTagsView tags={directoryTags.map(t => t.name)} filters={filters} selectTag={selectTag}/>
-                </div>
+                </div>}
             </div>
             {loading && <div className="loader"/>}
-            {loaded && <>
+            {(loaded && data.length > 0) ? <>
                 <ul className="striped space">
                     {data.map(entry => <li key={entry.address}
                                            style={{padding: '1em', lineHeight: 1.6, overflow: 'hidden'}}>
@@ -119,8 +119,7 @@ export default function DirectoryView() {
                     </li>)}
                 </ul>
                 <GridDataActions model={directory} allowExport={false}/>
-            </>}
-
+            </> : <div className="dimmed text-center text-small double-space">(no accounts matching search criteria)</div>}
             <div className="double-space dimmed">
                 <p>
                     You can request new address listing <a href="/directory/add">here</a>. The data from {' '}

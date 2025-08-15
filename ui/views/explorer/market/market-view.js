@@ -113,6 +113,12 @@ export default function MarketView() {
         navigation.navigate(resolvePath(`market/${buyingAsset}/${sellingAsset}/`))
     }, [buyingAsset, sellingAsset])
 
+    if (!loading && data?.error) {
+        return <ErrorNotificationBlock>
+            Failed to load market data.
+        </ErrorNotificationBlock>
+    }
+
     return <div className="market-view">
         <h2><span className="dimmed">Market</span> <AssetLink asset={buying}/>&nbsp;
             <a href="#" className="market-reverse" title="Reverse assets" onClick={reverse}>
