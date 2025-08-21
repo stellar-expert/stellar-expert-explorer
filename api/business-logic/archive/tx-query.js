@@ -388,7 +388,7 @@ class TxQuery {
             }
             const elasticResponse = await elastic[method](queryRequest)
             const shouldContinue = dataCallback(elasticResponse)
-            if (shouldContinue !== false)
+            if (!shouldContinue)
                 break
         }
     }
