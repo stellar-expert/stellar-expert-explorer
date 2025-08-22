@@ -31,7 +31,7 @@
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
     "@stellar-expert/tx-meta-effects-parser": "7.0.0-rc.10",
     "@stellar-expert/tx-signers-inspector": "^1.8.2",
-    "@stellar-expert/ui-framework": "1.15.0-rc.11",
+    "@stellar-expert/ui-framework": "1.15.0-rc.12",
     "@stellar/stellar-base": "14.0.0",
     "@stellar/stellar-sdk": "14.0.0",
     "classnames": "^2.3.2",
