@@ -17,6 +17,8 @@ export default function AssetMarketsView({asset}) {
     const [tradingPairs, setTradingPairs] = useDependantState(() => {
         apiCall(`asset/${assetId}/trading-pairs`)
             .then(pairs => {
+                if (!(pairs instanceof Array))
+                    return null
                 pairs = (pairs || []).map(v => ({
                     value: v,
                     title: AssetDescriptor.parse(v).toCurrency(12)

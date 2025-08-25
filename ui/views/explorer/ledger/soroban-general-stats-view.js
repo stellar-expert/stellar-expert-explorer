@@ -1,5 +1,5 @@
 import React from 'react'
-import {InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
+import {BlockSelect, InfoTooltip as Info, useExplorerApi} from '@stellar-expert/ui-framework'
 
 export default function SorobanGeneralStatsView() {
     const {loaded, data} = useExplorerApi('contract-stats')
@@ -8,7 +8,9 @@ export default function SorobanGeneralStatsView() {
     return <div className="segment blank">
         <h3>Soroban statistics</h3>
         <hr className="flare"/>
-        <div className="row">
+        {data?.error ? <div className="segment warning space">
+            <div className="text-center"><i className="icon-warning-circle"/> Failed to fetch soroban statistics</div>
+        </div> : <div className="row">
             <div className="column column-50">
                 <dl>
                     <dt>Total contracts deployed:</dt>
@@ -45,7 +47,6 @@ export default function SorobanGeneralStatsView() {
                     </dd>
                 </dl>
             </div>
-        </div>
-
+        </div>}
     </div>
 }

@@ -23,7 +23,7 @@ export default function AssetListDetailsView({list}) {
         return <div className="loader"/>
 
     if (!assetList)
-        return <div className="segment warning">
+        return <div className="segment warning space">
             <div className="text-center">
                 <i className="icon-warning-circle"/> Failed to fetch asset list
                 <div className="micro-space text-tiny">
