@@ -103,7 +103,7 @@ export default function LiquidityPoolView() {
         description: `Classic liquidity pool ${data?.assets ? data.assets.map(a => a.asset).join('/') : params.id}.`
     })
 
-    if (loaded && data?.error) {
+    if (data?.error) {
         return <ErrorNotificationBlock>
             Failed to load liquidity pool data.
         </ErrorNotificationBlock>

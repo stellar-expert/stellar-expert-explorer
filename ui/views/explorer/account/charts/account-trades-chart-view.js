@@ -4,8 +4,10 @@ import {useAccountStatsHistory} from '../../../../business-logic/api/account-api
 
 export default Chart.withErrorBoundary(function AccountTradesChartView({address}) {
     const {data = [], loaded} = useAccountStatsHistory(address)
-    if (!loaded || !(data instanceof Array))
+    if (!loaded)
         return <Chart.Loader/>
+    if (!(data instanceof Array))
+        return <Chart.Loader unavailable/>
     const config = {
         plotOptions: {
             column: {

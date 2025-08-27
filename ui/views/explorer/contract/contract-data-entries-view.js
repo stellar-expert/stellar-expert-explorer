@@ -32,7 +32,7 @@ export default function ContractDataEntriesView() {
 
     if (contractDataEntries.data?.error) {
         return <ErrorNotificationBlock>
-            Failed to fetch stored data.
+            Failed to load stored {id.startsWith('C') ? 'contract' : 'account'} data.
         </ErrorNotificationBlock>
     }
     return <div>

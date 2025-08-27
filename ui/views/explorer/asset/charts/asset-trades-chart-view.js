@@ -4,8 +4,10 @@ import {useAssetHistory} from '../../../../business-logic/api/asset-api'
 
 export default Chart.withErrorBoundary(function AssetTradesChartView({asset}) {
     const {data, loaded} = useAssetHistory(asset)
-    if (!loaded || !(data.history instanceof Array))
+    if (!loaded)
         return <Chart.Loader/>
+    if (!(data?.history instanceof Array))
+        return <Chart.Loader unavailable/>
     const code = asset.descriptor.toCurrency()
     const title = `Total traded ${code} amount`
     const options = {

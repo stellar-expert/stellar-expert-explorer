@@ -116,8 +116,10 @@ function generateSingleFieldConfig({loaded, data}, title, field, suffix) {
 }
 
 function SorobanInvocationsStatsChart({history, title}) {
-    if (!history.loaded || !(history.data instanceof Array))
+    if (!history.loaded)
         return <Chart.Loader/>
+    if (!(history?.data instanceof Array))
+        return <Chart.Loader unavailable/>
     const config = {
         plotOptions: {
             column: {

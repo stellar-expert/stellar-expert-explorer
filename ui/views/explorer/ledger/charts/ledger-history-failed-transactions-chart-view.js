@@ -4,8 +4,10 @@ import {useLedgerStats} from '../../../../business-logic/api/ledger-stats-api'
 
 export default Chart.withErrorBoundary(function LedgerHistoryFailedTransactionsChartView() {
     const {data = [], loaded} = useLedgerStats()
-    if (!loaded || !(data instanceof Array))
+    if (!loaded)
         return <Chart.Loader/>
+    if (!(data instanceof Array))
+        return <Chart.Loader unavailable/>
 
     //eslint-disable-next-line prefer-const
     const successfulTx = []
