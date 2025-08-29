@@ -7,6 +7,8 @@ export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noT
     const {data, loaded} = useAssetHistory(asset.descriptor)
     if (!loaded)
         return <Chart.Loader/>
+    if (!(data?.history instanceof Array))
+        return <Chart.Loader unavailable/>
     const options = {
         plotOptions: {
             series: {

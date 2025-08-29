@@ -2,9 +2,9 @@ import React from 'react'
 import {useParams} from 'react-router'
 import {StrKey} from '@stellar/stellar-base'
 import {AccountAddress, UtcTimestamp, useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
+import {resolvePath} from '../../../business-logic/path'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import GridDataActionsView from '../../components/grid-data-actions'
-import {resolvePath} from '../../../business-logic/path'
 
 export default function ContractVersionsView() {
     const {id: address} = useParams()
@@ -29,6 +29,11 @@ export default function ContractVersionsView() {
         title: `Contract code version history for ${address}`,
         description: `Detailed source code versions history for contract ${address}.`
     })
+    if (contractVersions.data?.error) {
+        return <ErrorNotificationBlock>
+            Failed to fetch contract code version history.
+        </ErrorNotificationBlock>
+    }
     return <div>
         <h2 className="word-break relative condensed">
             <span className="dimmed">Contract version history </span>

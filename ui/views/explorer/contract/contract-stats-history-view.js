@@ -72,7 +72,7 @@ function capitalize(str) {
 }
 
 function generateSingleFieldConfig({loaded, data}, title, field, suffix) {
-    if (!loaded)
+    if (!loaded || !(data instanceof Array))
         return null
     const config = {
         plotOptions: {
@@ -118,6 +118,8 @@ function generateSingleFieldConfig({loaded, data}, title, field, suffix) {
 function SorobanInvocationsStatsChart({history, title}) {
     if (!history.loaded)
         return <Chart.Loader/>
+    if (!(history?.data instanceof Array))
+        return <Chart.Loader unavailable/>
     const config = {
         plotOptions: {
             column: {

@@ -4,6 +4,7 @@ import {useParams} from 'react-router'
 import {UtcTimestamp, AccountAddress, ScVal, useExplorerPaginatedApi, Dropdown, usePageMetadata} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import GridDataActionsView from '../../components/grid-data-actions'
+import ErrorNotificationBlock from '../../components/error-notification-block'
 
 export default function ContractDataEntriesView() {
     const {id} = useParams()
@@ -29,6 +30,11 @@ export default function ContractDataEntriesView() {
         description: `Data entries stored on Stellar ledger for ${id.startsWith('C') ? 'contract' : 'account'} ${id}`
     })
 
+    if (contractDataEntries.data?.error) {
+        return <ErrorNotificationBlock>
+            Failed to load stored {id.startsWith('C') ? 'contract' : 'account'} data.
+        </ErrorNotificationBlock>
+    }
     return <div>
         <h2 className="word-break relative condensed">
             <span className="dimmed">Stored Data for&nbsp;</span>

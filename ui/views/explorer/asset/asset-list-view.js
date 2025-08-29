@@ -46,7 +46,12 @@ export default function AssetListView({rows = 30, compact = false}) {
         setState({sort, order})
     }, [])
 
-    if (!assets.loaded) return <div className="loader"/>
+    if (!assets.loaded)
+        return <div className="loader"/>
+    if (!assets.data?.length)
+        return <div className="segment warning space">
+            <div className="text-center"><i className="icon-warning-circle"/> Failed to load asset data</div>
+        </div>
     return <div className="asset-list-view">
         <div className="double-space mobile-only"/>
         <div className="text-right mobile-left text-small" style={{marginTop: '-3em'}}>

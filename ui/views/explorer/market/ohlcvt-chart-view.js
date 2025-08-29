@@ -54,7 +54,7 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
     const loadCallbackRef = useRef()
     const {data, loaded} = useExplorerApi(buildUrl(baseEndpoint, from, to))
 
-    if (loaded) {
+    if (loaded && data instanceof Array) {
         //set navigator data for the entire market lifespan
         if (!navigatorData || navigatorData.baseEndpoint !== baseEndpoint) {
             setNavigatorData({baseEndpoint, data})

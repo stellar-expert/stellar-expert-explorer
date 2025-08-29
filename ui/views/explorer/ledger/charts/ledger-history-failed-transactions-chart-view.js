@@ -6,6 +6,8 @@ export default Chart.withErrorBoundary(function LedgerHistoryFailedTransactionsC
     const {data = [], loaded} = useLedgerStats()
     if (!loaded)
         return <Chart.Loader/>
+    if (!(data instanceof Array))
+        return <Chart.Loader unavailable/>
 
     //eslint-disable-next-line prefer-const
     const successfulTx = []
