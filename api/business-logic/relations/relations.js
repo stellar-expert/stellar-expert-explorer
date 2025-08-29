@@ -1,7 +1,7 @@
 const {Long} = require('bson')
 const db = require('../../connectors/mongodb-connector')
 const {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver')
-const {AssetJSONResolver, resolveAssetIds} = require('../asset/asset-resolver')
+const {AssetJSONResolver, resolveAssetIds, resolveAssetId} = require('../asset/asset-resolver')
 const AssetDescriptor = require('../asset/asset-descriptor')
 const {preparePagedData, normalizeOrder, normalizeLimit} = require('../api-helpers')
 const {validateNetwork, validateAccountAddress} = require('../validators')
@@ -150,6 +150,11 @@ async function parseAssets(network, asset) {
         throw errors.validationError('asset', 'Missing asset selector. At least one asset is required.')
     if (asset.length > 5)
         throw errors.validationError('asset', 'Too many assets.')
+    for (const entry of asset) {
+        const assetId = await resolveAssetId(network, entry)
+        if (assetId === null)
+            throw errors.validationError('asset', 'Invalid asset descriptor. Use {code}-{issuer}-{type} format or contract address.')
+    }
 
     const normalizedAssets = asset.map(a => new AssetDescriptor(a).toFQAN())
     const assetIds = await resolveAssetIds(network, normalizedAssets)

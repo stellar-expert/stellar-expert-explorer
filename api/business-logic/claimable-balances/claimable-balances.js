@@ -5,6 +5,7 @@ const {resolveAccountId, AccountAddressJSONResolver} = require('../account/accou
 const {preparePagedData, normalizeOrder} = require('../api-helpers')
 const {validateNetwork, validateAccountAddress} = require('../validators')
 const {aggregateEstimatedClaimableBalancesValue} = require('./claimable-balances-value-estimator')
+const errors = require('../errors')
 
 async function queryClaimableBalances(network, objectiveFilterCondition, basePath, {sort, order, cursor, limit}) {
     validateNetwork(network)
@@ -99,6 +100,8 @@ async function queryAccountClaimableBalances(network, account, basePath, query) 
     validateNetwork(network)
     validateAccountAddress(account)
     const accountId = await resolveAccountId(network, account)
+    if (!accountId)
+        throw errors.notFound(`Account ${account} was not found on the network`)
     return await queryClaimableBalances(network, {'claimants': accountId}, basePath, query)
 }
 
