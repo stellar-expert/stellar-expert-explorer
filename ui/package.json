@@ -52,7 +52,7 @@
     "@redocly/cli": "^1.25.11",
     "@stellar-expert/eslint-config-js": "^1.1.0",
     "@stellar-expert/eslint-config-react": "^1.1.0",
-    "@stellar-expert/webpack-template": "1.4.0"
+    "@stellar-expert/webpack-template": "1.5.1"
   },
   "overrides": {
     "@stellar/stellar-sdk": "14.0.0",
