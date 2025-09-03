@@ -536,7 +536,7 @@ class TxQuery {
         const id = tx.id.toString()
         const res = {
             id,
-            hash: tx.hash.toString('hex'),
+            hash: (tx.hash instanceof Array ? tx.hash[0] : tx.hash).toString('hex'),
             ledger: ledger._id,
             ts: ledger.ts,
             protocol: ledger.version,
