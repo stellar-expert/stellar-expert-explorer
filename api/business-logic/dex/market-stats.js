@@ -5,7 +5,13 @@ const errors = require('../errors')
 
 async function queryMarketStats(network, selling, buying, {ts}) {
     validateNetwork(network)
-    const assets = await Promise.all([resolveAssetId(network, selling), resolveAssetId(network, buying)])
+    const assetA = await resolveAssetId(network, selling)
+    if (assetA === null)
+        throw errors.validationError('selling', 'Invalid asset descriptor. Use {code}-{issuer}-{type} format or contract address.')
+    const assetB = await resolveAssetId(network, buying)
+    if (assetB === null)
+        throw errors.validationError('buying', 'Invalid asset descriptor. Use {code}-{issuer}-{type} format or contract address.')
+    const assets = [assetA, assetB]
 
     const [market] = await db[network].collection('markets')
         .find({$or: [{asset: assets}, {asset: assets.slice().reverse()}]})
