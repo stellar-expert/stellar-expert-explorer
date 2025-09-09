@@ -4,8 +4,8 @@ const {AssetJSONResolver} = require('../asset/asset-resolver')
 const {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver')
 const {preparePagedData, normalizeOrder} = require('../api-helpers')
 const {validateNetwork, validateAccountAddress} = require('../validators')
-const {aggregateEstimatedClaimableBalancesValue} = require('./claimable-balances-value-estimator')
 const errors = require('../errors')
+const {aggregateEstimatedClaimableBalancesValue} = require('./claimable-balances-value-estimator')
 
 async function queryClaimableBalances(network, objectiveFilterCondition, basePath, {sort, order, cursor, limit}) {
     validateNetwork(network)
