@@ -1,8 +1,10 @@
 const db = require('../../connectors/mongodb-connector')
-const QueryBuilder = require('../query-builder')
+const {Binary} = require('bson')
+const errors = require('../errors')
 const {AssetJSONResolver} = require('../asset/asset-resolver')
 const {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver')
 const {preparePagedData, normalizeOrder} = require('../api-helpers')
+const QueryBuilder = require('../query-builder')
 const {validateNetwork, validateAccountAddress} = require('../validators')
 const {aggregateEstimatedClaimableBalancesValue} = require('./claimable-balances-value-estimator')
 
@@ -41,35 +43,62 @@ async function queryClaimableBalances(network, objectiveFilterCondition, basePat
     const assetResolver = new AssetJSONResolver(network)
     const accountResolver = new AccountAddressJSONResolver(network)
 
-    const rows = records.map(({_id, uid, created, updated, deleted, sponsor, asset, amount, claimants, cond, claimedBy, value}) => {
-        const res = {
-            id: _id,
-            paging_token: uid,
-            sponsor: accountResolver.resolve(sponsor),
-            asset: assetResolver.resolve(asset),
-            amount,
-            claimants: claimants.map((claimant, i) => {
-                return {
-                    destination: accountResolver.resolve(claimant),
-                    predicate: convertPredicate(cond[i])
-                }
-            }),
-            created,
-            updated
-        }
-        if (claimedBy) {
-            res.claimedBy = accountResolver.resolve(claimedBy)
-            res.claimed = deleted
-        }
-        if (value) {
-            res.value = value
-        }
-        return res
-    })
+    const rows = records.map(cb => serializeClaimableBalance(cb, accountResolver, assetResolver))
 
     await Promise.all([assetResolver.fetchAll(), accountResolver.fetchAll()])
 
     return preparePagedData(basePath, {sort, order, cursor, limit: q.limit}, rows)
+}
+
+async function loadClaimableBalance(network, id) {
+    let parsedId
+    try {
+        if (id.length !== 64)
+            throw new Error('Invalid id')
+        parsedId = Binary.createFromHexString(id, 0)
+    } catch (e) {
+        throw errors.validationError('id', 'Invalid claimable balance id format')
+    }
+
+    const [cb] = await db[network].collection('claimable_balances')
+        .find({_id: parsedId})
+        .toArray()
+    if (!cb)
+        throw new errors.notFound()
+
+    const assetResolver = new AssetJSONResolver(network)
+    const accountResolver = new AccountAddressJSONResolver(network)
+
+    const res = serializeClaimableBalance(cb, accountResolver, assetResolver)
+    await Promise.all([assetResolver.fetchAll(), accountResolver.fetchAll()])
+    return res
+}
+
+function serializeClaimableBalance(cb, accountResolver, assetResolver) {
+    const {_id, uid, created, updated, deleted, sponsor, asset, amount, claimants, cond, claimedBy, value} = cb
+    const res = {
+        id: _id,
+        paging_token: uid,
+        sponsor: accountResolver.resolve(sponsor),
+        asset: assetResolver.resolve(asset),
+        amount,
+        claimants: claimants.map((claimant, i) => {
+            return {
+                destination: accountResolver.resolve(claimant),
+                predicate: convertPredicate(cond[i])
+            }
+        }),
+        created,
+        updated
+    }
+    if (claimedBy) {
+        res.claimedBy = accountResolver.resolve(claimedBy)
+        res.claimed = deleted
+    }
+    if (value) {
+        res.value = value
+    }
+    return res
 }
 
 function convertPredicate(predicate) {
@@ -102,4 +131,4 @@ async function queryAccountClaimableBalances(network, account, basePath, query) 
     return await queryClaimableBalances(network, {'claimants': accountId}, basePath, query)
 }
 
-module.exports = {queryAccountClaimableBalances}
+module.exports = {queryAccountClaimableBalances, loadClaimableBalance}
