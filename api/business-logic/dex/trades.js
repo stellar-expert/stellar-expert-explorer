@@ -7,6 +7,7 @@ const {resolveAssetId, AssetJSONResolver} = require('../asset/asset-resolver')
 const {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver')
 const {validateNetwork, validateAssetName, validateAccountAddress, validateOfferId, validatePoolId} = require('../validators')
 const {LiquidityPoolJSONResolver, resolveLiquidityPoolId} = require('../liquidity-pool/liquidity-pool-resolver')
+const errors = require('../errors')
 
 function buildHintPredicate(objectiveFilterCondition) {
     const res = {}
@@ -74,14 +75,22 @@ async function queryTradesList(network, queryFilter, basePath, {ts, order, curso
 async function queryAssetTrades(network, asset, basePath, query) {
     validateNetwork(network)
     validateAssetName(asset)
-    const q = new QueryBuilder().forAsset(await resolveAssetId(network, asset))
+    const assetId = await resolveAssetId(network, asset)
+    if (assetId === null)
+        throw errors.notFound('Asset was not found on the ledger. Unknown asset: ' + asset)
+
+    const q = new QueryBuilder().forAsset(assetId)
     return await queryTradesList(network, q.query, basePath, query)
 }
 
 async function queryAccountTrades(network, account, basePath, query) {
     validateNetwork(network)
     validateAccountAddress(account)
-    const q = new QueryBuilder().forAccount(await resolveAccountId(network, account))
+    const accountId = await resolveAccountId(network, account)
+    if (accountId === null)
+        throw errors.notFound('Account was not found on the ledger. Check if you specified account address correctly.')
+
+    const q = new QueryBuilder().forAccount(accountId)
     return await queryTradesList(network, q.query, basePath, query)
 }
 
@@ -95,7 +104,11 @@ async function queryOfferTrades(network, offerId, basePath, query) {
 async function queryPoolTrades(network, poolId, basePath, query) {
     validateNetwork(network)
     validatePoolId(poolId)
-    const q = new QueryBuilder().forPool(await resolveLiquidityPoolId(network, poolId))
+    const liquidityPoolId = await resolveLiquidityPoolId(network, poolId)
+    if (liquidityPoolId === null)
+        throw errors.notFound('Liquidity pool was not found on the ledger.')
+
+    const q = new QueryBuilder().forPool(liquidityPoolId)
     return await queryTradesList(network, q.query, basePath, query)
 }
 
