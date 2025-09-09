@@ -63,6 +63,8 @@ async function queryContractData(network, basePath, parentAddress, {cursor, dura
 
 async function fetchContractDataEntry(network, parentAddress, key, durability) {
     validateNetwork(network)
+    if (!StrKey.isValidEd25519PublicKey(parentAddress) && !isValidContract(parentAddress))
+        throw errors.validationError('parentId', 'Invalid parent contract/account address.')
     const contractDataKey = xdr.LedgerKey.contractData(new xdr.LedgerKeyContractData({
         contract: xdr.ScAddress.scAddressTypeContract(StrKey.decodeContract(parentAddress)),
         key: parseContractDataKey(key),
@@ -81,8 +83,6 @@ async function fetchContractDataEntry(network, parentAddress, key, durability) {
 }
 
 async function fetchParentId(network, parent) {
-    if (!StrKey.isValidEd25519PublicKey(parent) && !isValidContract(parent))
-        throw errors.validationError('parentId', 'Invalid parent contract/account address.')
     let id
     if (parent.startsWith('G')) {
         id = await resolveAccountId(network, parent)
@@ -111,7 +111,7 @@ function parseContractDataKey(rawKey) {
     try {
         return xdr.ScVal.fromXDR(rawKey, 'base64')
     } catch (e) {
-        throw errors.validationError('Invalid contract data key: ' + rawKey)
+        throw errors.validationError('key','Invalid contract data key: ' + rawKey)
     }
 }
 
