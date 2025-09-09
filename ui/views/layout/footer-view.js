@@ -30,8 +30,8 @@ export default function Footer() {
                     <i className="icon icon-email"/>
                 </a>
             </div>
-            <div className="dimmed condensed" style={{fontSize: '0.65em'}}>
-                Donations: <BlockSelect>GDQ75AS5VSH3ZHZI3P4TAVAOOSNHN346KXJOPZVQMMS27KNCC5TOQEXP</BlockSelect>
+            <div className="dimmed" style={{fontSize: '0.75em'}}>
+                Donations: <BlockSelect className="condensed">GDQ75AS5VSH3ZHZI3P4TAVAOOSNHN346KXJOPZVQMMS27KNCC5TOQEXP</BlockSelect>
             </div>
         </div>
     </div>

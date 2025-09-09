@@ -15,6 +15,11 @@ export default function AppRouter({history}) {
                 <Loadable moduleKey="explorer-widget"
                           load={() => import(/* webpackChunkName: "explorer" */'./explorer/widget/widget-router')}/>
             </Route>
+            {/*docs*/}
+            <Route path="/api-docs">
+                <Loadable moduleKey="api-docs"
+                          load={() => import(/* webpackChunkName: "api-docs" */ './api-docs/api-docs-router')}/>
+            </Route>
             {/*all other routes*/}
             <Route>
                 <Layout menu={<TopMenu/>}>

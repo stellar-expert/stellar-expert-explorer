@@ -23,7 +23,7 @@ export default function TopMenuView() {
     return <div className="top-block">
         <div className="container nav relative">
             <a href={resolvePath('')} className="logo">
-                Stellar<img alt="StellarExpert" src="/img/stellar-expert-blue.svg"/>Expert
+                stellar<img alt="StellarExpert" src="/img/stellar-expert-blue.svg"/>expert
             </a>
             <a className="toggle-menu" href="#" onClick={e => setMenuVisible(!menuVisible)}>
                 <i className="icon icon-menu" style={{fontSize: '1.4em', marginRight: '0.3em'}}/>
