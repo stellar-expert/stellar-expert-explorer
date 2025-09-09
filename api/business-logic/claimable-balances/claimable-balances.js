@@ -1,6 +1,5 @@
 const db = require('../../connectors/mongodb-connector')
 const {Binary} = require('bson')
-const errors = require('../errors')
 const {AssetJSONResolver} = require('../asset/asset-resolver')
 const {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver')
 const {preparePagedData, normalizeOrder} = require('../api-helpers')
