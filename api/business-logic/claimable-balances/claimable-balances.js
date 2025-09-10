@@ -1,12 +1,13 @@
-const db = require('../../connectors/mongodb-connector')
+const {StrKey} = require('@stellar/stellar-sdk')
 const {Binary} = require('bson')
+const db = require('../../connectors/mongodb-connector')
 const {AssetJSONResolver} = require('../asset/asset-resolver')
 const {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver')
 const {preparePagedData, normalizeOrder} = require('../api-helpers')
 const QueryBuilder = require('../query-builder')
 const {validateNetwork, validateAccountAddress} = require('../validators')
-const errors = require('../errors')
 const {aggregateEstimatedClaimableBalancesValue} = require('./claimable-balances-value-estimator')
+const errors = require('../errors')
 
 async function queryClaimableBalances(network, objectiveFilterCondition, basePath, {sort, order, cursor, limit}) {
     validateNetwork(network)
@@ -53,9 +54,13 @@ async function queryClaimableBalances(network, objectiveFilterCondition, basePat
 async function loadClaimableBalance(network, id) {
     let parsedId
     try {
-        if (id.length !== 64)
-            throw new Error('Invalid id')
-        parsedId = Binary.createFromHexString(id, 0)
+        if (id.startsWith('B')) {
+            parsedId = new Binary(StrKey.decodeClaimableBalance(id), 0)
+        } else {
+            if (id.length !== 64)
+                throw new Error('Invalid id')
+            parsedId = Binary.createFromHexString(id, 0)
+        }
     } catch (e) {
         throw errors.validationError('id', 'Invalid claimable balance id format')
     }
@@ -77,7 +82,8 @@ async function loadClaimableBalance(network, id) {
 function serializeClaimableBalance(cb, accountResolver, assetResolver) {
     const {_id, uid, created, updated, deleted, sponsor, asset, amount, claimants, cond, claimedBy, value} = cb
     const res = {
-        id: _id,
+        id: _id.toString('hex'),
+        address: StrKey.encodeClaimableBalance(_id.buffer),
         paging_token: uid,
         sponsor: accountResolver.resolve(sponsor),
         asset: assetResolver.resolve(asset),
