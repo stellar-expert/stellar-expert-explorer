@@ -8,7 +8,7 @@ import {
     TxOperationsList,
     parseTxDetails, withErrorBoundary
 } from '@stellar-expert/ui-framework'
-import {fromStroops, shortenString} from '@stellar-expert/formatter'
+import {formatWithAutoPrecision, fromStroops, shortenString} from '@stellar-expert/formatter'
 import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
 import CrawlerScreen from '../../components/crawler-screen'
@@ -44,6 +44,7 @@ export default withErrorBoundary(function TxDetailsView({tx, embedded}) {
     const memo = transaction.memo
     const feeEffect = parsedTx.effects.find(e => e.type === 'feeCharged')
     let contractFee
+    const size = Buffer.from(tx.body, 'base64').length
     const [firstOp] = transaction.operations
     if (firstOp?.type === 'invokeHostFunction') {
         let metrics = firstOp.effects.find(e => e.type === 'contractMetrics')
@@ -89,6 +90,20 @@ export default withErrorBoundary(function TxDetailsView({tx, embedded}) {
                         <dt>Sequence Number:</dt>
                         <dd>
                             <BlockSelect inline className="condensed">{transaction.sequence}</BlockSelect>
+                            <Info
+                                link="https://www.stellar.org/developers/guides/concepts/transactions.html#sequence-number">
+                                <p>
+                                    Each transaction has a sequence number. For the transaction to be valid, the
+                                    sequence number must match the one stored in the source account entry when the
+                                    transaction is applied.
+                                </p>
+                                After the transaction is applied, the source account’s stored sequence number
+                                is incremented by 1.
+                            </Info>
+                        </dd>
+                        <dt>Transaction size:</dt>
+                        <dd>
+                            <BlockSelect inline className="condensed">{formatWithAutoPrecision(size)} bytes</BlockSelect>
                             <Info
                                 link="https://www.stellar.org/developers/guides/concepts/transactions.html#sequence-number">
                                 <p>
