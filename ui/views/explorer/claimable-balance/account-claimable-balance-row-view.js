@@ -1,62 +1,46 @@
 import React from 'react'
-import {getClaimableBalanceClaimStatus} from '@stellar-expert/claimable-balance-utils'
-import {AccountAddress, Amount, InfoTooltip, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {AccountAddress, Amount, formatExplorerLink, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
+import {ClaimableBalanceStatus} from './claimable-balance-status-view'
 
-const claimableBalanceStatusIcons = {
-    available: 'icon-ok',
-    pending: 'icon-clock',
-    expired: 'icon-back-in-time',
-    unfeasible: 'icon-block'
+export function formatClaimableBalanceValue(value) {
+    if (value < 100000)
+        return '>$0.001'
+    return '~$' + formatWithAutoPrecision(value / 10000000)
 }
 
-const claimableBalanceStatusHints = {
-    available: 'Balance can be claimed by this account right away',
-    pending: 'Balance claiming conditions for this account not met yet',
-    expired: 'Balance can\'t be claimed  by this account because claiming period expired',
-    unfeasible: 'Conditions configured in the way that prevents the balance from claiming by this account'
-}
-
-function formatBalanceValue(value) {
-    if (value < 100000) return '>0.01'
-    return '~' + formatWithAutoPrecision(value / 10000000)
-}
-
-export function AccountClaimableBalanceRowView({account, amount, value, asset, claimants, sponsor, created}) {
-    const claimant = claimants.find(c => c.destination === account)
-    const status = claimant ? getClaimableBalanceClaimStatus(claimant) : 'unavailable'
-
+export function AccountClaimableBalanceRowView({id, account, amount, value, asset, claimants, sponsor, created}) {
     return <tr className="account-balance claimable">
         <td data-header="Status: ">
-            <span className={claimableBalanceStatusIcons[status] + ' dimmed'} title={claimableBalanceStatusHints[status]}/>
-            <span className="mobile-only">{status}<InfoTooltip>{claimableBalanceStatusHints[status]}</InfoTooltip></span>
+            <a href={formatExplorerLink('claimable-balance', id)} target="_blank">
+                <ClaimableBalanceStatus account={account} claimants={claimants}/>
+            </a>
         </td>
         <td data-header="Amount: ">
             <Amount asset={AssetDescriptor.parse(asset)} amount={amount} adjust/>{' '}
-            {!!value && <span className="dimmed text-tiny condensed">({formatBalanceValue(value)} USD) </span>}
+            {!!value && <span className="dimmed text-tiny condensed">({formatClaimableBalanceValue(value)}) </span>}
         </td>
         <td data-header="Sender: ">
             <AccountAddress account={sponsor} chars={8}/>
         </td>
         <td data-header="Created: ">
-            {created ? <UtcTimestamp date={created} dateOnly/> : null}
+            {created ?
+                <a href={formatExplorerLink('claimable-balance', id)} target="_blank"><UtcTimestamp date={created} dateOnly/></a> :
+                null}
         </td>
     </tr>
 }
 
 
-export function AccountClaimableBalanceRecordView({account, amount, value, asset, claimants, sponsor, created}) {
-    const claimant = claimants.find(c => c.destination === account)
-    const status = claimant ? getClaimableBalanceClaimStatus(claimant) : 'unavailable'
-
-    return <div>
-        <span className={claimableBalanceStatusIcons[status] + ' dimmed'} title={claimableBalanceStatusHints[status]}/>
-        <span className="mobile-only">{status}<InfoTooltip>{claimableBalanceStatusHints[status]}</InfoTooltip>&emsp;</span>
-        {' '}
+export function AccountClaimableBalanceRecordView({id, account, amount, value, asset, claimants, sponsor, created}) {
+    return <div><a href={formatExplorerLink('claimable-balance', id)} target="_blank">
+        <ClaimableBalanceStatus account={account} claimants={claimants}/>
+        &emsp;
         <Amount asset={AssetDescriptor.parse(asset)} amount={amount} adjust/>{' '}
-        {!!value && <span className="dimmed text-tiny condensed">({formatBalanceValue(value)} USD) </span>}
+        {!!value && <span className="dimmed text-tiny condensed">({formatClaimableBalanceValue(value)}) </span>}
         {' '}
         {created ? <UtcTimestamp date={created} dateOnly/> : null}
+    </a>
     </div>
 }

@@ -23,6 +23,7 @@ import AllLiquidityPoolsView from './liquidity-pool/all-liquidity-pools-view'
 import AccountClaimableBalancesView from './claimable-balance/account-claimable-balances-view'
 import ContractDataEntries from './contract/contract-data-entries-view'
 import ContractVersions from './contract/contract-versions-view'
+import ClaimableBalanceView from './claimable-balance/claimable-balance-view'
 import StagedSorobanConfigChanges from './protocol/staged-soroban-config-changes-view'
 import SorobanTopContractsView from './ledger/soroban-top-contracts-view'
 
@@ -36,6 +37,7 @@ export default function ExplorerRouter({match}) {
             <Route path={`${path}/account/:id/claimable-balances`} component={AccountClaimableBalancesView}/>
             <Route path={`${path}/account/:id/storage`} component={ContractDataEntries}/>
             <Route path={`${path}/account/:id`} component={Account}/>
+            <Route path={`${path}/claimable-balance/:id`} component={ClaimableBalanceView}/>
             <Route path={`${path}/contract/validation`} component={ContractValidationInfo}/>
             <Route path={`${path}/contract/:id/storage`} component={ContractDataEntries}/>
             <Route path={`${path}/contract/:id/versions`} component={ContractVersions}/>

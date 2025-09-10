@@ -27,7 +27,7 @@ export function AccountClaimableBalancesSection({address}) {
     return <div>
         <h4 style={{marginBottom: 0}}>Pending Claimable Balances</h4>
         <div className="text-small micro-space">
-            {cbResponse.data.map(({id, ...props}) => <AccountClaimableBalanceRecordView key={id} account={address} {...props}/>)}
+            {cbResponse.data.map(({id, ...props}) => <AccountClaimableBalanceRecordView key={id} account={address} id={id} {...props}/>)}
             {cbResponse.data.length === 10 && <div className="micro-space">
                 <a href={cbListLink}><i className="icon icon-open-new-window"/> All claimable balances</a>
             </div>}
@@ -62,7 +62,7 @@ export default function AccountClaimableBalancesView() {
                 </tr>
                 </thead>
                 <tbody>
-                {balances.data.map(({id, ...props}) => <AccountClaimableBalanceRowView key={id} account={address} {...props}/>)}
+                {balances.data.map(({id, ...props}) => <AccountClaimableBalanceRowView key={id} id={id} account={address} {...props}/>)}
                 </tbody>
             </table>
             {balances.loaded && !balances.data.length && <div className="dimmed text-center text-small">(no claimable balances)</div>}
