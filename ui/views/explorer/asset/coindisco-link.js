@@ -10,7 +10,7 @@ export default React.memo(function CoindiscoLink({asset}) {
     if (!aid) //do not render anything if asset is not available
         return null
     const [symbol] = asset.split('-')
-    const link = `https://widget.coindisco.com/?defaultAsset=${aid}&supportedNetworks=stellar&publicKey=pk_prod_01JVXZ32Q4BMYRZKQN61CFPJAW`
+    const link = `https://widget.coindisco.com/?defaultAsset=${aid}&supportedNetworks=stellar&defaultNetwork=stellar&publicKey=pk_prod_01JVXZ32Q4BMYRZKQN61CFPJAW`
     const disco = <>Coindisco<sup>✦</sup></>
     return <a href={link} target="_blank" rel="noopener">
         <span className="desktop-only"><i className="icon-open-new-window"/>Purchase {symbol} with credit card or bank transfer on {disco}</span>
