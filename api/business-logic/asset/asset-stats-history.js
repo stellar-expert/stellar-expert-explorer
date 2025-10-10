@@ -25,7 +25,7 @@ async function queryAssetStatsHistory(network, asset) {
         })
         .sort({_id: 1})
         .toArray()
-
+/*
     //TODO: temporary patch, remove this once all downstream clients switch to the new format
     const newFormatSwitchTimestamp = 1659916800
     const patchFromIndex = stats.findIndex(s => s.ts >= newFormatSwitchTimestamp)
@@ -54,7 +54,7 @@ async function queryAssetStatsHistory(network, asset) {
                 stat.tradedAmount = ohlcvt[OHLCVT.BASE_VOLUME]
             }
         }
-    }
+    }*/
 
     let lastReserve = 0
     const history = stats.map(stat => {
