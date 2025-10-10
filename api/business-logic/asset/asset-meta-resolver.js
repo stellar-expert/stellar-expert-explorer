@@ -18,6 +18,14 @@ const xlmMeta = {
  * @internal
  */
 async function checkBlockedDomains(network, domains) {
+    const filter = [...domains]
+    for (let domain of domains) {
+        const parts = domain.split('.')
+        while (parts.length > 2) {
+            parts.pop()
+            filter.push(parts.join('.'))
+        }
+    }
     const res = await db[network].collection('blocked_domains')
         .find({_id: {$in: domains}})
         .project({_id: 1})
@@ -34,7 +42,10 @@ async function checkBlockedDomains(network, domains) {
  */
 async function checkIssuersWarnings(network, issuers) {
     return await db[network].collection('directory')
-        .find({_id: {$in: issuers}, tags: {$in: ['malicious', 'unsafe']}}) //search only for accounts with 'malicious' and 'unsafe' tags
+        .find({
+            _id: {$in: issuers},
+            tags: {$in: ['malicious', 'unsafe']}
+        }) //search only for accounts with 'malicious' and 'unsafe' tags
         .project({_id: 1})
         .toArray()
 }
