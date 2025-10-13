@@ -17,7 +17,7 @@ export default function AssetVerificationStatusView({asset}) {
 
     if (issuerInfo === undefined || !meta) return null
 
-    if (meta.blocked || directoryInfo && (directoryInfo.tags || []).includes('malicious')) return <>
+    if (meta.unsafe || directoryInfo && (directoryInfo.tags || []).includes('malicious')) return <>
         <i className="icon icon-warning color-warning"/>
         Warning: reported for illicit or fraudulent activity
     </>
