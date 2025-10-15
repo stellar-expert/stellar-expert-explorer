@@ -4,15 +4,21 @@ const {resolveAccountId} = require('./account-resolver')
 const {estimateTrustlinesValue} = require('./account-trustlines-value')
 const {estimateLiquidityStakesValue} = require('./account-liquidity-stakes-value')
 
-async function estimateAccountValue(network, account, currency = 'USD') {
+async function estimateAccountValue(network, account, currency = 'USD', ts = undefined) {
     validateNetwork(network)
     validateAccountAddress(account)
+    if (ts) {
+        ts = parseInt(ts, 10)
+        if (ts < 0 || ts >= 4294967296) {
+            ts = undefined
+        }
+    }
 
     const accountId = await resolveAccountId(network, account)
     if (!accountId)
         throw errors.notFound(`Account ${account} was not found on the network`)
     const [trustlines, pool_stakes] = await Promise.all([
-        estimateTrustlinesValue(network, accountId),
+        estimateTrustlinesValue(network, accountId, ts),
         estimateLiquidityStakesValue(network, accountId)
     ])
 

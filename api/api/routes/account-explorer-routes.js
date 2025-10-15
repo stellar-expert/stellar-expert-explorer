@@ -47,6 +47,6 @@ module.exports = function (app) {
     registerRoute(app,
         'account/:account/value',
         {cache: 'stats'},
-        ({params, query}) => estimateAccountValue(params.network, params.account, query.currency))
+        ({params, query}) => estimateAccountValue(params.network, params.account, query.currency, query.ts))
 
 }
