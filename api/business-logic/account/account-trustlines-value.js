@@ -82,7 +82,7 @@ function loadCurrentAccountTrustlines(network, accountId) {
             _id: {$gte: new Long(0, accountId), $lt: new Long(0, accountId + 1)},
             asset: {$gte: 0}
         })
-        .project({balance: 1, asset: 1})
+        .project({balance: 1, asset: 1, flags: 1})
         .toArray()
 }
 
