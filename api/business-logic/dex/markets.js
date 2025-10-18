@@ -38,18 +38,22 @@ async function queryMarkets(network, basePath, {type, asset, sort, order, cursor
 
     //add filter by asset
     if (asset) {
-        const assetId = await resolveAssetId(network, asset)
-        if (assetId === null)
-            throw errors.validationError('asset', 'Invalid asset descriptor. Use {code}-{issuer}-{type} format or contract address.')
-        let predicate = q.query.asset
-        if (predicate === 0) {
-            if (assetId > 0) {
-                predicate = [0, assetId]
+        try {
+            const assetId = await resolveAssetId(network, asset)
+            if (assetId !== null) {
+                let predicate = q.query.asset
+                if (predicate === 0) {
+                    if (assetId > 0) {
+                        predicate = [0, assetId]
+                    }
+                } else {
+                    predicate = assetId
+                }
+                q.addQueryFilter({asset: predicate})
             }
-        } else {
-            predicate = assetId
+        } catch (e) {
+            throw errors.validationError('asset', 'Invalid asset descriptor. Use {code}-{issuer}-{type} format or contract address.')
         }
-        q.addQueryFilter({asset: predicate})
     }
 
     const mandatoryProjectionFields = {
