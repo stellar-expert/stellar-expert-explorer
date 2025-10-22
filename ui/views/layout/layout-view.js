@@ -16,8 +16,8 @@ export default withRouter(function Layout({children, menu}) {
         <div className="blue-ribbon"/>
         {menu}
         <div className="page-container">
-            {location.pathname.includes('explorer/public') && <div className="container warning text-tiny" style={{padding:'1em'}}>
-                <div>
+            {location.pathname.includes('explorer/public') && <div className="container">
+                <div className="warning text-small" style={{padding: '1em'}}>
                     <i className="icon-warning"/> <b>StellarExpert: Corrupted database state after Whisk incident</b>
                     <br/>
                     As a result of ledger state changes in the Stellar <a
