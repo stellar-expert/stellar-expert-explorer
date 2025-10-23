@@ -18,21 +18,11 @@ export default withRouter(function Layout({children, menu}) {
         <div className="page-container">
             {location.pathname.includes('explorer/public') && <div className="container">
                 <div className="warning text-small" style={{padding: '1em'}}>
-                    <i className="icon-warning"/> <b>StellarExpert: Corrupted database state after Whisk incident</b>
-                    <br/>
-                    As a result of ledger state changes in the Stellar <a
-                    href="https://stellar.org/blog/developers/addressing-state-archival-inconsistencies-protocol-upgrade-vote-next-week">protocol
-                    24</a> rolled out on the Mainnet at 17:00 UTC
-                    2025-10-22, our ingestion engine incorrectly processed ledger state updates. This resulted in the
-                    corrupted database state for a number of ledger entries (accounts, trustlines, contracts).
-                    Unfortunately, we didn't have time to test the Stellar Core upgrade given the emergency deployment
-                    timeline.
-                    <br/>
-                    Our team assesses remediation options. Likely, the process of complete service recovery will take
-                    several days. In the meantime, our services will be available, but the database state is
-                    inconsistent. Some transactions may be missing, account may show incorrect balances,
-                    DEX information might be incorrect. Until further notice do not use our data as an ultimate source
-                    of truth, check with other blockchain explorers.
+                    <i className="icon-warning"/> {' '}
+                    StellarExpert is experiencing state inconsistencies due to the recent emergency upgrade to{' '}
+                    <a href="https://stellar.org/blog/developers/addressing-state-archival-inconsistencies-protocol-upgrade-vote-next-week">protocol
+                    24</a>. Our team is assessing remediation options. A complete service recovery may take
+                    several days. Until further notice please cross-check critical data with other sources.
                 </div>
             </div>}
             <CatcherView>{children}</CatcherView>
