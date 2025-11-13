@@ -16,15 +16,16 @@ export default withRouter(function Layout({children, menu}) {
         <div className="blue-ribbon"/>
         {menu}
         <div className="page-container">
-            {location.pathname.includes('explorer/public') && <div className="container">
+            <div className="container">
                 <div className="warning text-small" style={{padding: '1em'}}>
                     <i className="icon-warning"/> {' '}
-                    StellarExpert is experiencing state inconsistencies due to the recent emergency upgrade to{' '}
+                    StellarExpert is experiencing state inconsistencies due to the emergency upgrade to{' '}
                     <a href="https://stellar.org/blog/developers/addressing-state-archival-inconsistencies-protocol-upgrade-vote-next-week">protocol
-                    24</a>. Our team is assessing remediation options. A complete service recovery may take
-                    several days. Until further notice please cross-check critical data with other sources.
+                        24</a>. ETA for a complete service recovery currently is 2025-11-21. Until further notice please
+                    cross-check critical data with other sources.
+                    We apologize for inconveniences.
                 </div>
-            </div>}
+            </div>
             <CatcherView>{children}</CatcherView>
         </div>
         <Footer/>
