@@ -151,9 +151,11 @@ async function parseAssets(network, asset) {
     if (asset.length > 5)
         throw errors.validationError('asset', 'Too many assets.')
     for (const entry of asset) {
-        const assetId = await resolveAssetId(network, entry)
-        if (assetId === null)
+        try {
+            await resolveAssetId(network, entry)
+        } catch (e) {
             throw errors.validationError('asset', 'Invalid asset descriptor. Use {code}-{issuer}-{type} format or contract address.')
+        }
     }
 
     const normalizedAssets = asset.map(a => new AssetDescriptor(a).toFQAN())
