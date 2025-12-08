@@ -21,7 +21,7 @@ export default withRouter(function Layout({children, menu}) {
                     <i className="icon-warning"/> {' '}
                     StellarExpert is experiencing state inconsistencies due to the emergency upgrade to{' '}
                     <a href="https://stellar.org/blog/developers/addressing-state-archival-inconsistencies-protocol-upgrade-vote-next-week">protocol
-                        24</a>. ETA for a complete service recovery currently is 2025-12-08. Until further notice please
+                        24</a>. ETA for a complete service recovery currently is 2025-12-11. Until further notice please
                     cross-check critical data with other sources.
                     We apologize for inconveniences.
                 </div>
