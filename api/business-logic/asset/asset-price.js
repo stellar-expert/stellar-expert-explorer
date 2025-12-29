@@ -26,7 +26,7 @@ async function queryAssetPrices(network, basePath, {asset}, limit = 200) {
         allowedLinks: {
             self: 1
         }
-    }, prices.entries().map(([asset, price]) => ({asset, price})))
+    }, Array.from(prices.entries().map(([asset, price]) => ({asset, price}))))
 }
 
 /**
