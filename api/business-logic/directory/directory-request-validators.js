@@ -3,8 +3,8 @@ const directoryTags = require('./directory-tags')
 const errors = require('../errors')
 
 function validateUpdateEntryData({address, domain, name, tags, notes}) {
-    if (!StrKey.isValidEd25519PublicKey(address))
-        throw errors.badRequest('Invalid "address" parameter value. Expected a valid Stellar public key.')
+    if (!StrKey.isValidEd25519PublicKey(address) && !StrKey.isValidContract(address))
+        throw errors.badRequest('Invalid "address" parameter value. Expected a valid Stellar address.')
     if (domain && (typeof domain !== 'string' || domain.length > 60 || !/\w+\.\w+/.test(domain) || /[:/?]/.test(domain)))
         throw errors.badRequest('Invalid "domain" parameter value. Expected a valid FQDN domain name.')
     if (typeof name !== 'string' || name.length < 4 || name.length > 50)

@@ -90,20 +90,26 @@ export default function DirectoryEntryPropsView({existingEntry, requestedAddress
     function validate() {
         if (batchMode) {
             const addresses = batch.split('\n').map(a => a.trim()).filter(a => !!a)
-            if (!addresses.length) return 'No addresses provided'
+            if (!addresses.length)
+                return 'No addresses provided'
             for (let a of addresses) {
-                if (!StrKey.isValidEd25519PublicKey(a)) return 'Invalid address ' + a
+                if (!StrKey.isValidEd25519PublicKey(a) && !StrKey.isValidContract(a))
+                    return 'Invalid address ' + a
             }
         } else {
-            if (!StrKey.isValidEd25519PublicKey(entry.address)) return 'Invalid account address'
+            if (!StrKey.isValidEd25519PublicKey(entry.address) && !StrKey.isValidContract(entry.address))
+                return 'Invalid address'
         }
         if (entry.domain) {
-            if ((!/\w+\.\w+/.test(entry.domain) || /[:/?]/.test(entry.domain))) return 'Invalid domain'
+            if ((!/\w+\.\w+/.test(entry.domain) || /[:/?]/.test(entry.domain)))
+                return 'Invalid domain'
         } else {
             delete entry.domain
         }
-        if (!entry.name || entry.name.trim().length < 4) return 'Invalid display name'
-        if (entry.tags.length < 1) return 'No tags selected'
+        if (!entry.name || entry.name.trim().length < 4)
+            return 'Invalid display name'
+        if (entry.tags.length < 1)
+            return 'No tags selected'
     }
 
     async function saveEntry() {
@@ -159,13 +165,16 @@ export default function DirectoryEntryPropsView({existingEntry, requestedAddress
     }
 
     async function deleteEntry() {
-        if (!isAdmin) return
-        if (!(await confirm('Do you really want to remove this directory entry?'))) return
+        if (!isAdmin)
+            return
+        if (!(await confirm('Do you really want to remove this directory entry?')))
+            return
         const {address, notes, version} = entry
         setStatus('authentication')
         try {
             const data = {address, notes, version, accessToken: githubApiProvider.authToken}
-            if (typeof data.version !== 'number') throw new Error('Invalid data version fetched from the server.')
+            if (typeof data.version !== 'number')
+                throw new Error('Invalid data version fetched from the server.')
             data.version++
 
             setStatus('inprogress')
@@ -189,10 +198,10 @@ export default function DirectoryEntryPropsView({existingEntry, requestedAddress
             </label>
             </div>}
             <label>
-                Account address
+                Address
             </label>
             <p className="dimmed text-small">
-                An address of the Stellar account that exists on the ledger or a public key of any Stellar keypair.
+                Stellar account or smart contract address
             </p>
             {batchMode ? <textarea value={batch} onChange={e => setBatch(e.target.value)}
                                    placeholder="Copy-paste addresses separated with a newline here (max 100 per batch)"/> :
@@ -206,8 +215,7 @@ export default function DirectoryEntryPropsView({existingEntry, requestedAddress
                 Display name
             </label>
             <p className="dimmed text-small">
-                This value will be displayed in the interface as an account title on websites that utilize Directory
-                API.
+                Will be displayed in the interface as an address title in services that utilize Directory API.
             </p>
             <input type="text" maxLength={50} placeholder="Company or product name" value={entry.name}
                    disabled={inProgress} onChange={e => setName(e.target.value)}/>
@@ -227,8 +235,7 @@ export default function DirectoryEntryPropsView({existingEntry, requestedAddress
                 Home domain (optional)
             </label>
             <p className="dimmed text-small">
-                Home domain of the related public entity. This field can be omitted for malicious accounts or personal
-                keys.
+                Home domain of the related public entity. This field can be omitted for malicious addresses.
             </p>
             <input type="text" maxLength={60} placeholder="some.domain.com" value={entry.domain}
                    disabled={inProgress} onChange={e => setHomeDomain(e.target.value)}/>
@@ -238,8 +245,8 @@ export default function DirectoryEntryPropsView({existingEntry, requestedAddress
                 Additional information
             </label>
             <p className="dimmed text-small">
-                Additional notes for this entry, if any. Please write in English, otherwise Directory moderators may have
-                difficulties verifying your request.
+                Additional notes for this entry, if any. Please write in English, otherwise Directory moderators may
+                face difficulties verifying your request.
             </p>
             <textarea maxLength={700} value={entry.notes} disabled={inProgress}
                       onChange={e => setNotes(e.target.value)} style={{height: '6.5em'}}/>

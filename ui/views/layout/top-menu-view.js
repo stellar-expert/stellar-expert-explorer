@@ -5,6 +5,11 @@ import SearchBoxView from '../explorer/search/search-box-view'
 import LoginStatus from '../components/login-status'
 import NetworkSwitchView from './network-switch-view'
 
+const dex = [
+    {title: 'DEX Markets', href: resolvePath('market')},
+    {title: 'Classic Liquidity Pools', href: resolvePath('liquidity-pool')},
+]
+
 const services = [
     {title: 'Accounts Directory', href: resolvePath('', 'directory')},
     {title: 'Domains BlockList', href: resolvePath('', 'directory/blocked-domains')},
@@ -30,11 +35,12 @@ export default function TopMenuView() {
             </a>
             <div className={`nav-menu-dropdown ${menuVisible && 'active'}`}>
                 <div className="main-menu top-menu-block" onClick={e => setMenuVisible(false)}>
-                    <a href={resolvePath('asset')}>Assets</a>
-                    <a href={resolvePath('market')}>Markets</a>
-                    <a href={resolvePath('liquidity-pool')}>Liquidity Pools</a>
                     <a href={resolvePath('network-activity')}>Network Stats</a>
+                    <a href={resolvePath('asset')}>Assets</a>
+                    <Dropdown title="Markets" className="desktop-only" options={dex}/>
                     <Dropdown title="Services" className="desktop-only" options={services}/>
+                    <a href={resolvePath('market')} className="mobile-only">DEX Markets</a>
+                    <a href={resolvePath('liquidity-pool')} className="mobile-only">Classic Liquidity Pools</a>
                     <a href="/blog">Blog</a>
                     <hr className="mobile-only"/>
                     <a href={resolvePath('', 'directory')} className="mobile-only">Accounts Directory</a>

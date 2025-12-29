@@ -14,26 +14,32 @@ const directoryTags = [{
     name: 'custodian',
     description: 'Reserved, custodian account, or cold wallet'
 }, {
+    name: 'application',
+    description: 'Smart contract application or service'
+}, {
+    name: 'defi',
+    description: 'Financial protocol'
+}, {
+    name: 'infra',
+    description: 'Infrastructure provider'
+}, {
     name: 'malicious',
     description: 'Account involved in theft/scam/spam/phishing'
 }, {
     name: 'unsafe',
     description: 'Obsolete or potentially dangerous account'
 }, {
-    name: 'personal',
-    description: 'Personal signing key or account address'
-}, {
-    name: 'sdf',
-    description: 'Account under the custody of SDF'
-}, {
     name: 'memo-required',
     description: 'Destination requires transaction memo'
+}, {
+    name: 'personal',
+    description: 'Personal signing key or account address'
 }, {
     name: 'airdrop',
     description: 'Airdrop distribution account'
 }, {
-    name: 'obsolete-inflation-pool',
-    description: 'Inflation pool distribution account (obsolete)'
+    name: 'sdf',
+    description: 'Account under the custody of SDF'
 }]
 
 module.exports = directoryTags
