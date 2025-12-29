@@ -1,4 +1,5 @@
 const db = require('../../connectors/mongodb-connector')
+const errors = require('../errors')
 const {unixNow} = require('../../utils/date-utils')
 const {anyToNumber} = require('../../utils/formatter')
 const {validateNetwork, validateAssetName} = require('../validators')
@@ -11,6 +12,8 @@ async function queryAssetStatsHistory(network, asset) {
     asset = validateAssetName(asset)
 
     const assetInfo = await db[network].collection('assets').findOne({_id: asset})
+    if (!assetInfo)
+        throw errors.notFound()
     const stats = rehydrateAssetHistory(assetInfo.history, asset !== 'XLM')
     //TODO: temporary patch, remove this once all downstream clients switch to the new format
     const newFormatSwitchTimestamp = 1659916800
@@ -127,7 +130,7 @@ async function queryAssetStatsHistory(network, asset) {
         }
     }
 
-     return history
+    return history
 }
 
 module.exports = {queryAssetStatsHistory}
