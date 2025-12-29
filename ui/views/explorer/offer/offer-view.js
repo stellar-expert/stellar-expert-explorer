@@ -1,6 +1,14 @@
 import React from 'react'
 import {useRouteMatch} from 'react-router'
-import {AssetLink, AccountAddress, BlockSelect, UtcTimestamp, InfoTooltip as Info, usePageMetadata} from '@stellar-expert/ui-framework'
+import {
+    AssetLink,
+    AccountAddress,
+    BlockSelect,
+    UtcTimestamp,
+    InfoTooltip as Info,
+    usePageMetadata,
+    Amount
+} from '@stellar-expert/ui-framework'
 import {formatWithPrecision, approximatePrice} from '@stellar-expert/formatter'
 import appSettings from '../../../app-settings'
 import {useDexOffer} from '../../../business-logic/api/offer-api'
@@ -40,6 +48,10 @@ function OfferDetailsView({offer}) {
                 </div>
                 <div className="column column-50">
                     <dl>
+                        {offer.amount > 0 && <>
+                            <dt>Amount:</dt>
+                            <dd><Amount asset={offer.selling} amount={offer.amount} adjust/></dd>
+                        </>}
                         <dt>Total trades:</dt>
                         <dd><BlockSelect>{formatWithPrecision(offer.trades || 0)}</BlockSelect>
                             <Info>Total count of all trades for this offer.</Info>

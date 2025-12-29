@@ -1,31 +1,17 @@
-const {Long} = require('mongodb')
 const db = require('../../connectors/mongodb-connector')
-const errors = require('../errors')
 const {unixNow} = require('../../utils/date-utils')
 const {anyToNumber} = require('../../utils/formatter')
 const {validateNetwork, validateAssetName} = require('../validators')
 const priceTracker = require('../../business-logic/ticker/price-tracker')
-const {aggregateOhlcvt, encodeAssetOhlcvtId, OHLCVT} = require('../dex/ohlcvt-aggregator')
-const {resolveAssetId} = require('./asset-resolver')
+const {aggregateOhlcvt, OHLCVT} = require('../dex/ohlcvt-aggregator')
+const {rehydrateAssetHistory} = require('./asset-aggregation')
 
 async function queryAssetStatsHistory(network, asset) {
     validateNetwork(network)
-    validateAssetName(asset)
+    asset = validateAssetName(asset)
 
-    const assetId = await resolveAssetId(network, asset)
-    if (assetId === null)
-        throw errors.notFound('Asset statistics not found on the ledger. Check if you specified the asset identifier correctly.')
-
-    const stats = await db[network].collection('asset_history')
-        .find({
-            _id: {
-                $gt: new Long(0, assetId),
-                $lt: new Long(0, assetId + 1)
-            }
-        })
-        .sort({_id: 1})
-        .toArray()
-
+    const assetInfo = await db[network].collection('assets').findOne({_id: asset})
+    const stats = rehydrateAssetHistory(assetInfo.history, asset !== 'XLM')
     //TODO: temporary patch, remove this once all downstream clients switch to the new format
     const newFormatSwitchTimestamp = 1659916800
     const patchFromIndex = stats.findIndex(s => s.ts >= newFormatSwitchTimestamp)
@@ -34,10 +20,11 @@ async function queryAssetStatsHistory(network, asset) {
         const ohlcvtData = await aggregateOhlcvt({
             network,
             collection: 'asset_ohlcvt',
+            predicate: {asset},
             order: 1,
             resolution: 86400, //1 day
-            fromId: encodeAssetOhlcvtId(assetId, newFormatSwitchTimestamp),
-            toId: encodeAssetOhlcvtId(assetId, unixNow() + 10)
+            from: newFormatSwitchTimestamp,
+            to: unixNow() + 10
         })
 
         for (let i = patchFromIndex; i < stats.length; i++) {
@@ -56,7 +43,7 @@ async function queryAssetStatsHistory(network, asset) {
         }
     }
 
-    let lastReserve = 0
+    let lastReserve = 1000000000000000000
     const history = stats.map(stat => {
         const tick = {
             ts: stat.ts,
@@ -72,27 +59,29 @@ async function queryAssetStatsHistory(network, asset) {
             tick.trustlines.authorized = 0
         }
 
-        if (assetId > 0) {
+        if (asset !== 'XLM') {
             Object.assign(tick, {
                 price: stat.price,
                 volume: stat.volume
             })
         } else {
-            if (stat.reserve === undefined) {
+            const reserve = assetInfo.reserve[stat.ts]
+            if (reserve === undefined) {
                 tick.reserve = lastReserve
             } else {
-                lastReserve = tick.reserve = (typeof stat.reserve === 'number') ? stat.reserve : stat.reserve.toNumber()
+                lastReserve = tick.reserve = Number(reserve)
             }
+            tick.supply = undefined
         }
         return tick
     })
 
-    if (assetId === 0) {
+    if (asset === 'XLM') {
         //fetch historical fee pool data for XLM
         const poolHistory = await db[network].collection('network_stats')
             .find({_id: {$gt: 0}})
             .sort({_id: 1})
-            .project({fee_pool: 1})
+            .project({fee_pool: 1, total_xlm: 1})
             .toArray()
         for (const poolEntry of poolHistory) {
             poolEntry.ts = poolEntry._id
@@ -107,7 +96,8 @@ async function queryAssetStatsHistory(network, asset) {
                 break
             if (poolRecord && assetRecord.ts < poolRecord.ts) {
                 //use pool value from the previous ledger history entry
-                assetRecord.feePool = lastPoolValue.fee_pool
+                assetRecord.fee_pool = lastPoolValue?.fee_pool || 0n
+                assetRecord.supply = Number(lastPoolValue?.total_xlm || 1000000000000000000)
                 assetCursor++
                 continue
             }
@@ -115,7 +105,8 @@ async function queryAssetStatsHistory(network, asset) {
             if (poolRecord) {
                 lastPoolValue = poolRecord
                 if (assetRecord.ts === lastPoolValue.ts) { //both records match
-                    assetRecord.feePool = lastPoolValue.fee_pool
+                    assetRecord.fee_pool = lastPoolValue.fee_pool
+                    assetRecord.supply = Number(lastPoolValue.total_xlm)
                     assetCursor++
                     poolCursor++
                     continue
@@ -124,7 +115,8 @@ async function queryAssetStatsHistory(network, asset) {
             //look for a matching pool record for an asset history
             if (assetRecord.ts > lastPoolValue.ts) {
                 if (!poolRecord) { //we don't have a matching ledger history entry
-                    assetRecord.feePool = lastPoolValue.fee_pool
+                    assetRecord.fee_pool = lastPoolValue.fee_pool
+                    assetRecord.supply = Number(lastPoolValue.total_xlm)
                     assetCursor++
                 } else {
                     //current ledger history entry is too old - jump to the next entry
@@ -135,7 +127,7 @@ async function queryAssetStatsHistory(network, asset) {
         }
     }
 
-    return history
+     return history
 }
 
 module.exports = {queryAssetStatsHistory}

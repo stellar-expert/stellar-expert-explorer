@@ -1,4 +1,3 @@
-const {Long} = require('bson')
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
 const ArchiveTxInfo = require('./archive-tx-info')
@@ -57,7 +56,7 @@ async function fetchArchiveLedger(network, sequence) {
 /**
  * Fetch multiple transactions from archive
  * @param {String} network - Network identifier
- * @param {Long[]} ids - Transaction identifiers
+ * @param {BigInt[]} ids - Transaction identifiers
  * @param {Number} order - Transactions sorting order
  * @return {Promise<ArchiveTxInfo[]>}
  */
@@ -73,7 +72,7 @@ async function fetchArchiveTransactions(network, ids, order = -1) {
 /**
  * Fetch a single transaction from archive db
  * @param {String} network - Network identifier
- * @param {String|Long|Buffer} idOrHash - Transaction id or hash
+ * @param {String|BigInt|Buffer} idOrHash - Transaction id or hash
  * @return {Promise<ArchiveTxInfo>}
  */
 async function fetchSingleArchiveTransaction(network, idOrHash) {
@@ -85,12 +84,12 @@ async function fetchSingleArchiveTransaction(network, idOrHash) {
             query.hash = Buffer.from(idOrHash, 'hex')
         } else {
             try {
-                query._id = Long.fromString(idOrHash, false, 10)
+                query._id = BigInt(idOrHash)
             } catch (e) {
                 return null
             }
         }
-    } else if (idOrHash instanceof Long) {
+    } else if (typeof idOrHash === 'bigint') {
         query._id = idOrHash
     } else if (idOrHash instanceof Buffer) {
         query.hash = idOrHash
@@ -113,9 +112,14 @@ async function fetchArchiveLedgerTransactions(network, ledger, order = 1) {
     if (typeof ledger !== 'number' || !(ledger > 0))
         return []
     const res = await archiveCollection(network, 'transactions')
-        .find({_id: {$gte: new Long(0, ledger), $lt: new Long(0, ledger + 1)}}, {sort: {_id: order}})
+        .find({_id: {$gte: BigInt(ledger) << 32n, $lt: BigInt(ledger + 1) << 32n}}, {sort: {_id: order}})
         .toArray()
     return res.map(mapTxProps)
 }
 
-module.exports = {fetchArchiveTransactions, fetchArchiveLedgerTransactions, fetchSingleArchiveTransaction, fetchArchiveLedger}
+module.exports = {
+    fetchArchiveTransactions,
+    fetchArchiveLedgerTransactions,
+    fetchSingleArchiveTransaction,
+    fetchArchiveLedger
+}

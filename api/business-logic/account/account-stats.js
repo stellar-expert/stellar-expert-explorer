@@ -1,11 +1,8 @@
-const {Long} = require('mongodb')
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
-const {unixNow, timeUnits} = require('../../utils/date-utils')
-const {encodeBsonId} = require('../../utils/bson-id-encoder')
-const {countContractData} = require('../contract-data/contract-data-query')
+const {countContractStateEntries} = require('../contract-state/contract-state-query')
 const {validateNetwork, validateAccountAddress} = require('../validators')
-const {resolveAccountAddress} = require('./account-resolver')
+const {aggregateAccountHistory, evaluateActivity} = require('./account-stats-history')
 
 function rangeActivity(index, multiplier = 1) {
     if (index > multiplier * 1000) return 'very high'
@@ -19,129 +16,55 @@ async function queryAccountStats(network, accountAddress) {
     validateNetwork(network)
     validateAccountAddress(accountAddress)
 
-    const account = await db[network]
-        .collection('accounts')
-        .findOne({address: accountAddress})
+    const account = await db[network].collection('accounts').findOne({_id: accountAddress})
     if (!account)
         throw errors.notFound('Account was not found on the ledger. Check if you specified account address correctly.')
 
     const res = {
         account: account.address,
         created: account.created,
-        creator: await resolveAccountAddress(network, account.creator),
-        deleted: account.deleted,
-        payments: account.payments,
-        trades: account.trades
+        creator: account.creator,
+        deleted: account.deleted
     }
 
-    if (res.payments > 0 || res.trades > 0) {
-        const [activity, assets] = await Promise.all([fetchActivity(network, account._id), fetchAssets(network, account._id)])
+    const {payments, trades} = aggregateAccountHistory(account.history)
+    res.payments = payments
+    res.trades = trades
+
+    if (payments > 0 || trades > 0) {
+        const activity = evaluateActivity(account.history)
         res.activity = {
             yearly: rangeActivity(activity.year, 5),
             monthly: rangeActivity(activity.month, 1)
         }
 
-        res.assets = assets
+        res.assets = await fetchAssets(network, account._id)
     } else {
         res.activity = {
             yearly: 'none',
             monthly: 'none'
         }
     }
-    const count = await countContractData(network, account._id)
+    const count = await countContractStateEntries(network, account._id)
     if (count > 0) {
         res.storage_entries = count
     }
     return res
 }
 
-async function fetchAssets(network, accountId) {
-    const assets = await db[network]
-        .collection('trustlines_history').aggregate([
-            {
-                $match: {
-                    _id: {
-                        $gte: encodeBsonId(accountId, 1, 0), //skip XLM trustlines
-                        $lt: encodeBsonId(accountId + 1, 0, 0)
-                    }
-                }
-            },
-            {
-                $sort: {
-                    _id: -1
-                }
-            },
-            {
-                $group: {
-                    _id: '$asset',
-                    balance: {$first: '$balance'}
-                }
-            },
-            {
-                $lookup: {
-                    from: 'assets',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'asset'
-                }
-            },
-            {
-                $unwind: {
-                    path: '$asset'
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    asset: '$asset.name',
-                    balance: '$balance'
-                }
-            },
-            {
-                $sort: {
-                    balance: -1,
-                    asset: 1
-                }
-            }
-        ]).toArray()
-    const res = assets.map(a => a.asset)
-    res.unshift('XLM')
-    return res
-}
+async function fetchAssets(network, address) {
+    const balances = await db[network]
+        .collection('balances').find({address}, {projection: {asset: 1, balance: 1, _id: 0}})
+        .toArray()
 
-async function fetchActivity(network, accountId) {
-    const now = unixNow()
-    const activity = await db[network]
-        .collection('account_history').aggregate([
-            {
-                $match: {
-                    _id: {
-                        $gte: new Long(now - (timeUnits.month * 12) / 1000, accountId),
-                        $lt: new Long(0, accountId + 1)
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    year: {$sum: {$add: ['$payments', {$multiply: ['$trades', 0.5]}]}},
-                    month: {
-                        $sum: {
-                            $cond: [
-                                {
-                                    $gte: ['$_id', new Long(now - timeUnits.month / 1000, accountId)]
-                                },
-                                {
-                                    $add: ['$payments', {$multiply: ['$trades', 0.5]}]
-                                },
-                                0
-                            ]
-                        }
-                    }
-                }
-            }
-        ]).toArray()
-    return activity[0] || {year: 0, month: 0}
+    return balances.sort((a, b) => {
+        if (a === 'XLM')
+            return -1
+        const dif = Number(b.balance - a.balance)
+        if (dif !== 0)
+            return dif
+        return a > b ? 1 : -1
+    }).map(a => a.asset)
 }
 
 module.exports = {queryAccountStats}

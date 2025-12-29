@@ -1,10 +1,10 @@
-const {Long} = require('bson')
-
 function normalizeNumber(numeric) {
     //null, NaN, undefined, etc.
-    if (!numeric) return 0
+    if (!numeric)
+        return 0
     //handle BSON types
-    if (numeric.toNumber) return numeric.toNumber()
+    if (numeric.toNumber)
+        return numeric.toNumber()
     return numeric
 }
 
@@ -14,13 +14,14 @@ function trimZeros(stringNum) {
 
 /**
  * Converts Int64 Stellar representation to a standard decimal number.
- * @param {Long|Number} numeric - Value to process.
+ * @param {BigInt|Number} numeric - Value to process.
  * @return {String}
  */
 function adjustAmount(numeric) {
-    if (numeric instanceof Long) {
+    if (typeof numeric ==='bigint') {
         let res = numeric.toString()
-        if (res === '0') return res
+        if (res === '0')
+            return res
         if (res.length < 8) {
             res = '0.' + res.padStart(7, '0')
         } else {
@@ -28,23 +29,24 @@ function adjustAmount(numeric) {
         }
         return trimZeros(res)
     }
-    if (numeric === 0) return '0'
+    if (numeric === 0)
+        return '0'
     return trimZeros((normalizeNumber(numeric) / 10000000).toFixed(7))
 }
 
 /**
  * Format numeric value in a standard notation with arbitrary decimals.
- * @param {Long|Number} numeric - Value to format.
+ * @param {BigInt|Number} numeric - Value to format.
  * @param {Number} [precision=7] - Result decimals (7 digits by default).
  * @return {String}
  */
 function formatAmount(numeric, precision = 7) {
-    return trimZeros(normalizeNumber(numeric).toFixed(7))
+    return trimZeros(normalizeNumber(numeric).toFixed(precision))
 }
 
 /**
  * Format numeric value with specific precision.
- * @param {Long|Number} numeric - Value to format.
+ * @param {BigInt|Number} numeric - Value to format.
  * @param {Number} [precision=7] - Result precision (8 digits by default).
  * @return {String}
  */
@@ -81,7 +83,7 @@ function anyToNumber(value) {
 }
 
 /**
- * Convert arbitrary stringified number to Long representation
+ * Convert arbitrary stringified number to bigint representation
  * @param {String|Number} value
  * @return {BigInt}
  */

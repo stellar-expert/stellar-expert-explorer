@@ -1,115 +1,96 @@
-const {Long} = require('bson')
+const config = require('../../app.config')
 const db = require('../../connectors/mongodb-connector')
-const QueryBuilder = require('../query-builder')
+const ShardedElasticQuery = require('../../connectors/sharded-elastic-query')
 const {parseDate} = require('../../utils/date-utils')
-const {preparePagedData, normalizeOrder} = require('../api-helpers')
-const {resolveAssetId, AssetJSONResolver} = require('../asset/asset-resolver')
-const {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver')
-const {validateNetwork, validateAssetName, validateAccountAddress, validateOfferId, validatePoolId} = require('../validators')
-const {LiquidityPoolJSONResolver, resolveLiquidityPoolId} = require('../liquidity-pool/liquidity-pool-resolver')
+const {preparePagedData, normalizeOrder, normalizeLimit} = require('../api-helpers')
+const {
+    validateNetwork,
+    validateAssetName,
+    validateAccountAddress,
+    validateOfferId,
+    validatePoolId
+} = require('../validators')
 const errors = require('../errors')
 
-function buildHintPredicate(objectiveFilterCondition) {
-    const res = {}
-    for (const key of Object.keys(objectiveFilterCondition)) {
-        res[key] = 1
-    }
-    //enforce only for specific indexes
-    if (res.account === undefined && res.asset === undefined) return undefined
-    return Object.assign(res, {_id: -1})
-}
-
-async function queryTradesList(network, queryFilter, basePath, {ts, order, cursor, limit, skip}) {
+async function queryTradesList(network, queryFilter, basePath, {ts, order, cursor, limit}) {
     validateNetwork(network)
-    const hint = buildHintPredicate(queryFilter)
+    order = normalizeOrder(order, -1) === 1 ? 'asc' : 'desc'
+    limit = normalizeLimit(limit, 20, 200)
+    const elasticQuery = new ShardedElasticQuery(network, 'tradeIndex')
+
     if (ts) {
         const timestamp = parseDate(ts)
-        queryFilter._id = {$lt: new Long(0, timestamp)}
+        const id = BigInt(timestamp) << 32n
+        queryFilter.push({range: {id: {lt: id}}})
     }
-
-    const q = new QueryBuilder(queryFilter)
-        .setBefore(ts)
-        .setLimit(limit)
-        .setSkip(skip)
-        .setSort('_id', order)
 
     if (cursor) {
-        q.addQueryFilter({_id: {[normalizeOrder(order) === 1 ? '$gt' : '$lt']: Long.fromString(cursor)}})
+        //TODO: automatically determine min/max year based on cursor
+        queryFilter.push({range: {id: {[order === 'asc' ? '$gt' : '$lt']: cursor}}})
     }
+    let rows = await elasticQuery.search({
+        filter: queryFilter,
+        limit,
+        order,
+        sort: 'id'
+    })
 
-    let rows = await db[network].collection('trades')
-        .find(q.query, {
-            sort: q.sort,
-            limit: q.limit,
-            skip: q.skip,
-            hint
-        })
-        .toArray()
-
-    const assetResolver = new AssetJSONResolver(network)
-    const accountResolver = new AccountAddressJSONResolver(network)
-    const poolResolver = new LiquidityPoolJSONResolver(network)
-
-    rows = rows.map(({_id, operation, offerId, poolId, account, asset, amount}) => {
+    rows = rows.map(({_source}) => {
+        const {id, op, ts, offer, pool, account, asset, amount} = _source
         return {
-            id: _id,
-            paging_token: _id,
-            ts: _id.getHighBits(),
-            operation,
-            offer: offerId,
-            pool: poolResolver.resolve(poolId),
-            seller: poolId ? undefined : accountResolver.resolve(account[1]),
-            sold_asset: assetResolver.resolve(asset[1]),
+            id: id,
+            ts,
+            operation: op,
+            offer,
+            pool,
+            seller: pool ? undefined : account[1],
+            sold_asset: asset[1],
             sold_amount: amount[1],
-            buyer: accountResolver.resolve(account[0]),
-            bought_asset: assetResolver.resolve(asset[0]),
+            buyer: account[0],
+            bought_asset: asset[0],
             bought_amount: amount[0],
-            price: amount[0].toNumber() / amount[1].toNumber()
+            price: parseFloat(amount[0]) / parseFloat(amount[1]),
+            paging_token: id
         }
     })
-    await Promise.all([assetResolver.fetchAll(), accountResolver.fetchAll(), poolResolver.fetchAll()])
-
-    return preparePagedData(basePath, {order, cursor, skip: q.skip, limit: q.limit}, rows)
+    return preparePagedData(basePath, {order, cursor, limit}, rows)
 }
 
 async function queryAssetTrades(network, asset, basePath, query) {
     validateNetwork(network)
-    validateAssetName(asset)
-    const assetId = await resolveAssetId(network, asset)
-    if (assetId === null)
-        throw errors.notFound('Asset was not found on the ledger. Unknown asset: ' + asset)
-
-    const q = new QueryBuilder().forAsset(assetId)
-    return await queryTradesList(network, q.query, basePath, query)
+    asset = validateAssetName(asset)
+    const assetInfo = await db[network].collection('assets').findOne({_id: asset}, {projection: {_id: 1}})
+    if (!assetInfo)
+        throw errors.notFound('Asset was not found on the ledger. Check if you specified the asset identifier correctly.')
+    const filter = [{term: {asset}}]
+    return await queryTradesList(network, filter, basePath, query)
 }
 
 async function queryAccountTrades(network, account, basePath, query) {
     validateNetwork(network)
     validateAccountAddress(account)
-    const accountId = await resolveAccountId(network, account)
-    if (accountId === null)
+    const accountInfo = await db[network].collection('accounts').findOne({_id: account}, {projection: {_id: 1}})
+    if (!accountInfo)
         throw errors.notFound('Account was not found on the ledger. Check if you specified account address correctly.')
-
-    const q = new QueryBuilder().forAccount(accountId)
-    return await queryTradesList(network, q.query, basePath, query)
+    const filter = [{term: {account}}]
+    return await queryTradesList(network, filter, basePath, query)
 }
 
-async function queryOfferTrades(network, offerId, basePath, query) {
+async function queryOfferTrades(network, offer, basePath, query) {
     validateNetwork(network)
-    validateOfferId(offerId)
-    const q = new QueryBuilder().forOffer(offerId)
-    return await queryTradesList(network, q.query, basePath, query)
+    validateOfferId(offer)
+    const filter = [{term: {offer}}]
+    return await queryTradesList(network, filter, basePath, query)
 }
 
-async function queryPoolTrades(network, poolId, basePath, query) {
+async function queryPoolTrades(network, pool, basePath, query) {
     validateNetwork(network)
-    validatePoolId(poolId)
-    const liquidityPoolId = await resolveLiquidityPoolId(network, poolId)
-    if (liquidityPoolId === null)
+    pool = validatePoolId(pool)
+    const lpInfo = await db[network].collection('liquidity_pools').findOne({_id: pool}, {projection: {_id: 1}})
+    if (!lpInfo)
         throw errors.notFound('Liquidity pool was not found on the ledger.')
-
-    const q = new QueryBuilder().forPool(liquidityPoolId)
-    return await queryTradesList(network, q.query, basePath, query)
+    const filter = [{term: {pool}}]
+    return await queryTradesList(network, filter, basePath, query)
 }
 
 module.exports = {

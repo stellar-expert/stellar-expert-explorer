@@ -1,4 +1,3 @@
-const {Long} = require('bson')
 const {parseDate} = require('../utils/date-utils')
 const {normalizeOrder, normalizeLimit, normalizeSkip} = require('./api-helpers')
 const {validateOfferId} = require('./validators')
@@ -36,7 +35,7 @@ class QueryBuilder {
 
     forOffer(offerId) {
         validateOfferId(offerId)
-        this.query.offerId = Long.fromString(offerId)
+        this.query.offerId = BigInt(offerId)
         return this
     }
 

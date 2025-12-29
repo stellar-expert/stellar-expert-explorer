@@ -9,9 +9,8 @@ const connections = {
             const options = {
                 appname: 'api-stellar-expert',
                 promoteValues: true,
-                promoteLongs: false,
+                useBigInt64: true,
                 directConnection: true,
-                useUnifiedTopology: true,
                 maxPoolSize: 30,
                 minPoolSize: 2 //Maintain up to 30 socket connections
             }

@@ -1,8 +1,7 @@
-const {Long, ObjectId} = require('bson')
 const db = require('../../connectors/mongodb-connector')
 const {normalizeOrder} = require('../api-helpers')
 const {formatWithPrecision} = require('../../utils/formatter')
-const {maxUnixTime} = require('../../utils/date-utils')
+const {maxUnixTime, unixNow, trimDate} = require('../../utils/date-utils')
 const errors = require('../errors')
 
 const standardResolutions = [
@@ -33,26 +32,32 @@ const OHLCVT = {
 /**
  *
  * @param {'public'|'testnet'} network
- * @param {String} collection
+ * @param {'asset_ohlcvt'|'market_ohlcvt'} collection
+ * @param {{}} predicate
  * @param {1|-1} order
- * @param {*} fromId
- * @param {*} toId
+ * @param {Number} from
+ * @param {Number} to
  * @param {Number} resolution
  * @param {Boolean} reverse
  * @return {Promise<[][]>}
  */
-async function aggregateOhlcvt({network, collection, order, fromId, toId, resolution, reverse}) {
-    if (resolution >= 14400) {
-        collection += '4h' //switch to hi-res collection with larger timeframes
+async function aggregateOhlcvt({network, collection, predicate, order, from, to, resolution, reverse}) {
+    let scale = '$5m'
+    if (resolution >= 14400) { //switch to hi-res collection with larger timeframes
+        if (resolution >= 86400) {
+            scale = '$d'
+        } else {
+            scale = '$4h'
+        }
     }
+    const rangeFrom = trimDate(from, 24)
+
     let data = await db[network].collection(collection).aggregate(
         [
-            {
-                $match: {_id: {$gte: fromId, $lt: toId}}
-            },
-            {
-                $sort: {_id: 1}
-            },
+            {$match: {...predicate, 'd.0.0': {$gte: rangeFrom, $lt: to}}},
+            {$replaceRoot: {newRoot: {ohlcvt: scale}}},
+            {$unwind: {path: '$ohlcvt'}},
+            {$match: {['ohlcvt.' + OHLCVT.TIMESTAMP]: {$gte: from, $lt: to}}},
             {
                 $group: {
                     _id: {$floor: {$divide: [{$arrayElemAt: ['$ohlcvt', OHLCVT.TIMESTAMP]}, resolution]}},
@@ -65,70 +70,112 @@ async function aggregateOhlcvt({network, collection, order, fromId, toId, resolu
                     t: {$sum: {$arrayElemAt: ['$ohlcvt', OHLCVT.TRADES_COUNT]}}
                 }
             },
-            {
-                $sort: {_id: order}
-            },
+            {$sort: {_id: order}},
             {
                 $project: {
                     _id: 0,
-                    r: {
-                        $map: {
-                            input: {$objectToArray: '$$ROOT'}, as: 'record', in: '$$record.v'
-                        }
-                    }
+                    r: {$map: {input: {$objectToArray: '$$ROOT'}, as: 'record', in: '$$record.v'}}
                 }
             }
         ]
     ).toArray()
     data = data.map(({r}) => {
         r[OHLCVT.TIMESTAMP] *= resolution
-        r[OHLCVT.QUOTE_VOLUME] = Math.floor(r[OHLCVT.QUOTE_VOLUME])
-        r[OHLCVT.BASE_VOLUME] = Math.floor(r[OHLCVT.BASE_VOLUME])
-        if (reverse) return reverseRecordSides(r)
+        r[OHLCVT.QUOTE_VOLUME] = Math.floor(Number(r[OHLCVT.QUOTE_VOLUME]))
+        r[OHLCVT.BASE_VOLUME] = Math.floor(Number(r[OHLCVT.BASE_VOLUME]))
+        if (reverse)
+            return reverseRecordSides(r)
         return r
     })
     return data
 }
 
-function reverseRecordSides(record) {
-    return [
-        record[OHLCVT.TIMESTAMP],
-        parseFloat(formatWithPrecision(1 / record[OHLCVT.OPEN], 6)),
-        parseFloat(formatWithPrecision(1 / record[OHLCVT.LOW], 6)), //swap high and low
-        parseFloat(formatWithPrecision(1 / record[OHLCVT.HIGH], 6)),
-        parseFloat(formatWithPrecision(1 / record[OHLCVT.CLOSE], 6)),
-        record[OHLCVT.QUOTE_VOLUME],
-        record[OHLCVT.BASE_VOLUME],
-        record[OHLCVT.TRADES_COUNT]
+/**
+ *
+ * @param {'public'|'testnet'} network
+ * @param {'asset_ohlcvt'|'market_ohlcvt'} collection
+ * @param {*} assetFilter
+ * @param {Number} ts - Point in time
+ * @param {Number} [ignoreStale] - Days to consider prices stale. Default: 30 days.
+ * @return {Promise<Map<string,number>>}
+ */
+async function locateOhlcPrice(network, collection, assetFilter, ts = undefined, ignoreStale = 30) {
+    const filterKey = collection === 'asset_ohlcvt' ? 'asset' : 'assets'
+    const filter = assetFilter ? {[filterKey]: assetFilter} : {}
+
+    const tsFilter = {}
+    if (ts) { //search for given point-in-time
+        tsFilter.$lte = ts
+    }
+    if (ignoreStale) {  //ignore prices older than N days
+        tsFilter.$gt = unixNow() - ignoreStale * 24 * 60 * 60
+    }
+    if (Object.keys(tsFilter).length) {
+        filter['d.0.0'] = tsFilter
+    }
+    const pipeline = [
+        {$match: filter},
+        {
+            $group: {
+                _id: collection === 'asset_ohlcvt' ? '$asset' : '$assets',
+                price: {
+                    $first: {
+                        $arrayElemAt: [{$first: '$d'}, OHLCVT.CLOSE]
+                    }
+                },
+                ts: {
+                    $first: {
+                        $arrayElemAt: [{$first: '$d'}, OHLCVT.TIMESTAMP]
+                    }
+                }
+            }
+        },
+        {$sort: {ts: -1}}
     ]
+
+    const data = await db[network].collection(collection).aggregate(pipeline).toArray()
+    const res = new Map()
+    for (const {_id, price} of data) {
+        res.set(_id, price)
+    }
+    return res
 }
 
 /**
- * @param {Number} from
- * @param {Number} to
- * @param {Number|String} originalResolution
- * @return {Number}
+ * Loads daily asset/market prices sorted in descending order by timestamp
+ * @param {'public'|'testnet'} network
+ * @param {'asset_ohlcvt'|'market_ohlcvt'} collection
+ * @param {*} assetFilter
+ * @param {number} [from]
+ * @return {Promise<Object<string,{ts:number,price:number}[]>>}
  */
-function optimizeResolution(from, to, originalResolution) {
-    //upper boundary not specified
-    if (to === undefined) {
-        if (!standardResolutions.includes(originalResolution))
-            return standardResolutions[standardResolutions.length - 1]
-        return originalResolution
+async function loadDailyOhlcPrices(network, collection, assetFilter, from) {
+    const filterKey = collection === 'asset_ohlcvt' ? 'asset' : 'assets'
+    const filter = assetFilter ? {[filterKey]: assetFilter} : {}
+    if (from) {
+        filter['d.0.0'] = {$gte: from}
     }
-    //auto-adjust
-    const span = to - from
-    if (originalResolution && originalResolution !== 'auto') {
-        if (standardResolutions.includes(originalResolution)) {
-            if (span / originalResolution <= 200)
-                return originalResolution
-            if (standardResolutions[standardResolutions.length - 1] === originalResolution)
-                return originalResolution
+    const pipeline = [
+        {$match: filter},
+        {$project: {price: {$first: '$d'}, asset: '$' + filterKey}},
+        {
+            $group: {
+                _id: {asset: '$asset', ts: {$arrayElemAt: ['$price', OHLCVT.TIMESTAMP]}},
+                price: {$first: {$arrayElemAt: ['$price', OHLCVT.CLOSE]}}
+            }
+        },
+        {$sort: {_id: -1}}
+    ]
+    const data = await db[network].collection(collection).aggregate(pipeline).toArray()
+    const res = {}
+    for (const {_id, price} of data) {
+        let container = res[_id.asset]
+        if (!container) {
+            container = res[_id.asset] = []
         }
+        container.push({ts: _id.ts, price})
     }
-    const optimal = span / 200
-    const res = standardResolutions.find(v => v >= optimal)
-    return res || standardResolutions[standardResolutions.length - 1]
+    return res
 }
 
 /**
@@ -163,35 +210,51 @@ function parseBoundaries({from = 0, to, resolution = 'auto', order}) {
     return {from, to, order, resolution}
 }
 
-
 /**
- * Generate OHLCVT collection id from asset id and timestamp
- * @param {Number} assetId
- * @param {Number} timestamp
- * @return {Long}
+ * @param {Number} from
+ * @param {Number} to
+ * @param {Number|String} originalResolution
+ * @return {Number}
  */
-function encodeAssetOhlcvtId(assetId, timestamp) {
-    return new Long(timestamp, assetId)
-}
-
-
-/**
- * Generate OHLCVT collection id from two asset ids that designate the market and timestamp
- * @param {Number[]|Long} assetIds
- * @param {Number} timestamp
- * @return {ObjectId}
- */
-function encodeMarketOhlcvtId(assetIds, timestamp) {
-    const raw = Buffer.allocUnsafe(12)
-    if (assetIds instanceof Long) {
-        raw.writeUInt32BE(assetIds.getHighBits(), 0)
-        raw.writeUInt32BE(assetIds.getLowBits(), 4)
-    } else {
-        raw.writeUInt32BE(assetIds[1], 0)
-        raw.writeUInt32BE(assetIds[0], 4)
+function optimizeResolution(from, to, originalResolution) {
+    //upper boundary not specified
+    if (to === undefined) {
+        if (!standardResolutions.includes(originalResolution))
+            return standardResolutions[standardResolutions.length - 1]
+        return originalResolution
     }
-    raw.writeUInt32BE(timestamp, 8)
-    return new ObjectId(raw)
+    //auto-adjust
+    const span = to - from
+    if (originalResolution && originalResolution !== 'auto') {
+        if (standardResolutions.includes(originalResolution)) {
+            if (span / originalResolution <= 200)
+                return originalResolution
+            if (standardResolutions[standardResolutions.length - 1] === originalResolution)
+                return originalResolution
+        }
+    }
+    const optimal = span / 200
+    const res = standardResolutions.find(v => v >= optimal)
+    return res || standardResolutions[standardResolutions.length - 1]
 }
 
-module.exports = {aggregateOhlcvt, parseBoundaries, encodeAssetOhlcvtId, encodeMarketOhlcvtId, OHLCVT}
+function reverseRecordSides(record) {
+    return [
+        record[OHLCVT.TIMESTAMP],
+        parseFloat(formatWithPrecision(1 / record[OHLCVT.OPEN], 6)),
+        parseFloat(formatWithPrecision(1 / record[OHLCVT.LOW], 6)), //swap high and low
+        parseFloat(formatWithPrecision(1 / record[OHLCVT.HIGH], 6)),
+        parseFloat(formatWithPrecision(1 / record[OHLCVT.CLOSE], 6)),
+        record[OHLCVT.QUOTE_VOLUME],
+        record[OHLCVT.BASE_VOLUME],
+        record[OHLCVT.TRADES_COUNT]
+    ]
+}
+
+module.exports = {
+    locateOhlcPrice,
+    aggregateOhlcvt,
+    loadDailyOhlcPrices,
+    parseBoundaries,
+    OHLCVT
+}

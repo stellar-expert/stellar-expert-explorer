@@ -1,10 +1,10 @@
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
 const {validateNetwork, validateContractAddress} = require('../validators')
-const {resolveAccountAddress} = require('../account/account-resolver')
 const AssetDescriptor = require('../asset/asset-descriptor')
-const {countContractData} = require('../contract-data/contract-data-query')
+const {countContractStateEntries} = require('../contract-state/contract-state-query')
 const {getValidationStatus} = require('./contract-validation')
+const {aggregateContractHistory} = require('./contract-aggregation')
 
 async function queryContractStats(network, contractAddress) {
     validateNetwork(network)
@@ -12,46 +12,24 @@ async function queryContractStats(network, contractAddress) {
 
     const contract = await db[network]
         .collection('contracts')
-        .findOne({address: contractAddress})
+        .findOne({_id: contractAddress})
     if (!contract)
         throw errors.notFound('Contract was not found on the ledger. Check if you specified contract address correctly.')
 
-    const res = {
-        contract: contract.address,
-        account: contract.address,
-        created: contract.created,
-        creator: await resolveAccountAddress(network, contract.creator),
-        payments: contract.payments,
-        trades: contract.trades
-    }
-    if (contract.wasm) {
-        res.wasm = contract.wasm.toString('hex')
-    }
-    if (contract.issuer) {
-        const issuerAddress = await resolveAccountAddress(network, contract.issuer)
-        if (contract.code) {
-            res.asset = new AssetDescriptor(contract.code + '-' + issuerAddress).toFQAN()
-        } else {
-            res.issuer = issuerAddress
-            res.salt = contract.salt?.toString()
-        }
-    } else if (contract.code === 'XLM') {
-        res.asset = 'XLM'
-    } else if (await db[network].collection('assets').findOne({name: contractAddress}, {projection: {_id: 1}})) {
-        res.asset = contractAddress
-    }
-    const count = await countContractData(network, contract._id)
+    const res = serializeContractStats(contract)
+
+    const count = await countContractStateEntries(network, contract._id)
     if (count > 0) {
         res.storage_entries = count
     }
-    if (contract.wasm) {
+    if (contract.wasm) { //TODO: store validation in the contract itself
         res.validation = await getValidationStatus(network, contract.wasm)
     }
-    const versions = await db[network].collection('contract_wasm_history').count({contract: {$in: [contract._id, contract.address]}})
+    const versions = await db[network].collection('contract_wasm_history').count({entry: contract._id})
     if (versions > 1) {
         res.versions = versions
     }
-    const functions = await db[network]
+    /*const functions = await db[network]
         .collection('invocations')
         .aggregate([
             {
@@ -73,8 +51,33 @@ async function queryContractStats(network, contractAddress) {
     res.functions = functions.map(({_id, ...props}) => {
         props.function = _id
         return props
-    })
+    })*/
     return res
 }
 
-module.exports = {queryContractStats}
+
+function serializeContractStats(contract){
+    const res = {
+        contract: contract._id,
+        created: contract.created,
+        creator: contract.creator
+    }
+    if (contract.wasm) {
+        res.wasm = contract.wasm.toString('hex')
+    }
+    if (contract.issuer) {
+        if (contract.code) {
+            res.asset = new AssetDescriptor(contract.code + '-' + contract.issuer).toFQAN()
+        } else {
+            res.issuer = contract.issuer
+            res.salt = contract.salt?.toString()
+        }
+    } else if (contract.code === 'XLM') {
+        res.asset = 'XLM'
+    }
+
+    const stats = aggregateContractHistory(contract.history)
+    return Object.assign(res, stats)
+}
+
+module.exports = {queryContractStats, serializeContractStats}

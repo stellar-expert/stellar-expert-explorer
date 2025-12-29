@@ -60,6 +60,7 @@ class LedgerStream {
                     this.notify(ledger)
                 }
             })
+            .catch(console.error)
     }
 }
 

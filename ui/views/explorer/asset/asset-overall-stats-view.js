@@ -25,17 +25,12 @@ function AssetStats() {
             {formatWithPrecision(assetStats.total_assets)}
             <Info>Total number of assets that exist on the ledger.</Info>
         </dd>
-        <dt>Overall payments:</dt>
-        <dd>
-            {formatWithPrecision(assetStats.payments)}
-            <Info>Total number of all asset payments.</Info>
-        </dd>
-        <dt>Overall DEX trades:</dt>
+        <dt>24h DEX trades:</dt>
         <dd>
             {formatWithPrecision(assetStats.trades)}
             <Info>Total number of all on-chain trades.</Info>
         </dd>
-        <dt>Overall DEX volume:</dt>
+        <dt>24h DEX volume:</dt>
         <dd>
             <Amount amount={assetStats.volume} asset="USD" adjust round issuer={false}/>
             <Info>Total volume of all on-chain trades in XLM.</Info>

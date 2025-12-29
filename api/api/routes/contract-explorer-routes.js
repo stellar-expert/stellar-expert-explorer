@@ -1,9 +1,8 @@
 const {registerRoute} = require('../router')
+const {queryAddressBalanceHistory} = require('../../business-logic/balance/balance-history')
+const {queryBalances, estimateAddressValue} = require('../../business-logic/balance/balances')
 const {queryAllContracts} = require('../../business-logic/contracts/contract-list')
 const {queryContractStats} = require('../../business-logic/contracts/contract-stats')
-const {queryContractBalanceHistory} = require('../../business-logic/contracts/contract-balance-history')
-const {estimateContractValue} = require('../../business-logic/contracts/contract-value-estimator')
-const {queryContractBalances} = require('../../business-logic/contracts/contract-balances')
 const {queryContractCode} = require('../../business-logic/contracts/contract-code')
 const {queryContractVersions} = require('../../business-logic/contracts/contract-versions')
 const {queryContractTopUsers, queryContractInvocationStats} = require('../../business-logic/contracts/contract-invocations')
@@ -31,17 +30,17 @@ module.exports = function (app) {
     registerRoute(app,
         'contract/:contract/balance',
         {cache: 'stats'},
-        ({params, query}) => queryContractBalances(params.network, params.contract, query))
+        ({params, query}) => queryBalances(params.network, params.contract, query))
 
     registerRoute(app,
         'contract/:contract/balance/:asset/history',
         {cache: 'balance'},
-        ({params}) => queryContractBalanceHistory(params.network, params.contract, params.asset))
+        ({params}) => queryAddressBalanceHistory(params.network, params.contract, params.asset))
 
     registerRoute(app,
         'contract/:contract/value',
         {cache: 'stats'},
-        ({params, query}) => estimateContractValue(params.network, params.contract, query.currency))
+        ({params, query}) => estimateAddressValue(params.network, params.contract, query.currency, query.ts))
 
     registerRoute(app,
         'contract/:contract/users',
@@ -63,6 +62,7 @@ module.exports = function (app) {
             res.send(code)
             res.end()
         })
+
     registerRoute(app, //TODO: remove legacy route
         'contract/wasm/:hash',
         {cache: 'stats'},

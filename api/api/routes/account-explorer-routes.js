@@ -1,11 +1,11 @@
 const {registerRoute} = require('../router')
+const {estimateAddressValue} = require('../../business-logic/balance/balances')
+const {queryAddressBalanceHistory} = require('../../business-logic/balance/balance-history')
 const {queryAccountStats} = require('../../business-logic/account/account-stats')
 const {queryAccountStatsHistory} = require('../../business-logic/account/account-stats-history')
 const {queryAllAccounts} = require('../../business-logic/account/account-list')
-const {queryAccountBalanceHistory} = require('../../business-logic/account/account-balance-history')
 const {queryAccountTrades} = require('../../business-logic/dex/trades')
 const {queryAccountClaimableBalances} = require('../../business-logic/claimable-balances/claimable-balances')
-const {estimateAccountValue} = require('../../business-logic/account/account-value-estimator')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -34,7 +34,7 @@ module.exports = function (app) {
     registerRoute(app,
         'account/:account/balance/:asset/history',
         {cache: 'balance'},
-        ({params}) => queryAccountBalanceHistory(params.network, params.account, params.asset))
+        ({params}) => queryAddressBalanceHistory(params.network, params.account, params.asset))
 
     registerRoute(app,
         'account/:account/claimable-balances',
@@ -47,6 +47,6 @@ module.exports = function (app) {
     registerRoute(app,
         'account/:account/value',
         {cache: 'stats'},
-        ({params, query}) => estimateAccountValue(params.network, params.account, query.currency, query.ts))
+        ({params, query}) => estimateAddressValue(params.network, params.account, query.currency, query.ts))
 
 }

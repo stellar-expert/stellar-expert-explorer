@@ -3,28 +3,23 @@ const errors = require('../errors')
 const QueryBuilder = require('../query-builder')
 const {normalizeOrder, preparePagedData} = require('../api-helpers')
 const {validateNetwork, validateAccountAddress, validatePoolId} = require('../validators')
-const {AccountAddressJSONResolver} = require('../account/account-resolver')
-const {resolveAccountId} = require('../account/account-resolver')
-const {resolveLiquidityPoolId} = require('./liquidity-pool-resolver')
-const {encodeBsonId} = require('../../utils/bson-id-encoder')
 
 async function queryLiquidityPoolHolders(network, pool, basePath, {sort, order, cursor, limit}) {
     validateNetwork(network)
-    validatePoolId(pool)
+    pool = validatePoolId(pool)
 
-    const poolId = await resolveLiquidityPoolId(network, pool)
-
-    if (poolId === null)
+    const poolInfo = await db[network].collection('liquidity_pools').findOne({_id: pool})
+    if (!poolInfo)
         throw errors.notFound()
 
     const normalizedOrder = normalizeOrder(order, 1)
 
     const q = new QueryBuilder({
-        _id: {$gt: encodeBsonId(1 - poolId, 0, 0), $lt: encodeBsonId(poolId, 0, 0)},
+        asset: pool,
         balance: {$gt: 0}
     })
         .setLimit(limit)
-        .setSort({balance: -1})
+        .setSort('balance', -1)
 
     if (cursor) {
         cursor = parseInt(cursor, 10)
@@ -42,65 +37,60 @@ async function queryLiquidityPoolHolders(network, pool, basePath, {sort, order, 
         }
     }
 
-    const records = await db[network].collection('trustlines')
+    const records = await db[network].collection('balances')
         .find(q.query)
-        .sort({stake: -1})
+        .sort(q.sort)
         .skip(q.skip)
         .limit(q.limit)
         .project({
             _id: 0,
-            account: 1,
-            stake: 1
+            address: 1,
+            balance: 1
         })
         .toArray()
 
     for (let i = 0; i < records.length; i++) {
         let record = records[i]
         record.position = record.paging_token = q.skip + i + 1
+        record.stake = record.balance
+        record.account = record.address
+        delete record.address
     }
 
     if (normalizedOrder === -1) {
         records.reverse()
     }
 
-    const accountResolver = new AccountAddressJSONResolver(network)
-    accountResolver.map(records, 'account')
-
-    await accountResolver.fetchAll()
-
     return preparePagedData(basePath, {sort, order: normalizedOrder, cursor, limit: q.limit}, records)
 }
 
-async function queryLiquidityPoolPosition(network, pool, account) {
+async function queryLiquidityPoolPosition(network, pool, address) {
     validateNetwork(network)
-    validatePoolId(pool)
-    validateAccountAddress(account)
+    validateAccountAddress(address)
+    pool = validatePoolId(pool)
 
-    const poolId = await resolveLiquidityPoolId(network, pool)
-    if (poolId === null) throw errors.notFound()
+    const poolInfo = await db[network].collection('liquidity_pools').findOne({_id: pool})
+    if (!poolInfo)
+        throw errors.notFound()
 
-    const accountId = await resolveAccountId(network, account)
-
-    const entry = await db[network].collection('liquidity_pool_stakes')
-        .findOne({
-                account: accountId,
-                pool: poolId
-            },
-            {
-                projection: {
-                    _id: 0,
-                    stake: 1
-                }
-            })
+    const entry = await db[network].collection('balances')
+        .findOne({address, asset: pool},
+            {projection: {_id: 0, balance: 1}})
+    if (!entry)
+        throw errors.notFound()
 
     let [position, total] = await Promise.all([
-        db[network].collection('liquidity_pool_stakes').countDocuments({pool: poolId, stake: {$gt: entry.stake}}),
-        db[network].collection('liquidity_pool_stakes').countDocuments({pool: poolId, stake: {$gt: 0}})
+        db[network].collection('balances').countDocuments({asset: pool, balance: {$gt: entry.balance}}),
+        db[network].collection('balances').countDocuments({asset: pool, balance: {$gt: 0}})
     ])
     position++
-
-    if (!entry) throw errors.notFound()
-    return {account, asset: pool, total, position, ...entry}
+    return {
+        account: address,
+        asset: pool,
+        total,
+        position,
+        stake: entry.balance
+    }
 }
 
 module.exports = {queryLiquidityPoolHolders, queryLiquidityPoolPosition}

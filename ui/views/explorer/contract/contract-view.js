@@ -54,9 +54,9 @@ export default function ContractView() {
             </div>
         </div>
         <CrawlerScreen>
-            <div className="space">
+            {/*<div className="space">
                 <ContractStatsHistoryView contract={address} functions={data.functions}/>
-            </div>
+            </div>*/}
             <div>
                 <ContractTabsView contract={data}/>
             </div>

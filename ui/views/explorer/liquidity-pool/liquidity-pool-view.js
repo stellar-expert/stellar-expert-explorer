@@ -52,9 +52,9 @@ function PoolSummaryView({poolInfo}) {
                             {formatWithAutoPrecision(poolInfo.accounts)}
                             <Info>Total number of accounts which deposited funds to the pool.</Info>
                         </dd>
-                        <dt>Trades:</dt>
+                        <dt>Weekly trades:</dt>
                         <dd>
-                            {formatWithAutoPrecision(poolInfo.trades)}
+                            {formatWithAutoPrecision(poolInfo.trades['7d'])}
                             <Info>Total number of trades executed against this pool.</Info>
                         </dd>
                         <dt>Liquidity:</dt>
@@ -74,6 +74,8 @@ function PoolSummaryView({poolInfo}) {
             </div>
             <CrawlerScreen>
                 <div className="micro-space mobile-only"/>
+
+
                 <div className="column column-50 relative">
                     <LiquidityPoolTvlChartView id={poolInfo.id}/>
                 </div>

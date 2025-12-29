@@ -2,30 +2,16 @@ const {retrieveAssetsMetadata} = require('../asset/asset-meta-resolver')
 
 class LiquidityPoolAssetMatcher {
     constructor(assets) {
-        this.assets = assets
+        this.assets = new Map(assets.map(a => [a.name, a]))
     }
 
     match(pool, callback) {
         return pool.asset.map((a, i) => {
-            const {_id, ...assetProps} = a === 0 ?
-                xlmMeta :
-                this.assets.find(pa => pa._id === a)
+            const {_id, ...assetProps} = this.assets.get(a)
             if (!callback)
                 return assetProps
             return callback(assetProps, i, pool)
         })
-    }
-}
-
-const xlmMeta = {
-    _id: 0,
-    asset: 'XLM',
-    name: 'XLM',
-    domain: 'stellar.org',
-    toml_info: {
-        image: 'https://stellar.expert/img/vendor/stellar.svg',
-        orgName: 'Stellar',
-        name: 'Lumen'
     }
 }
 

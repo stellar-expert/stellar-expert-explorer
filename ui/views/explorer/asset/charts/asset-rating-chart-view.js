@@ -3,7 +3,7 @@ import Chart from '../../../components/chart/chart'
 
 export default Chart.withErrorBoundary(function AssetRatingChartView({asset}) {
     if (!asset.rating)
-        return <Chart.Loader/>
+        return <Chart.Loader unavailable title="Rating - N/A"/>
     const config = {
         chart: {
             polar: true,
@@ -17,7 +17,7 @@ export default Chart.withErrorBoundary(function AssetRatingChartView({asset}) {
             size: '75%'
         },
         xAxis: {
-            categories: ['Age', 'Payments', 'Trustlines', 'Interoperability', 'Weekly volume', 'Trades', 'Liquidity'],
+            categories: ['Age', 'Activity', 'Trustlines', 'Interoperability', 'Weekly volume', 'Liquidity'],
             tickmarkPlacement: 'on',
             lineWidth: 0,
             crosshair: false
@@ -33,11 +33,11 @@ export default Chart.withErrorBoundary(function AssetRatingChartView({asset}) {
         series: []
     }
 
-    const {age, payments, trustlines, trades, volume7d, interop, liquidity} = asset.rating
+    const {age, activity, trustlines, volume7d, interop, liquidity, average} = asset.rating
     config.series.push({
         name: 'Rating',
         pointPlacement: 'on',
-        data: [age, payments, trustlines, interop, volume7d, trades, liquidity]
+        data: [age, activity, trustlines, interop, volume7d, liquidity]
     })
-    return <Chart title="Rating" options={config} noLegend/>
+    return <Chart title={'Rating - ' + (average || 'N/A')} options={config} noLegend/>
 })

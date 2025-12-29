@@ -9,11 +9,7 @@ import GridDataActionsView from '../../components/grid-data-actions'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 
 const orderOptions = [
-    {value: 'tvl', title: 'total value locked'},
-    {value: 'volume1d', title: 'daily volume'},
-    {value: 'volume7d', title: 'weekly volume'},
     {value: 'accounts', title: 'number of participants'},
-    {value: 'trades', title: 'total trades'},
     {value: 'created', title: 'age'}
 ]
 
@@ -28,7 +24,7 @@ function LiquidityPoolsContentView({pools}) {
                 <th className="text-center nowrap" rowSpan={2}>APY</th>
                 <th className="text-center nowrap" colSpan={2}>Volume</th>
                 <th className="text-center nowrap" colSpan={2}>Fees earned</th>
-                <th className="text-right nowrap" rowSpan={2}>Trades</th>
+                <th className="text-center nowrap" colSpan={2}>Trades</th>
                 <th className="text-right nowrap" rowSpan={2}>Participants</th>
             </tr>
             <tr>
@@ -36,6 +32,8 @@ function LiquidityPoolsContentView({pools}) {
                 <th className="text-center nowrap">7d</th>
                 <th className="text-center nowrap">24h</th>
                 <th className="text-center nowrap">7d</th>
+                <th className="text-right nowrap">24h</th>
+                <th className="text-right nowrap">7d</th>
             </tr>
             </thead>
             <tbody className="condensed">
@@ -58,26 +56,29 @@ function LiquidityPoolsContentView({pools}) {
                             </div>
                         </div>
                     </td>
-                    <td className="nowrap text-center" data-header="Value locked (USD): ">
+                    <td className="nowrap text-right" data-header="Value locked (USD): ">
                         <UsdAmount value={pool.total_value_locked} abbreviation={false}/>
                     </td>
-                    <td className="nowrap text-center" data-header="APY: ">
+                    <td className="nowrap text-right" data-header="APY: ">
                         {formatPrice(apy, 2)}<span className="dimmed text-small">&thinsp;%</span>
                     </td>
                     <td className="nowrap text-center" data-header="Volume 24h: ">
                         <UsdAmount value={pool.volume_value['1d']}/>
                     </td>
-                    <td className="nowrap text-center" data-header="Volume 7d: ">
+                    <td className="nowrap text-right" data-header="Volume 7d: ">
                         <UsdAmount value={pool.volume_value['7d']}/>
                     </td>
-                    <td className="nowrap text-center" data-header="Fees earned 24h: ">
+                    <td className="nowrap text-right" data-header="Fees earned 24h: ">
                         <UsdAmount value={pool.earned_value['1d']}/>
                     </td>
-                    <td className="nowrap text-center" data-header="Fees earned 7d: ">
+                    <td className="nowrap text-right" data-header="Fees earned 7d: ">
                         <UsdAmount value={pool.earned_value['7d']}/>
                     </td>
-                    <td className="nowrap text-right" data-header="Total trades: ">
-                        {formatWithPrecision(pool.trades, 0)}
+                    <td className="nowrap text-right" data-header="Trades 24h: ">
+                        {formatWithPrecision(pool.trades['1d'], 0)}
+                    </td>
+                    <td className="nowrap text-right" data-header="Trades 7d: ">
+                        {formatWithPrecision(pool.trades['7d'], 0)}
                     </td>
                     <td className="nowrap text-right" data-header="Participants: ">
                         {formatWithPrecision(pool.accounts, 0)}

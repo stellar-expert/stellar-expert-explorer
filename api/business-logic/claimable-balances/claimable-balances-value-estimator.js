@@ -1,7 +1,7 @@
 const db = require('../../connectors/mongodb-connector')
+const {estimateAssetPrices} = require('../asset/asset-price')
 const errors = require('../errors')
 const {validateNetwork} = require('../validators')
-const {AssetJSONResolver} = require('../asset/asset-resolver')
 
 const limit = 100
 
@@ -21,14 +21,11 @@ async function estimateClaimableBalancesValue(network, basePath, query) {
         return bid
     })
 
-    const res = await aggregateEstimatedClaimableBalancesValue(network, bids)
+    const balances = await db[network].collection('claimable_balances')
+        .find({_id: {$in: bids}}, {projection: {_id: 1, asset: 1}})
+        .toArray()
+    const res = await aggregateEstimatedClaimableBalancesValue(network, balances)
 
-    const assetResolver = new AssetJSONResolver(network)
-    for (const cb of res) {
-        cb.asset = assetResolver.resolve(cb.asset)
-    }
-
-    await assetResolver.fetchAll()
     return {
         claimable_balances: res,
         total: res.reduce((prev, current) => prev + current.value, 0),
@@ -36,36 +33,22 @@ async function estimateClaimableBalancesValue(network, basePath, query) {
     }
 }
 
-async function aggregateEstimatedClaimableBalancesValue(network, bids) {
-    return await db[network].collection('claimable_balances').aggregate([
-        {
-            $match: {_id: {$in: bids}}
-        },
-        {
-            $lookup: {
-                from: 'assets',
-                localField: 'asset',
-                foreignField: '_id',
-                as: 'assetInfo'
-            }
-        },
-        {
-            $project: {
-                _id: 0,
-                id: '$_id',
-                amount: 1,
-                asset: {$first: '$assetInfo'}
-            }
-        },
-        {
-            $project: {
-                id: 1,
-                asset: '$asset.name',
-                amount: 1,
-                value: {$floor: {$multiply: ['$amount', {$ifNull: ['$asset.lastPrice', 0]}]}}
-            }
+/**
+ * @param {String} network
+ * @param {{}[]} balances
+ * @return {Promise<{id:String,asset:String,amount:BigInt,value:Number}[]>}
+ */
+async function aggregateEstimatedClaimableBalancesValue(network, balances) {
+    const prices = await estimateAssetPrices(network, balances.map(b => b.asset))
+    return balances.map(cb => {
+        const price = prices.get(cb.asset) || 0
+        return {
+            id: cb._id,
+            asset: cb.asset,
+            amount: cb.amount,
+            value: Math.floor(Number(cb.amount) * price)
         }
-    ]).toArray()
+    })
 }
 
 module.exports = {estimateClaimableBalancesValue, aggregateEstimatedClaimableBalancesValue}

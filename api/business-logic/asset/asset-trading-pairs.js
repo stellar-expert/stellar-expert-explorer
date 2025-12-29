@@ -1,40 +1,33 @@
 const db = require('../../connectors/mongodb-connector')
-const errors = require('../errors')
 const {validateNetwork, validateAssetName} = require('../validators')
-const {resolveAssetId, AssetJSONResolver} = require('./asset-resolver')
 
-async function queryAssetTradingPairs(network, asset) {
+async function queryAssetTradingPairs(network, forAsset) {
     validateNetwork(network)
-    validateAssetName(asset)
-
-    const assetId = await resolveAssetId(network, asset)
-    if (assetId === null) throw errors.notFound('Unknown asset: ' + asset)
+    forAsset = validateAssetName(forAsset)
 
     const markets = await db[network].collection('markets').aggregate([
         {
-            $match: {asset: assetId}
+            $match: {asset: forAsset}
         },
         {
             $project: {
+                _id: 0,
                 asset: 1,
-                counterVolume24h: {$cond: [{$eq: [{$arrayElemAt: ['$asset', 1]}, assetId]}, '$baseVolume24h', '$counterVolume24h']}
+                quoteVolume24h: {$cond: [{$eq: [{$arrayElemAt: ['$asset', 1]}, forAsset]}, '$baseVolume24h', '$quoteVolume24h']}
             }
         },
         {
-            $sort: {counterVolume24h: -1}
+            $sort: {quoteVolume24h: -1}
         },
         {
             $limit: 10
         }])
         .toArray()
 
-    if (!markets) return []
-    const resolver = new AssetJSONResolver(network)
+    if (!markets)
+        return []
     //fetch all trading pairs
-    const pairs = markets.map(({asset}) => asset[0] === assetId ? asset[1] : asset[0])
-    resolver.map(pairs)
-    await resolver.fetchAll()
-    return pairs
+    return markets.map(({asset}) => asset[0] === forAsset ? asset[1] : asset[0])
 }
 
 module.exports = {queryAssetTradingPairs}

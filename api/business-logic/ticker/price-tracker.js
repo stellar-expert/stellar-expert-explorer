@@ -1,5 +1,5 @@
 const {parseDate, trimDate, unixNow} = require('../../utils/date-utils')
-const {aggregateOhlcvt, encodeAssetOhlcvtId, OHLCVT} = require('../dex/ohlcvt-aggregator')
+const {aggregateOhlcvt, OHLCVT} = require('../dex/ohlcvt-aggregator')
 const db = require('../../connectors/mongodb-connector')
 
 const network = 'public'
@@ -74,10 +74,11 @@ class PriceTracker {
         return aggregateOhlcvt({
             network,
             collection: 'asset_ohlcvt',
+            predicate: {asset: 'XLM'},
             order: -1,
             resolution: day,
-            fromId: encodeAssetOhlcvtId(0, fromTs),
-            toId: encodeAssetOhlcvtId(1, 0)
+            from: fromTs,
+            to: 2147483647
         })
             .then(res => res.map(v => {
                 const p = v[OHLCVT.QUOTE_VOLUME] / v[OHLCVT.BASE_VOLUME] //use avg daily prices

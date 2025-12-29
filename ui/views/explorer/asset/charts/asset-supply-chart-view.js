@@ -49,7 +49,7 @@ export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noT
     let maxTs = 0
 
     if (data.history) {
-        for (const {ts, supply, reserve, feePool, trustlines} of data.history) {
+        for (const {ts, supply, reserve, fee_pool, trustlines} of data.history) {
             if (ts > 0) {
                 const timestamp = ts
 
@@ -62,8 +62,8 @@ export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noT
                     if (reserve) {
                         s -= reserve
                     }
-                    if (feePool) {
-                        s -= feePool
+                    if (fee_pool) {
+                        s -= fee_pool
                     }
                     assetSupply.push([timestamp, Math.round(s / 100000) / 100])
                 }

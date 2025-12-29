@@ -1,10 +1,16 @@
 const {Asset, Networks} = require('@stellar/stellar-sdk')
 const db = require('../../connectors/mongodb-connector')
-const {anyToNumber} = require('../../utils/formatter')
 const QueryBuilder = require('../query-builder')
-const {normalizeOrder, preparePagedData, addPagingToken, calculateSequenceOffset, normalizeLimit} = require('../api-helpers')
-const {resolveAccountId} = require('../account/account-resolver')
+const {
+    normalizeOrder,
+    preparePagedData,
+    addPagingToken,
+    calculateSequenceOffset,
+    normalizeLimit
+} = require('../api-helpers')
 const {validateNetwork, isValidAccountAddress} = require('../validators')
+const {combineAssetHistory} = require('./asset-aggregation')
+const {estimateAssetPrices} = require('./asset-price')
 
 const supportedFeaturesSearch = [{
     terms: ['SEP3', 'SEP0003', 'SEP-0003', 'AUTH_SERVER'],
@@ -27,48 +33,31 @@ const supportedFeaturesSearch = [{
 }]
 
 const projection = {
-    name: 1,
     created: 1,
-    trades: 1,
-    tradedAmount: 1,
-    payments: 1,
-    paymentsAmount: 1,
-    supply: 1,
-    trustlines: 1,
-    price: 1,
-    volume: 1,
     volume7d: 1,
     price7d: 1,
     rating: 1,
     domain: 1,
-    tomlInfo: 1
+    tomlInfo: 1,
+    history: 1
 }
 
-function mapAssetProps(assets, network) {
-    return assets.map(({
-                           _id,
-                           supply,
-                           name,
-                           tradedAmount,
-                           paymentsAmount,
-                           lastPrice,
-                           price,
-                           baseVolume,
-                           volume,
-                           quoteVolume,
-                           totalTrades,
-                           trades,
-                           ...other
-                       }) => ({
-        asset: name,
-        supply: anyToNumber(supply),
-        traded_amount: tradedAmount,
-        payments_amount: paymentsAmount,
-        trades: totalTrades,
-        price: lastPrice,
-        volume: quoteVolume,
-        ...other
-    }))
+function mapAssetProps(assets, prices) {
+    return assets.map(({_id, baseVolume, quoteVolume, history, ...other}) => {
+        const props = combineAssetHistory(history, _id !== 'XLM')
+        return {
+            asset: _id,
+            supply: props.supply,
+            traded_amount: props.tradedAmount,
+            payments_amount: props.paymentsAmount,
+            payments: props.payments,
+            trades: props.trades,
+            trustlines: props.trustlines,
+            price: prices.get(_id) || 0,
+            volume: quoteVolume,
+            ...other
+        }
+    })
 }
 
 async function queryAllAssets(network, basePath, {search, sort, order, cursor, limit, includeUninitialized}) {
@@ -77,7 +66,7 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
     if (sort === 'created')
         return await queryAllAssetsByCreatedDate(network, basePath, cursor, limit, order, includeUninitialized)
 
-    const q = new QueryBuilder({payments: {$gt: 0}})
+    const q = new QueryBuilder({'rating.average': {$gt: 0}})
         .setSkip(calculateSequenceOffset(0, limit, cursor, order))
         .setLimit(limit, 50)
 
@@ -112,10 +101,7 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
     if (search) {
         //check whether search is an account address
         if (isValidAccountAddress(search)) {
-            const issuer = await resolveAccountId(network, search)
-            if (!issuer)
-                return preparePagedData(basePath, {sort, order, cursor: q.skip, limit: q.limit}, [])
-            q.addQueryFilter({issuer})
+            q.addQueryFilter({issuer: search})
         } else {
             //check if it's a search by features
             const asFeatureName = search.toUpperCase()
@@ -150,7 +136,8 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
             .toArray()
     }
 
-    assets = mapAssetProps(assets, network)
+    const prices = await estimateAssetPrices(network, assets.map(a => a._id))
+    assets = mapAssetProps(assets, prices)
 
     addPagingToken(assets, q.skip)
 
@@ -193,7 +180,7 @@ async function querySAL(network, limit = 50) {
         .sort({'rating.average': -1})
         .skip(1)
         .limit(limit)
-        .project({name: 1, tomlInfo: 1, domain: 1})
+        .project({tomlInfo: 1, domain: 1})
         .toArray()
 
     return {
@@ -206,14 +193,14 @@ async function querySAL(network, limit = 50) {
         assets: assets.map(a => {
             if (a.name.length === 56 && a.name[0] === 'C') { //wasm contract
                 return {
-                    contract: a.name,
+                    contract: a._id,
                     name: cleanupString(a.tomlInfo?.name || a.name),
                     org: cleanupString(a.tomlInfo?.orgName || 'unknown'),
                     domain: a.domain || undefined,
                     icon: a.tomlInfo?.image || undefined
                 }
             } else {
-                const [code, issuer] = a.name.split('-')
+                const [code, issuer] = a._id.split('-')
                 return {
                     code,
                     issuer,

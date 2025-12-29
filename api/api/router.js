@@ -1,5 +1,4 @@
 const cors = require('cors')
-const {Long} = require('mongodb')
 const billing = require('./billing')
 const apiCache = require('./api-cache')
 const corsMatcher = require('./cors-matcher')
@@ -22,7 +21,7 @@ const corsMiddleware = {
 }
 
 function responseReplacer(key, value) {
-    if (typeof value === 'bigint' || value instanceof Long)
+    if (typeof value === 'bigint')
         return value.toString()
     return value
 }

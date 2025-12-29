@@ -1,6 +1,6 @@
 module.exports = class ArchiveTxInfo {
     /**
-     * @type {Long}
+     * @type {BigInt}
      */
     id
     /**

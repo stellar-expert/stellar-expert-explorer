@@ -1,108 +1,68 @@
-const {StrKey} = require('@stellar/stellar-sdk')
-const {Binary} = require('bson')
 const db = require('../../connectors/mongodb-connector')
-const {AssetJSONResolver} = require('../asset/asset-resolver')
-const {resolveAccountId, AccountAddressJSONResolver} = require('../account/account-resolver')
 const {preparePagedData, normalizeOrder} = require('../api-helpers')
+const {validateNetwork, validateAccountAddress, validateClaimableBalanceId} = require('../validators')
 const QueryBuilder = require('../query-builder')
-const {validateNetwork, validateAccountAddress} = require('../validators')
-const {aggregateEstimatedClaimableBalancesValue} = require('./claimable-balances-value-estimator')
 const errors = require('../errors')
+const {aggregateEstimatedClaimableBalancesValue} = require('./claimable-balances-value-estimator')
 
-async function queryClaimableBalances(network, objectiveFilterCondition, basePath, {sort, order, cursor, limit}) {
+async function queryAccountClaimableBalances(network, account, basePath, {sort, order, cursor, limit}) {
     validateNetwork(network)
+    validateAccountAddress(account)
 
-    const query = Object.assign(objectiveFilterCondition)
-
-    const q = new QueryBuilder(query)
+    const q = new QueryBuilder({claimants: account})
         .setLimit(limit)
-        .setSort('uid', order)
+        .setSort('_id', order)
 
     if (cursor) {
-        q.addQueryFilter({uid: {[normalizeOrder(order) === 1 ? '$gt' : '$lt']: BigInt(cursor)}})
+        q.addQueryFilter({_id: {[normalizeOrder(order) === 1 ? '$gt' : '$lt']: cursor}})
     }
 
-    const records = await db[network].collection('claimable_balances')
+    const balances = await db[network].collection('claimable_balances')
         .find(q.query, {
             sort: q.sort,
             limit: q.limit
-        })
+        }) //use maxTimeMS to avoid long-running queries
         .toArray()
 
-    const values = await aggregateEstimatedClaimableBalancesValue(network, records.map(r => r._id))
-    const valueMap = new Map()
-    for (const value of values) {
-        if (value.value) {
-            valueMap.set(value.id.toString('base64'), value.value)
-        }
+    const values = await aggregateEstimatedClaimableBalancesValue(network, balances)
+    const valueMap = new Map(values.map(p => [p.id, p.value]))
+
+    for (let record of balances) {
+        record.value = valueMap.get(record._id) || 0
     }
 
-    for (let record of records) {
-        record.value = valueMap.get(record._id.toString('base64')) || 0
-    }
-
-    const assetResolver = new AssetJSONResolver(network)
-    const accountResolver = new AccountAddressJSONResolver(network)
-
-    const rows = records.map(cb => serializeClaimableBalance(cb, accountResolver, assetResolver))
-
-    await Promise.all([assetResolver.fetchAll(), accountResolver.fetchAll()])
-
-    return preparePagedData(basePath, {sort, order, cursor, limit: q.limit}, rows)
+    return preparePagedData(basePath, {sort, order, cursor, limit: q.limit}, balances.map(serializeClaimableBalance))
 }
 
 async function loadClaimableBalance(network, id) {
-    let parsedId
-    try {
-        if (id.startsWith('B')) {
-            parsedId = new Binary(StrKey.decodeClaimableBalance(id), 0)
-        } else {
-            if (id.length !== 64)
-                throw new Error('Invalid id')
-            parsedId = Binary.createFromHexString(id, 0)
-        }
-    } catch (e) {
-        throw errors.validationError('id', 'Invalid claimable balance id format')
-    }
+    id = validateClaimableBalanceId(id)
 
-    const [cb] = await db[network].collection('claimable_balances')
-        .find({_id: parsedId})
-        .toArray()
+    const cb = await db[network].collection('claimable_balances').findOne({_id: id})
     if (!cb)
         throw new errors.notFound()
-
-    const assetResolver = new AssetJSONResolver(network)
-    const accountResolver = new AccountAddressJSONResolver(network)
-
-    const res = serializeClaimableBalance(cb, accountResolver, assetResolver)
-    await Promise.all([assetResolver.fetchAll(), accountResolver.fetchAll()])
-    return res
+    return serializeClaimableBalance(cb)
 }
 
-function serializeClaimableBalance(cb, accountResolver, assetResolver) {
-    const {_id, uid, created, updated, deleted, sponsor, asset, amount, claimants, cond, claimedBy, value} = cb
+function serializeClaimableBalance(cb) {
+    const id = cb._id
     const res = {
-        id: _id.toString('hex'),
-        address: StrKey.encodeClaimableBalance(_id.buffer),
-        paging_token: uid,
-        sponsor: accountResolver.resolve(sponsor),
-        asset: assetResolver.resolve(asset),
-        amount,
-        claimants: claimants.map((claimant, i) => {
+        id,
+        address: id,
+        paging_token: id,
+        sponsor: cb.sponsor,
+        asset: cb.asset,
+        amount: cb.amount,
+        claimants: cb.claimants.map((claimant, i) => {
             return {
-                destination: accountResolver.resolve(claimant),
-                predicate: convertPredicate(cond[i])
+                destination: claimant,
+                predicate: convertPredicate(cb.cond[i])
             }
         }),
-        created,
-        updated
+        created: cb.created,
+        updated: cb.updated
     }
-    if (claimedBy) {
-        res.claimedBy = accountResolver.resolve(claimedBy)
-        res.claimed = deleted
-    }
-    if (value) {
-        res.value = value
+    if (cb.value) {
+        res.value = cb.value
     }
     return res
 }
@@ -114,9 +74,9 @@ function convertPredicate(predicate) {
     const value = predicate[type]
     switch (type) {
         case 'a':
-            return {abs_before: new Date(value * 1000).toUTCString()}
+            return {abs_before: new Date(Number(value) * 1000).toUTCString()}
         case 'r':
-            return {rel_before: new Date(value * 1000).toUTCString()}
+            return {rel_before: new Date(Number(value) * 1000).toUTCString()}
         case '!':
             return {not: convertPredicate(value)}
         case '&':
@@ -128,15 +88,6 @@ function convertPredicate(predicate) {
         default:
             throw new Error(`Unknown claim condition predicate: ${type}`)
     }
-}
-
-async function queryAccountClaimableBalances(network, account, basePath, query) {
-    validateNetwork(network)
-    validateAccountAddress(account)
-    const accountId = await resolveAccountId(network, account)
-    if (!accountId)
-        throw errors.notFound(`Account ${account} was not found on the network`)
-    return await queryClaimableBalances(network, {'claimants': accountId}, basePath, query)
 }
 
 module.exports = {queryAccountClaimableBalances, loadClaimableBalance}

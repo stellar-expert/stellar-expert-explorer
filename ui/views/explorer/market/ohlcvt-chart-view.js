@@ -31,8 +31,8 @@ function buildUrl(baseEndpoint, from, to) {
     let endpoint = `${baseEndpoint}/candles`
     const queryParams = []
     if (!from && !to) {
-        to = toUnixTimestamp(new Date())
-        from = to - 20 * 365 * 24 * 60 * 60 // 20 years
+        to = trimTimestamp5m(new Date().getTime() + 5 * 60 * 1000) / 1000
+        from = to - 10 * 365 * 24 * 60 * 60 // 10 years
     }
     if (from) {
         queryParams.push('from=' + from)
@@ -44,6 +44,14 @@ function buildUrl(baseEndpoint, from, to) {
         endpoint += '?' + queryParams.join('&')
     }
     return endpoint
+}
+
+function trimTimestamp5m(ts) {
+    if (ts instanceof Date) {
+        ts = ts.getTime()
+    }
+    const minTimeFrame = 5 * 60 * 1000
+    return Math.floor(ts / minTimeFrame) * minTimeFrame
 }
 
 export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, title, currency}) {
@@ -77,8 +85,10 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
             chart.hideLoading()
             loadCallbackRef.current = null
         }
-        setFrom(Math.floor(min / 1000 / 3600) * 3600)
-        setTo(Math.round(max / 1000))
+        const from = trimTimestamp5m(min) / 1000
+        const to = trimTimestamp5m(max) / 1000
+        setFrom(from)
+        setTo(to)
     }, [])
 
 
@@ -100,7 +110,7 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
             chart: {
                 events: {
                     load(e) {
-                        e.target.xAxis[0].setExtremes(new Date().getTime() - 30 * 24 * 60 * 60 * 1000)
+                        e.target.xAxis[0].setExtremes(trimTimestamp5m(new Date()) - 30 * 24 * 60 * 60 * 1000)
                     }
                 }
             },

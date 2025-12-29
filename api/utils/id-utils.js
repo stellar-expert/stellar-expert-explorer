@@ -1,12 +1,4 @@
 /**
- * @param {number} id
- * @return {boolean}
- */
-function isContractId(id) {
-    return id >= (1 << 30) && id < (((1 << 31) >>> 0) - 1)
-}
-
-/**
  * Parse given generic id
  * @param genericId {BigInt|String} - generic id
  */
@@ -26,4 +18,4 @@ function parseGenericId(genericId) {
 }
 
 
-module.exports = {isContractId, parseGenericId}
+module.exports = {parseGenericId}

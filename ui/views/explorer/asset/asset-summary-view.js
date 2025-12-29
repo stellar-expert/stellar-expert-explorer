@@ -1,5 +1,11 @@
 import React from 'react'
-import {Amount, UtcTimestamp, InfoTooltip as Info, withErrorBoundary, AssetLink, AccountAddress} from '@stellar-expert/ui-framework'
+import {
+    Amount,
+    UtcTimestamp,
+    InfoTooltip as Info,
+    withErrorBoundary,
+    AccountAddress
+} from '@stellar-expert/ui-framework'
 import {formatWithPrecision} from '@stellar-expert/formatter'
 import AuthorizationFlags from '../account/account-authorization-flags-view'
 import LockStatus from '../account/account-lock-status-view'

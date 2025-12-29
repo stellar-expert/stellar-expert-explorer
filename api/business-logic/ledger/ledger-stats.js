@@ -36,8 +36,4 @@ async function query24HLedgerStats(network) {
     return entry
 }
 
-async function getLastLedger(){
-
-}
-
 module.exports = {queryLedgerStats, query24HLedgerStats}

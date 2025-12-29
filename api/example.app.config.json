@@ -6,6 +6,11 @@
       "db": "mongodb://127.0.0.1:27087/se_pub802",
       "archive": "mongodb://127.0.0.1:40217/se_archive",
       "opIndex": "se-tx-pubnet000",
+      "tradeIndex": "pub-se-trade-history",
+      "stateIndex": "pub-se-contract-state",
+      "invocationIndex": "pub-se-contract-invocations",
+      "eventIndex": "pub-se-contract-events",
+      "errorIndex": "pub-se-contract-errors",
       "horizon": "https://horizon.stellar.org",
       "network": "PUBLIC",
       "demolisherSecret": "S..."
@@ -14,6 +19,11 @@
       "db": "mongodb://127.0.0.1:27087/se_test802",
       "archive": "mongodb://127.0.0.1:40217/se_test_archive",
       "opIndex": "se-tx-testnet000",
+      "tradeIndex": "test-se-trade-history",
+      "stateIndex": "test-se-contract-state",
+      "invocationIndex": "test-se-contract-invocations",
+      "eventIndex": "test-se-contract-events",
+      "errorIndex": "test-se-contract-errors",
       "horizon": "https://horizon-testnet.stellar.org",
       "network": "TESTNET",
       "demolisherSecret": "S..."

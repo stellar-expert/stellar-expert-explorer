@@ -1,5 +1,4 @@
 const {StrKey, Asset} = require('@stellar/stellar-sdk')
-const {isValidContractAddress} = require('../validators')
 
 function normalizeType(code, type) {
     switch (type) {
@@ -36,7 +35,7 @@ class AssetDescriptor {
             this.issuer = issuer
         } else if (codeOrFullyQualifiedName === nativeAssetName || type === 'native' || (codeOrFullyQualifiedName === 'XLM' && !type)) {
             this.type = 0
-        } else if (isValidContractAddress(codeOrFullyQualifiedName)) {
+        } else if (StrKey.isValidContract(codeOrFullyQualifiedName)) {
             this.type = 4
             this.contract = codeOrFullyQualifiedName
             return

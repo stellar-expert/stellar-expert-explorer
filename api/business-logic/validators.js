@@ -1,6 +1,6 @@
 const {StrKey} = require('@stellar/stellar-sdk')
-const {Long} = require('bson')
 const {networks} = require('../app.config')
+const AssetDescriptor = require('./asset/asset-descriptor')
 const errors = require('./errors')
 
 function validateNetwork(networkName) {
@@ -17,7 +17,7 @@ function validateAssetName(asset) {
         const [code, issuer, type] = asset.split('-')
         if (issuer) {
             if (StrKey.isValidEd25519PublicKey(issuer) && code.length <= 12)
-                return asset
+                return new AssetDescriptor(asset).toFQAN()
         } else {
             if (code === 'XLM')
                 return asset
@@ -46,31 +46,67 @@ function validateContractAddress(contract) {
     return contract
 }
 
+function validateAccountOrContractAddress(address) {
+    if (!isValidAccountAddress(address) && !isValidContractAddress(address))
+        throw errors.validationError('address', 'Invalid address.')
+    return address
+}
+
+function validateTimestamp(ts) {
+    try {
+        ts = parseInt(ts, 10)
+        if (isNaN(ts) || ts < 0 || ts >= 4294967296)
+            return undefined
+        return ts
+    } catch (e) {
+        return undefined
+    }
+}
+
 function validateOfferId(offerId, paramName = 'offerId') {
     let parsed
     try {
-        parsed = Long.fromString(offerId)
+        parsed = BigInt(offerId)
     } catch (e) {
         throw errors.validationError(paramName, 'Invalid offer id.')
     }
-    if (parsed.isNegative())
+    if (parsed < 0n)
         throw errors.validationError(paramName, 'Negative offer id.')
     return parsed
 }
 
+function validateClaimableBalanceId(cbId) {
+    if (/^[0-9a-f]{64}$/.test(cbId)) //convert from legacy format to B-address
+        return StrKey.encodeLiquidityPool(Buffer.from(cbId, 'hex'))
+    if (!StrKey.isValidClaimableBalance(cbId))
+        throw errors.validationError('cbid', 'Invalid claimable balance id.')
+    return cbId
+}
+
 function validatePoolId(poolId) {
-    if (!/^[0-9a-f]{64}$/.test(poolId))
+    if (/^[0-9a-f]{64}$/.test(poolId)) //convert from legacy format to L-address
+        return StrKey.encodeLiquidityPool(Buffer.from(poolId, 'hex'))
+    if (!StrKey.isValidLiquidityPool(poolId))
         throw errors.validationError('poolId', 'Invalid pool id.')
     return poolId
+}
+
+function isValidPoolId(poolId) {
+    return /^[0-9a-f]{64}$/.test(poolId) ||
+        (/^L[A-Z0-9]{55}$/.test(poolId) && StrKey.isValidLiquidityPool(poolId))
 }
 
 module.exports = {
     validateNetwork,
     validateAssetName,
+    validateAccountOrContractAddress,
     validateAccountAddress,
+    validateContractAddress,
+    validateClaimableBalanceId,
     validateOfferId,
     validatePoolId,
+    validateTimestamp,
     isValidAccountAddress,
-    validateContractAddress,
-    isValidContractAddress
+    isValidContractAddress,
+    isValidPoolId
 }

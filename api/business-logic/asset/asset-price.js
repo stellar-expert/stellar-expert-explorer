@@ -1,78 +1,106 @@
 const db = require('../../connectors/mongodb-connector')
-const AssetDescriptor = require('./asset-descriptor')
-const {validateNetwork} = require('../validators')
+const {validateNetwork, isValidPoolId, validatePoolId, validateAssetName} = require('../validators')
 const {preparePagedData} = require('../api-helpers')
 const errors = require('../errors')
+const {locateOhlcPrice} = require('../dex/ohlcvt-aggregator')
 
-async function queryAssetPrices(network, basePath, {asset}) {
+async function queryAssetPrices(network, basePath, {asset}, limit = 200) {
     validateNetwork(network)
 
     if (!asset?.length || !(asset instanceof Array))
         throw errors.validationError('asset', 'Array of asset identifiers expected.')
-    if (asset.length > 200)
+    if (asset.length > limit)
         throw errors.validationError('asset', 'Too many assets.')
 
-    const parsedAssets = {}
-    const parsedPools = {}
-    for (const a of asset) {
-        try {
-            if (/^[a-f0-9]{64}$/.test(a)) {
-                parsedPools[a] = 1
-                continue
-            }
-            const parsed = new AssetDescriptor(a)
-            parsedAssets[parsed.toFQAN()] = 1
-        } catch (e) {
-            throw errors.validationError('asset', `Invalid asset descriptor: "${a}". Expected format: {code}-{issuer}.`)
-        }
-    }
-
-    const prices = [].concat(await Promise.all([
-        findAssetPrices(network, Object.keys(parsedAssets)),
-        findLiquidityPoolPrices(network, Object.keys(parsedPools))
-    ])).flat()
+    asset = asset.map(a => {
+        if (isValidPoolId(a))
+            return validatePoolId(a)
+        return validateAssetName(a)
+    })
+    const prices = await estimateAssetPrices(network, asset)
 
     return preparePagedData(basePath, {
-        asset: prices.map(p => p.asset),
+        asset: prices.keys(),
         sort: 'asset',
         order: 'asc',
         allowedLinks: {
             self: 1
         }
-    }, prices)
+    }, prices.entries().map(([asset, price]) => ({asset, price})))
 }
 
-async function findAssetPrices(network, assets) {
+/**
+ * Estimate asset prices based on OHLCV data from the DEX
+ * @param {String} network
+ * @param {String[]} assets
+ * @param {Number} [ts]
+ * @return {Promise<Map<String,Number>>}
+ */
+async function estimateAssetPrices(network, assets, ts = undefined) {
     if (!assets.length)
-        return []
-    const foundAssets = await db[network].collection('assets')
-        .find({name: {$in: assets}})
-        .sort({name: 1})
-        .project({_id: 0, name: 1, lastPrice: 1})
-        .toArray()
-    return foundAssets
-        .filter(a => a.lastPrice > 0)
-        .map(a => ({
-            asset: a.name,
-            price: a.lastPrice
-        }))
+        return new Map()
+    const requestedAssets = new Set()
+    const requestedPools = new Set()
+    for (const a of assets) {
+        try {
+            if (a.length === 56 && a[0] === 'L') {
+                requestedPools.add(a)
+                continue
+            }
+            requestedAssets.add(a)
+        } catch (e) {
+            throw errors.validationError('asset', `Invalid asset descriptor: "${a}". Expected format: {code}-{issuer}.`)
+        }
+    }
+    //process classic assets
+    const prices = requestedAssets.size?
+        await locateOhlcPrice(network, 'asset_ohlcvt', {$in: Array.from(requestedAssets)}, ts):
+        new Map()
+    //process liquidity pools
+    if (requestedPools.size) {
+        const foundPools = await db[network].collection('liquidity_pools')
+            .find({_id: {$in: Array.from(requestedPools)}})
+            .project({asset: 1, shares: 1, reserves: 1})
+            .toArray()
+
+        if (foundPools.length) {
+            const assetsToPopulate = new Set()
+            for (const {asset} of foundPools) {
+                for (let i = 0; i <= 1; i++) {
+                    const a = asset[i]
+                    if (!prices.has(a)) {
+                        assetsToPopulate.add(a)
+                    }
+                }
+            }
+            const poolAssets = new Map()
+            if (assetsToPopulate.size) {
+                const populated = await estimateAssetPrices(network, Array.from(assetsToPopulate), ts)
+                for (const p of populated) {
+                    poolAssets.set(p.asset, p.price)
+                }
+            }
+            for (const p of foundPools) {
+                if (!(p.shares > 0))
+                    continue
+                let tvl = 0
+                for (let i = 0; i <= 1; i++) {
+                    const a = p.asset[i]
+                    const assetPrice = prices.get(a)||poolAssets.get(a)
+                    if (!assetPrice) {
+                        tvl = 0
+                        break
+                    }
+                    tvl += assetPrice * Number(p.reserves[i])
+                }
+                const price = tvl / Number(p.shares)
+                if (price > 0) {
+                    prices.set(p._id, price)
+                }
+            }
+        }
+    }
+    return prices
 }
 
-async function findLiquidityPoolPrices(network, pools) {
-    if (!pools.length)
-        return []
-    const foundPools = await db[network].collection('liquidity_pools')
-        .find({hash: {$in: pools}})
-        .sort({hash: 1})
-        .project({_id: 0, hash: 1, shares: 1, tvl: 1})
-        .toArray()
-
-    return foundPools
-        .map(p => ({
-            asset: p.hash,
-            price: p.shares > 0 ? p.tvl / p.shares : 0
-        }))
-        .filter(p => p.price > 0)
-}
-
-module.exports = {queryAssetPrices}
+module.exports = {queryAssetPrices, estimateAssetPrices}

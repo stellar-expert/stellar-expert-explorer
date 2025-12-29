@@ -1,7 +1,6 @@
 const db = require('../../connectors/mongodb-connector')
 const {round} = require('../../utils/formatter')
 const {trimDate, unixNow, timeUnits} = require('../../utils/date-utils')
-const {AccountAddressJSONResolver} = require('../account/account-resolver')
 const {validateNetwork} = require('../validators')
 
 const day = timeUnits.day / timeUnits.second

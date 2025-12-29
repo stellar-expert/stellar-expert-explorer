@@ -7,7 +7,7 @@ async function queryContractCode(network, contractOrHash) {
     if (isValidContractAddress(contractOrHash)) {
         const contractInfo = await db[network]
             .collection('contracts')
-            .findOne({address: contractOrHash}, {projection: {wasm: 1}})
+            .findOne({_id: contractOrHash}, {projection: {wasm: 1}})
         if (!contractInfo?.wasm)
             throw errors.notFound('Contract was not found on the ledger. Check if you specified contract address correctly.')
         contractOrHash = contractInfo.wasm.toString('hex')
@@ -35,4 +35,4 @@ function parseContractHash(hash) {
     throw errors.validationError('hash', 'Invalid contract hash.')
 }
 
-module.exports = {queryContractCode, parseContractHash}
+module.exports = {queryContractCode}

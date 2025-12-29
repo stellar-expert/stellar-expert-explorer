@@ -1,79 +1,62 @@
+const config = require('../../app.config')
 const errors = require('../errors')
 const db = require('../../connectors/mongodb-connector')
 const {unixNow} = require('../../utils/date-utils')
 const {round} = require('../../utils/formatter')
 const {validateNetwork, validateContractAddress} = require('../validators')
-const {AccountAddressJSONResolver} = require('../account/account-resolver')
-const {resolveContractId} = require('./contract-resolver')
+const ShardedElasticQuery = require('../../connectors/sharded-elastic-query')
 
 async function queryContractTopUsers(network, contract, func, since) {
     validateNetwork(network)
     validateContractAddress(contract)
-    const contractId = await resolveContractId(network, contract)
-    if (!contractId)
-        throw errors.notFound(`Contract not found`)
 
-    const filter = {contract: contractId}
-    if (since) {
-        since = parseInt(since, 10)
-        if (!isNaN(since) && since > 1706750000) {//no contract calls before 01 feb 2024
-            if (since > unixNow())
-                return [] //no calls in the future
-            filter.ts = {$gte: since}
-        }
-    }
-    if (typeof func === 'string' && func.length < 100) {
-        filter.function = func
-    }
-    let invokers = await db[network]
-        .collection('invocations')
-        .aggregate([
-            {
-                $match: filter
-            },
-            {
-                $group: {
-                    _id: '$initiator',
-                    invocations: {$sum: 1}
-                    //errors: {$sum: '$errors'}
+    const elasticQuery = new ShardedElasticQuery(network, 'invocationIndex')
+
+    const filter = buildInvocationFilters(contract, since, func)
+    if (!filter)
+        return []
+
+    let rows = await elasticQuery.search({
+        filter,
+        aggs: {
+            top: {
+                terms: {
+                    field: 'initiator',
+                    size: 50
                 }
-            },
-            {
-                $sort: {invocations: -1}
-            },
-            {
-                $limit: 50
             }
-        ]).toArray()
-    const accountResolver = new AccountAddressJSONResolver(network)
+        },
+        limit: 0
+    })
+    const result = rows.reduce((map, r) => {
+        for (const {key, doc_count} of r.top.buckets) {
+            let cnt = map.get(key) || 0
+            map.set(key, cnt + doc_count)
+        }
+        return map
+    }, new Map())
 
-    invokers = invokers.map(({_id, invocations}) => ({
-        address: accountResolver.resolve(_id),
-        invocations
-    }))
-    await accountResolver.fetchAll()
-    return invokers
+    const invokers = Array.from(result.entries()).sort((a, b) => b[1] - a[1])
+    return invokers.map(([address, invocations]) => ({address, invocations}))
 }
 
 async function queryContractInvocationStats(network, contract, func, since) {
+    throw new errors.forbidden('Temporary disabled') //TODO: aggregate in the analytics DB and reenable this API afterwards
     validateNetwork(network)
     validateContractAddress(contract)
-    const contractId = await resolveContractId(network, contract)
-    if (!contractId)
-        throw errors.notFound(`Contract not found`)
 
-    const filter = {contract: contractId}
-    if (since) {
-        since = parseInt(since, 10)
-        if (!isNaN(since) && since > 1706750000) {//no contract calls before 01 feb 2024
-            if (since > unixNow())
-                return [] //no calls in the future
-            filter.ts = {$gte: since}
-        }
-    }
-    if (typeof func === 'string' && func.length < 100) {
-        filter.function = func
-    }
+    const elasticQuery = new ShardedElasticQuery(network, 'invocationIndex')
+
+    const filter = buildInvocationFilters(contract, since, func)
+    if (!filter)
+        return []
+
+
+    let rows = await elasticQuery.search({
+        filter,
+        aggs: {},
+        limit: 0
+    })
 
     const day = 86400
     let stats = await db[network]
@@ -120,6 +103,23 @@ async function queryContractInvocationStats(network, contract, func, since) {
         entry.avg_rent_fee = round(entry.avg_rent_fee, 0)
         return entry
     })
+}
+
+function buildInvocationFilters(contract, since, func){
+    const filter = [{term: {contract}}]
+
+    if (since) {
+        since = parseInt(since, 10)
+        if (!isNaN(since) && since > 1706750000) {//no contract calls before 01 feb 2024
+            if (since > unixNow())
+                return null //no need to search
+            filter.push({range: {gte: since}})
+        }
+    }
+    if (typeof func === 'string' && func.length < 100) {
+        filter.push({term: {function: func}})
+    }
+    return filter
 }
 
 module.exports = {queryContractTopUsers, queryContractInvocationStats}

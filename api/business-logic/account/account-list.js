@@ -4,14 +4,12 @@ const QueryBuilder = require('../query-builder')
 const {validateNetwork} = require('../validators')
 const errors = require('../errors')
 const {addPagingToken, calculateSequenceOffset, preparePagedData} = require('../api-helpers')
+const {aggregateAccountHistory} = require('./account-stats-history')
 
 const accountProjectedFields = {
-    address: 1,
     created: 1,
     deleted: 1,
-    payments: 1,
-    trades: 1,
-    _id: 0
+    history: 1
 }
 
 async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}) {
@@ -23,18 +21,12 @@ async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}
     if (StrKey.isValidEd25519PublicKey(search)) {
         const account = await db[network]
             .collection('accounts')
-            .findOne({address: search}, {projection: accountProjectedFields})
+            .findOne({_id: search}, {projection: accountProjectedFields})
         let batch
         if (!account) {
             batch = []
         } else {
-            batch = [{
-                address: account.address,
-                created: account.created,
-                deleted: account.deleted,
-                payments: account.payments,
-                trades: account.trades
-            }]
+            batch = [prepare(account)]
         }
         return preparePagedData(basePath, {sort: 'address', order: 'asc', cursor: 0, limit}, batch)
     }
@@ -60,19 +52,32 @@ async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}
     const idsToSearch = directoryEntries.map(di => di._id)
 
     const accounts = await db[network].collection('accounts')
-        .find({address: {$in: idsToSearch}})
+        .find({_id: {$in: idsToSearch}})
         .project(accountProjectedFields)
         .toArray()
 
     const res = idsToSearch.map(d => {
-        let account = accounts.find(a => a.address === d)
+        let account = accounts.find(a => a._id === d)
         if (!account) {
             account = {address: d, deleted: true, payments: 0, trades: 0, created: 0}
+        } else {
+            account = prepare(account)
         }
         return account
     })
     addPagingToken(res, q.skip)
     return preparePagedData(basePath, {sort: 'score', order: 'asc', cursor: q.skip, limit: q.limit}, res)
+}
+
+function prepare(account) {
+    const {payments, trades} = aggregateAccountHistory(account.history)
+    return {
+        address: account._id,
+        created: account.created,
+        deleted: account.deleted,
+        payments,
+        trades
+    }
 }
 
 module.exports = {queryAllAccounts}

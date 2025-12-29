@@ -1,5 +1,5 @@
 const mongodb = require('../../../connectors/mongodb-connector'),
-    {Int32} = require('bson'),
+    {Int32} = require('mongodb'),
     QueryBuilder = require('../../query-builder'),
     {normalizeOrder, normalizeLimit, preparePagedData} = require('../../api-helpers'),
     {validateAccountAddress} = require('../../validators'),

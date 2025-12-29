@@ -21,7 +21,7 @@ export default function AccountLockStatusView({accountInfo, forAsset = false}) {
 
     return <>
         <dt>{forAsset ? 'Issuer account' : 'Account'} lock status:</dt>
-        <dd>{status !== 'unlocked' && <i className="icon lock"/>}{status}
+        <dd>{status !== 'unlocked' && <i className="icon icon-lock"/>}{status}
             <Info link="https://www.stellar.org/developers/guides/concepts/operations.html#thresholds">{description}</Info>
         </dd>
     </>

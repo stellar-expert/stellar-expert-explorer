@@ -1,1 +1,2 @@
-app.config.json
+*.config.json
+!example.app.config.json

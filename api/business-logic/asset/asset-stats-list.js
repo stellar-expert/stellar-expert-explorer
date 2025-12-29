@@ -1,25 +1,19 @@
 const db = require('../../connectors/mongodb-connector')
-const QueryBuilder = require('../query-builder')
 const {validateNetwork} = require('../validators')
 
 async function queryAssetsOverallStats(network) {
     validateNetwork(network)
-    const q = new QueryBuilder({
-        supply: {$ne: 0},
-        payments: {$gt: 0}
-    })
 
     const [res] = await db[network].collection('assets').aggregate([
         {
-            $match: q.query
+            $match: {'rating.average': {$exists: true}}
         },
         {
             $group: {
                 _id: null,
                 total_assets: {'$sum': 1},
-                payments: {$sum: '$payments'},
-                trades: {$sum: '$trades'},
-                volume: {$sum: '$quoteVolume'}
+                trades: {$sum: '$trades24h'},
+                volume: {$sum: '$volume24h'}
             }
         },
         {
@@ -28,7 +22,7 @@ async function queryAssetsOverallStats(network) {
     ])
         .toArray()
 
-    res.volume = Math.round(res.volume)
+    res.volume = Math.round(res.volume || 0)
     return res
 }
 

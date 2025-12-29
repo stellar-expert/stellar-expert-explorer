@@ -31,10 +31,6 @@ function MarketSummaryView({marketInfo, buying, selling}) {
                         <dd><AssetLink asset={selling}/>
                             <Info>An asset being sold on the market.</Info>
                         </dd>
-                        <dt>Total trades:</dt>
-                        <dd>{formatWithPrecision(marketInfo.trades)}
-                            <Info>Total count of all trades on this market.</Info>
-                        </dd>
                         <dt>24h trades:</dt>
                         <dd>{formatWithPrecision(marketInfo.trades24h)}
                             <Info>Total count of trades on this market during the last 24 hours.</Info>
@@ -57,18 +53,11 @@ function MarketSummaryView({marketInfo, buying, selling}) {
                             <Amount amount={marketInfo.counter_volume7d} asset={buying} adjust decimals={2}/>
                             <Info>Total volume of the counter asset on this market within the last week.</Info>
                         </dd>
-                        {marketInfo.slippage >= 0 && <>
-                            <dt>Slippage resilience:</dt>
-                            <dd>
-                                {marketInfo.slippage * 100}%
-                                <Info>Market slippage resilience rating based on large volume trades simulations.
-                                    The higher this value - the more liquidity is in the market.</Info>
-                            </dd>
-                        </>}
                     </dl>
                 </div>
             </div>
             <div className="column column-50 relative">
+                <div className="space mobile-only"/>
                 <CrawlerScreen><MarketPriceChartView buying={buying} selling={selling} currency={selling.toCurrency()}/></CrawlerScreen>
             </div>
         </div>
@@ -78,7 +67,7 @@ function MarketSummaryView({marketInfo, buying, selling}) {
                     <div className="segment blank">
                         <h3>Orderbook</h3>
                         <hr className="flare"/>
-                        <div style={{marginTop: '-2em'}}/>
+                        <div style={{marginTop: '-2.5em'}} className="desktop-only"/>
                         <Orderbook selling={buying} buying={selling}/>
                     </div>
                 </div>

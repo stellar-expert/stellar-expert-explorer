@@ -1,34 +1,31 @@
 const errors = require('../errors')
 const db = require('../../connectors/mongodb-connector')
 const {preparePagedData} = require('../api-helpers')
-const {validateNetwork} = require('../validators')
+const {validateNetwork, isValidPoolId, validatePoolId} = require('../validators')
 const {matchPoolAssets} = require('../liquidity-pool/liquidity-pool-asset-matcher')
-const {retrieveAssetsMetadata} = require('./asset-meta-resolver')
 const AssetDescriptor = require('./asset-descriptor')
+const {retrieveAssetsMetadata} = require('./asset-meta-resolver')
 
 const limit = 50
 
 async function findLiquidityPools(network, pools) {
-    if (!pools.length) return []
+    if (!pools.length)
+        return []
     const foundPools = await db[network].collection('liquidity_pools')
-        .find({hash: {$in: pools}})
-        .project({hash: 1, asset: 1, type: 1, fee: 1, _id: 0})
+        .find({_id: {$in: pools}})
+        .project({_id: 1, asset: 1, type: 1, fee: 1})
         .toArray()
 
     const poolAssets = await matchPoolAssets(network, foundPools)
     return foundPools.map(pool => {
-        const {hash, asset, ...rest} = pool
+        const {_id, asset, ...rest} = pool
         return {
-            pool: hash,
-            name: hash,
+            pool: _id,
+            name: _id,
             assets: poolAssets.match(pool),
             ...rest
         }
     })
-}
-
-async function findAssets(network, assets) {
-    return await retrieveAssetsMetadata(network, assets)
 }
 
 /**
@@ -49,9 +46,10 @@ async function queryAssetsMeta(network, basePath, query) {
         throw errors.badRequest('Too many "asset" conditions. Maximum 50 searched assets allowed.')
     const assets = []
     const pools = []
-    for (const a of asset) {
+    for (let a of asset) {
         try {
-            if (/^[a-f0-9]{64}$/.test(a)) {
+            if (isValidPoolId(a)) {
+                a = validatePoolId(a)
                 if (!pools.includes(a)) {
                     pools.push(a)
                 }
@@ -68,16 +66,11 @@ async function queryAssetsMeta(network, basePath, query) {
 
     //resolve liquidity pools meta
     const foundPools = await findLiquidityPools(network, pools)
-
     //find assets
-    let foundAssets = await findAssets(network, assets)
+    let foundAssets = await retrieveAssetsMetadata(network, assets)
+
     foundAssets = foundAssets.concat(foundPools)
-
-    for (const record of foundAssets) {
-        delete record._id
-    }
-
-    foundAssets.sort((a, b) => a.asset - b.asset)
+    foundAssets.sort((a, b) => a.name.localeCompare(b.name))
 
     return preparePagedData(basePath, {
         asset: foundAssets.map(a => a.name),

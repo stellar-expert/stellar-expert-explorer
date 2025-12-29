@@ -1,93 +1,41 @@
-const {Long} = require('bson')
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
 const {validateNetwork, validatePoolId} = require('../validators')
-const QueryBuilder = require('../query-builder')
-const {preparePagedData} = require('../api-helpers')
-const {matchPoolAssets} = require('./liquidity-pool-asset-matcher')
+const {preparePagedData, normalizeOrder, normalizeLimit} = require('../api-helpers')
+const {loadDailyOhlcPrices} = require('../dex/ohlcvt-aggregator')
+const {rehydratePoolHistory} = require('./liqudity-pool-aggregation')
+const {unixNow} = require('../../utils/date-utils')
 
-const emptyReserves = ['0', '0']
-
-async function queryLiquidityPoolHistory(network, liquidityPool, path, {order, limit, from, to, cursor}) {
+async function queryLiquidityPoolHistory(network, liquidityPool, path, {order, limit, cursor}) {
     validateNetwork(network)
-    validatePoolId(liquidityPool)
+    liquidityPool = validatePoolId(liquidityPool)
+    order = normalizeOrder(order, -1)
+    limit = normalizeLimit(limit, 20, 200)
+
 
     const pool = await db[network]
         .collection('liquidity_pools')
-        .findOne({hash: liquidityPool})
+        .findOne({_id: liquidityPool})
 
     if (!pool)
         throw errors.notFound('Liquidity pool was not found on the ledger. Check if you specified the liquidity pool id correctly.')
 
-    const q = new QueryBuilder({pool: pool._id})
-        .setSort('_id', order)
-        .setLimit(limit)
+    const from = unixNow() - 180 * 24 * 60 * 60 //take last 6 months
+    const prices = await loadDailyOhlcPrices(network, 'asset_ohlcvt', {$in: pool.asset}, from)
+    let history = rehydratePoolHistory(pool.history, [prices[pool.asset[0]], prices[pool.asset[1]]], from)
 
-    if (from) {
-        q.addQueryFilter({ts: {$gte: from}})
+    if (order === -1) {
+        history.reverse()
     }
-
-    if (to) {
-        q.addQueryFilter({ts: {$lte: to}})
-    }
-
     if (cursor) {
-        q.addQueryFilter({_id: {[q.sort === 1 ? '$gt' : '$lt']: Long.fromString(cursor)}})
+        cursor = parseInt(cursor, 10)
+        const cursorIdx = history.findIndex(h => h.ts === cursor)
+        history = history.slice(cursorIdx + 1)
     }
+    history = history.slice(0, limit)
 
-    const history = await db[network].collection('liquidity_pool_history')
-        .find(q.query)
-        .limit(q.limit)
-        .sort(q.sort)
-        .toArray()
-
-    if (!history.length)
-        throw errors.notFound('Liquidity pool was not found on the ledger. Check if you specified the liquidity pool id correctly.')
-
-    const poolAssets = await matchPoolAssets(network, pool)
-
-    let prevAccounts = 0
-    const res = history.map(entry => {
-        const ts = entry._id.getHighBits()
-        let accounts
-
-        if (entry.accounts > 0) {
-            accounts = prevAccounts = entry.accounts
-        } else {
-            accounts = entry.reserves.some(r => r && r.gt(0)) ? prevAccounts : 0
-        }
-        return {
-            ts,
-            paging_token: entry._id.toString(),
-            shares: entry.shares || '0',
-            accounts,
-            trades: entry.trades || 0,
-            reserves: poolAssets.match(pool, (pa, i) => ({
-                asset: pa.name,
-                amount: (entry.reserves || emptyReserves)[i]
-            })),
-            earned_fees: poolAssets.match(pool, (pa, i) => ({
-                asset: pa.name,
-                amount: entry.earned[i]
-            })),
-            volume: poolAssets.match(pool, (pa, i) => ({
-                asset: pa.name,
-                amount: entry.volume[i]
-            })),
-            total_value_locked: entry.tvl,
-            earned_fees_value: entry.ev,
-            volume_value: entry.vv,
-            deleted: entry.deleted
-        }
-    })
-
-    return preparePagedData(path, {
-        order: q.sort,
-        cursor,
-        limit: q.limit,
-        from,
-        to
-    }, res)
+    return preparePagedData(path, {order, cursor, limit}, history)
 }
+
 
 module.exports = {queryLiquidityPoolHistory}

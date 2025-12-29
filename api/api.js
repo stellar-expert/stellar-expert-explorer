@@ -32,7 +32,6 @@
     })
     //register API routes
     require('./api/routes/explorer-routes')(app)
-    require('./api/routes/relation-routes')(app)
     require('./api/routes/ticker-routes')(app)
     require('./api/routes/payments-routes')(app)
     require('./api/routes/directory-routes')(app)
