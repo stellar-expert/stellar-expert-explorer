@@ -2,7 +2,7 @@ const mongodb = require('../../../connectors/mongodb-connector'),
     {Int32} = require('mongodb'),
     QueryBuilder = require('../../query-builder'),
     {normalizeOrder, normalizeLimit, preparePagedData} = require('../../api-helpers'),
-    {validateAccountAddress} = require('../../validators'),
+    {validateAccountOrContractAddress} = require('../../validators'),
     {parseDate} = require('../../../utils/date-utils')
 
 const mongodbStorage = {
@@ -22,7 +22,7 @@ const mongodbStorage = {
         return this.db.collection('blocked_domains')
     },
     async getDirectoryEntryVersion(address) {
-        validateAccountAddress(address)
+        validateAccountOrContractAddress(address)
         const entry = await this.directoryCollection.findOne({_id: address}, {projection: {version: 1}})
         return entry ? (entry.version || 0) : -1
     },
@@ -43,7 +43,7 @@ const mongodbStorage = {
             .replaceOne({_id: address}, {_id: address, ...entry}, {upsert: true})
     },
     async getDirectoryEntry(address, extended = false) {
-        validateAccountAddress(address)
+        validateAccountOrContractAddress(address)
         const entry = await this.directoryCollection.findOne({_id: address})
         if (!entry) return null
         const {_id, domain, name, tags, notes, version} = entry

@@ -25,7 +25,7 @@ function validateUpdateEntryData({address, domain, name, tags, notes}) {
 
 function validateDeletedEntryData({address, notes, version}) {
     if (!StrKey.isValidEd25519PublicKey(address))
-        throw errors.badRequest('Invalid "address" parameter value. Expected a valid Stellar public key.')
+        throw errors.badRequest('Invalid "address" parameter value. Expected a valid Stellar address.')
     if (notes && (typeof notes !== 'string' || notes.length > 1000))
         throw errors.badRequest('Invalid "notes" parameter value. Expected a string up to 700 characters.')
     if (!(parseInt(version, 10) > 0))
