@@ -1,7 +1,7 @@
 {
   "name": "api.stellar.expert",
   "private": true,
-  "version": "0.30.5",
+  "version": "0.30.6",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "api.js",

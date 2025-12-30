@@ -8,12 +8,11 @@ async function queryAssetRating(network, asset) {
 
     const assetInfo = await db[network].collection('assets')
         .findOne({_id: asset}, {projection: {_id: 0, rating: 1}})
-        .project({rating: 1})
 
     if (!assetInfo)
         throw errors.notFound(`Asset ${asset} wasn't found. Check if you specified the asset correctly.`)
 
-    return Object.assign({asset, rating: assetInfo.rating})
+    return Object.assign({asset, rating: assetInfo.rating || null})
 }
 
 module.exports = {queryAssetRating}
