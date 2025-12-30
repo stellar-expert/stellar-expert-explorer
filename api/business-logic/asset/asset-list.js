@@ -191,10 +191,10 @@ async function querySAL(network, limit = 50) {
         network,
         feedback: 'https://stellar.expert',
         assets: assets.map(a => {
-            if (a.name.length === 56 && a.name[0] === 'C') { //wasm contract
+            if (a._id.length === 56 && a._id[0] === 'C') { //wasm contract
                 return {
                     contract: a._id,
-                    name: cleanupString(a.tomlInfo?.name || a.name),
+                    name: cleanupString(a.tomlInfo?.name || a._id),
                     org: cleanupString(a.tomlInfo?.orgName || 'unknown'),
                     domain: a.domain || undefined,
                     icon: a.tomlInfo?.image || undefined
