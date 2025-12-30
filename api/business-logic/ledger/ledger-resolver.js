@@ -1,4 +1,5 @@
 const db = require('../../connectors/mongodb-connector')
+const {validateNetwork} = require('../validators')
 
 /**
  * Fetch multiple ledgers from analytics db
@@ -7,6 +8,7 @@ const db = require('../../connectors/mongodb-connector')
  * @return {Promise<{}[]>}
  */
 async function fetchLedgers(network, sequences) {
+    validateNetwork(network)
     return await db[network].collection('ledgers').find({_id: {$in: sequences}}).toArray()
 }
 
@@ -17,6 +19,7 @@ async function fetchLedgers(network, sequences) {
  * @return {Promise<{}>}
  */
 async function fetchLedger(network, sequence) {
+    validateNetwork(network)
     return await db[network].collection('ledgers').findOne({_id: sequence})
 }
 
@@ -26,6 +29,7 @@ async function fetchLedger(network, sequence) {
  * @return {Promise<{}>}
  */
 async function fetchLastLedger(network) {
+    validateNetwork(network)
     return await db[network].collection('ledgers').findOne({}, {sort: {_id: -1}})
 }
 
