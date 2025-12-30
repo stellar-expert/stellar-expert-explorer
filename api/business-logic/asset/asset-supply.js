@@ -1,19 +1,25 @@
 const db = require('../../connectors/mongodb-connector')
+const {fromStroops} = require('../../utils/formatter')
 const {validateNetwork, validateAssetName} = require('../validators')
 const errors = require('../errors')
 const {combineAssetHistory} = require('./asset-aggregation')
+const {getSupplyInfo} = require('./asset-stats')
 
 async function queryAssetSupply(network, asset) {
     validateNetwork(network)
     asset = validateAssetName(asset)
 
-    const a = await db[network].collection('assets')
-        .findOne({_id: asset}, {projection: {supply: 1}})
+    const assetInfo = await db[network].collection('assets')
+        .findOne({_id: asset}, {projection: {history: 1, reserve: 1}})
 
-    if (!a)
-        throw errors.notFound('Asset supply was not found on the ledger. Check if you specified the asset correctly.')
-    const history = combineAssetHistory(a.history, asset !== 'XLM')
-    return (history.supply / 10000000).toFixed(7)
+    if (!assetInfo)
+        throw errors.notFound('Asset was not found on the ledger. Check if you specified the asset correctly.')
+    const history = asset !== 'XLM' && combineAssetHistory(assetInfo.history)
+    let {supply, reserve} = await getSupplyInfo(network, assetInfo, history)
+    if (reserve) {
+        supply -= reserve
+    }
+    return fromStroops(supply)
 }
 
 module.exports = {queryAssetSupply}
