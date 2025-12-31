@@ -9,12 +9,33 @@ import ContractBalancesView from './contract-balances-view'
 import ContractDetailsView from './contract-details-view'
 import ContractTabsView from './contract-tabs-view'
 import ContractStatsHistoryView from './contract-stats-history-view'
+import {useDirectory} from '@stellar-expert/ui-framework'
+import {useGithubOAuth} from '../../../business-logic/oauth/oauth-hooks'
+import {isDirectoryAdmin} from '../../directory/is-directory-admin'
+
+function ContractDirectoryActionView({address}) {
+    const directoryInfo = useDirectory(address)
+    const [githubUser] = useGithubOAuth()
+    if (!isDirectoryAdmin(githubUser))
+        return null
+    let link
+    let title
+    if (!directoryInfo) {
+        title = 'Add Directory metadata'
+        link = `/directory/add?address=${address}`
+    } else {
+        title = 'Modify Directory metadata'
+        link = `/directory/${address}/edit`
+    }
+    return <a href={link} className="trigger icon icon-attach" target="_blank" title={title}/>
+}
 
 export default function ContractView() {
     const {id: address} = useParams()
     if (!StrKey.isValidContract(address))
         return <>
             <h2 className="word-break condensed"><span className="dimmed">Contract</span> {address}</h2>
+            <ContractDirectoryActionView address={address}/>
             <ErrorNotificationBlock>
                 Invalid smart contract address. Make sure that you copied it correctly.
             </ErrorNotificationBlock>
