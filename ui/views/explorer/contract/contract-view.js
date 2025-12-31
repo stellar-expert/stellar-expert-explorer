@@ -35,7 +35,6 @@ export default function ContractView() {
     if (!StrKey.isValidContract(address))
         return <>
             <h2 className="word-break condensed"><span className="dimmed">Contract</span> {address}</h2>
-            <ContractDirectoryActionView address={address}/>
             <ErrorNotificationBlock>
                 Invalid smart contract address. Make sure that you copied it correctly.
             </ErrorNotificationBlock>
@@ -56,6 +55,7 @@ export default function ContractView() {
     return <>
         <h2 className="condensed word-break">
             <span className="dimmed">Contract</span> <AccountAddress account={address} link={false} chars="all"/>
+            <ContractDirectoryActionView address={address}/>
         </h2>
         <div className="row space">
             <div className="column column-50">
