@@ -115,9 +115,7 @@ function parseContractDataKey(rawKey) {
 async function countContractStateEntries(network, owner) {
     const queryRequest = {
         index: config.networks[network].stateIndex,
-        query: {
-            term: {owner}
-        }
+        query: {term: {owner}}
     }
     const res = await elastic.count(queryRequest)
     return res.count
