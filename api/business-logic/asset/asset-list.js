@@ -11,6 +11,7 @@ const {
 const {validateNetwork, isValidAccountAddress} = require('../validators')
 const {combineAssetHistory} = require('./asset-aggregation')
 const {estimateAssetPrices} = require('./asset-price')
+const {aggregateAssetSupply} = require('./asset-supply')
 
 const supportedFeaturesSearch = [{
     terms: ['SEP3', 'SEP0003', 'SEP-0003', 'AUTH_SERVER'],
@@ -42,12 +43,12 @@ const projection = {
     history: 1
 }
 
-function mapAssetProps(assets, prices) {
+function mapAssetProps(assets, prices, supplyInfo) {
     return assets.map(({_id, baseVolume, quoteVolume, history, ...other}) => {
         const props = combineAssetHistory(history, _id !== 'XLM')
         return {
             asset: _id,
-            supply: props.supply,
+            supply: supplyInfo[_id] || 0n,
             traded_amount: props.tradedAmount,
             payments_amount: props.paymentsAmount,
             payments: props.payments,
@@ -136,8 +137,12 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
             .toArray()
     }
 
-    const prices = await estimateAssetPrices(network, assets.map(a => a._id))
-    assets = mapAssetProps(assets, prices)
+    const ids = assets.map(a => a._id)
+    const [prices, supply] = await Promise.all([
+        estimateAssetPrices(network, ids),
+        aggregateAssetSupply(network, ids)])
+
+    assets = mapAssetProps(assets, prices, supply)
 
     addPagingToken(assets, q.skip)
 

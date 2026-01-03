@@ -5,6 +5,7 @@ const {validateNetwork, validateAssetName, isValidContractAddress} = require('..
 const AssetDescriptor = require('./asset-descriptor')
 const {estimateAssetPrices} = require('./asset-price')
 const {combineAssetHistory} = require('./asset-aggregation')
+const {aggregateAssetSupply} = require('./asset-supply')
 
 async function queryAssetStats(network, asset) {
     validateNetwork(network)
@@ -33,6 +34,10 @@ async function queryAssetStats(network, asset) {
     const combinedStats = combineAssetHistory(assetInfo.history, asset !== 'XLM')
     const supplyInfo = await getSupplyInfo(network, assetInfo, combinedStats)
     Object.assign(res, supplyInfo)
+    if (asset !== 'XLM') {
+        const supplyInfo = await aggregateAssetSupply(network, [asset])
+        res.supply = supplyInfo[asset]
+    }
     res.trades = combinedStats.trades
     res.traded_amount = combinedStats.tradedAmount
     res.payments = combinedStats.payments
@@ -74,4 +79,4 @@ async function getSupplyInfo(network, asset, combinedStats) {
     return res
 }
 
-module.exports = {queryAssetStats, getSupplyInfo}
+module.exports = {queryAssetStats}
