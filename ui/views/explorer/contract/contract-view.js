@@ -9,6 +9,7 @@ import ContractBalancesView from './contract-balances-view'
 import ContractDetailsView from './contract-details-view'
 import ContractTabsView from './contract-tabs-view'
 import ContractStatsHistoryView from './contract-stats-history-view'
+import AddressDirectoryActionView from '../../directory/address-directory-action-view'
 
 export default function ContractView() {
     const {id: address} = useParams()
@@ -34,7 +35,9 @@ export default function ContractView() {
         </>
     return <>
         <h2 className="condensed word-break">
-            <span className="dimmed">Contract</span> <AccountAddress account={address} link={false} chars="all"/>
+            <span className="dimmed">Contract </span>
+            <AccountAddress account={address} link={false} chars="all" className="plain"/>
+            <AddressDirectoryActionView address={address}/>
         </h2>
         <div className="row space">
             <div className="column column-50">
