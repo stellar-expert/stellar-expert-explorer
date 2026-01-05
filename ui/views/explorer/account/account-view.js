@@ -70,7 +70,7 @@ export default function AccountView() {
     return <div className="account-view">
         <h2 className="word-break relative condensed">
             <span className="dimmed">Account{accountInfo.deleted && <>&nbsp;(deleted)</>}&nbsp;</span>
-            <AccountAddress className="plain" link={false} chars="all"
+            <AccountAddress account={address} className="plain" link={false} chars="all"
                             prefix={<AccountQrCodeToggle account={originalAddress}/>}/>
             <AddressDirectoryActionView address={address}/>
             <Tracer endpoint={`accounts/${address}`}/>
