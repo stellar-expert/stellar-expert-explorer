@@ -15,7 +15,7 @@ export default function ContractDataEntriesView() {
     }
     const contractDataEntries = useExplorerPaginatedApi(
         {
-            path: `contract-data/${id}`,
+            path: `contract-state/${id}`,
             query
         }, {
             autoReverseRecordsOrder: true,
