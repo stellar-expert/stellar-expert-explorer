@@ -136,8 +136,7 @@ class ShardedElasticQuery {
      */
     prepareCountQuery({filter}) {
         return {
-            query: {bool: {filter}},
-            timeout: '3s'
+            query: {bool: {filter}}
         }
     }
 

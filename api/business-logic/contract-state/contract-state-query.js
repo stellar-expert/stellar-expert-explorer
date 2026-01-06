@@ -87,8 +87,7 @@ async function fetchContractStateEntry(network, owner, key, durability) {
     const keyHash = computeHash(contractDataKey, 'base64')
     const queryRequest = {
         index: config.networks[network].stateIndex,
-        id: keyHash,
-        timeout: '3s'
+        id: keyHash
     }
     const res = await elastic.get(queryRequest)
     if (!res.found)
