@@ -22,7 +22,7 @@ async function aggregateAssetSupply(network, assets) {
     const res = {}
     for (const data of totals) {
         for (let {supply, _id} of data) {
-            res[_id] = (res[_id] || 0n) + supply
+            res[_id] = (res[_id] || 0n) + BigInt(supply)
         }
     }
     return res
