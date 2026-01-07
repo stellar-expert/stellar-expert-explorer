@@ -1,4 +1,5 @@
 import React, {useCallback, useState} from 'react'
+import {StrKey} from '@stellar/stellar-base'
 import {shortenString} from '@stellar-expert/formatter'
 import {AssetLink, useAutoFocusRef} from '@stellar-expert/ui-framework'
 import {TypeEditor} from './editors/tx-type-filter-view'
@@ -54,8 +55,16 @@ function OfferIdEditor({value, setValue}) {
 
 function LiquidityPoolEditor({value, setValue}) {
     if (!setValue) {
-        if (!/^[a-f0-9]{64}$/.test(value))
+        if (/^[a-f0-9]{64}$/.test(value)) { //remap hex format to pool id format
+            try {
+                value = StrKey.encodeLiquidityPool(Buffer.from(value, 'hex'))
+            } catch (_) {
+            }
+        }
+        if (!StrKey.isValidLiquidityPool(value))
             return <span className="dimmed">(Invalid pool)</span>
+        if (value.startsWith('native'))
+            return <span className="dimmed">(Native pool)</span>
         return <AssetLink asset={value} link={false}/>
     }
     return <TextEditor value={value} setValue={setValue} mask={/[\W]/g}/>
