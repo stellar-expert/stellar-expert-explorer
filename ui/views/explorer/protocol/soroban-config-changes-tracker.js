@@ -62,7 +62,7 @@ export class SorobanConfigChangesTracker {
         }
         //atomic value
         if (prevValue !== newValue) { //log only if there were changes
-            if (prevValue === undefined) {
+            if (prevValue === undefined || key.startsWith('liveSorobanStateSizeWindow[')) {
                 changes.push(`${key} = ${newValue}`)
             } else {
                 changes.push(`${key} = ${newValue} //before: ${prevValue}`)
