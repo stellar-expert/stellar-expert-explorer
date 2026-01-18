@@ -11,24 +11,10 @@ import AssetHistoryTabsView from './asset-history-tabs-view'
 export default function AssetView() {
     const {params} = useRouteMatch()
     const {data: asset, loaded} = useAssetInfo(params.asset)
-    const [pageMeta, setPageMeta] = useState()
+    const meta = useAssetMeta(params.asset)
     const assetMeta = useAssetMeta(asset?.descriptor)
     const issuerInfo = useAssetIssuerInfo(asset?.descriptor)
-    useEffect(() => {
-        if (loaded && asset?.descriptor) {
-            const {issuer} = asset.descriptor
-            getDirectoryEntry(issuer)
-                .then(data => {
-                    if (data) {
-                        setPageMeta(data)
-                    }
-                })
-        }
-        setPageMeta(undefined)
-    }, [loaded, asset?.descriptor?.issuer])
-    //TODO: fetch TOML metadata instead
-    const {code, issuer} = asset?.descriptor || {}
-    const title = !issuer ? 'XLM Stellar Lumens' : `${code} by ${pageMeta?.domain || pageMeta?.name || issuer}`
+    const title = getTitle(asset, meta)
     usePageMetadata({
         title: 'Asset ' + title,
         description: `Stats, price history, and analytic reports for ${title}.`
@@ -58,4 +44,20 @@ export default function AssetView() {
             <TomlInfo homeDomain={issuerInfo.home_domain} assetMeta={assetMeta} account={issuer} className="space"/>}
         <CrawlerScreen><AssetHistoryTabsView asset={asset}/></CrawlerScreen>
     </>
+}
+
+function getTitle(assetInfo, meta) {
+    if (!assetInfo)
+        return ''
+    if (assetInfo.asset === 'XLM')
+        return 'XLM - Stellar Lumens'
+    if (assetInfo.isContract) {
+        let res = [assetInfo.code, assetInfo.name !== assetInfo.asset ? assetInfo.name : undefined].filter(v => !!v).join(' ') + ' ' + assetInfo.asset
+        if (meta) {
+            res += ' ' + (meta.domain || meta.name)
+        }
+        return res
+    }
+    const {code, issuer} = assetInfo?.descriptor || {}
+    return `${code} by ${meta?.domain || meta?.name || issuer}`
 }

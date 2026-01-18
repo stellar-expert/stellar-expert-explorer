@@ -8,26 +8,6 @@ const {retrieveAssetsMetadata} = require('./asset-meta-resolver')
 
 const limit = 50
 
-async function findLiquidityPools(network, pools) {
-    if (!pools.length)
-        return []
-    const foundPools = await db[network].collection('liquidity_pools')
-        .find({_id: {$in: pools}})
-        .project({_id: 1, asset: 1, type: 1, fee: 1})
-        .toArray()
-
-    const poolAssets = await matchPoolAssets(network, foundPools)
-    return foundPools.map(pool => {
-        const {_id, asset, ...rest} = pool
-        return {
-            pool: _id,
-            name: _id,
-            assets: poolAssets.match(pool),
-            ...rest
-        }
-    })
-}
-
 /**
  * Retrieve metadata for a group of assets or liquidity pools
  * @param {String} network - Stellar network
@@ -80,6 +60,26 @@ async function queryAssetsMeta(network, basePath, query) {
             self: 1
         }
     }, foundAssets)
+}
+
+async function findLiquidityPools(network, pools) {
+    if (!pools.length)
+        return []
+    const foundPools = await db[network].collection('liquidity_pools')
+        .find({_id: {$in: pools}})
+        .project({_id: 1, asset: 1, type: 1, fee: 1})
+        .toArray()
+
+    const poolAssets = await matchPoolAssets(network, foundPools)
+    return foundPools.map(pool => {
+        const {_id, asset, ...rest} = pool
+        return {
+            pool: _id,
+            name: _id,
+            assets: poolAssets.match(pool),
+            ...rest
+        }
+    })
 }
 
 module.exports = {queryAssetsMeta}

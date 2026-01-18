@@ -35,7 +35,8 @@ export function useAssetInfo(asset) {
                 volume: fromStroops(stats.volume),
                 volume7d: fromStroops(stats.volume7d),
                 price: stats.price,
-                price_dynamic: price7d.map(([ts, price]) => [ts * 1000, price])
+                price_dynamic: price7d.map(([ts, price]) => [ts * 1000, price]),
+                isContract: asset.startsWith('C') && asset.length === 56
             }
         }
     })

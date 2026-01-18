@@ -29,7 +29,7 @@ export default function AssetHistoryTabsView({asset}) {
             isDefault: true,
             render: () => <TxHistoryView {...operationsHistoryProps}/>
         },
-        {
+        !asset.isContract && {
             name: 'trades',
             title: 'Trades',
             render: () => <>
@@ -37,7 +37,7 @@ export default function AssetHistoryTabsView({asset}) {
                 <TradesView {...operationsHistoryProps}/>
             </>
         },
-        {
+        !asset.isContract && {
             name: 'markets',
             title: 'Markets',
             render: () => <AssetMarkets asset={asset}/>
@@ -47,6 +47,6 @@ export default function AssetHistoryTabsView({asset}) {
             title: 'Asset Holders',
             render: () => <AssetTokenHoldersList asset={asset}/>
         }
-    ]
+    ].filter(v => !!v)
     return <Tabs right tabs={tabs} selectedTab={operationsFilter} onChange={selectTab}/>
 }

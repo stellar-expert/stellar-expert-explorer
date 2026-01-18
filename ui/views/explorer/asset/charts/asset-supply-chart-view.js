@@ -1,7 +1,8 @@
 import React from 'react'
+import {useAssetHistory} from '../../../../business-logic/api/asset-api'
 import Chart from '../../../components/chart/chart'
 import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
-import {useAssetHistory} from '../../../../business-logic/api/asset-api'
+import {day, trimDate} from '../../../../util/date-utils'
 
 export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noTitle}) {
     const {data, loaded} = useAssetHistory(asset.descriptor)
@@ -45,7 +46,6 @@ export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noT
 
     const assetSupply = []
     const assetTrustlines = []
-    const day = 24 * 60 * 60 * 1000
     let maxTs = 0
 
     if (data.history) {
@@ -74,17 +74,16 @@ export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noT
         }
     }
 
-    if (assetSupply && assetSupply.length) {
-        assetSupply.unshift([assetSupply[0][0] - day, 0])
-        assetTrustlines.unshift([assetTrustlines[0][0] - day, 0])
+    if (assetSupply?.length) {
+        assetSupply.unshift([assetSupply[0][0] - day * 1000, 0])
+        assetTrustlines.unshift([assetTrustlines[0][0] - day * 1000, 0])
     }
 
+    const today = trimDate(new Date(), day) * 1000;
     [assetSupply, assetTrustlines].forEach(container => {
-        const lastValue = container[container.length - 1]
-        if (lastValue !== undefined) {
-            if (lastValue[0] < maxTs && lastValue[1] !== 0) {
-                container.push([maxTs, lastValue[1]])
-            }
+        const last = container[container.length - 1]
+        if (last[0] < today) {
+            container.push([today, last[1]])
         }
     })
 

@@ -104,10 +104,22 @@ async function retrieveAssetsMetadata(network, assets) {
     })
 
     //process Directory info
-    const [blockedDomains, issuerWarnings] = await Promise.all([
+    const [blockedDomains, issuerWarnings, contractAssets] = await Promise.all([
         checkBlockedDomains(network, Array.from(allDomains)), //check whether any of the found domains has been blocked
         checkIssuersWarnings(network, Array.from(allIssuers)) //check warnings set to issuer accounts
     ])
+    const tokens = foundAssets.map(a => a.name).filter(a => a.startsWith('C') && a.length === 56)
+    if (tokens.length) {
+        const tokenInfo = await retrieveAssetContractsMeta(network, tokens)
+        if (tokenInfo.size > 0) {
+            for (const a of foundAssets) {
+                const tokenMeta = tokenInfo.get(a.asset)
+                if (tokenMeta) {
+                    Object.assign(a, tokenMeta)
+                }
+            }
+        }
+    }
 
     if (blockedDomains.length) {
         const blocked = new Set(blockedDomains)
@@ -135,6 +147,32 @@ async function retrieveAssetsMetadata(network, assets) {
 }
 
 /**
+ * Retrieve contract properties for contract assets
+ * @param {String} network - Stellar network
+ * @param {String[]} contracts - Contract ids
+ * @return {Promise<Map<String, {code: String, name: String, decimals: Number, traits: String[]}>>}
+ */
+async function retrieveAssetContractsMeta(network, contracts) {
+    const res = await db[network].collection('contracts').find({_id: {$in: contracts}}, {
+        projection: {
+            code: 1,
+            name: 1,
+            decimals: 1,
+            traits: 1
+        }
+    }).toArray()
+    return res.reduce((map, contract) => {
+        map.set(contract._id, {
+            code: contract.code,
+            tokenName: contract.name,
+            decimals: contract.decimals,
+            features: contract.traits
+        })
+        return map
+    }, new Map())
+}
+
+/**
  * @param {string} domain
  * @return {string[]}
  */
@@ -150,4 +188,4 @@ function retrieveTopLevelDomains(domain) {
     return res
 }
 
-module.exports = {retrieveAssetsMetadata, xlmMeta}
+module.exports = {retrieveAssetsMetadata, retrieveAssetContractsMeta, xlmMeta}

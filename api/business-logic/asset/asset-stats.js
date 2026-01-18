@@ -6,6 +6,7 @@ const AssetDescriptor = require('./asset-descriptor')
 const {estimateAssetPrices} = require('./asset-price')
 const {combineAssetHistory} = require('./asset-aggregation')
 const {aggregateAssetSupply} = require('./asset-supply')
+const {retrieveAssetContractsMeta} = require('./asset-meta-resolver')
 
 async function queryAssetStats(network, asset) {
     validateNetwork(network)
@@ -60,6 +61,13 @@ async function queryAssetStats(network, asset) {
         const contract = await db[network].collection('contracts').findOne({_id: contractAddress}, {projection: {_id: 1}})
         if (contract) {
             res.contract = contractAddress
+        }
+        res.decimals = 7 //7 by default for classic assets
+    } else {
+        const mapped = await retrieveAssetContractsMeta(network, [asset])
+        const contractInfo = mapped.get(asset)
+        if (contractInfo) {
+            Object.assign(res, contractInfo)
         }
     }
 

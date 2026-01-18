@@ -1,6 +1,11 @@
 const db = require('../../connectors/mongodb-connector')
 const {estimateAssetPrices} = require('../asset/asset-price')
-const {validateTimestamp, validateNetwork, validateAccountAddress, validateAccountOrContractAddress} = require('../validators')
+const {
+    validateTimestamp,
+    validateNetwork,
+    validateAccountAddress,
+    validateAccountOrContractAddress
+} = require('../validators')
 
 /**
  * @param {String} network - Stellar network id
@@ -14,7 +19,7 @@ async function queryBalances(network, address, ts) {
     if (ts) {
         //fetch balances at a given point in time
         balances = await db[network].collection('balances')
-            .find({address}, {projection: {asset: 1, history: 1, flags: 1, updated:1, _id: 0}})
+            .find({address}, {projection: {asset: 1, history: 1, flags: 1, updated: 1, deleted: 1, _id: 0}})
             .limit(1000)
             .toArray()
 
@@ -26,12 +31,12 @@ async function queryBalances(network, address, ts) {
                         break
                     balance = record[1]
                 }
-                return {asset: b.asset, balance, flags: b.flags, updated: b.updated}
+                return {asset: b.asset, balance, flags: b.flags, updated: b.updated, deleted: b.deleted}
             })
     } else {
         //fetch current balances
         balances = await db[network].collection('balances')
-            .find({address}, {projection: {asset: 1, balance: 1, flags: 1, updated:1, _id: 0}})
+            .find({address}, {projection: {asset: 1, balance: 1, flags: 1, updated: 1, deleted: 1, _id: 0}})
             .limit(1000)
             .toArray()
     }
@@ -46,6 +51,9 @@ async function queryBalances(network, address, ts) {
             balance: b.balance,
             flags: b.flags || 1,
             updated: b.updated
+        }
+        if (b.deleted) {
+            res.deleted = true
         }
         const price = assetPrices.get(b.asset)
         if (price) {
@@ -79,7 +87,7 @@ async function queryBalances(network, address, ts) {
     return res
 }
 
-async function estimateAddressValue(network, address, currency = 'USD', ts = undefined){
+async function estimateAddressValue(network, address, currency = 'USD', ts = undefined) {
     validateNetwork(network)
     validateAccountOrContractAddress(address)
 

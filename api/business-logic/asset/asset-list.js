@@ -31,6 +31,9 @@ const supportedFeaturesSearch = [{
 }, {
     terms: ['SEP31', 'SEP0031', 'SEP-0031', 'DIRECT_PAYMENT_SERVER'],
     filter: 'sep31'
+}, {
+    terms: ['SEP41', 'SEP0041', 'SEP-0041', 'TOKEN'],
+    filter: 'sep41'
 }]
 
 const projection = {
