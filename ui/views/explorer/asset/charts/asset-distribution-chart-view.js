@@ -1,5 +1,5 @@
 import React from 'react'
-import {useDependantState} from '@stellar-expert/ui-framework'
+import {useDependantState, useAssetMeta} from '@stellar-expert/ui-framework'
 import Chart from '../../../components/chart/chart'
 import {apiCall} from '../../../../models/api'
 
@@ -12,6 +12,7 @@ function trimEmptyDistributionValues(data) {
 }
 
 export default function AssetDistributionChartView({asset}) {
+    const assetMeta = useAssetMeta(asset.asset)
     const [distribution, setDistribution] = useDependantState(() => {
         apiCall(`asset/${asset.descriptor.toFQAN()}/distribution`)
             .then(distribution => setDistribution(distribution))
@@ -23,7 +24,8 @@ export default function AssetDistributionChartView({asset}) {
         return <Chart.Loader/>
     trimEmptyDistributionValues(distribution)
     const code = asset.descriptor.toCurrency()
-    const title = `${code} holders distribution`
+    const assetCode = assetMeta?.code || code
+    const title = `${assetCode} holders distribution`
     const options = {
         plotOptions: {
             column: {
@@ -37,14 +39,14 @@ export default function AssetDistributionChartView({asset}) {
         },
         yAxis: [{
             title: {
-                text: 'Accounts holding ' + code
+                text: 'Accounts holding ' + assetCode
             },
             type: 'logarithmic'
         }],
         series: [{
             type: 'column',
             name: 'Holders',
-            data: distribution.map(d => [d.range + ' ' + code, d.holders])
+            data: distribution.map(d => [d.range + ' ' + assetCode, d.holders])
         }]
     }
     return <Chart {...{title, options}}/>
