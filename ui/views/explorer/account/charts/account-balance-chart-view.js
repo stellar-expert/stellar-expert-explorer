@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Dropdown, AssetSelector} from '@stellar-expert/ui-framework'
+import {Dropdown, AssetSelector, formatExplorerLink} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {navigation} from '@stellar-expert/navigation'
@@ -98,6 +98,9 @@ export default Chart.withErrorBoundary(function AccountBalanceChartView({account
             <div>
                 Asset: <AssetSelector value={selectedAsset} predefinedAssets={account.assets} restricted
                                       onChange={setSelectedAsset}/>
+                &nbsp;
+                <a href={formatExplorerLink('asset', selectedAsset)} target="_blank" class="icon-open-new-window"
+                   title="Asset details"/>
             </div>
             <div>
                 Scale: <Dropdown value={scale} options={['linear', 'logarithmic']} onChange={setScale}/>&emsp;
