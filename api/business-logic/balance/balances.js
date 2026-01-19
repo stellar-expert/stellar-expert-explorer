@@ -66,6 +66,10 @@ async function queryBalances(network, address, ts) {
         const vd = (b.value ?? 0) - (a.value ?? 0)
         if (vd !== 0)
             return vd
+        if (a.deleted != b.deleted)
+            return b.deleted ? -1 : 1
+        if (a.balance !== b.balance)
+            return Number(b.balance - a.balance)
         return a.asset > b.asset ? 1 : -1
     })
     //ensure XLM is always first in the list
