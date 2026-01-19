@@ -1,5 +1,11 @@
 import React from 'react'
-import {AssetLink, AccountAddress, CopyToClipboard, UtcTimestamp, formatExplorerLink} from '@stellar-expert/ui-framework'
+import {
+    AssetLink,
+    AccountAddress,
+    CopyToClipboard,
+    UtcTimestamp,
+    formatExplorerLink
+} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 import ContractStorageInfo from '../../components/contract-storage-info'
 import ContractCodeValidationStatusView from './contract-code-validation-status-view'
@@ -25,7 +31,8 @@ export default function ContractDetailsView({contract}) {
             </>}
             {contract.versions > 0 && <>
                 <dt>Versions:</dt>
-                <dd><a href={formatExplorerLink('contract', contract.address + '/versions')}>{contract.versions}</a></dd>
+                <dd><a href={formatExplorerLink('contract', contract.address + '/versions')}>{contract.versions}</a>
+                </dd>
             </>}
             <ContractStorageInfo stats={contract}/>
         </dl>
@@ -39,6 +46,19 @@ function ContractType({contract}) {
             <dd>WASM contract</dd>
             <dt>Hash:</dt>
             <dd>{shortenString(contract.wasm, 16)}<CopyToClipboard text={contract.wasm}/></dd>
+            {contract.features?.includes('sep41') && <>
+                <dt>Asset:</dt>
+                <dd><AssetLink asset={contract.address}/></dd>
+            </>}
+            {contract.code && <>
+                <dt>Name:</dt>
+                <dd>{contract.code} {contract.token_name ?
+                    <span className="dimmed">({contract.token_name})</span> : ''}</dd>
+            </>}
+            {contract.features && <>
+                <dt>Traits:</dt>
+                <dd>{contract.features.join()}</dd>
+            </>}
         </>
     if (contract.asset)
         return <>

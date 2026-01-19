@@ -164,7 +164,7 @@ async function retrieveAssetContractsMeta(network, contracts) {
     return res.reduce((map, contract) => {
         map.set(contract._id, {
             code: contract.code,
-            tokenName: contract.name,
+            token_name: contract.name,
             decimals: contract.decimals,
             features: contract.traits
         })

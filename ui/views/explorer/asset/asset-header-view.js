@@ -32,7 +32,7 @@ export default withErrorBoundary(function AssetHeaderView({asset, subtitle}) {
                 </div>}
                 {!!asset.isContract && <div className="text-small" style={{margin: '-0.8em 0'}}>
                     Contract <AccountAddress account={asset.asset} chars={12}/>
-                    {!!assetMeta?.tokenName && <> {assetMeta?.tokenName}</>}
+                    {!!assetMeta?.token_name && <> {assetMeta.token_name}</>}
                 </div>}
             </div>
             <CrawlerScreen>
