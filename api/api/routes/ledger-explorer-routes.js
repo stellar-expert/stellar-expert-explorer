@@ -1,10 +1,11 @@
 const {registerRoute} = require('../router')
+const {normalizeLimit} = require('../../business-logic/api-helpers')
 const {queryLedgerStats, query24HLedgerStats} = require('../../business-logic/ledger/ledger-stats')
 const {queryProtocolHistory} = require('../../business-logic/ledger/protocol-versions')
-const {queryTimestampFromSequence, querySequenceFromTimestamp} = require('../../business-logic/ledger/ledger-timestamp-resolver')
-const {fetchArchiveLedger} = require('../../business-logic/archive/archive-locator')
+const {queryTsFromSequence, querySequenceFromTs} = require('../../business-logic/ledger/ledger-timestamp-resolver')
+const {fetchArchiveLedger, fetchArchiveLedgers} = require('../../business-logic/archive/archive-locator')
+const {fetchLastLedger, fetchLedger, fetchLastNLedgers} = require('../../business-logic/ledger/ledger-resolver')
 const {waitForLedger} = require('../../business-logic/ledger/ledger-stream')
-const {fetchLastLedger, fetchLedger} = require('../../business-logic/ledger/ledger-resolver')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -25,12 +26,12 @@ module.exports = function (app) {
     registerRoute(app,
         'ledger/timestamp-from-sequence',
         {cache: 'stats', cors: 'open'},
-        ({params, query}) => queryTimestampFromSequence(params.network, query))
+        ({params, query}) => queryTsFromSequence(params.network, query))
 
     registerRoute(app,
         'ledger/sequence-from-timestamp',
         {cache: 'stats', cors: 'open'},
-        ({params, query}) => querySequenceFromTimestamp(params.network, query))
+        ({params, query}) => querySequenceFromTs(params.network, query))
 
     registerRoute(app,
         'ledger/stream',
@@ -43,18 +44,35 @@ module.exports = function (app) {
         async ({params}) => prepareLedgerData(params.network, await fetchLastLedger(params.network)))
 
     registerRoute(app,
+        'ledger/lastn',
+        {},
+        async ({params, query}) => {
+            const count = normalizeLimit(query.limit, 10, 200)
+            const ledgers = await fetchLastNLedgers(params.network, count)
+            const archiveLedgers = await fetchArchiveLedgers(params.network, ledgers[0]._id, count)
+            const res = []
+            for (let i = 0; i < ledgers.length; i++) {
+                res.push(await prepareLedgerData(params.network, ledgers[i], archiveLedgers[i]))
+            }
+            return res
+
+        })
+
+    registerRoute(app,
         'ledger/:sequence',
         {},
         async ({params}) => prepareLedgerData(params.network, await fetchLedger(params.network, parseInt(params.sequence, 10))))
 }
 
-async function prepareLedgerData(network, stats) {
+async function prepareLedgerData(network, stats, archiveLedger) {
     if (!stats)
         return null
-    const fromArchive = await fetchArchiveLedger(network, stats?._id)
-    if (stats?._id !== fromArchive?.sequence)
+    if (!archiveLedger) {
+        archiveLedger = await fetchArchiveLedger(network, stats?._id)
+    }
+    if (stats?._id !== archiveLedger?.sequence)
         throw new Error('Ledgers mismatch')
-    return {
+    const res = {
         sequence: stats.sequence,
         ts: stats.ts,
         protocol: stats.version,
@@ -63,6 +81,27 @@ async function prepareLedgerData(network, stats) {
         txSuccess: stats.tx,
         txFailed: stats.failed,
         operations: stats.ops,
-        ...fromArchive
+        ...archiveLedger
     }
+    if (stats.fees) {
+        res.fees = {
+            bids: formatFees(stats.bids),
+            charged: formatFees(stats.fees)
+        }
+        res.capacity = stats.capacity
+    }
+    return res
+}
+
+const percentileThresholds = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99]
+
+function formatFees(fees) {
+    const res = {
+        min: fees[0],
+        max: fees[fees.length - 1]
+    }
+    for (let i = 0; i < percentileThresholds.length; i++) {
+        res['p' + percentileThresholds[i]] = fees[i + 1]
+    }
+    return res
 }
