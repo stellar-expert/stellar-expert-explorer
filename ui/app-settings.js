@@ -13,7 +13,8 @@ class AppSettings {
         }
 
         const networkFromUrl = ((/^\/(?:\w+)\/(\w+)/i.exec(location.pathname) || [])[1] || '').toLowerCase()
-        setStellarNetwork(networkFromUrl || Object.keys(this.networks)[0])
+        const availableNetworks = Object.keys(this.networks)
+        setStellarNetwork(availableNetworks.includes(networkFromUrl) ? networkFromUrl : availableNetworks[0])
     }
 
     directoryAdmins
