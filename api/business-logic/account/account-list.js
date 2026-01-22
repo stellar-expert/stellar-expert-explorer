@@ -4,6 +4,7 @@ const QueryBuilder = require('../query-builder')
 const {validateNetwork} = require('../validators')
 const errors = require('../errors')
 const {addPagingToken, calculateSequenceOffset, preparePagedData} = require('../api-helpers')
+const {aggregateContractHistory} = require('../contracts/contract-aggregation')
 const {aggregateAccountHistory} = require('./account-stats-history')
 
 const accountProjectedFields = {
@@ -21,6 +22,20 @@ async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}
     if (StrKey.isValidEd25519PublicKey(search)) {
         const account = await db[network]
             .collection('accounts')
+            .findOne({_id: search}, {projection: accountProjectedFields})
+        let batch
+        if (!account) {
+            batch = []
+        } else {
+            batch = [prepare(account)]
+        }
+        return preparePagedData(basePath, {sort: 'address', order: 'asc', cursor: 0, limit}, batch)
+    }
+
+
+    if (StrKey.isValidContract(search)) {
+        const account = await db[network]
+            .collection('contracts')
             .findOne({_id: search}, {projection: accountProjectedFields})
         let batch
         if (!account) {
@@ -55,9 +70,14 @@ async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}
         .find({_id: {$in: idsToSearch}})
         .project(accountProjectedFields)
         .toArray()
+    const contracts = await db[network].collection('contracts')
+        .find({_id: {$in: idsToSearch}})
+        .project(accountProjectedFields)
+        .toArray()
+
 
     const res = idsToSearch.map(d => {
-        let account = accounts.find(a => a._id === d)
+        let account = accounts.find(a => a._id === d) || contracts.find(c => c._id === d)
         if (!account) {
             account = {address: d, deleted: true, payments: 0, trades: 0, created: 0}
         } else {
@@ -70,7 +90,9 @@ async function queryAllAccounts(network, basePath, {search, cursor, limit, skip}
 }
 
 function prepare(account) {
-    const {payments, trades} = aggregateAccountHistory(account.history)
+    const {payments, trades} = account._id.startsWith('C') ?
+        aggregateContractHistory(account.history) :
+        aggregateAccountHistory(account.history)
     return {
         address: account._id,
         created: account.created,
