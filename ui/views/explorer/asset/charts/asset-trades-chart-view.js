@@ -1,14 +1,16 @@
 import React from 'react'
+import {useAssetMeta} from '@stellar-expert/ui-framework'
 import Chart from '../../../components/chart/chart'
 import {useAssetHistory} from '../../../../business-logic/api/asset-api'
 
 export default Chart.withErrorBoundary(function AssetTradesChartView({asset}) {
     const {data, loaded} = useAssetHistory(asset)
+    const assetMeta = useAssetMeta(asset.asset)
     if (!loaded)
         return <Chart.Loader/>
     if (!(data?.history instanceof Array))
         return <Chart.Loader unavailable/>
-    const code = asset.descriptor.toCurrency()
+    const code = assetMeta?.code || asset.descriptor.toCurrency()
     const title = `Total traded ${code} amount`
     const options = {
         plotOptions: {

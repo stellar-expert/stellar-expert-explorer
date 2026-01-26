@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react'
-import {getDirectoryEntry, useAssetMeta, usePageMetadata} from '@stellar-expert/ui-framework'
+import React from 'react'
+import {usePageMetadata} from '@stellar-expert/ui-framework'
 import {useRouteMatch} from 'react-router'
 import {useAssetInfo, useAssetIssuerInfo} from '../../../business-logic/api/asset-api'
 import ErrorNotificationBlock from '../../components/error-notification-block'
@@ -11,10 +11,8 @@ import AssetHistoryTabsView from './asset-history-tabs-view'
 export default function AssetView() {
     const {params} = useRouteMatch()
     const {data: asset, loaded} = useAssetInfo(params.asset)
-    const meta = useAssetMeta(params.asset)
-    const assetMeta = useAssetMeta(asset?.descriptor)
     const issuerInfo = useAssetIssuerInfo(asset?.descriptor)
-    const title = getTitle(asset, meta)
+    const title = getTitle(asset)
     usePageMetadata({
         title: 'Asset ' + title,
         description: `Stats, price history, and analytic reports for ${title}.`
@@ -41,18 +39,21 @@ export default function AssetView() {
     return <>
         <AssetDetailsView asset={asset}/>
         {!!issuerInfo?.home_domain &&
-            <TomlInfo homeDomain={issuerInfo.home_domain} assetMeta={assetMeta} account={asset.descriptor.issuer} className="space"/>}
+            <TomlInfo homeDomain={issuerInfo.home_domain} assetMeta={asset.meta} account={asset.descriptor.issuer}
+                      className="space"/>}
         <CrawlerScreen><AssetHistoryTabsView asset={asset}/></CrawlerScreen>
     </>
 }
 
-function getTitle(assetInfo, meta) {
+function getTitle(assetInfo) {
     if (!assetInfo)
         return ''
     if (assetInfo.asset === 'XLM')
         return 'XLM - Stellar Lumens'
+    const {meta} = assetInfo
     if (assetInfo.isContract) {
-        let res = [assetInfo.code, assetInfo.name !== assetInfo.asset ? assetInfo.name : undefined].filter(v => !!v).join(' ') + ' ' + assetInfo.asset
+        let res = [assetInfo.code, assetInfo.name !== assetInfo.asset ? assetInfo.name : undefined]
+            .filter(v => !!v).join(' ') + ' ' + assetInfo.asset
         if (meta) {
             res += ' ' + (meta.domain || meta.name)
         }

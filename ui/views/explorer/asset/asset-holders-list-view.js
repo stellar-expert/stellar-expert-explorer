@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {AccountAddress, Amount, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
-import {fromStroops} from '@stellar-expert/formatter'
 import {getCssVar, hexToRgbArray, rgbArrayToRgba} from '../../../util/css-var-utils'
 import GridDataActionsView from '../../components/grid-data-actions'
 import AssetHolderPositionView from './asset-holder-position-view'
@@ -54,7 +53,7 @@ export default function AssetHoldersListView({asset}) {
                                 <AccountAddress account={account} chars="all"/>
                             </td>
                             <td data-header="Balance: " className="text-right nowrap condensed">
-                                <Amount adjust icon={false} amount={balance} asset={asset.descriptor.toCurrency()}/>
+                                <Amount adjust icon={false} amount={balance} asset={asset.descriptor.toFQAN()}/>
                                 {share > 0 && <span className="dimmed text-small"> ({share}%)</span>}
                             </td>
                         </tr>

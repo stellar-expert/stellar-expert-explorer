@@ -1,7 +1,6 @@
 import React from 'react'
-import {useDependantState, useAssetMeta} from '@stellar-expert/ui-framework'
+import {useAssetMeta, useExplorerApi} from '@stellar-expert/ui-framework'
 import Chart from '../../../components/chart/chart'
-import {apiCall} from '../../../../models/api'
 
 function trimEmptyDistributionValues(data) {
     for (let i = 0; i < 2; i++) {
@@ -13,18 +12,13 @@ function trimEmptyDistributionValues(data) {
 
 export default function AssetDistributionChartView({asset}) {
     const assetMeta = useAssetMeta(asset.asset)
-    const [distribution, setDistribution] = useDependantState(() => {
-        apiCall(`asset/${asset.descriptor.toFQAN()}/distribution`)
-            .then(distribution => setDistribution(distribution))
-            .catch(e => setDistribution(null))
-    }, [asset.descriptor.toFQAN()])
-    if (distribution === null)
-        return null
-    if (!asset || !distribution?.length)
+    const {data: distribution, loaded} = useExplorerApi(`asset/${asset.descriptor.toFQAN()}/distribution`)
+    if (!loaded)
         return <Chart.Loader/>
+    if (!distribution?.length)
+        return null
     trimEmptyDistributionValues(distribution)
-    const code = asset.descriptor.toCurrency()
-    const assetCode = assetMeta?.code || code
+    const assetCode = assetMeta?.code || asset.descriptor.toCurrency()
     const title = `${assetCode} holders distribution`
     const options = {
         plotOptions: {

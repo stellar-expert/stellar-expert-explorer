@@ -2,7 +2,7 @@ import React, {useCallback, useRef} from 'react'
 import cn from 'classnames'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {formatWithAutoPrecision, formatWithPrecision, fromStroops} from '@stellar-expert/formatter'
-import {AssetLink, useOnScreen} from '@stellar-expert/ui-framework'
+import {AssetLink, useAssetMeta, useOnScreen} from '@stellar-expert/ui-framework'
 
 export const AccountTrustlineBalanceView = React.memo(
     function AccountTrustlineBalanceView({trustline, currency, onClick}) {
@@ -24,9 +24,10 @@ export const AccountTrustlineBalanceView = React.memo(
 function Balance({trustline, currency}) {
     const estimatedValue = resolveBalanceValue(trustline, currency)
     const asset = trustline.asset || trustline.pool
+    const meta = useAssetMeta(asset)
     return <>
         <div className="condensed">
-            {trustline.deleted ? '-' : <BalanceAmount trustline={trustline}/>}
+            {trustline.deleted ? '-' : <BalanceAmount trustline={trustline} decimals={meta?.decimals ?? 7}/>}
         </div>
         <span className="text-small">
             <AssetLink asset={asset} link={false} issuer={false}/>
@@ -40,9 +41,9 @@ function Balance({trustline, currency}) {
     </>
 }
 
-function BalanceAmount({trustline}) {
+function BalanceAmount({trustline, decimals}) {
     if (trustline.balance !== undefined) {
-        const balanceParts = formatWithPrecision(fromStroops(trustline.balance)).split('.')
+        const balanceParts = formatWithPrecision(fromStroops(trustline.balance, decimals)).split('.')
         return <>{balanceParts[0]}{balanceParts[1] !== undefined &&
             <span className="text-small">.{balanceParts[1]}</span>}</>
     }

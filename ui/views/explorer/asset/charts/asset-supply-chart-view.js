@@ -1,4 +1,5 @@
 import React from 'react'
+import {useAssetMeta} from '@stellar-expert/ui-framework'
 import {useAssetHistory} from '../../../../business-logic/api/asset-api'
 import Chart from '../../../components/chart/chart'
 import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
@@ -6,6 +7,7 @@ import {day, trimDate} from '../../../../util/date-utils'
 
 export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noTitle}) {
     const {data, loaded} = useAssetHistory(asset.descriptor)
+    const assetMeta = useAssetMeta(asset.asset)
     if (!loaded)
         return <Chart.Loader/>
     if (!(data?.history instanceof Array))
@@ -95,7 +97,7 @@ export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noT
             approximation: 'close'
         },
         tooltip: {
-            valueSuffix: ' ' + asset.descriptor.toCurrency()
+            valueSuffix: ' ' + (assetMeta?.code || asset.descriptor.toCurrency())
         },
         data: assetSupply
     })
