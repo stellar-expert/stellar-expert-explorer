@@ -25,6 +25,8 @@ function Balance({trustline, currency}) {
     const estimatedValue = resolveBalanceValue(trustline, currency)
     const asset = trustline.asset || trustline.pool
     const meta = useAssetMeta(asset)
+    if (!meta)
+        return null
     return <>
         <div className="condensed">
             {trustline.deleted ? '-' : <BalanceAmount trustline={trustline} decimals={meta?.decimals ?? 7}/>}
