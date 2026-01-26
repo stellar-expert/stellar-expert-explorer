@@ -1,5 +1,13 @@
 import React, {useCallback} from 'react'
-import {AssetLink, Amount, Dropdown, Button, UtcTimestamp, useDependantState, useExplorerPaginatedApi} from '@stellar-expert/ui-framework'
+import {
+    AssetLink,
+    Amount,
+    Dropdown,
+    Button,
+    UtcTimestamp,
+    useDependantState,
+    useExplorerPaginatedApi
+} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {navigation} from '@stellar-expert/navigation'
 import GridDataActionsView from '../../components/grid-data-actions'
@@ -16,7 +24,7 @@ const orderOptions = [
     {value: 'created', title: 'asset age'}
 ]
 
-export default function AssetListView({rows = 30, compact = false}) {
+export default function AssetListView({title, rows = 30, compact = false}) {
     const [{sort, order}, setState] = useDependantState(() => {
         const {sort = 'rating', order = 'desc'} = navigation.query
         return {
@@ -53,54 +61,59 @@ export default function AssetListView({rows = 30, compact = false}) {
             <div className="text-center"><i className="icon-warning-circle"/> Failed to load asset data</div>
         </div>
     return <div className="asset-list-view">
-        <div className="double-space mobile-only"/>
-        <div className="text-right mobile-left text-small" style={{marginTop: '-3em'}}>
-            Sort by <Dropdown options={orderOptions} onChange={setSort} value={sort}/>
+        <div className="dual-layout">
+            <div>
+                {!!title && <h3 style={{margin: '-0.2em 0 0'}}>{title}</h3>}
+            </div>
+            <div className="text-right text-small">
+                Sort by <Dropdown options={orderOptions} onChange={setSort} value={sort}/>
+            </div>
         </div>
-        <table className="table exportable space" data-export-prefix="assets">
+        {!!title && <hr className="flare"/>}
+        <table className="table exportable" data-export-prefix="assets">
             <thead>
-                <tr>
-                    <th>Asset</th>
-                    {!compact && <>
-                        <th className="collapsing" key="created">Created</th>
-                        <th className="collapsing nowrap text-right" key="supply">Supply</th>
-                        <th className="collapsing text-right" key="holders">Holders</th>
-                        <th className="collapsing text-right" key="transfers">Payments</th>
-                    </>}
-                    <th className="collapsing text-right">Price (24h)</th>
-                    <th className="collapsing export-ignore nowrap">Price (7d)</th>
-                </tr>
+            <tr>
+                <th>Asset</th>
+                {!compact && <>
+                    <th className="collapsing" key="created">Created</th>
+                    <th className="collapsing nowrap text-right" key="supply">Supply</th>
+                    <th className="collapsing text-right" key="holders">Holders</th>
+                    <th className="collapsing text-right" key="transfers">Payments</th>
+                </>}
+                <th className="collapsing text-right">Price (24h)</th>
+                <th className="collapsing export-ignore nowrap">Price (7d)</th>
+            </tr>
             </thead>
             <tbody className="condensed">
-                {assets.data.map(({asset, supply, created, trustlines, payments, price7d = []}) => {
-                    const descriptor = AssetDescriptor.parse(asset)
-                    const priceDynamic = price7d.map(([ts, price]) => [ts * 1000, price])
-                    return <tr key={descriptor.toString()}>
-                        <td data-header="Asset: ">
-                            <AssetLink asset={descriptor}/>
+            {assets.data.map(({asset, supply, created, trustlines, payments, price7d = []}) => {
+                const descriptor = AssetDescriptor.parse(asset)
+                const priceDynamic = price7d.map(([ts, price]) => [ts * 1000, price])
+                return <tr key={descriptor.toString()}>
+                    <td data-header="Asset: ">
+                        <AssetLink asset={descriptor}/>
+                    </td>
+                    {!compact && <>
+                        <td className="nowrap" key="created" data-header="Created: ">
+                            {descriptor.isNative ? null : <UtcTimestamp date={created} dateOnly/>}
                         </td>
-                        {!compact && <>
-                            <td className="nowrap" key="created" data-header="Created: ">
-                                {descriptor.isNative ? null : <UtcTimestamp date={created} dateOnly/>}
-                            </td>
-                            <td className="nowrap text-right" key="supply" data-header="Supply: ">
-                                <Amount amount={supply} adjust round/>
-                            </td>
-                            <td className="holders text-right" key="holders" data-header="Holders: ">
-                                <Amount amount={trustlines[2]}/>/<Amount amount={trustlines[0]}/>
-                            </td>
-                            <td className="transfers text-right" key="transfers" data-header="Payments: ">
-                                <Amount amount={payments}/>
-                            </td>
-                        </>}
-                        <td className="nowrap text-right" data-header="Price (24h): ">
-                            <AssetPriceChange priceDynamic={priceDynamic} compact={compact}/>
+                        <td className="nowrap text-right" key="supply" data-header="Supply: ">
+                            <Amount amount={supply} adjust round/>
                         </td>
-                        <td className="sparkline-container text-right export-ignore" data-header="Price (7d): ">
-                            <AssetSparkLine sparklineData={priceDynamic} asset={descriptor} currency="USD"/>
+                        <td className="holders text-right" key="holders" data-header="Holders: ">
+                            <Amount amount={trustlines[2]}/>/<Amount amount={trustlines[0]}/>
                         </td>
-                    </tr>
-                })}
+                        <td className="transfers text-right" key="transfers" data-header="Payments: ">
+                            <Amount amount={payments}/>
+                        </td>
+                    </>}
+                    <td className="nowrap text-right" data-header="Price (24h): ">
+                        <AssetPriceChange priceDynamic={priceDynamic} compact={compact}/>
+                    </td>
+                    <td className="sparkline-container text-right export-ignore" data-header="Price (7d): ">
+                        <AssetSparkLine sparklineData={priceDynamic} asset={descriptor} currency="USD"/>
+                    </td>
+                </tr>
+            })}
             </tbody>
         </table>
         {!compact ?
