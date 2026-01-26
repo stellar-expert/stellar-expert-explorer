@@ -5,23 +5,15 @@ import Chart from '../../components/chart/chart'
 export default Chart.withErrorBoundary(function TransactionsPerSecondView() {
     const {data = [], loaded} = useLedgerStats()
     if (!loaded)
-        return <Chart.Loader/>
+        return <div className="loader"/>
+
     if (!(data instanceof Array))
-        return <Chart.Loader unavailable/>
-    const config = {
-        yAxis: [{
-            title: {
-                text: ''
-            },
-            opposite: false
-        }],
-        rangeSelector: {
-            selected: 0
-        },
-        series: []
-    }
+        return <div className="segment warning space">
+            <div className="text-center"><i className="icon-warning-circle"/> Failed to fetch transaction stats</div>
+        </div>
+
     const dataTransactions = []
-    for (const {ts, transactions} of data) {
+    for (const {ts, transactions} of data.slice(-30)) {
         const dt = ts * 1000
         const tps = Number((transactions / 86400).toFixed(2))
         dataTransactions.push([dt, tps])
@@ -34,42 +26,39 @@ export default Chart.withErrorBoundary(function TransactionsPerSecondView() {
     const tpsWeek = (dataTransactions.slice(-7).reduce((a, tps) => a += tps[1], 0) / 7).toFixed(2)
     const tpsMonth = (dataTransactions.slice(-30).reduce((a, tps) => a += tps[1], 0) / 30).toFixed(2)
 
-    config.series.push({
-        type: 'column',
-        name: 'Average TPS by day',
-        data: dataTransactions,
-        dataGrouping: {
-            approximation: 'sum'
-        }
-    })
-    return <div className="row">
-        <div className="column column-33">
-            <div className="segment blank">
-                <h3>Current TPS</h3>
-                <hr className="flare"/>
-                <div className="text-huge space">
-                    {tpsDay} tps
-                </div>
-                <div className="dimmed nano-space">
-                    in the last day
-                </div>
-                <div className="text-huge space">
-                    {tpsWeek} tps
-                </div>
-                <div className="dimmed nano-space">
-                    in the last week
-                </div>
-                <div className="text-huge space">
-                    {tpsMonth} tps
-                </div>
-                <div className="dimmed nano-space">
-                    in the last 30 days
+    return <div>
+        <h3>Transactions per second</h3>
+        <div className="row">
+            <div className="column column-33">
+                <div className="card card-mobile-margin">
+                    <div className="text-huge micro-space">
+                        {tpsDay} tps
+                    </div>
+                    <div className="dimmed nano-space">
+                        in the last day
+                    </div>
                 </div>
             </div>
-        </div>
-        <div className="column column-66">
-            <div className="space mobile-only"/>
-            <Chart type="StockChart" options={config} grouped range title="Transactions per second"/>
+            <div className="column column-33">
+                <div className="card card-mobile-margin">
+                    <div className="text-huge micro-space">
+                        {tpsWeek} tps
+                    </div>
+                    <div className="dimmed nano-space">
+                        in the week
+                    </div>
+                </div>
+            </div>
+            <div className="column column-33">
+                <div className="card card-mobile-margin">
+                    <div className="text-huge micro-space">
+                        {tpsMonth} tps
+                    </div>
+                    <div className="dimmed nano-space">
+                        in the last 30 days
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 })

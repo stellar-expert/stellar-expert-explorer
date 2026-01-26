@@ -1,8 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Amount, UpdateHighlighter, ledgerStream, retrieveLedgerInfo} from '@stellar-expert/ui-framework'
+import {UpdateHighlighter, ledgerStream, retrieveLedgerInfo} from '@stellar-expert/ui-framework'
 import {apiCall} from '../../../models/api'
 import {resolvePath} from '../../../business-logic/path'
-import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 
 export default function LastLedgerView({onUpdate}) {
     let unmounted
@@ -12,6 +11,8 @@ export default function LastLedgerView({onUpdate}) {
         sequence: 0,
         txSuccess: 0,
         txFailed: 0,
+        operations: 0,
+        failedOperations: 0,
         protocol: 0,
         baseFee: 0,
         baseReserve: 0,
@@ -21,23 +22,17 @@ export default function LastLedgerView({onUpdate}) {
     const processLedger = useCallback(ledger => {
         if (unmounted)
             return
-        ledger = retrieveLedgerInfo(ledger)
+        const ledgerInfo = retrieveLedgerInfo(ledger)
         let timeDelta = 6
         if (lastLedgerClosedAt) {
-            timeDelta = (ledger.ts - lastLedgerClosedAt)
+            timeDelta = (ledgerInfo.ts - lastLedgerClosedAt)
         }
         lastLedgerClosedAt = ledger.ts
         setLedgerInfo({
-            sequence: ledger.sequence,
-            protocol: ledger.protocol,
-            operations: ledger.operations,
-            txSuccess: ledger.txSuccess,
-            txFailed: ledger.txFailed,
-            baseFee: ledger.baseFee,
-            baseReserve: ledger.baseReserve,
+            ...ledgerInfo,
             timeDelta
         })
-        onUpdate(ledger)
+        onUpdate({...ledgerInfo, fees: ledger.fees})
     }, [onUpdate])
 
     useEffect(() => {
@@ -89,7 +84,9 @@ export default function LastLedgerView({onUpdate}) {
                     </UpdateHighlighter></dd>
 
                     <dt>Operations:</dt>
-                    <dd><UpdateHighlighter>{ledgerInfo.operations}</UpdateHighlighter></dd>
+                    <dd><UpdateHighlighter>
+                        {ledgerInfo.operations} succeeded{ledgerInfo.failedOperations > 0 && ` / ${ledgerInfo.failedOperations} failed`}
+                    </UpdateHighlighter></dd>
 
                     <dt>Ledger closing time:</dt>
                     <dd>closed in <UpdateHighlighter>{ledgerInfo.timeDelta}s</UpdateHighlighter></dd>

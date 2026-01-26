@@ -1,6 +1,10 @@
 import React from 'react'
+import {Amount} from '@stellar-expert/ui-framework'
 import {useLedgerStats} from '../../../business-logic/api/ledger-stats-api'
 import Chart from '../../components/chart/chart'
+import LedgerHistoryFailedTransactionsChartView from '../ledger/charts/ledger-history-failed-transactions-chart-view'
+
+const limit = 30 //30 days
 
 export default Chart.withErrorBoundary(function LedgerHistoryView() {
     const {data = [], loaded} = useLedgerStats()
@@ -8,65 +12,33 @@ export default Chart.withErrorBoundary(function LedgerHistoryView() {
         return <Chart.Loader/>
     if (!(data instanceof Array))
         return <Chart.Loader unavailable/>
-    const config = {
-        yAxis: [{
-            title: {
-                text: 'Transactions'
-            },
-            opposite: false
-        }, {
-            title: {
-                text: 'Operations'
-            },
-            opposite: true
-        }],
-        series: []
-    }
-    const dataTransactions = []
-    const dataOperations = []
+
     const totalAmount = {
         successTx: 0,
         failedTx: 0,
-        op: 0,
+        successOp: 0,
+        failedOp: 0,
         closedTime: 0
     }
-    for (const {ts, transactions, failed_transactions, avg_ledger_time, operations} of data) {
-        const dt = ts * 1000
-        dataTransactions.push([dt, transactions])
-        dataOperations.push([dt, operations])
+    const calculationData = data.slice(-1 - limit, -1) //last full 30 days
+    for (const {transactions, failed_transactions, operations, failed_operations, avg_ledger_time} of calculationData) {
         totalAmount.failedTx += failed_transactions
-        totalAmount.successTx += transactions - failed_transactions
-        totalAmount.op += operations
+        totalAmount.successTx += transactions
+        totalAmount.failedOp += failed_operations
+        totalAmount.successOp += operations
         totalAmount.closedTime += avg_ledger_time
     }
 
-    config.series.push({
-        type: 'column',
-        name: 'Transactions',
-        data: dataTransactions,
-        dataGrouping: {
-            approximation: 'sum'
-        }
-    })
-    config.series.push({
-        type: 'column',
-        name: 'Operations',
-        yAxis: 1,
-        data: dataOperations,
-        dataGrouping: {
-            approximation: 'sum'
-        }
-    })
     return <div>
-        <Chart type="StockChart" options={config} grouped range title="Ledger Info"/>
+        <LedgerHistoryFailedTransactionsChartView/>
         <div className="space"/>
         <div className="row">
             <div className="column column-33">
                 <div className="card card-mobile-margin">
                     <h3>Avg Transactions</h3>
                     <div className="text-huge double-space">
-                        {avgValue(totalAmount.successTx, data.length)} <span className="text-tiny dimmed">success</span>&nbsp;/&nbsp;
-                        {avgValue(totalAmount.failedTx, data.length)} <span className="text-tiny dimmed">failed</span>
+                        {avgValue(totalAmount.successTx, limit)} <span className="text-tiny dimmed">success</span>&nbsp;/&nbsp;
+                        {avgValue(totalAmount.failedTx, limit)} <span className="text-tiny dimmed">failed</span>
                     </div>
                 </div>
             </div>
@@ -74,7 +46,8 @@ export default Chart.withErrorBoundary(function LedgerHistoryView() {
                 <div className="card card-mobile-margin">
                     <h3>Avg Operations</h3>
                     <div className="text-huge double-space">
-                        {avgValue(totalAmount.op, data.length)}
+                        {avgValue(totalAmount.successOp, limit)} <span className="text-tiny dimmed">success</span>&nbsp;/&nbsp;
+                        {avgValue(totalAmount.failedOp, limit)} <span className="text-tiny dimmed">failed</span>
                     </div>
                 </div>
             </div>
@@ -82,7 +55,7 @@ export default Chart.withErrorBoundary(function LedgerHistoryView() {
                 <div className="card card-mobile-margin">
                     <h3>Avg Ledger Closing Time</h3>
                     <div className="text-huge double-space">
-                        {avgValue(totalAmount.closedTime, data.length, 1)}s
+                        {avgValue(totalAmount.closedTime, limit, 1)}s
                     </div>
                 </div>
             </div>
@@ -91,5 +64,5 @@ export default Chart.withErrorBoundary(function LedgerHistoryView() {
 })
 
 function avgValue(val, amount, digits = 0) {
-    return parseFloat(val / amount).toFixed(digits)
+    return <Amount amount={parseFloat(val / amount).toFixed(digits)}/>
 }
