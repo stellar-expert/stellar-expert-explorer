@@ -40,7 +40,8 @@ function mapLedgerProps(entry) {
  * @return {Promise<{}>}
  */
 async function fetchArchiveLedger(network, sequence) {
-    const ledger = await archiveCollection(network, 'ledgers').findOne({_id: parseInt(sequence)})
+    const ledger = await archiveCollection(network, 'ledgers')
+        .findOne({_id: parseInt(sequence)})
     if (!ledger)
         return errors.notFound('Ledger not found')
     const res = {
@@ -51,6 +52,23 @@ async function fetchArchiveLedger(network, sequence) {
         res.upgrades = ledger.upgrades.map(u => u.toString('base64'))
     }
     return res
+}
+
+/**
+ * Fetch multiple transactions from archive
+ * @param {String} network - Network identifier
+ * @param {Number} from - Starting sequence
+ * @param {Number} count - Number of ledgers to fetch
+ * @return {Promise<{}>}
+ */
+async function fetchArchiveLedgers(network, from, count) {
+    const ledgers = await archiveCollection(network, 'ledgers')
+        .find({_id:{$gte: from}}, {sort: {_id: 1}, limit: count}).toArray()
+    return ledgers.map(ledger => ({
+        sequence: ledger._id,
+        xdr: ledger.xdr.toString('base64'),
+        upgardes: !!ledger.upgrades
+    }))
 }
 
 /**
@@ -104,15 +122,28 @@ async function fetchSingleArchiveTransaction(network, idOrHash) {
 /**
  * Fetch all transaction that belong to a certain ledger from archive db
  * @param {String} network - Network identifier
- * @param {Number} ledger - Ledger sequence
+ * @param {Number||Number[]} ledger - Ledger sequence
  * @param {Number} [order] - Transactions sorting order
  * @return {Promise<ArchiveTxInfo[]>}
  */
 async function fetchArchiveLedgerTransactions(network, ledger, order = 1) {
     if (typeof ledger !== 'number' || !(ledger > 0))
         return []
+    let minLedger, maxLedger
+    if (ledger instanceof Array) {
+        const sorted = ledger.slice().sort()
+        minLedger = sorted[0].sequence
+        maxLedger = sorted[sorted.length - 1].sequence
+    } else {
+        minLedger = ledger
+        maxLedger = ledger
+    }
+    const filter = {
+        $gte: BigInt(minLedger) << 32n,
+        $lt: BigInt(maxLedger + 1) << 32n
+    }
     const res = await archiveCollection(network, 'transactions')
-        .find({_id: {$gte: BigInt(ledger) << 32n, $lt: BigInt(ledger + 1) << 32n}}, {sort: {_id: order}})
+        .find({_id: filter}, {sort: {_id: order}})
         .toArray()
     return res.map(mapTxProps)
 }
@@ -121,5 +152,6 @@ module.exports = {
     fetchArchiveTransactions,
     fetchArchiveLedgerTransactions,
     fetchSingleArchiveTransaction,
-    fetchArchiveLedger
+    fetchArchiveLedger,
+    fetchArchiveLedgers
 }

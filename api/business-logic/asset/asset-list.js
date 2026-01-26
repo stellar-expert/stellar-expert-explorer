@@ -46,18 +46,22 @@ const projection = {
     history: 1
 }
 
-function mapAssetProps(assets, prices, supplyInfo) {
+async function mapAssetProps(network, assets) {
+    const ids = assets.map(a => a._id)
+    const [prices, supply] = await Promise.all([
+        estimateAssetPrices(network, ids),
+        aggregateAssetSupply(network, ids)])
     return assets.map(({_id, baseVolume, quoteVolume, history, ...other}) => {
         const props = combineAssetHistory(history, _id !== 'XLM')
         return {
             asset: _id,
-            supply: supplyInfo[_id] || 0n,
+            supply: supply[_id] || 0n,
             traded_amount: props.tradedAmount,
             payments_amount: props.paymentsAmount,
             payments: props.payments,
             trades: props.trades,
             trustlines: props.trustlines,
-            price: prices.get(_id) || 0,
+            price: prices?.get(_id) || 0,
             volume: quoteVolume,
             ...other
         }
@@ -140,12 +144,7 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
             .toArray()
     }
 
-    const ids = assets.map(a => a._id)
-    const [prices, supply] = await Promise.all([
-        estimateAssetPrices(network, ids),
-        aggregateAssetSupply(network, ids)])
-
-    assets = mapAssetProps(assets, prices, supply)
+    assets = await mapAssetProps(network, assets)
 
     addPagingToken(assets, q.skip)
 
@@ -158,13 +157,13 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
 
 async function queryAllAssetsByCreatedDate(network, basePath, cursor, limit, order, includeUninitialized = false) {
     order = normalizeOrder(order)
-    const q = new QueryBuilder(includeUninitialized ? {} : {payments: {$gt: 0}})
-        .setSort('_id', order, -1)
+    const q = new QueryBuilder(includeUninitialized ? {} : {'rating.average': {$gt: 0}})
+        .setSort('created', order, 1)
         .setLimit(limit, 50)
 
     const idCursor = parseInt(cursor, 10)
     if (idCursor) {
-        q.query = {_id: {[order === 1 ? '$gt' : '$lt']: idCursor}, ...q.query}
+        q.query = {created: {[order === 1 ? '$gt' : '$lt']: idCursor}, ...q.query}
     }
 
     let assets = await db[network].collection('assets')
@@ -175,9 +174,9 @@ async function queryAllAssetsByCreatedDate(network, basePath, cursor, limit, ord
         .toArray()
 
     for (const a of assets) {
-        a.paging_token = a._id
+        a.paging_token = a.created
     }
-    assets = mapAssetProps(assets, network)
+    assets = await mapAssetProps(network, assets)
 
     return preparePagedData(basePath, {sort: 'created', order, cursor: q.skip, limit: q.limit}, assets)
 }

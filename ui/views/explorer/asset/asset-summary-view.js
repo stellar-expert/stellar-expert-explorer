@@ -37,7 +37,7 @@ export default withErrorBoundary(function AssetSummaryView({asset}) {
         {asset.supply > 0 && <>
             <dt>Total supply:</dt>
             <dd>
-                <Amount amount={asset.supply} round asset={descriptor} decimals={asset.decimals} adjust/>
+                <Amount amount={asset.supply} round asset={descriptor} adjust/>
                 <Info link="https://www.stellar.org/developers/guides/concepts/assets.html">Total number of
                     asset tokens emitted by the issuing account.</Info>
             </dd>
@@ -45,7 +45,7 @@ export default withErrorBoundary(function AssetSummaryView({asset}) {
         {asset.fee_pool > 0 && <>
             <dt>Locked in fee pool:</dt>
             <dd>
-                <Amount amount={asset.fee_pool} round asset={descriptor} decimals={asset.decimals} adjust/>
+                <Amount amount={asset.fee_pool} round asset={descriptor} adjust/>
                 <Info link="https://www.stellar.org/developers/guides/concepts/fees.html#fee-pool">Number of lumens that
                     have been paid in fees. This number is added to the inflation pool and reset to 0 each time
                     inflation runs.</Info>
@@ -54,8 +54,7 @@ export default withErrorBoundary(function AssetSummaryView({asset}) {
         {asset.reserve > 0 && <>
             <dt>Reserved amount:</dt>
             <dd>
-                <Amount amount={asset.reserve} round asset={descriptor} decimals={asset.decimals}
-                        adjust/>
+                <Amount amount={asset.reserve} round asset={descriptor} adjust/>
                 <Info link="https://www.stellar.org/developers/guides/lumen-supply-metrics.html">Total number of
                     inactive lumens (burned, locked in escrow, held on SDF operational accounts, etc.)</Info>
             </dd>

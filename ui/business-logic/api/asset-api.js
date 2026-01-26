@@ -1,4 +1,10 @@
-import {useDependantState, useExplorerApi, loadAccount} from '@stellar-expert/ui-framework'
+import {
+    useDependantState,
+    useExplorerApi,
+    loadAccount,
+    useAssetMeta,
+    ExplorerApiResult
+} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {fromStroops} from '@stellar-expert/formatter'
 
@@ -15,31 +21,31 @@ export function useAssetInfo(asset) {
             return {error: e, invalidAsset: true}
         }
     }, [asset])
-    return useExplorerApi(descriptor.invalidAsset ? null : 'asset/' + descriptor.toString(), {
-        processResult(stats) {
-            if (stats.error) {
-                if (stats.status === 404) {
-                    stats.invalidAsset = true
-                }
-                return stats
+    const meta = useAssetMeta(descriptor)
+    const res = useExplorerApi(descriptor.invalidAsset ? null : 'asset/' + descriptor.toString())
+    if (res.loaded) {
+        const stats = res.data
+        if (stats.error) {
+            if (stats.status === 404) {
+                stats.invalidAsset = true
             }
-            const {price7d = []} = stats
-            delete stats.price7d
-
-            return {
-                ...stats,
-                descriptor,
-                supply: stats.supply,
-                payments_amount: fromStroops(stats.payments_amount),
-                traded_amount: fromStroops(stats.traded_amount),
-                volume: fromStroops(stats.volume),
-                volume7d: fromStroops(stats.volume7d),
-                price: stats.price,
-                price_dynamic: price7d.map(([ts, price]) => [ts * 1000, price]),
-                isContract: asset.startsWith('C') && asset.length === 56
-            }
+            return res
         }
-    })
+        return new ExplorerApiResult(res.apiEndpoint, {
+            ...stats,
+            descriptor,
+            meta,
+            supply: stats.supply,
+            payments_amount: fromStroops(stats.payments_amount, meta?.decimals ?? 7),
+            traded_amount: fromStroops(stats.traded_amount, meta?.decimals ?? 7),
+            volume: fromStroops(stats.volume),
+            volume7d: fromStroops(stats.volume7d),
+            price: stats.price,
+            price_dynamic: (stats.price7d || []).map(([ts, price]) => [ts * 1000, price]),
+            isContract: asset.startsWith('C') && asset.length === 56
+        }, res.fetchedAt)
+    }
+    return res
 }
 
 /**
@@ -76,7 +82,8 @@ export function useAssetHistory(asset) {
  */
 export function useAssetIssuerInfo(descriptor) {
     const [issuerInfo, setIssuerInfo] = useDependantState(() => {
-        if (!descriptor?.issuer) return null
+        if (!descriptor?.issuer)
+            return null
         loadAccount(descriptor.issuer)
             .then(account => account && setIssuerInfo(account))
             .catch(e => {

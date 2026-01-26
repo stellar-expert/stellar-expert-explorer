@@ -58,9 +58,7 @@ export default function ExplorerHomePageView() {
             <div className="space mobile-only"/>
             <div className="column column-50">
                 <div className="segment blank">
-                    <h3>Assets on the Ledger</h3>
-                    <hr className="flare"/>
-                    <AssetList compact/>
+                    <AssetList compact title="Assets on the Ledger"/>
                 </div>
             </div>
         </div>
