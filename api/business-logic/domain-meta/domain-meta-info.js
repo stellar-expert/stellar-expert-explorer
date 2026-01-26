@@ -18,7 +18,7 @@ async function fetchDomainMeta(network, domain) {
         meta: m.meta || {}
     }
     if (m.tomlCid) {
-        res.tomlCid = m.tomlCid
+        res.toml_cid = m.tomlCid
     }
     if (m.interop) {
         res.interop = m.interop

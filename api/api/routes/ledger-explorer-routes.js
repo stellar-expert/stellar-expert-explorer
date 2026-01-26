@@ -77,10 +77,11 @@ async function prepareLedgerData(network, stats, archiveLedger) {
         ts: stats.ts,
         protocol: stats.version,
         xlm: stats.xlm.toString(),
-        feePool: stats.pool.toString(),
-        txSuccess: stats.tx,
-        txFailed: stats.failed,
-        operations: stats.ops,
+        fee_pool: stats.pool.toString(),
+        successful_transactions: stats.tx,
+        failed_transactions: stats.failed,
+        successful_operations: stats.ops,
+        failed_operations: stats.fops,
         ...archiveLedger
     }
     if (stats.fees) {
