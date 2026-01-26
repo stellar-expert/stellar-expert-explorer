@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react'
-import {Dropdown, AssetSelector} from '@stellar-expert/ui-framework'
+import {Dropdown, AssetSelector, formatExplorerLink} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {navigation} from '@stellar-expert/navigation'
+import {day, trimDate} from '../../../../util/date-utils'
 import Chart, {Highcharts} from '../../../components/chart/chart'
 import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 import {useAccountBalanceHistory} from '../../../../business-logic/api/account-api'
@@ -11,14 +12,8 @@ const timeframe = 24 * 60 * 60 * 1000
 
 function getChartData(balanceHistory, selectedAsset) {
     const {length} = balanceHistory
-    const now = new Date().getTime() / 1000 | 0
     let dataLength = length + 1
-    let extend = false
-    if (balanceHistory[0][0] + timeframe < now) {
-        extend = true
-        dataLength++
-    }
-    const data = new Array(dataLength)
+    let data = new Array(dataLength)
     let maxBalance = 0
     for (let i = 0; i < length; i++) {
         const entry = balanceHistory[i]
@@ -32,9 +27,14 @@ function getChartData(balanceHistory, selectedAsset) {
     //init with 0
     data[0] = [startTs, 0]
     //extend with current balance if needed
-    if (extend) {
-        const last = data[data.length - 2]
-        data[data.length - 1] = [now, last[1]]
+    if (!data.some(v => !!v[1])) {
+        data = []
+    } else {
+        const today = trimDate(new Date(), day) * 1000
+        const last = data[data.length - 1]
+        if (last[0] < today) {
+            data.push([today, last[1]])
+        }
     }
 
     //res.yAxis[0].max = 1.2 * max
@@ -96,7 +96,11 @@ export default Chart.withErrorBoundary(function AccountBalanceChartView({account
     }>
         {!noTitle && <div className="flex-row">
             <div>
-                Asset: <AssetSelector value={selectedAsset} predefinedAssets={account.assets} restricted onChange={setSelectedAsset}/>
+                Asset: <AssetSelector value={selectedAsset} predefinedAssets={account.assets} restricted
+                                      onChange={setSelectedAsset}/>
+                &nbsp;
+                <a href={formatExplorerLink('asset', selectedAsset)} target="_blank" class="icon-open-new-window"
+                   title="Asset details"/>
             </div>
             <div>
                 Scale: <Dropdown value={scale} options={['linear', 'logarithmic']} onChange={setScale}/>&emsp;

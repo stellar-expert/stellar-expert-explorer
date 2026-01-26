@@ -19,7 +19,7 @@ export default function StagedSorobanConfigChangesView() {
         const configKey = xdr.ConfigUpgradeSetKey.fromXDR(id, 'base64')
         const contract = StrKey.encodeContract(configKey.contractId())
         const contentHash = configKey.contentHash()
-        const endpoint = `contract-data/${contract}/temporary/${encodeURIComponent(xdr.ScVal.scvBytes(contentHash).toXDR('base64'))}`
+        const endpoint = `contract-state/${contract}/temporary/${encodeURIComponent(xdr.ScVal.scvBytes(contentHash).toXDR('base64'))}`
         const {data, loaded} = useExplorerApi(endpoint)
 
         return <StagedSorobanConfigChangesWrapper id={id}>

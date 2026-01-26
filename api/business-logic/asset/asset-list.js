@@ -11,6 +11,7 @@ const {
 const {validateNetwork, isValidAccountAddress} = require('../validators')
 const {combineAssetHistory} = require('./asset-aggregation')
 const {estimateAssetPrices} = require('./asset-price')
+const {aggregateAssetSupply} = require('./asset-supply')
 
 const supportedFeaturesSearch = [{
     terms: ['SEP3', 'SEP0003', 'SEP-0003', 'AUTH_SERVER'],
@@ -30,6 +31,9 @@ const supportedFeaturesSearch = [{
 }, {
     terms: ['SEP31', 'SEP0031', 'SEP-0031', 'DIRECT_PAYMENT_SERVER'],
     filter: 'sep31'
+}, {
+    terms: ['SEP41', 'SEP0041', 'SEP-0041', 'TOKEN'],
+    filter: 'sep41'
 }]
 
 const projection = {
@@ -42,18 +46,22 @@ const projection = {
     history: 1
 }
 
-function mapAssetProps(assets, prices) {
+async function mapAssetProps(network, assets) {
+    const ids = assets.map(a => a._id)
+    const [prices, supply] = await Promise.all([
+        estimateAssetPrices(network, ids),
+        aggregateAssetSupply(network, ids)])
     return assets.map(({_id, baseVolume, quoteVolume, history, ...other}) => {
         const props = combineAssetHistory(history, _id !== 'XLM')
         return {
             asset: _id,
-            supply: props.supply,
+            supply: supply[_id] || 0n,
             traded_amount: props.tradedAmount,
             payments_amount: props.paymentsAmount,
             payments: props.payments,
             trades: props.trades,
             trustlines: props.trustlines,
-            price: prices.get(_id) || 0,
+            price: prices?.get(_id) || 0,
             volume: quoteVolume,
             ...other
         }
@@ -136,8 +144,7 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
             .toArray()
     }
 
-    const prices = await estimateAssetPrices(network, assets.map(a => a._id))
-    assets = mapAssetProps(assets, prices)
+    assets = await mapAssetProps(network, assets)
 
     addPagingToken(assets, q.skip)
 
@@ -150,13 +157,13 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
 
 async function queryAllAssetsByCreatedDate(network, basePath, cursor, limit, order, includeUninitialized = false) {
     order = normalizeOrder(order)
-    const q = new QueryBuilder(includeUninitialized ? {} : {payments: {$gt: 0}})
-        .setSort('_id', order, -1)
+    const q = new QueryBuilder(includeUninitialized ? {} : {'rating.average': {$gt: 0}})
+        .setSort('created', order, 1)
         .setLimit(limit, 50)
 
     const idCursor = parseInt(cursor, 10)
     if (idCursor) {
-        q.query = {_id: {[order === 1 ? '$gt' : '$lt']: idCursor}, ...q.query}
+        q.query = {created: {[order === 1 ? '$gt' : '$lt']: idCursor}, ...q.query}
     }
 
     let assets = await db[network].collection('assets')
@@ -167,9 +174,9 @@ async function queryAllAssetsByCreatedDate(network, basePath, cursor, limit, ord
         .toArray()
 
     for (const a of assets) {
-        a.paging_token = a._id
+        a.paging_token = a.created
     }
-    assets = mapAssetProps(assets, network)
+    assets = await mapAssetProps(network, assets)
 
     return preparePagedData(basePath, {sort: 'created', order, cursor: q.skip, limit: q.limit}, assets)
 }
@@ -191,10 +198,10 @@ async function querySAL(network, limit = 50) {
         network,
         feedback: 'https://stellar.expert',
         assets: assets.map(a => {
-            if (a.name.length === 56 && a.name[0] === 'C') { //wasm contract
+            if (a._id.length === 56 && a._id[0] === 'C') { //wasm contract
                 return {
                     contract: a._id,
-                    name: cleanupString(a.tomlInfo?.name || a.name),
+                    name: cleanupString(a.tomlInfo?.name || a._id),
                     org: cleanupString(a.tomlInfo?.orgName || 'unknown'),
                     domain: a.domain || undefined,
                     icon: a.tomlInfo?.image || undefined

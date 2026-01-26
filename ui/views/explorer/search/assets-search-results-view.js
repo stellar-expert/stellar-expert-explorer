@@ -35,8 +35,9 @@ export default function AssetSearchResultsView({term, onLoaded}) {
                 description: <>
                     Created&nbsp;<UtcTimestamp date={created} dateOnly/>{' | '}
                     {formatPrice(trustlines[2] || 0)}&nbsp;funded&nbsp;trustlines{', '}
-                    {formatPrice(payments)}&nbsp;payments{', '}
-                    {formatPrice(trades)}&nbsp;trades
+                    {payments > 0 && <>{formatPrice(payments)}&nbsp;payments</>}
+                    {payments > 0 && trades > 0 && ', '}
+                    {trades > 0 && <>{formatPrice(trades)}&nbsp;trades</>}
                 </>,
                 links: <>
                     <AssetLink asset={asset}>Transactions history</AssetLink>&emsp;

@@ -1,7 +1,6 @@
 import React from 'react'
-import {useDependantState} from '@stellar-expert/ui-framework'
+import {useAssetMeta, useExplorerApi} from '@stellar-expert/ui-framework'
 import Chart from '../../../components/chart/chart'
-import {apiCall} from '../../../../models/api'
 
 function trimEmptyDistributionValues(data) {
     for (let i = 0; i < 2; i++) {
@@ -12,18 +11,15 @@ function trimEmptyDistributionValues(data) {
 }
 
 export default function AssetDistributionChartView({asset}) {
-    const [distribution, setDistribution] = useDependantState(() => {
-        apiCall(`asset/${asset.descriptor.toFQAN()}/distribution`)
-            .then(distribution => setDistribution(distribution))
-            .catch(e => setDistribution(null))
-    }, [asset.descriptor.toFQAN()])
-    if (distribution === null)
-        return null
-    if (!asset || !distribution?.length)
+    const assetMeta = useAssetMeta(asset.asset)
+    const {data: distribution, loaded} = useExplorerApi(`asset/${asset.descriptor.toFQAN()}/distribution`)
+    if (!loaded)
         return <Chart.Loader/>
+    if (!distribution?.length)
+        return null
     trimEmptyDistributionValues(distribution)
-    const code = asset.descriptor.toCurrency()
-    const title = `${code} holders distribution`
+    const assetCode = assetMeta?.code || asset.descriptor.toCurrency()
+    const title = `${assetCode} holders distribution`
     const options = {
         plotOptions: {
             column: {
@@ -37,14 +33,14 @@ export default function AssetDistributionChartView({asset}) {
         },
         yAxis: [{
             title: {
-                text: 'Accounts holding ' + code
+                text: 'Accounts holding ' + assetCode
             },
             type: 'logarithmic'
         }],
         series: [{
             type: 'column',
             name: 'Holders',
-            data: distribution.map(d => [d.range + ' ' + code, d.holders])
+            data: distribution.map(d => [d.range + ' ' + assetCode, d.holders])
         }]
     }
     return <Chart {...{title, options}}/>

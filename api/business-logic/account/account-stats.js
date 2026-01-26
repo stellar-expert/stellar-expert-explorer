@@ -21,7 +21,7 @@ async function queryAccountStats(network, accountAddress) {
         throw errors.notFound('Account was not found on the ledger. Check if you specified account address correctly.')
 
     const res = {
-        account: account.address,
+        account: accountAddress,
         created: account.created,
         creator: account.creator,
         deleted: account.deleted

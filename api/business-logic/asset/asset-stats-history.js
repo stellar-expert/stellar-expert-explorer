@@ -1,9 +1,7 @@
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
-const {unixNow} = require('../../utils/date-utils')
 const {anyToNumber} = require('../../utils/formatter')
 const {validateNetwork, validateAssetName} = require('../validators')
-const priceTracker = require('../../business-logic/ticker/price-tracker')
 const {aggregateOhlcvt, OHLCVT} = require('../dex/ohlcvt-aggregator')
 const {rehydrateAssetHistory} = require('./asset-aggregation')
 
@@ -16,33 +14,30 @@ async function queryAssetStatsHistory(network, asset) {
         throw errors.notFound()
     const stats = rehydrateAssetHistory(assetInfo.history, asset !== 'XLM')
     //TODO: temporary patch, remove this once all downstream clients switch to the new format
-    const newFormatSwitchTimestamp = 1659916800
-    const patchFromIndex = stats.findIndex(s => s.ts >= newFormatSwitchTimestamp)
+    const ohlcvtData = await aggregateOhlcvt({
+        network,
+        collection: 'asset_ohlcvt',
+        predicate: {asset},
+        order: 1,
+        resolution: 86400, //1 day
+        from: stats[0].ts,
+        to: stats[stats.length - 1].ts + 1,
+        reverse: true
+    })
 
-    if (patchFromIndex >= 0) {
-        const ohlcvtData = await aggregateOhlcvt({
-            network,
-            collection: 'asset_ohlcvt',
-            predicate: {asset},
-            order: 1,
-            resolution: 86400, //1 day
-            from: newFormatSwitchTimestamp,
-            to: unixNow() + 10
-        })
-
-        for (let i = patchFromIndex; i < stats.length; i++) {
-            const stat = stats[i]
-            const ohlcvt = ohlcvtData.find(prices => prices[OHLCVT.TIMESTAMP] === stat.ts)
-            if (!ohlcvt) {
-                stat.price = []
-                stat.trades = 0
-                stat.tradedAmount = 0
-            } else {
-                const xlmPrice = await priceTracker.getPrice(stat.ts)
-                stat.price = ohlcvt.slice(OHLCVT.OPEN, OHLCVT.CLOSE + 1).map(v => v / xlmPrice)
-                stat.trades = ohlcvt[OHLCVT.TRADES_COUNT]
-                stat.tradedAmount = ohlcvt[OHLCVT.BASE_VOLUME]
-            }
+    for (let i = 0; i < stats.length; i++) {
+        const stat = stats[i]
+        const ohlcvt = ohlcvtData.find(prices => prices[OHLCVT.TIMESTAMP] <= stat.ts)
+        if (!ohlcvt) {
+            stat.price = []
+            stat.trades = 0
+            stat.tradedAmount = 0
+            stat.volume = 0
+        } else {
+            stat.price = ohlcvt.slice(OHLCVT.OPEN, OHLCVT.CLOSE + 1)
+            stat.trades = ohlcvt[OHLCVT.TRADES_COUNT]
+            stat.tradedAmount = ohlcvt[OHLCVT.BASE_VOLUME]
+            stat.volume = ohlcvt[OHLCVT.QUOTE_VOLUME]
         }
     }
 
@@ -55,7 +50,9 @@ async function queryAssetStatsHistory(network, asset) {
             payments: stat.payments,
             payments_amount: stat.paymentsAmount,
             trades: stat.trades,
-            traded_amount: stat.tradedAmount
+            traded_amount: stat.tradedAmount,
+            price: stat.price,
+            volume: stat.volume
         }
 
         if (tick.trustlines.authorized < 0) {
@@ -63,10 +60,6 @@ async function queryAssetStatsHistory(network, asset) {
         }
 
         if (asset !== 'XLM') {
-            Object.assign(tick, {
-                price: stat.price,
-                volume: stat.volume
-            })
         } else {
             const reserve = assetInfo.reserve[stat.ts]
             if (reserve === undefined) {

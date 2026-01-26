@@ -156,18 +156,19 @@ async function queryHolderPosition(network, asset, address) {
 }
 
 const distributionThresholds = {
-    '1': '<0.001',
-    '10000': '0.001-0.1',
-    '1000000': '0.1-10',
-    '100000000': '10-1K',
-    '10000000000': '1K-100K',
-    '1000000000000': '100K-10M',
-    '100000000000000': '10M-1B',
-    '10000000000000000': '1B-100B',
-    '1000000000000000000': '>100B'
+    '<0.001': 0,
+    '0.001-0.1': 0.001,
+    '0.1-10': 0.1,
+    '10-1K': 10,
+    '1K-100K': 1000,
+    '100K-10M': 100000,
+    '10M-1B': 10000000,
+    '1B-100B': 1000000000,
+    '>100B': 100000000000
 }
 
-const distributionBoundaries = Object.keys(distributionThresholds).map(v => BigInt(v))
+const distributionBoundaries = Object.values(distributionThresholds)
+    .sort((a, b) => a - b)
 
 /**
  * Retrieve data for an asset distribution chart based on the logarithmic scale
@@ -176,9 +177,9 @@ async function queryAssetDistribution(network, asset) {
     validateNetwork(network)
     asset = validateAssetName(asset)
 
-    const exists = await db[network].collection('assets')
-        .findOne({_id: asset}, {projection: {_id: 1}})
-    if (!exists)
+    const assetInfo = await db[network].collection('assets')
+        .findOne({_id: asset}, {projection: {_id: 1, decimals: 1}})
+    if (!assetInfo)
         throw errors.notFound()
     const distribution = await db[network].collection('balances').aggregate([
         {
@@ -189,7 +190,7 @@ async function queryAssetDistribution(network, asset) {
         },
         {
             $bucket: {
-                groupBy: '$balance',
+                groupBy: {$divide: ['$balance', 10 ** (assetInfo.decimals ?? 7)]},
                 boundaries: distributionBoundaries,
                 default: 'gt',
                 output: {count: {$sum: 1}}
@@ -209,8 +210,10 @@ async function queryAssetDistribution(network, asset) {
         }
         res[key] = value.count
     }
-
-    return Object.entries(res).map(([key, holders]) => ({range: distributionThresholds[key], holders}))
+    return Object.entries(distributionThresholds)
+        .map(([label, threshold]) => ({range: label, holders: res[threshold]}))
+        .filter(({holders}) => holders > 0)
+        .sort()
 }
 
 module.exports = {queryAssetHolders, queryHolderPosition, queryAssetDistribution}

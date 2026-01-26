@@ -56,7 +56,7 @@ async function queryContractStats(network, contractAddress) {
 }
 
 
-function serializeContractStats(contract){
+function serializeContractStats(contract) {
     const res = {
         contract: contract._id,
         created: contract.created,
@@ -74,6 +74,14 @@ function serializeContractStats(contract){
         }
     } else if (contract.code === 'XLM') {
         res.asset = 'XLM'
+    } else if (contract.code) {
+        res.code = contract.code
+        if (contract.name) {
+            res.token_name = contract.name
+        }
+    }
+    if (contract.traits) {
+        res.features = contract.traits
     }
 
     const stats = aggregateContractHistory(contract.history)

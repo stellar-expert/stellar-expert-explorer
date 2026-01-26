@@ -26,6 +26,10 @@
     .text-small {
       opacity: 0.7;
     }
+
+    &.deleted {
+      background: var(--color-dimmed);
+    }
   }
 
   @media (max-width: $responsive-mobile-browser-width) {

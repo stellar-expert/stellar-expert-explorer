@@ -50,7 +50,7 @@ async function resolveTimestampFromSequence(network, sequence) {
     return undefined
 }
 
-function queryTimestampFromSequence(network, query) {
+function queryTsFromSequence(network, query) {
     validateNetwork(network)
     const sequence = parseInt(query.sequence, 10)
     if (isNaN(sequence) || sequence < 0 || sequence > 2147483647)
@@ -67,7 +67,7 @@ function queryTimestampFromSequence(network, query) {
         })
 }
 
-async function querySequenceFromTimestamp(network, query) {
+async function querySequenceFromTs(network, query) {
     validateNetwork(network)
     const ts = parseDate(query.timestamp)
     if (isNaN(ts) || ts === null || ts < 0 || ts > 2147483647)
@@ -91,4 +91,4 @@ async function querySequenceFromTimestamp(network, query) {
     }
 }
 
-module.exports = {resolveSequenceFromTimestamp, resolveTimestampFromSequence, queryTimestampFromSequence, querySequenceFromTimestamp}
+module.exports = {resolveSequenceFromTimestamp, resolveTimestampFromSequence, queryTsFromSequence, querySequenceFromTs}

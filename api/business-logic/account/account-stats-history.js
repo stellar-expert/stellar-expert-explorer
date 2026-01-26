@@ -14,7 +14,7 @@ async function queryAccountStatsHistory(network, accountAddress) {
     validateNetwork(network)
     validateAccountAddress(accountAddress)
 
-    const account = await db[network].collection('account').findOne({_id: accountAddress})
+    const account = await db[network].collection('accounts').findOne({_id: accountAddress})
 
     if (!account)
         throw errors.notFound('Account was not found on the ledger. Check if you specified the public key correctly.')
