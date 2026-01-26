@@ -6,6 +6,14 @@
   .v-center-block {
     min-height: 26em;
   }
+
+  &.small {
+    min-height: 15em;
+
+    .v-center-block {
+      min-height: 13em;
+    }
+  }
 }
 
 .chart-placeholder {

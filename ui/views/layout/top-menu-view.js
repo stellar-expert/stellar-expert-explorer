@@ -18,7 +18,8 @@ const services = [
     {title: 'Account Demolisher', href: resolvePath('', 'demolisher')},
     {title: 'Tax Data Export', href: "https://ledgers.tax/"},
     {title: 'Protocol Versions History', href: resolvePath('protocol-history')},
-    {title: 'Asset Lists Catalogue', href: '/asset-lists'}
+    {title: 'Asset Lists Catalogue', href: '/asset-lists'},
+    {title: 'Live Network Status', href: resolvePath('live-network-status')}
     //{title: 'Account Demolisher', href: resolvePath('', 'demolisher')}
 ]
 

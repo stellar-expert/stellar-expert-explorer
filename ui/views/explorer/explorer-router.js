@@ -26,6 +26,7 @@ import ContractVersions from './contract/contract-versions-view'
 import ClaimableBalanceView from './claimable-balance/claimable-balance-view'
 import StagedSorobanConfigChanges from './protocol/staged-soroban-config-changes-view'
 import SorobanTopContractsView from './ledger/soroban-top-contracts-view'
+import LiveNetworkStatus from './metrics/live-network-status'
 
 export default function ExplorerRouter({match}) {
     const {path} = match
@@ -64,6 +65,7 @@ export default function ExplorerRouter({match}) {
             <Route path={`${path}/search/new`} component={DedicatedSearchBoxView}/>
             <Route path={`${path}/search`} component={SearchRedirect}/>
             <Route path={`${path}/operations-live-stream`} component={ActivityStream}/>
+            <Route path={`${path}/live-network-status`} component={LiveNetworkStatus}/>
             <Route component={NotFoundView}/>
         </Switch>
     </div>

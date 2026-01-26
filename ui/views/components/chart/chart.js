@@ -72,7 +72,7 @@ export default function Chart({
     return <div className={cn('chart', container, className)} style={containerStyle}>
         {!!title && <h3>{title}</h3>}
         {children}
-        <hr className="flare"/>
+        {container !== 'no-flare' && <hr className="flare"/>}
         <div className="v-center-block">
             <div id={chartIdRef.current}/>
         </div>
