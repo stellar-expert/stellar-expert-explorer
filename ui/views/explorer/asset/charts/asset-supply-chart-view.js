@@ -1,14 +1,14 @@
 import React from 'react'
 import {useAssetMeta} from '@stellar-expert/ui-framework'
-import {useAssetHistory} from '../../../../business-logic/api/asset-api'
-import Chart from '../../../components/chart/chart'
-import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 import {day, trimDate} from '../../../../util/date-utils'
+import Chart from '../../../components/chart/chart'
+import {useAssetHistory} from '../../../../business-logic/api/asset-api'
+import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 
 export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noTitle}) {
     const {data, loaded} = useAssetHistory(asset.descriptor)
     const assetMeta = useAssetMeta(asset.asset)
-    if (!loaded)
+    if (!loaded || !assetMeta)
         return <Chart.Loader/>
     if (!(data?.history instanceof Array))
         return <Chart.Loader unavailable/>
@@ -67,7 +67,11 @@ export default Chart.withErrorBoundary(function AssetSupplyChartView({asset, noT
                     if (fee_pool) {
                         s -= fee_pool
                     }
-                    assetSupply.push([timestamp, Math.round(s / 100000) / 100])
+                    const decimals = assetMeta?.decimals || 7
+                    if (decimals > 2) {
+                        s = Math.floor(s / 10 ** (decimals - 2)) / 100
+                    }
+                    assetSupply.push([timestamp, s])
                 }
                 if (trustlines) {
                     assetTrustlines.push([timestamp, trustlines[2]])
