@@ -26,7 +26,7 @@ async function queryTradesList(network, queryFilter, basePath, {ts, order, curso
 
     if (cursor) {
         //TODO: automatically determine min/max year based on cursor
-        queryFilter.push({range: {id: {[order === 'asc' ? '$gt' : '$lt']: cursor}}})
+        queryFilter.push({range: {id: {[order === 'asc' ? 'gt' : 'lt']: cursor}}})
     }
     let rows = await elasticQuery.search({
         filter: queryFilter,

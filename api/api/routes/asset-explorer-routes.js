@@ -10,7 +10,7 @@ const {queryAssetsMeta} = require('../../business-logic/asset/asset-meta')
 const {queryAssetTrades} = require('../../business-logic/dex/trades')
 const {queryAssetHolders, queryHolderPosition, queryAssetDistribution} = require('../../business-logic/asset/asset-holders')
 const {queryAssetPrices} = require('../../business-logic/asset/asset-price')
-const {aggregateAssetPriceCandlesData} = require('../../business-logic/asset/asset-ohlcvt')
+const {aggregateAssetPriceCandlesData, aggregateAssetWeightedPrices} = require('../../business-logic/asset/asset-ohlcvt')
 
 module.exports = function (app) {
     registerRoute(app,
@@ -32,6 +32,11 @@ module.exports = function (app) {
         'asset/price',
         {cache: 'stats', cors: 'open'},
         ({params, query, path}) => queryAssetPrices(params.network, path, query))
+
+    registerRoute(app,
+        'asset/price-history',
+        {cache: 'stats', billingCategory: 'assetCandles'},
+        ({params, query}) => aggregateAssetWeightedPrices(params.network, query))
 
     registerRoute(app,
         'asset/:asset',

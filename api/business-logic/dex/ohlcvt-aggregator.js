@@ -7,7 +7,7 @@ const errors = require('../errors')
 const standardResolutions = [
     300, //5 minutes
     900, //15 minutes
-    1800, //15 minutes
+    1800, //30 minutes
     3600, //1 hour
     7200, //2 hours
     14400, //4 hours
@@ -42,14 +42,7 @@ const OHLCVT = {
  * @return {Promise<[][]>}
  */
 async function aggregateOhlcvt({network, collection, predicate, order, from, to, resolution, reverse}) {
-    let scale = '$5m'
-    if (resolution >= 14400) { //switch to hi-res collection with larger timeframes
-        if (resolution >= 86400) {
-            scale = '$d'
-        } else {
-            scale = '$4h'
-        }
-    }
+    const scale = chooseScaleOhlcvtScale(resolution)
     const rangeFrom = trimDate(from, 24)
 
     let data = await db[network].collection(collection).aggregate(
@@ -91,6 +84,51 @@ async function aggregateOhlcvt({network, collection, predicate, order, from, to,
 }
 
 /**
+ * Aggregate weighted prices (base_volume/quote_volume)
+ * @param {'public'|'testnet'} network
+ * @param {'asset_ohlcvt'|'market_ohlcvt'} collection
+ * @param {{}} predicate
+ * @param {1|-1} order
+ * @param {Number} from
+ * @param {Number} to
+ * @param {Number} resolution
+ * @return {Promise<{Object,<string,number[]>>}
+ */
+async function aggregateWeightedPrices({network, collection, predicate, order, from, to, resolution}) {
+    const scale = chooseScaleOhlcvtScale(resolution)
+    const rangeFrom = trimDate(from, 24)
+    const assetSelector = collection === 'asset_ohlcvt' ? '$asset' : '$assets'
+
+    let data = await db[network].collection(collection).aggregate(
+        [
+            {$match: {...predicate, 'd.0.0': {$gte: rangeFrom, $lt: to}}},
+            {$replaceRoot: {newRoot: {asset: assetSelector, ohlcvt: scale}}},
+            {$unwind: {path: '$ohlcvt'}},
+            {$match: {['ohlcvt.' + OHLCVT.TIMESTAMP]: {$gte: from, $lt: to}}},
+            {
+                $group: {
+                    _id: {
+                        asset: '$asset',
+                        ts: {$floor: {$divide: [{$arrayElemAt: ['$ohlcvt', OHLCVT.TIMESTAMP]}, resolution]}}
+                    },
+                    vb: {$sum: {$arrayElemAt: ['$ohlcvt', OHLCVT.BASE_VOLUME]}},
+                    vq: {$sum: {$arrayElemAt: ['$ohlcvt', OHLCVT.QUOTE_VOLUME]}}
+                }
+            },
+            {$project: {_id: 0, asset: '$_id.asset', ts: '$_id.ts', price: {$divide: ['$vb', '$vq']}}},
+            {$sort: {asset: 1, ts: order}}
+        ]
+    ).toArray()
+    const res = {}
+    for (const {asset, ts, price} of data) {
+        const assetKey = asset instanceof Array ? asset.join('/') : asset
+        let container = res[assetKey] ?? (res[assetKey] = [])
+        container.push([ts, price])
+    }
+    return res
+}
+
+/**
  *
  * @param {'public'|'testnet'} network
  * @param {'asset_ohlcvt'|'market_ohlcvt'} collection
@@ -115,13 +153,12 @@ async function locateOhlcPrice(network, collection, assetFilter, ts = undefined,
     }
     const pipeline = [
         {$match: filter},
+        {$sort: {'d.0.0': -1}},
         {
             $group: {
                 _id: collection === 'asset_ohlcvt' ? '$asset' : '$assets',
                 price: {
-                    $first: {
-                        $arrayElemAt: [{$first: '$d'}, OHLCVT.CLOSE]
-                    }
+                    $first: {values: ts ? '$5m' : '$d'}
                 },
                 ts: {
                     $first: {
@@ -129,14 +166,17 @@ async function locateOhlcPrice(network, collection, assetFilter, ts = undefined,
                     }
                 }
             }
-        },
-        {$sort: {ts: -1}}
+        }
     ]
 
     const data = await db[network].collection(collection).aggregate(pipeline).toArray()
     const res = new Map()
     for (const {_id, price} of data) {
-        res.set(_id, price)
+        const tsPriceRecord = price.values.findLast(record => !ts || record[OHLCVT.TIMESTAMP] <= ts)
+        if (!tsPriceRecord)
+            continue
+        const weightedPrice = tsPriceRecord[OHLCVT.QUOTE_VOLUME] / tsPriceRecord[OHLCVT.BASE_VOLUME] //weighted average price for a given period
+        res.set(_id, weightedPrice)
     }
     return res
 }
@@ -183,9 +223,10 @@ async function loadDailyOhlcPrices(network, collection, assetFilter, from) {
  * @param {Number|String} to
  * @param {Number|String} resolution
  * @param {Number|String} order
+ * @param {Number} [maxRecords]
  * @return {{from: Number, to: Number, order: Number, resolution: Number}}
  */
-function parseBoundaries({from = 0, to, resolution = 'auto', order}) {
+function parseBoundaries({from = 0, to, resolution = 'auto', order}, maxRecords = 200) {
     from = parseInt(from, 10)
     if (isNaN(from) || from < 0 || from > maxUnixTime)
         throw errors.validationError('from')
@@ -203,9 +244,9 @@ function parseBoundaries({from = 0, to, resolution = 'auto', order}) {
     }
 
     order = normalizeOrder(order, 1)
-    resolution = optimizeResolution(from, to, resolution)
+    resolution = optimizeResolution(from, to, resolution, maxRecords)
     if (to === undefined) {
-        to = Math.min(from + resolution * 200, maxUnixTime)
+        to = Math.min(from + resolution * maxRecords, maxUnixTime)
     }
     return {from, to, order, resolution}
 }
@@ -214,9 +255,10 @@ function parseBoundaries({from = 0, to, resolution = 'auto', order}) {
  * @param {Number} from
  * @param {Number} to
  * @param {Number|String} originalResolution
+ * @param {Number} maxRecords
  * @return {Number}
  */
-function optimizeResolution(from, to, originalResolution) {
+function optimizeResolution(from, to, originalResolution, maxRecords) {
     //upper boundary not specified
     if (to === undefined) {
         if (!standardResolutions.includes(originalResolution))
@@ -227,13 +269,13 @@ function optimizeResolution(from, to, originalResolution) {
     const span = to - from
     if (originalResolution && originalResolution !== 'auto') {
         if (standardResolutions.includes(originalResolution)) {
-            if (span / originalResolution <= 200)
+            if (span / originalResolution <= maxRecords)
                 return originalResolution
             if (standardResolutions[standardResolutions.length - 1] === originalResolution)
                 return originalResolution
         }
     }
-    const optimal = span / 200
+    const optimal = span / maxRecords
     const res = standardResolutions.find(v => v >= optimal)
     return res || standardResolutions[standardResolutions.length - 1]
 }
@@ -251,10 +293,23 @@ function reverseRecordSides(record) {
     ]
 }
 
+function chooseScaleOhlcvtScale(resolution) {
+    let scale = '$5m'
+    if (resolution >= 14400) { //switch to hi-res collection with larger timeframes
+        if (resolution >= 86400) {
+            scale = '$d'
+        } else {
+            scale = '$4h'
+        }
+    }
+    return scale
+}
+
 module.exports = {
     locateOhlcPrice,
     aggregateOhlcvt,
     loadDailyOhlcPrices,
+    aggregateWeightedPrices,
     parseBoundaries,
     OHLCVT
 }
