@@ -98,9 +98,9 @@ export default Chart.withErrorBoundary(function AccountBalanceChartView({account
             <div>
                 Asset: <AssetSelector value={selectedAsset} predefinedAssets={account.assets} restricted
                                       onChange={setSelectedAsset}/>
-                &nbsp;
-                <a href={formatExplorerLink('asset', selectedAsset)} target="_blank" class="icon-open-new-window"
-                   title="Asset details"/>
+                &emsp;
+                <a href={formatExplorerLink('asset', selectedAsset)} target="_blank"
+                   className="icon-open-new-window text-tiny" title="Asset details"/>
             </div>
             <div>
                 Scale: <Dropdown value={scale} options={['linear', 'logarithmic']} onChange={setScale}/>&emsp;
