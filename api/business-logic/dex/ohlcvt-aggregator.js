@@ -115,7 +115,7 @@ async function aggregateWeightedPrices({network, collection, predicate, order, f
                     vq: {$sum: {$arrayElemAt: ['$ohlcvt', OHLCVT.QUOTE_VOLUME]}}
                 }
             },
-            {$project: {_id: 0, asset: '$_id.asset', ts: '$_id.ts', price: {$divide: ['$vb', '$vq']}}},
+            {$project: {_id: 0, asset: '$_id.asset', ts: '$_id.ts', price: {$divide: ['$vq', '$vb']}}},
             {$sort: {asset: 1, ts: order}}
         ]
     ).toArray()
@@ -146,7 +146,7 @@ async function locateOhlcPrice(network, collection, assetFilter, ts = undefined,
         tsFilter.$lte = ts
     }
     if (ignoreStale) {  //ignore prices older than N days
-        tsFilter.$gt = unixNow() - ignoreStale * 24 * 60 * 60
+        tsFilter.$gt = (ts || unixNow()) - ignoreStale * 24 * 60 * 60
     }
     if (Object.keys(tsFilter).length) {
         filter['d.0.0'] = tsFilter
