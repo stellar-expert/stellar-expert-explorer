@@ -1,6 +1,7 @@
 const db = require('../../connectors/mongodb-connector')
 const errors = require('../errors')
 const {countContractStateEntries} = require('../contract-state/contract-state-query')
+const {fetchBalances} = require('../balance/balances')
 const {validateNetwork, validateAccountAddress} = require('../validators')
 const {aggregateAccountHistory, evaluateActivity} = require('./account-stats-history')
 
@@ -53,10 +54,7 @@ async function queryAccountStats(network, accountAddress) {
 }
 
 async function fetchAssets(network, address) {
-    const balances = await db[network]
-        .collection('balances').find({address}, {projection: {asset: 1, balance: 1, _id: 0}})
-        .toArray()
-
+    const balances = await fetchBalances(network, {address}, {projection: {asset: 1, balance: 1}})
     return balances.sort((a, b) => {
         if (a === 'XLM')
             return -1

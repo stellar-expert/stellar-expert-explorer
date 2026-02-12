@@ -33,8 +33,12 @@ async function queryAssetStats(network, asset) {
         res.price = price
     }
     const combinedStats = combineAssetHistory(assetInfo.history, asset !== 'XLM')
-    const supplyInfo = await getSupplyInfo(network, assetInfo, combinedStats)
-    Object.assign(res, supplyInfo)
+    if (isValidContractAddress(asset)){
+        res.supply = combinedStats.supply
+    } else {
+        const supplyInfo = await getSupplyInfo(network, assetInfo, combinedStats)
+        Object.assign(res, supplyInfo)
+    }
     if (asset !== 'XLM') {
         const supplyInfo = await aggregateAssetSupply(network, [asset])
         res.supply = supplyInfo[asset]

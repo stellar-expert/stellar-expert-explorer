@@ -1,11 +1,14 @@
+const {Decimal128} = require('mongodb')
 const db = require('../../connectors/mongodb-connector')
 const {estimateAssetPrices} = require('../asset/asset-price')
 const {
     validateTimestamp,
     validateNetwork,
-    validateAccountAddress,
-    validateAccountOrContractAddress
+    validateAccountOrContractAddress,
+    isValidContractAddress,
+    validateAssetName
 } = require('../validators')
+const {decimalToBigint} = require('../../utils/decimal')
 
 /**
  * @param {String} network - Stellar network id
@@ -14,36 +17,48 @@ const {
  * @return {Promise<{}[]>}
  */
 async function queryBalances(network, address, ts) {
-    ts = validateTimestamp(ts)
+    const pointInTime = validateTimestamp(ts)
     let balances
-    if (ts) {
+    if (pointInTime) {
         //fetch balances at a given point in time
-        balances = await db[network].collection('balances')
-            .find({address}, {projection: {asset: 1, history: 1, flags: 1, updated: 1, deleted: 1, _id: 0}})
-            .limit(1000)
-            .toArray()
+        balances = await fetchBalances(network, {address}, {
+            projection: {
+                asset: 1,
+                history: 1,
+                flags: 1,
+                updated: 1,
+                deleted: 1,
+                _id: 0
+            }
+        })
 
         balances = balances
             .map(b => {
                 let balance = 0n
                 for (const [ts, record] of Object.entries(b.history)) {
-                    if (parseInt(ts, 10) > ts)
+                    if (parseInt(ts, 10) > pointInTime)
                         break
-                    balance = record[1]
+                    balance = BigInt(record[1])
                 }
                 return {asset: b.asset, balance, flags: b.flags, updated: b.updated, deleted: b.deleted}
             })
     } else {
         //fetch current balances
-        balances = await db[network].collection('balances')
-            .find({address}, {projection: {asset: 1, balance: 1, flags: 1, updated: 1, deleted: 1, _id: 0}})
-            .limit(1000)
-            .toArray()
+        balances = await fetchBalances(network, {address}, {
+            projection: {
+                asset: 1,
+                balance: 1,
+                flags: 1,
+                updated: 1,
+                deleted: 1,
+                _id: 0
+            }
+        })
     }
     //retrieve asset ids for all non-zero balances
     const balanceAssets = balances.filter(b => b.balance > 0).map(t => t.asset)
     //fetch prices
-    const assetPrices = await estimateAssetPrices(network, balanceAssets, ts)
+    const assetPrices = await estimateAssetPrices(network, balanceAssets, pointInTime)
     //prepare result
     const res = balances.map(b => {
         const res = {
@@ -110,4 +125,66 @@ async function estimateAddressValue(network, address, currency = 'USD', ts = und
     }
 }
 
-module.exports = {queryBalances, estimateAddressValue}
+/**
+ * Convert balance query value to match the asset format
+ * @param {string} asset
+ * @param {bigint} balance
+ * @return {bigint|Decimal128}
+ */
+function normalizeBalanceValue(asset, balance) {
+    if (isValidContractAddress(asset)) {
+        if (balance instanceof Decimal128)
+            return balance
+        return Decimal128.fromStringWithRounding(typeof balance === 'string' ? balance : balance.toString())
+    }
+    return balance
+}
+
+/**
+ *
+ * @param {string} network
+ * @param {{}} filter
+ * @param {number} [limit=1000]
+ * @param {{}} [projection]
+ * @param {{}} [sort]
+ * @param {{}} [hint]
+ * @return {Promise<*>}
+ */
+async function fetchBalances(network, filter, {limit = 1000, projection = {}, sort, hint}) {
+    if (projection._id === undefined) {
+        projection._id = 0
+    }
+
+    const params = {projection, limit}
+    if (sort) {
+        params.sort = sort
+    }
+    if (hint) {
+        params.hint = hint
+    }
+    const res = await db[network]
+        .collection('balances')
+        .find(filter, params)
+        .toArray()
+
+    for (let record of res) {
+        if (record.balance instanceof Decimal128) {
+            record.balance = decimalToBigint(record.balance)
+        }
+    }
+    return res
+}
+
+/**
+ * Fetch number of balances greater than a given value
+ * @param {string} network
+ * @param {string} asset
+ * @param {bigint} value
+ * @return {Promise<number>}
+ */
+async function countBalancesGt(network, asset, value) {
+    return await db[network].collection('balances')
+        .countDocuments({asset, balance: {$gt: normalizeBalanceValue(asset, value)}})
+}
+
+module.exports = {queryBalances, estimateAddressValue, normalizeBalanceValue, fetchBalances, countBalancesGt}

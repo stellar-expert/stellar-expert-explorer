@@ -43,14 +43,4 @@ module.exports = function (app) {
         'liquidity-pool/:pool/holders',
         {cache: 'stats'},
         ({params, query, path}) => queryAssetHolders(params.network, params.pool, path, query))
-
-    /*    registerRoute(app,
-            'liquidity-pool/:pool/distribution',
-            {cache: 'stats'},
-            ({params, query, path}) => queryLiquidityPoolDistribution(params.network, params.pool))
-
-    registerRoute(app,
-        'liquidity-pool/:pool/position/:account',
-        {cache: 'stats'},
-        ({params, query, path}) => queryLiquidityPoolPosition(params.network, params.pool, params.account))*/
 }

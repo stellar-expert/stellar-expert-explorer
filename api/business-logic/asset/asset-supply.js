@@ -1,11 +1,19 @@
 const db = require('../../connectors/mongodb-connector')
 const {fromStroops} = require('../../utils/formatter')
-const {validateNetwork, validateAssetName} = require('../validators')
+const {validateNetwork, validateAssetName, isValidContractAddress} = require('../validators')
 const errors = require('../errors')
+const {combineAssetHistory} = require('./asset-aggregation')
 
 async function queryAssetSupply(network, asset) {
     validateNetwork(network)
     asset = validateAssetName(asset)
+    if (isValidContractAddress(asset)){
+        const assetInfo = await db[network].collection('assets').findOne({_id:asset})
+        if (!assetInfo)
+            throw errors.notFound('Asset statistics were not found on the ledger. Check if you specified the asset correctly.')
+        const combinedStats = combineAssetHistory(assetInfo.history, true)
+        return fromStroops(combinedStats.supply)
+    }
 
     const supplyInfo = await aggregateAssetSupply(network, [asset])
     const supply = supplyInfo[asset]

@@ -1,19 +1,17 @@
-const db = require('../../connectors/mongodb-connector')
 const {validateNetwork, validateAccountOrContractAddress, validateAssetName} = require('../validators')
 const errors = require('../errors')
+const {fetchBalances} = require('./balances')
 
 async function queryAddressBalanceHistory(network, address, asset) {
     validateNetwork(network)
     validateAccountOrContractAddress(address)
     asset = validateAssetName(asset)
 
-    const trustline = await db[network].collection('balances')
-        .findOne({address, asset}, {projection: {history:1, deleted:1}})
-
+    const [trustline] = await fetchBalances(network, {address, asset}, {projection: {history: 1, deleted: 1}})
     if (!trustline)
         throw errors.notFound('Account balance history was not found on the ledger. Check if you specified account address and asset identifier correctly.')
 
-    const res= []
+    const res = []
     for (let [ts, balance] of Object.entries(trustline.history)) {
         res.push([parseInt(ts), balance[0].toString(), balance[1].toString()])
     }
