@@ -6,7 +6,6 @@ const {
     validateNetwork,
     validateAccountOrContractAddress,
     isValidContractAddress,
-    validateAssetName
 } = require('../validators')
 const {decimalToBigint} = require('../../utils/decimal')
 

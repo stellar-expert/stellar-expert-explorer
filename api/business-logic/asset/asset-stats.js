@@ -38,10 +38,10 @@ async function queryAssetStats(network, asset) {
     } else {
         const supplyInfo = await getSupplyInfo(network, assetInfo, combinedStats)
         Object.assign(res, supplyInfo)
-    }
-    if (asset !== 'XLM') {
-        const supplyInfo = await aggregateAssetSupply(network, [asset])
-        res.supply = supplyInfo[asset]
+        if (asset !== 'XLM') {
+            const supplyInfo = await aggregateAssetSupply(network, [asset])
+            res.supply = supplyInfo[asset]
+        }
     }
     res.trades = combinedStats.trades
     res.traded_amount = combinedStats.tradedAmount
