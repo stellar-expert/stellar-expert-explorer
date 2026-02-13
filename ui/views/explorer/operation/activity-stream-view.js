@@ -6,7 +6,7 @@ import appSettings from '../../../app-settings'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import './activity-stream.scss'
 
-export default function ActivityStreamView() {
+export default function ActivityStreamView({title}) {
     const network = useStellarNetwork()
     const [activity, setActivity] = useState()
     const [loading, setLoading] = useState(false)
@@ -58,27 +58,41 @@ export default function ActivityStreamView() {
         </ErrorNotificationBlock>
     }
 
+    return <ActivityContainerView title={title}>
+        <ul ref={activityContainer}>
+            {activity?.records.map(tx => <li key={tx.txHash}>
+                <div className="text-tiny text-right">
+                    {!tx.successful && <span className="dimmed">
+                        <i className="icon-warning-hexagon color-warning"/> transaction failed
+                    </span>}
+                    {' '}
+                    <TxLink tx={tx.txHash}>
+                        <ElapsedTime ts={new Date(tx.createdAt)} suffix=" ago"/>
+                    </TxLink>
+                </div>
+                <TxOperationsList parsedTx={tx}/>
+                <hr className="flare"/>
+            </li>)}
+            {loading && <li key="loader" className="dimmed text-center loader">
+            </li>}
+        </ul>
+    </ActivityContainerView>
+}
+
+function ActivityContainerView({title, children}) {
+    if (title) {
+        return <div className="segment blank activity-stream">
+            <h3>{title}</h3>
+            <hr className="flare"/>
+            {children}
+        </div>
+    }
+
     return <div className="container narrow">
         <h2>Activity Live Stream</h2>
         <div className="segment blank activity-stream">
             <hr className="flare"/>
-            <ul ref={activityContainer}>
-                {activity?.records.map(tx => <li key={tx.txHash}>
-                    <div className="text-tiny text-right">
-                        {!tx.successful && <span className="dimmed">
-                        <i className="icon-warning-hexagon color-warning"/> transaction failed
-                    </span>}
-                        {' '}
-                        <TxLink tx={tx.txHash}>
-                            <ElapsedTime ts={new Date(tx.createdAt)} suffix=" ago"/>
-                        </TxLink>
-                    </div>
-                    <TxOperationsList parsedTx={tx}/>
-                    <hr className="flare"/>
-                </li>)}
-                {loading && <li key="loader" className="dimmed text-center loader">
-                </li>}
-            </ul>
+            {children}
         </div>
     </div>
 }
