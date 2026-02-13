@@ -14,6 +14,8 @@ async function queryAssetStatsHistory(network, asset) {
         throw errors.notFound()
     const stats = rehydrateAssetHistory(assetInfo.history, asset !== 'XLM')
     //TODO: temporary patch, remove this once all downstream clients switch to the new format
+    if (!stats.length)
+        return stats
     const ohlcvtData = await aggregateOhlcvt({
         network,
         collection: 'asset_ohlcvt',
