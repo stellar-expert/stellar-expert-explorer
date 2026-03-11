@@ -8,7 +8,8 @@ const {
     calculateSequenceOffset,
     normalizeLimit
 } = require('../api-helpers')
-const {validateNetwork, isValidAccountAddress} = require('../validators')
+const {validateNetwork, isValidAccountAddress, isValidContractAddress} = require('../validators')
+const AssetDescriptor = require('./asset-descriptor')
 const {combineAssetHistory} = require('./asset-aggregation')
 const {estimateAssetPrices} = require('./asset-price')
 const {aggregateAssetSupply} = require('./asset-supply')
@@ -110,6 +111,19 @@ async function queryAllAssets(network, basePath, {search, sort, order, cursor, l
         //check whether search is an account address
         if (isValidAccountAddress(search)) {
             q.addQueryFilter({issuer: search})
+        } else if (isValidContractAddress(search)) {
+            const contractInfo = await db[network].collection('contracts').findOne({_id: search},
+                {projection: {code: 1, issuer: 1, traits: 1}})
+            if (contractInfo) {
+                if (contractInfo.traits?.includes('sep41')) { //SEP41 token
+                    q.addQueryFilter({_id: search})
+                } else if (contractInfo.code) { //SAC contract
+                    const _id = new AssetDescriptor(!contractInfo.issuer ? 'XLM' : `${contractInfo.code}-${contractInfo.issuer}`).toFQAN()
+                    q.addQueryFilter({_id})
+                } else {
+                    q.addQueryFilter({_id: null}) //force empty result
+                }
+            }
         } else {
             //check if it's a search by features
             const asFeatureName = search.toUpperCase()

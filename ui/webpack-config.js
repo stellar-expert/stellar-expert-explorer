@@ -9,7 +9,7 @@ module.exports = initWebpackConfig({
             htmlTemplate: './static-template/index.html'
         }
     },
-    outputPath: './public/',
+    outputPath: path.join(__dirname, './public/'),
     staticFilesPath: './static/',
     scss: {
         additionalData: '@import "~@stellar-expert/ui-framework/basic-styles/variables.scss";',
