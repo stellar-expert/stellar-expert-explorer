@@ -13,6 +13,7 @@ const AssetDescriptor = require('./asset-descriptor')
 const {combineAssetHistory} = require('./asset-aggregation')
 const {estimateAssetPrices} = require('./asset-price')
 const {aggregateAssetSupply} = require('./asset-supply')
+const {retrieveAssetContractsMeta} = require('./asset-meta-resolver')
 
 const supportedFeaturesSearch = [{
     terms: ['SEP3', 'SEP0003', 'SEP-0003', 'AUTH_SERVER'],
@@ -52,7 +53,8 @@ async function mapAssetProps(network, assets) {
     const [prices, supply] = await Promise.all([
         estimateAssetPrices(network, ids),
         aggregateAssetSupply(network, ids)])
-    return assets.map(({_id, baseVolume, quoteVolume, history, ...other}) => {
+
+    assets = assets.map(({_id, baseVolume, quoteVolume, history, ...other}) => {
         const props = combineAssetHistory(history, _id !== 'XLM')
         return {
             asset: _id,
@@ -67,6 +69,18 @@ async function mapAssetProps(network, assets) {
             ...other
         }
     })
+
+    const contracts = ids.filter(id => id.length === 56 && id.startsWith('C'))
+    if (contracts.length) {
+        const mapped = await retrieveAssetContractsMeta(network, contracts)
+        for (const record of assets) {
+            const contractInfo = mapped.get(record.asset)
+            if (contractInfo) {
+                Object.assign(record, contractInfo)
+            }
+        }
+    }
+    return assets
 }
 
 async function queryAllAssets(network, basePath, {search, sort, order, cursor, limit, includeUninitialized}) {
