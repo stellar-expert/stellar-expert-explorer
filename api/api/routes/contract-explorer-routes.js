@@ -5,6 +5,7 @@ const {queryAllContracts} = require('../../business-logic/contracts/contract-lis
 const {queryContractStats} = require('../../business-logic/contracts/contract-stats')
 const {queryContractCode} = require('../../business-logic/contracts/contract-code')
 const {queryContractVersions} = require('../../business-logic/contracts/contract-versions')
+const {queryContractEvents} = require('../../business-logic/contracts/contract-events')
 const {queryContractTopUsers, queryContractInvocationStats} = require('../../business-logic/contracts/contract-invocations')
 
 module.exports = function (app) {
@@ -51,6 +52,11 @@ module.exports = function (app) {
         'contract/:contract/invocation-stats',
         {cache: 'stats'},
         ({params, query}) => queryContractInvocationStats(params.network, params.contract, query.func, query.since))
+
+    registerRoute(app,
+        'contract/:contract/events',
+        {cache: 'stats'},
+        ({params, path, query}) => queryContractEvents(params.network, params.contract, path, query))
 
     registerRoute(app,
         'wasm/:hash',

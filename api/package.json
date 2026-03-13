@@ -13,16 +13,16 @@
     "url": "https://github.com/stellar-expert/stellar-expert-explorer.git"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^9.2.0",
-    "@stellar/stellar-sdk": "^14.4.3",
+    "@elastic/elasticsearch": "^9.3.4",
+    "@stellar/stellar-sdk": "^14.6.1",
     "@stellar-expert/api-billing-connector": "github:stellar-expert/api-billing-connector#v1.4.0",
     "body-parser": "^1.20.4",
     "cors": "^2.8.5",
     "express": "^4.22.1",
     "lru-cache": "^9.1.2",
-    "mongodb": "^7.0.0",
+    "mongodb": "^7.1.0",
     "morgan": "^1.10.1",
-    "simple-git": "^3.30.0"
+    "simple-git": "^3.33.0"
   },
   "devDependencies": {
     "@stellar-expert/eslint-config-js": "^1.1.0"
