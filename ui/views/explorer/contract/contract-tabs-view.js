@@ -4,6 +4,7 @@ import {navigation} from '@stellar-expert/navigation'
 import TxHistoryView from '../tx/tx-history-view'
 import {ContractInterfaceView} from './contract-interface-view'
 import ContractUsersView from './contract-users-view'
+import ContractEventsView from './contract-events-view'
 
 export default function ContractTabsView({contract}) {
     const {query} = navigation
@@ -24,6 +25,11 @@ export default function ContractTabsView({contract}) {
             title: 'History',
             isDefault: true,
             render: () => <TxHistoryView {...operationsHistoryProps}/>
+        },
+        {
+            name: 'events',
+            title: 'Events',
+            render: () => <ContractEventsView contract={contract.address}/>
         }
     ]
     if (contract.wasm) {
