@@ -4,7 +4,7 @@ const {preparePagedData, normalizeOrder, normalizeLimit} = require('../api-helpe
 const {validateNetwork, validateContractAddress} = require('../validators')
 const errors = require('../errors')
 
-async function queryEvents(network, queryFilter, basePath, {order, cursor, limit}) {
+async function queryEvents(network, queryFilter, basePath, {order, cursor, limit, ...otherQueryParams}) {
     validateNetwork(network)
     order = normalizeOrder(order, -1) === 1 ? 'asc' : 'desc'
     limit = normalizeLimit(limit, 20, 200)
@@ -34,7 +34,7 @@ async function queryEvents(network, queryFilter, basePath, {order, cursor, limit
             paging_token: id
         }
     })
-    return preparePagedData(basePath, {order, cursor, limit}, rows)
+    return preparePagedData(basePath, {order, cursor, limit, ...otherQueryParams}, rows)
 }
 
 async function queryContractEvents(network, contract, basePath, query) {
@@ -44,6 +44,20 @@ async function queryContractEvents(network, contract, basePath, query) {
     if (!contractInfo)
         throw errors.notFound('Contract was not found on the ledger. Check if you specified the asset identifier correctly.')
     const filter = [{term: {contract}}]
+    let {topic} = query
+    if (topic) {
+        if (!(topic instanceof Array)) {
+            topic = [topic]
+        }
+        filter.push({
+            terms_set: {
+                topics: {
+                    terms: topic,
+                    minimum_should_match: topic.length
+                }
+            }
+        })
+    }
     return await queryEvents(network, filter, basePath, query)
 }
 
