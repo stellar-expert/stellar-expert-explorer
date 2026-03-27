@@ -7,7 +7,7 @@ import {AssetEditor} from './editors/tx-asset-filter-view'
 import {AccountEditor} from './editors/tx-account-filter-view'
 import {TimestampEditor} from './editors/tx-timestamp-filter-view'
 
-function TextEditor({value, setValue, mask}) {
+export function TextEditor({value, setValue, mask}) {
     const [internalValue, setInternalValue] = useState(value || '')
 
     const onChange = useCallback(function (e) {
