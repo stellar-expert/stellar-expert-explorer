@@ -1,14 +1,13 @@
-import React, {useCallback, useEffect, useState} from 'react'
-import {parseQuery} from '@stellar-expert/navigation'
+import React, {useState} from 'react'
 import {
     withErrorBoundary,
     AccountAddress,
     useExplorerPaginatedApi,
     UtcTimestamp,
-    ScVal,
-    useAutoFocusRef
+    ScVal, formatExplorerLink
 } from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
+import ContractFilterView from './filters/contract-filter-view'
 import '../tx/filters/tx-filter.scss'
 
 export default withErrorBoundary(function ContractEventsView({contract}) {
@@ -26,7 +25,7 @@ export default withErrorBoundary(function ContractEventsView({contract}) {
         })
 
     return <div className="relative segment blank">
-        <TopicFilterView filter={filter} updateFilter={setFilter}/>
+        <ContractFilterView onChange={setFilter}/>
         <table className="table exportable micro-space">
             <thead>
             <tr>
@@ -37,7 +36,9 @@ export default withErrorBoundary(function ContractEventsView({contract}) {
             </tr>
             </thead>
             <tbody className="condensed">
-            {contractEvents.data.map(entry => <tr key={entry.paging_token}>
+            {contractEvents.data.map(entry => {
+                const [operationId] = entry.id.split('-')
+                return <tr key={entry.paging_token}>
                 <td data-header="Topics: " style={{verticalAlign: 'top', minWidth: '15em'}}>
                     <ScVal value={entry.topicsXdr} indent/>
                 </td>
@@ -48,9 +49,9 @@ export default withErrorBoundary(function ContractEventsView({contract}) {
                     <AccountAddress account={entry.initiator}/>
                 </td>
                 <td className="nowrap" data-header="Date: " style={{verticalAlign: 'top'}}>
-                    <UtcTimestamp date={entry.ts}/>
+                    <a href={formatExplorerLink('op', operationId)}><UtcTimestamp date={entry.ts}/></a>
                 </td>
-            </tr>)}
+            </tr>})}
             </tbody>
         </table>
         {!contractEvents.loaded && <div className="loader"/>}
@@ -60,73 +61,3 @@ export default withErrorBoundary(function ContractEventsView({contract}) {
         <GridDataActionsView model={contractEvents}/>
     </div>
 })
-
-function TopicFilterView({filter, updateFilter}) {
-    const [topics, setTopics] = useState(filter?.topic || [])
-    const [isEdit, setIsEdit] = useState(false)
-
-    useEffect(() => {
-        const params = parseQuery()
-        setTopics(params.topic || [])
-        updateFilter(prev => ({...prev, topic: params.topic}))
-    }, [updateFilter])
-
-    const toggleEdit = useCallback(() => setIsEdit(prev => !prev), [])
-
-    const deleteTopic = useCallback(e => {
-        const {name} = e.currentTarget.dataset
-        setTopics(prev => {
-            const topicList = prev.filter(t => t !== name)
-            updateFilter(prev => ({...prev, topic: topicList}))
-            return topicList
-        })
-    }, [updateFilter])
-
-    const addTopic = useCallback(val => {
-        if (!val) {
-            return setIsEdit(false)
-        }
-        setTopics(topics => {
-            topics.push(val.trim())
-            updateFilter(prev => ({...prev, topic: topics}))
-            return topics
-        })
-        setIsEdit(false)
-    }, [updateFilter])
-
-    return <div>
-        <span className="icon-filter"/>&nbsp;Filter by topic&emsp;
-        {topics.map(topic => <span className="op-filter-condition condensed">
-            &nbsp;{topic}&nbsp;
-            <a href="#" className="icon-delete-circle" data-name={topic} onClick={deleteTopic}/>
-        </span>)}&nbsp;
-        {!isEdit && <a href="#" onClick={toggleEdit}><i className="icon-add-circle"/> Add topic</a>}
-        {isEdit && <TopicFilterForm onChange={addTopic}/>}
-    </div>
-}
-
-function TopicFilterForm({onChange}) {
-    const [value, setValue] = useState('')
-
-    const changeValue = useCallback(e => setValue(e.target.value), [])
-    const saveValue = useCallback(() => onChange(value), [value])
-    const closeForm = useCallback(() => onChange(null), [])
-
-    const onKeyDown = useCallback(function (e) {
-        if (e.key === 'Enter') {
-            saveValue()
-        }
-        if (e.key === 'Escape') {
-            closeForm()
-        }
-    }, [saveValue, closeForm])
-
-    return <div className="micro-space">
-        <div className="op-filter-condition condensed" style={{display: 'initial'}}>&nbsp;
-            <input type="text" value={value} onChange={changeValue} onKeyDown={onKeyDown}
-                   ref={useAutoFocusRef} style={{width: '100%', maxWidth: '20em'}}/>
-            <a href="#" className="icon-ok" onClick={saveValue}/>
-            <a href="#" className="icon-delete-circle" onClick={closeForm}/>
-        </div>
-    </div>
-}
