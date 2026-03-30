@@ -1,4 +1,3 @@
-const config = require('../../app.config.json')
 const errors = require('../errors')
 const db = require('../../connectors/mongodb-connector')
 const elastic = require('../../connectors/elastic-connector')
