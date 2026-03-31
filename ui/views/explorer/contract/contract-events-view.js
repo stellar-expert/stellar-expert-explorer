@@ -4,11 +4,11 @@ import {
     AccountAddress,
     useExplorerPaginatedApi,
     UtcTimestamp,
-    ScVal, formatExplorerLink
+    ScVal,
+    formatExplorerLink
 } from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
-import ContractFilterView from './filters/contract-filter-view'
-import '../tx/filters/tx-filter.scss'
+import ContractFilterView from './contract-filter-view'
 
 export default withErrorBoundary(function ContractEventsView({contract}) {
     const [filter, setFilter] = useState({})
