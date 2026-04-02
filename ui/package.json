@@ -1,7 +1,7 @@
 {
   "name": "ui.stellar.expert",
   "private": true,
-  "version": "0.31.8",
+  "version": "0.32.0",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
@@ -21,32 +21,32 @@
     "url": "https://github.com/stellar-expert/stellar-expert-explorer.git"
   },
   "dependencies": {
-    "@albedo-link/intent": "^0.12.0",
-    "@stellar-asset-lists/sdk": "^1.0.0",
+    "@albedo-link/intent": "^0.13.0",
+    "@stellar-asset-lists/sdk": "^1.0.1",
     "@stellar-expert/asset-descriptor": "1.5.0",
     "@stellar-expert/claimable-balance-utils": "^1.4.1",
     "@stellar-expert/client-cache": "^1.1.0",
-    "@stellar-expert/contract-wasm-interface-parser": "^4.0.0",
+    "@stellar-expert/contract-wasm-interface-parser": "^4.1.0",
     "@stellar-expert/formatter": "^3.0.0",
     "@stellar-expert/navigation": "^1.1.0",
     "@stellar-expert/tx-meta-effects-parser": "^8.3.3",
     "@stellar-expert/tx-signers-inspector": "^1.8.2",
-    "@stellar-expert/ui-framework": "1.17.0",
-    "@stellar/stellar-base": "14.0.4",
-    "@stellar/stellar-sdk": "14.4.3",
+    "@stellar-expert/ui-framework": "1.19.0",
+    "@stellar/stellar-base": "15.0.0",
+    "@stellar/stellar-sdk": "15.0.1",
     "classnames": "^2.3.2",
-    "deepmerge": "^4.2.2",
+    "deepmerge": "^4.3.1",
     "highcharts": "8.1.0",
     "history": "^4.10.1",
-    "markdown-to-jsx": "^7.1.7",
+    "markdown-to-jsx": "^9.7.13",
     "prop-types": "^15.8.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-fast-compare": "^3.2.1",
-    "react-force-graph-2d": "^1.25.1",
+    "react": ">=17 <18.0.0",
+    "react-dom": ">=17 <18.0.0",
+    "react-fast-compare": "^3.2.2",
+    "react-force-graph-2d": "^1.29.1",
     "react-router": "^5.3.3",
-    "sha.js": "^2.4.11",
-    "throttle-debounce": "^5.0.0"
+    "sha.js": "^2.4.12",
+    "throttle-debounce": "^5.0.2"
   },
   "devDependencies": {
     "@redocly/cli": "^1.25.11",
@@ -55,8 +55,8 @@
     "@stellar-expert/webpack-template": "1.5.1"
   },
   "overrides": {
-    "@stellar/stellar-sdk": "14.0.4",
-    "@stellar/stellar-base": "14.4.3"
+    "@stellar/stellar-sdk": "15.0.1",
+    "@stellar/stellar-base": "15.0.0"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
