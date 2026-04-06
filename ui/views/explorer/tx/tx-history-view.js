@@ -1,10 +1,18 @@
 import React, {useCallback, useState} from 'react'
 import deepMerge from 'deepmerge'
-import {TxOperationsList, UtcTimestamp, ErrorBoundary} from '@stellar-expert/ui-framework'
-import {useTxHistory, parseTxDetails, formatExplorerLink, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {
+    TxOperationsList,
+    UtcTimestamp,
+    ErrorBoundary,
+    useTxHistory,
+    parseTxDetails,
+    parseFiltersFromQuery,
+    formatExplorerLink,
+    withErrorBoundary
+} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 import GridDataActionsView from '../../components/grid-data-actions'
-import TxFilterView, {parseFiltersFromQuery} from './filters/tx-filter-view'
+import TxFilterView from './tx-filter-view'
 
 export default withErrorBoundary(function TxHistoryView({presetFilter}) {
     const [filters, setFilters] = useState(presetFilter ? deepMerge(parseFiltersFromQuery(), presetFilter) : (parseFiltersFromQuery() || {}))
