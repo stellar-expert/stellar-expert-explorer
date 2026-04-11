@@ -5,19 +5,19 @@ import {
     useExplorerPaginatedApi,
     UtcTimestamp,
     ScVal,
-    formatExplorerLink
+    formatExplorerLink,
+    parseFiltersFromQuery
 } from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
 import ContractFilterView from './contract-filter-view'
 
 export default withErrorBoundary(function ContractEventsView({contract}) {
-    const [filter, setFilter] = useState({})
+    const [filters, setFilters] = useState(parseFiltersFromQuery() || {})
     const contractEvents = useExplorerPaginatedApi(
         {
             path: `contract/${contract}/events`,
-            query: filter
+            query: filters
         }, {
-            autoReverseRecordsOrder: true,
             defaultSortOrder: 'desc',
             updateLocation: true,
             limit: 20,
@@ -25,7 +25,7 @@ export default withErrorBoundary(function ContractEventsView({contract}) {
         })
 
     return <div className="relative segment blank">
-        <ContractFilterView onChange={setFilter}/>
+        <ContractFilterView onChange={setFilters}/>
         <table className="table exportable micro-space">
             <thead>
             <tr>
@@ -58,6 +58,6 @@ export default withErrorBoundary(function ContractEventsView({contract}) {
         {contractEvents.loaded && !contractEvents.data.length && <div className="dimmed text-center text-small">
             (No event entries)
         </div>}
-        <GridDataActionsView model={contractEvents}/>
+        {!!contractEvents.data.length && <GridDataActionsView model={contractEvents}/>}
     </div>
 })

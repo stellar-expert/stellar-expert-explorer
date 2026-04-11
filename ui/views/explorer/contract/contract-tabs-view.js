@@ -16,7 +16,7 @@ export default function ContractTabsView({contract}) {
 
     function selectTab(tabName) {
         setOpFilter(tabName)
-        navigation.updateQuery({filter: tabName, cursor: undefined, skip: undefined, order: undefined})
+        navigation.updateQuery({filter: tabName, cursor: null, skip: null, limit: null, order: null})
     }
 
     const tabs = [
