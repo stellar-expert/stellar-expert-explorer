@@ -1,21 +1,19 @@
 import React, {useCallback, useState} from 'react'
-import deepMerge from 'deepmerge'
 import {
     TxOperationsList,
     UtcTimestamp,
     ErrorBoundary,
     useTxHistory,
     parseTxDetails,
-    parseFiltersFromQuery,
     formatExplorerLink,
     withErrorBoundary
 } from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 import GridDataActionsView from '../../components/grid-data-actions'
-import TxFilterView from './tx-filter-view'
+import TxFilterView, {parseTxFiltersFromQuery} from './tx-filter-view'
 
 export default withErrorBoundary(function TxHistoryView({presetFilter}) {
-    const [filters, setFilters] = useState(presetFilter ? deepMerge(parseFiltersFromQuery(), presetFilter) : (parseFiltersFromQuery() || {}))
+    const [filters, setFilters] = useState(parseTxFiltersFromQuery(presetFilter))
     const updateLocation = useCallback(function (params) {
         const res = {...params}
         for (let [key, value] of Object.entries(params)) {

@@ -1,5 +1,5 @@
 import React from 'react'
-import {FilterView} from '@stellar-expert/ui-framework'
+import {FilterView, parseFiltersFromQuery} from '@stellar-expert/ui-framework'
 
 const fieldDescriptionMapping = {
     topic: {
@@ -21,6 +21,10 @@ const fieldDescriptionMapping = {
     }
 }
 
-export default function ContractFilterView({presetFilter, onChange}) {
-    return <FilterView presetFilter={presetFilter} fields={fieldDescriptionMapping} onChange={onChange}/>
+export function parseContractFiltersFromQuery() {
+    return parseFiltersFromQuery(fieldDescriptionMapping)
+}
+
+export default function ContractFilterView({onChange}) {
+    return <FilterView fields={fieldDescriptionMapping} onChange={onChange}/>
 }

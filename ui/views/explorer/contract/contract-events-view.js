@@ -5,14 +5,13 @@ import {
     useExplorerPaginatedApi,
     UtcTimestamp,
     ScVal,
-    formatExplorerLink,
-    parseFiltersFromQuery
+    formatExplorerLink
 } from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
-import ContractFilterView from './contract-filter-view'
+import ContractFilterView, {parseContractFiltersFromQuery} from './contract-filter-view'
 
 export default withErrorBoundary(function ContractEventsView({contract}) {
-    const [filters, setFilters] = useState(parseFiltersFromQuery() || {})
+    const [filters, setFilters] = useState(parseContractFiltersFromQuery())
     const contractEvents = useExplorerPaginatedApi(
         {
             path: `contract/${contract}/events`,
