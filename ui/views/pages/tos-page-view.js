@@ -10,18 +10,33 @@ export default function TOS() {
     return <>
         <h2>Terms of Use</h2>
         <div className="segment blank">
-            <div className="dimmed text-right text-small">Last updated: 29 May 2025</div>
+            <div className="dimmed text-right text-small">Last updated: 6 April 2026</div>
             <br/>
             <h3>INTRO</h3>
             <p>
-                Welcome to StellarExpert ("StellarExpert", "Platform"). StellarExpert is administered and maintained by Verdalinhado
-                Unipessoal LDA ("Company", "we," "our" or "us").
+                Welcome to StellarExpert ("StellarExpert", "Platform"). StellarExpert is administered and maintained by Verdalinhado Unipessoal LDA
+                ("Company", "we," "our" or "us").
             </p>
             <p>
-                The term "you" refers to the person visiting the Platform. By accessing or using our Platform and associated content,
+                The term "you" refers to the person or entity accessing or using the Platform. By accessing or using our Platform and associated content,
                 features, software and APIs in the Platform (collectively, the "Service"), you hereby irrevocably agree to be bound by
                 these Terms of Service ("Terms") and <a href="/info/privacy">Privacy Policy</a>.
                 You may not use the Platform or our service if you do not agree to these Terms.
+            </p>
+            <p>
+                By directly accessing StellarExpert API (Application Programming Interface, the "API") and any related endpoints made available by the Company,
+                you additionally agree to those API-specific provisions, which shall take precedence in the event of any conflict with other Sections of these
+                Terms with respect to API usage.
+            </p>
+            <p>
+                "API Content" means any data, responses, metadata, ratings, analytics, classifications, tags, and other output
+                produced or made available by the Company through the API or the Platform, including, without limitation, the selection, arrangement,
+                and enrichment of underlying public Stellar ledger data. "Application" means any software, website, product, or service developed, operated, or
+                distributed by you that integrates with or consumes the API. "API Key" means the unique authentication credential issued by the Company to
+                identify and authorize a user's access to the API.
+            </p>
+            <p>
+                "Stellar Network" represents the public Stellar blockchain protocol and its history archive from which raw ledger data is sourced.
             </p>
             <br/>
             <h3>1. USE OF SERVICES</h3>
