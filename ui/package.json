@@ -29,9 +29,9 @@
     "@stellar-expert/contract-wasm-interface-parser": "^4.1.0",
     "@stellar-expert/formatter": "^3.0.0",
     "@stellar-expert/navigation": "^1.1.0",
-    "@stellar-expert/tx-meta-effects-parser": "^8.3.3",
+    "@stellar-expert/tx-meta-effects-parser": "8.5.0",
     "@stellar-expert/tx-signers-inspector": "^1.8.2",
-    "@stellar-expert/ui-framework": "1.19.0",
+    "@stellar-expert/ui-framework": "1.19.1",
     "@stellar/stellar-base": "15.0.0",
     "@stellar/stellar-sdk": "15.0.1",
     "classnames": "^2.3.2",
@@ -52,11 +52,12 @@
     "@redocly/cli": "^1.25.11",
     "@stellar-expert/eslint-config-js": "^1.1.0",
     "@stellar-expert/eslint-config-react": "^1.1.0",
-    "@stellar-expert/webpack-template": "1.5.1"
+    "@stellar-expert/webpack-template": "1.5.1",
+    "@stellar-expert/tx-meta-effects-parser": "8.5.0"
   },
   "overrides": {
-    "@stellar/stellar-sdk": "15.0.1",
-    "@stellar/stellar-base": "15.0.0"
+    "@stellar/stellar-base": "15.0.0",
+    "@stellar/stellar-sdk": "15.0.1"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
