@@ -1,5 +1,6 @@
 import React from 'react'
-import {FilterView} from '@stellar-expert/ui-framework'
+import {FilterView, parseFiltersFromQuery} from '@stellar-expert/ui-framework'
+import deepMerge from 'deepmerge'
 
 const fieldDescriptionMapping = {
     account: {
@@ -64,6 +65,12 @@ const fieldDescriptionMapping = {
         icon: 'angle-left',
         multi: false
     }
+}
+
+export function parseTxFiltersFromQuery(presetFilter) {
+    return presetFilter ?
+        deepMerge(parseFiltersFromQuery(fieldDescriptionMapping), presetFilter) :
+        parseFiltersFromQuery(fieldDescriptionMapping)
 }
 
 export default function TxFilterView({presetFilter, onChange}) {

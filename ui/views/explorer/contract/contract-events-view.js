@@ -5,14 +5,13 @@ import {
     useExplorerPaginatedApi,
     UtcTimestamp,
     ScVal,
-    formatExplorerLink,
-    parseFiltersFromQuery
+    formatExplorerLink
 } from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
-import ContractFilterView from './contract-filter-view'
+import ContractFilterView, {parseContractFiltersFromQuery} from './contract-filter-view'
 
 export default withErrorBoundary(function ContractEventsView({contract}) {
-    const [filters, setFilters] = useState(parseFiltersFromQuery() || {})
+    const [filters, setFilters] = useState(parseContractFiltersFromQuery())
     const contractEvents = useExplorerPaginatedApi(
         {
             path: `contract/${contract}/events`,
@@ -23,8 +22,10 @@ export default withErrorBoundary(function ContractEventsView({contract}) {
             limit: 20,
             defaultQueryParams: {order: 'desc'}
         })
+    const {data, loading} = contractEvents
 
     return <div className="relative segment blank">
+        {!!loading && data.length > 0 && <div className="loader cover"/>}
         <ContractFilterView onChange={setFilters}/>
         <table className="table exportable micro-space">
             <thead>
@@ -36,7 +37,7 @@ export default withErrorBoundary(function ContractEventsView({contract}) {
             </tr>
             </thead>
             <tbody className="condensed">
-            {contractEvents.data.map(entry => {
+            {data.map(entry => {
                 const [operationId] = entry.id.split('-')
                 return <tr key={entry.paging_token}>
                 <td data-header="Topics: " style={{verticalAlign: 'top', minWidth: '15em'}}>
@@ -54,10 +55,8 @@ export default withErrorBoundary(function ContractEventsView({contract}) {
             </tr>})}
             </tbody>
         </table>
-        {!contractEvents.loaded && <div className="loader"/>}
-        {contractEvents.loaded && !contractEvents.data.length && <div className="dimmed text-center text-small">
-            (No event entries)
-        </div>}
-        {!!contractEvents.data.length && <GridDataActionsView model={contractEvents}/>}
+        {!!loading && <div className="loader"/>}
+        {!loading && !data.length && <div className="dimmed text-center text-small">(No event entries)</div>}
+        {!!data.length && <GridDataActionsView model={contractEvents}/>}
     </div>
 })

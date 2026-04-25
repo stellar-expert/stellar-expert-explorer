@@ -9,7 +9,7 @@ import AssetMarkets from './asset-markets-view'
 
 export default function AssetHistoryTabsView({asset}) {
     const {query} = navigation
-    const [operationsFilter, setOpFilter] = useState(query.filter || 'all')
+    const [operationsFilter, setOpFilter] = useState(query.filter || 'history')
 
     const operationsHistoryProps = {
         endpoint: `asset/${asset.descriptor.toString()}/history/${operationsFilter}`,
