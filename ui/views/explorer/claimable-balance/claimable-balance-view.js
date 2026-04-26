@@ -93,7 +93,7 @@ function normalizeClaimableBalanceId(id) {
 
 function encodeBalanceAsAddress(id) {
     try {
-        if (id.startsWith('B') && StrKey.isValidClaimableBalance(id))
+        if (id.startsWith('B'))
             return id
         return StrKey.encodeClaimableBalance(Buffer.from(id, 'hex'))
     } catch (error) {

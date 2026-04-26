@@ -10,13 +10,13 @@ const claimableBalanceStatusIcons = {
 }
 
 const claimableBalanceStatusHints = {
-    available: 'Balance can be claimed by this account right away',
+    available: 'Balance can be claimed right away',
     pending: 'Balance claiming conditions for this account not met yet',
-    expired: 'Balance can\'t be claimed  by this account because claiming period expired',
-    unfeasible: 'Conditions configured in the way that prevents the balance from claiming by this account'
+    expired: 'Balance can\'t be claimed because claiming period expired',
+    unfeasible: 'Conditions configured in such way that prevents the balance from claiming'
 }
 
-export function ClaimableBalanceStatus({account, claimants}) {
+export function ClaimableBalanceStatus({account, claimants, withText = false}) {
     let status
     if (!account) {
         status = getAnyStatus(claimants)
@@ -25,8 +25,8 @@ export function ClaimableBalanceStatus({account, claimants}) {
         status = claimant ? getClaimableBalanceClaimStatus(claimant) : 'unavailable'
     }
     return <>
-        <span className={claimableBalanceStatusIcons[status] + ' dimmed'} title={claimableBalanceStatusHints[status]}/>
-        <span className="mobile-only">{status}<InfoTooltip>{claimableBalanceStatusHints[status]}</InfoTooltip></span>
+        <span className={claimableBalanceStatusIcons[status] + ' dimmed'}/>{' '}
+        <span>{status}<InfoTooltip>{claimableBalanceStatusHints[status]}</InfoTooltip></span>
     </>
 }
 
