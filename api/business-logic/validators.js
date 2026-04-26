@@ -77,7 +77,7 @@ function validateOfferId(offerId, paramName = 'offerId') {
 
 function validateClaimableBalanceId(cbId) {
     if (/^[0-9a-f]{64}$/.test(cbId)) //convert from legacy format to B-address
-        return StrKey.encodeLiquidityPool(Buffer.from(cbId, 'hex'))
+        return StrKey.encodeClaimableBalance(Buffer.from(cbId, 'hex'))
     if (!StrKey.isValidClaimableBalance(cbId))
         throw errors.validationError('cbid', 'Invalid claimable balance id.')
     return cbId
