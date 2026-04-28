@@ -131,7 +131,7 @@ GDPR policy.
 
 The data controller for personal data processed through the Service is:
 
-**Verdalinhado Unipessoal LDA**, registered in Portugal.  
+**Verdalinhado Unipessoal LDA**, NIF 518218066, registered in Portugal.  
 Contact: [legal@stellar.expert](mailto:legal@stellar.expert)
 
 For data protection inquiries specifically, you may contact us at the same address.
