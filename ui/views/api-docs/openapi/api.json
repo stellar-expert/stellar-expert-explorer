@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Ledger API",
+    "title": "StellarExpert API",
     "version": "0.2.0",
     "termsOfService": "https://stellar.expert/info/tos",
     "contact": {
@@ -16,67 +16,72 @@
   ],
   "tags": [
     {
-      "name": "Ledger Info API",
-      "x-displayName": "Ledger Info API"
+      "name": "Ledgers",
+      "x-displayName": "Ledgers"
     },
     {
-      "name": "Tx API",
-      "x-displayName": "Tx API"
+      "name": "Transactions",
+      "x-displayName": "Transactions"
     },
     {
       "name": "Accounts",
       "x-displayName": "Accounts"
     },
     {
-      "name": "Asset Info API",
-      "x-displayName": "Asset Info API"
+      "name": "Trades",
+      "x-displayName": "Trades"
     },
     {
-      "name": "Asset list",
-      "x-displayName": "Asset list"
+      "name": "Assets",
+      "x-displayName": "Assets"
+    },
+    {
+      "name": "AssetLists",
+      "x-displayName": "AssetLists"
     },
     {
       "name": "Contracts",
       "x-displayName": "Contracts"
     },
     {
-      "name": "Contract data API",
-      "x-displayName": "Contract data API"
+      "name": "ContractData",
+      "x-displayName": "ContractData"
     },
     {
-      "name": "Directory Info API",
-      "x-displayName": "Directory Info API"
+      "name": "DirectoryInfo",
+      "x-displayName": "DirectoryInfo"
     },
     {
-      "name": "Domain meta API",
-      "x-displayName": "Domain meta API"
+      "name": "DomainMeta",
+      "x-displayName": "DomainMeta"
     },
     {
-      "name": "Liquidity Pool API",
-      "x-displayName": "Liquidity Pool API"
+      "name": "LiquidityPools",
+      "x-displayName": "LiquidityPools"
     },
     {
-      "name": "Market Info API",
-      "x-displayName": "Market Info API"
+      "name": "Markets",
+      "x-displayName": "Markets"
     },
     {
-      "name": "Offer Info API",
-      "x-displayName": "Offer Info API"
+      "name": "Offers",
+      "x-displayName": "Offers"
     },
     {
-      "name": "Price API",
-      "x-displayName": "Price API"
+      "name": "Prices",
+      "x-displayName": "Prices"
     }
   ],
   "paths": {
     "/explorer/{network}/ledger/sequence-from-timestamp": {
       "get": {
         "tags": [
-          "Ledger Info API"
+          "Ledgers"
         ],
         "summary": "Find sequence by timestamp",
         "operationId": "querySequenceFromTs",
         "description": "Resolves ledger sequence with a finalization time equal or less than a given timestamp. If the timestamp indicates some time in the future or, vise versa, less than the closing time of the first ledger, server returns 400 Bad request error.",
+        "security": [],
         "parameters": [
           {
             "name": "network",
@@ -140,11 +145,12 @@
     "/explorer/{network}/ledger/timestamp-from-sequence": {
       "get": {
         "tags": [
-          "Ledger Info API"
+          "Ledgers"
         ],
         "summary": "Find timestamp by sequence",
         "operationId": "queryTsFromSequence",
         "description": "Resolves ledger closing timestamp for a given ledger sequence.",
+        "security": [],
         "parameters": [
           {
             "name": "network",
@@ -189,12 +195,12 @@
     "/explorer/{network}/ledger/ledger-stats": {
       "get": {
         "tags": [
-          "Ledger Info API"
+          "Ledgers"
         ],
         "summary": "Fetch ledger statistics",
         "operationId": "queryLedgerStats",
         "description": "Returns list of ledger statistics history. Provides detailed information about  the ledger at a specific point in time, such as: numbers of operations, trades  and payments, amount transactions (failed and finalized), pool fee, new added  assets to Stellar, DEX value, total number of acounts and trustlines, quantity  existing and inactive lumens, average ledger time.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -250,13 +256,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/ledger/ledger-stats/24h": {
       "get": {
         "tags": [
-          "Ledger Info API"
+          "Ledgers"
         ],
         "summary": "Fetch daily ledger stats",
         "operationId": "query24HLedgerStats",
@@ -309,18 +320,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/ledger/protocol-history": {
       "get": {
         "tags": [
-          "Ledger Info API"
+          "Ledgers"
         ],
         "summary": "Protocol upgrades history",
         "operationId": "queryProtocolHistory",
         "description": "Returns list of protocol upgrades. Provides a history of configuration changes  designed to add features, improve performance, and extend network capabilities.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -383,18 +399,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/ledger/stream": {
       "get": {
         "tags": [
-          "Ledger Info API"
+          "Ledgers"
         ],
         "summary": "Listen ledgers stream",
         "operationId": "waitForLedger",
         "description": "Starts ledger stream using long pooling. Server waits for new ledgers. Once a new ledger is processed by the ingestion pipeline this endpoint returns the most recent ledger sequence.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -433,18 +454,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/ledger/last": {
       "get": {
         "tags": [
-          "Ledger Info API"
+          "Ledgers"
         ],
         "summary": "Fetch last ledger sequence",
         "operationId": "fetchLastLedger",
         "description": "Returns the last ledger processed by the network. Provides current information about  the ledger, such as: current sequence and protocol version, total number  of successful/failed transactions and operations, number of lumens and fee pool,  bids and charged fee info.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -520,18 +546,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/ledger/lastn": {
       "get": {
         "tags": [
-          "Ledger Info API"
+          "Ledgers"
         ],
         "summary": "Fetch ledgers",
         "operationId": "fetchLastNLedgers",
         "description": "Returns the list of the specified number of last ledgers processed by the network.  Provides current information about the ledger, such as: current sequence and  protocol version, total number of successful/failed transactions and operations,  number of lumens and fee pool, bids and charged fee info.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -613,18 +644,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/ledger/{sequence}": {
       "get": {
         "tags": [
-          "Ledger Info API"
+          "Ledgers"
         ],
         "summary": "Fetch ledger info",
         "operationId": "fetchLedger",
         "description": "Returns information about ledger processed by the network for a given sequence.  Provides current information about the ledger, such as: current sequence and  protocol version, total number of successful/failed transactions and operations,  number of lumens and fee pool, bids and charged fee info.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -670,18 +706,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/tx": {
       "get": {
         "tags": [
-          "Tx API"
+          "Transactions"
         ],
         "summary": "List of transactions",
         "operationId": "queryAllTransactions",
         "description": "Returns a list of transactions that exist on the Stellar network.  Provides general information such as: identifier and hash of transaction,  sequence number of the ledger and protocol version, encoded body,  meta and result of transaction, ledger timestamp in UNIX format.\n\nAvailable types for filtering the list:\n\nOperation type by group name\n\n`payments` - Group payments including operations: CreateAccount, AccountMerge,  Payment, PathPaymentStrictReceive, PathPaymentStrictSend, CreateClaimableBalance,  ClaimClaimableBalance, Clawback, ClawbackClaimableBalance, Inflation\n\n`trustlines` - Group trustlines including operations: ChangeTrust, AllowTrust,  SetTrustLineFlags\n\n`dex` - Group DEX trading including operations: ManageSellOffer, ManageBuyOffer,  CreatePassiveSellOffer, LiquidityPoolDeposit, LiquidityPoolWithdraw\n\n`settings` - Group account settings including operations: CreateAccount, SetOptions,  ChangeTrust, AllowTrust, AccountMerge, Inflation, ManageData, BumpSequence,  BeginSponsoringFutureReserves, EndSponsoringFutureReserves, RevokeSponsorship,  SetTrustLineFlags\n\n`soroban` - Group smart contracts including operations: InvokeHostFunction,  BumpFootprintExpiration, RestoreFootprint\n\nNumeric operation type code\n\n`0` - CreateAccount\n`1` - Payment\n`2` - PathPaymentStrictReceive\n`3` - ManageSellOffer\n`4` - CreatePassiveSellOffer\n`5` - SetOptions\n`6` - ChangeTrust\n`7` - AllowTrust\n`8` - AccountMerge\n`9` - Inflation\n`10` - ManageData\n`11` - BumpSequence\n`12` - ManageBuyOffer\n`13` - PathPaymentStrictSend\n`14` - CreateClaimableBalance\n`15` - ClaimClaimableBalance\n`16` - BeginSponsoringFutureReserves\n`17` - EndSponsoringFutureReserves\n`18` - RevokeSponsorship\n`19` - Clawback\n`20` - ClawbackClaimableBalance\n`21` - SetTrustLineFlags\n`22` - LiquidityPoolDeposit\n`23` - LiquidityPoolWithdraw\n`24` - InvokeHostFunction\n`25` - BumpFootprintExpiration\n`26` - RestoreFootprint",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -689,7 +730,7 @@
           },
           {
             "name": "address",
-            "$ref": "#/components/parameters/address-array",
+            "$ref": "#/components/parameters/addresses",
             "example": [
               "GA2VRL65L3ZFEFDJ357RGI3MAOKPJZ2Z3IJTPSC24I4KDTNFSVEQURRA"
             ]
@@ -729,8 +770,8 @@
             ]
           },
           {
-            "name": "asset-array",
-            "$ref": "#/components/parameters/asset-array"
+            "name": "assets",
+            "$ref": "#/components/parameters/assets"
           },
           {
             "name": "src_asset",
@@ -963,13 +1004,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/tx/{id}": {
       "get": {
         "tags": [
-          "Tx API"
+          "Transactions"
         ],
         "summary": "Fetch transaction",
         "operationId": "fetchTx",
@@ -1041,13 +1087,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/ledger/{sequence}/tx": {
       "get": {
         "tags": [
-          "Tx API"
+          "Transactions"
         ],
         "summary": "Fetch ledger transactions",
         "operationId": "fetchLedgerTransactions",
@@ -1111,15 +1162,104 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
+      }
+    },
+    "/explorer/{network}/account": {
+      "get": {
+        "operationId": "queryAccountList",
+        "summary": "Search for account by address or metadata.",
+        "description": "Performs account search returning general account information and its statistics.",
+        "x-cost": 10,
+        "tags": [
+          "Accounts"
+        ],
+        "parameters": [
+          {
+            "name": "network",
+            "$ref": "#/components/parameters/network"
+          },
+          {
+            "name": "account",
+            "$ref": "#/components/parameters/account"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account information loaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccountListInfo"
+                  }
+                },
+                "example": [
+                  {
+                    "account": "GAPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7BZU",
+                    "creator": "GCU4DDQXESGMBUDOLKZJJ56TYKAW5JYU3IG5NS7TBOYI34ZIHM5CXDMF",
+                    "activity": {
+                      "monthly": "very high",
+                      "yearly": "very high"
+                    },
+                    "payments": 44715,
+                    "trades": 1721,
+                    "created": 1710889335
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "error": "Bad request. Invalid parameter: \"network\". Unknown network name.",
+                    "status": 400
+                  },
+                  {
+                    "error": "Bad request. Invalid parameter: \"account\". Invalid account public key.",
+                    "status": 400
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "Search parameter not provided",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "error": "Not found.",
+                    "status": 404
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerApiAuth": []
+          }
+        ]
       }
     },
     "/explorer/{network}/account/{account}": {
       "get": {
         "operationId": "queryAccountStats",
-        "summary": "Fetch account info",
-        "description": "Returns information about the given account.  Provides fields such as: creator's account and creation date,  list of trustlines established assets, monthly and yearly activity,  total number of trades and payments.",
-        "cost": 10,
+        "summary": "Load account information.",
+        "description": "Fetches information general account information, its balances and statistics.",
+        "x-cost": 10,
         "tags": [
           "Accounts"
         ],
@@ -1146,16 +1286,16 @@
                 },
                 "example": [
                   {
-                    "account": "GDPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7BZU",
-                    "creator": "GBU4DDQXESGMBUDOLKZJJ56TYKAW5JYU3IG5NS7TBOYI34ZIHM5CXDMF",
+                    "account": "GBPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7BLK",
+                    "creator": "GDU4DDQXESGMBUDOLKZJJ56TYKAW5JYU3IG5NS7TBOYI34ZIHM5CXDX4",
                     "activity": {
                       "monthly": "very high",
                       "yearly": "very high"
                     },
                     "assets": [
                       "XLM",
-                      "RLUSD-GCC5UHLP734WF2YH55T46WIQX76QN45SAB4SXS7EA76LJL2CWK7RLUSD-2",
-                      "FOBOS-GAMP3CO26RFCHLPLFL7MSJKP2KXW3DDD4V4WXIZXFL3TM4RGO64IT5CV-2"
+                      "WUSD-GBC5UHLP734WF2YH55T46WIQX76QN45SAB4SXS7EA76LJL2CWK7WLUSD-1",
+                      "WBTCD-GAMP3CO26RFCHLPLFL7MSJKP2KXW3DDD4V4WXIZXFL3TM4RGO64IT5CV-2"
                     ],
                     "payments": 44715,
                     "trades": 1721,
@@ -1198,7 +1338,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -1208,7 +1348,7 @@
         "operationId": "queryAccountStatsHistory",
         "summary": "Fetch historical account stats",
         "description": "Returns statistics history of total number of payments  and trades at the timestamp for given account.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Accounts"
         ],
@@ -1294,7 +1434,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -1302,12 +1442,13 @@
     "/explorer/{network}/account/{account}/history/trades": {
       "get": {
         "tags": [
-          "Accounts"
+          "Accounts",
+          "Trades"
         ],
         "summary": "Account trades history",
         "operationId": "queryAccountTrades",
-        "description": "Returns the trades history for a given account.  The results of the records provide basic information about trading operations.\n\nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
-        "cost": 10,
+        "description": "Fetches on-chain trades history for given account.",
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -1349,7 +1490,7 @@
                             "records": {
                               "type": "array",
                               "items": {
-                                "$ref": "#/components/schemas/AccountTrade"
+                                "$ref": "#/components/schemas/Trade"
                               }
                             }
                           }
@@ -1361,44 +1502,44 @@
                 "example": {
                   "_links": {
                     "self": {
-                      "href": "/explorer/public/account/GDPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7BZU/history/trades?skip=0&order=desc&limit=2"
+                      "href": "/explorer/public/account/GAPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7B5S/history/trades?order=desc&limit=2"
                     },
                     "prev": {
-                      "href": "/explorer/public/account/GDPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7BZU/history/trades?skip=0&order=asc&limit=2&cursor=7489424762284802074"
+                      "href": "/explorer/public/account/GAPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7B5S/history/trades?order=asc&limit=2&cursor=7489424762284801000"
                     },
                     "next": {
-                      "href": "/explorer/public/account/GDPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7BZU/history/trades?skip=0&order=desc&limit=2&cursor=7489418629071503453"
+                      "href": "/explorer/public/account/GAPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7B5S/history/trades?order=desc&limit=2&cursor=7489418629071504000"
                     }
                   },
                   "_embedded": {
                     "records": [
                       {
-                        "bought_amount": 48888888839027,
-                        "bought_asset": "YUAN-GBLLOQ2J7HUZAXLFRF4E57D43KBBDY667L27YVQQP2XEJWFM3UVRV5YF-1",
-                        "buyer": "GD6HB37PBWRPMXWMM4ROJAOYHADELGWDQHB6KV7GYPPP5RB7IU7DFCMB",
-                        "id": 7489424762284802000,
-                        "offer": 1709701770,
+                        "id": 7489424762284801000,
                         "operation": 242501812106801150,
-                        "price": 223215.01338136618,
-                        "seller": "GDPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7BZU",
-                        "sold_amount": 219021508,
                         "sold_asset": "XLM",
-                        "ts": 1743767588,
-                        "paging_token": 7489424762284802000
+                        "bought_asset": "YUAN-GDLLOQ2J7HUZAXLFRF4E57D43KBBDY667L27YVQQP2XEJWFM3UVRV5YF-1",
+                        "sold_amount": 219021508,
+                        "bought_amount": 48888888839027,
+                        "buyer": "GA6HB37PBWRPMXWMM4ROJAOYHADELGWDQHB6KV7GYPPP5RB7IU7DFC0B",
+                        "pool": "LDYCTSLLZNMRHJYHADELGWDQHB6KV7GYP6K00P5RB7IUYCTSLLZNMRHJ",
+                        "price": 223215.01338136618,
+                        "seller": "GAPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7B5S",
+                        "ts": 1743767568,
+                        "paging_token": 7489424762284801000
                       },
                       {
-                        "bought_amount": 373,
-                        "bought_asset": "TREAD-GANMKTF7SVYEHZ4CTLRKT2MG2OUJNDEA3JGZGTUTHQZOZSWJHHUF6VLM-2",
-                        "buyer": "GCU7LJ5S6U3YCTSLLZNMRHJBSXVI6O5WPQIJ2ESLYTYIUJ7WMSXNYERD",
-                        "id": 7489418629071503000,
-                        "offer": 1705852714,
+                        "id": 7489418629071504000,
                         "operation": 242500746955546620,
-                        "price": 0.05547293277810827,
-                        "seller": "GDPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7BZU",
+                        "sold_asset": "WWTKN-GDPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7B5S-2",
+                        "bought_asset": "XLM",
                         "sold_amount": 6724,
-                        "sold_asset": "XLM",
-                        "ts": 1743766160,
-                        "paging_token": 7489418629071503000
+                        "bought_amount": 373,
+                        "buyer": "GDPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSP7B5S",
+                        "offer": 1705852714,
+                        "price": 0.05547293277810827,
+                        "seller": "GBU7LJ5S6U3YCTSLLZNMRHJBSXVI6O5WPQIJ2ESLYTYIUJ7WMSXNNERD",
+                        "ts": 1743766121,
+                        "paging_token": 7489418629071504000
                       }
                     ]
                   }
@@ -1439,7 +1580,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -1449,7 +1590,7 @@
         "operationId": "queryAddressBalanceHistory",
         "summary": "Fetch account balance history",
         "description": "Fetch balance history of a passed asset for given account address.  By default, the difference between the timestamps of the results is one day.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Accounts"
         ],
@@ -1535,7 +1676,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -1547,8 +1688,8 @@
         ],
         "summary": "Fetch account claimable balances",
         "operationId": "queryAccountClaimableBalances",
-        "description": "Fetch claimable balance of all tokens that have been transferred to the account address.\n\nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
-        "cost": 10,
+        "description": "Fetch claimable balance of all tokens that have been transferred to the account address.    \nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -1624,7 +1765,7 @@
                             }
                           }
                         ],
-                        "id": "OtGclgYIx8cgq9LlSE8NxeYZBnVMK1D/KOoOhp/bhf0=",
+                        "id": "BAPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSPUK90",
                         "sponsor": "GBEC3N4Q4BHLN32HLVLFX3CVKIFDKGDJWR3HAFA7TKG36WXP3HVD5BGI",
                         "value": 341,
                         "created": 1743708321,
@@ -1641,7 +1782,7 @@
                             }
                           }
                         ],
-                        "id": "rlm9hwi7vrLhjxJjOKH4hdU8TwYaWfR7rBmr8Je2nJY=",
+                        "id": "BDPQNABQDNYXQOFOUVH3XHNC7QTAXJPVU5Q47PSARLEEUWGIJKSPUSK2",
                         "sponsor": "GAER53BMAJXS5PSVS4SUWDJ3TRNJ7COUXRYB72HAZQRNRAJK7SXYHHVH",
                         "created": 1743551112,
                         "paging_token": 7488495007869550000
@@ -1685,7 +1826,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -1695,7 +1836,7 @@
         "operationId": "estimateAddressValue",
         "summary": "Estimate address total value",
         "description": "Returns the total value of assets and pool shares for a given account in a specified currency.  Shows balances for each asset and pool (including L-address).",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Accounts"
         ],
@@ -1791,7 +1932,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -1799,7 +1940,7 @@
     "/explorer/{network}/asset": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "List of assets",
         "operationId": "queryAllAssets",
@@ -1985,7 +2126,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -1993,12 +2134,12 @@
     "/explorer/{network}/asset-stats/overall": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Assets overall statistics",
         "operationId": "queryAssetsOverallStats",
         "description": "Returns general statistics for all existing assets on Stellar network.  Including total number of assets that exist on the ledger and total  number of all on-chain trades with overall DEX volume for last 24 hours.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -2054,7 +2195,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -2062,7 +2203,7 @@
     "/explorer/{network}/asset/meta": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Assets metadata",
         "operationId": "queryAssetsMeta",
@@ -2073,8 +2214,8 @@
             "$ref": "#/components/parameters/network"
           },
           {
-            "name": "asset-array",
-            "$ref": "#/components/parameters/asset-array"
+            "name": "assets",
+            "$ref": "#/components/parameters/assets"
           }
         ],
         "responses": {
@@ -2166,7 +2307,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -2174,20 +2315,19 @@
     "/explorer/{network}/asset/price": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Assets metadata",
         "operationId": "queryAssetPrices",
-        "description": "Returns price for all existing assets on Stellar network.  Can handle up to 200 unique assets in one call.",
+        "description": "Returns price for any asset on Stellar network.  Can handle up to 200 unique assets in one call.",
         "parameters": [
           {
             "name": "network",
             "$ref": "#/components/parameters/network"
           },
           {
-            "name": "asset-array",
-            "maxItems": 200,
-            "$ref": "#/components/parameters/asset-array"
+            "name": "assets",
+            "$ref": "#/components/parameters/assets"
           }
         ],
         "responses": {
@@ -2272,7 +2412,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -2280,7 +2420,7 @@
     "/explorer/{network}/asset/{asset}": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Asset statistics",
         "operationId": "queryAssetStats",
@@ -2398,7 +2538,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -2406,12 +2546,12 @@
     "/explorer/{network}/asset/{asset}/stats-history": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Asset statistics history",
         "operationId": "queryAssetStatsHistory",
         "description": "Returns the history of statistical data for a given asset in the format {CODE}-{ISSUER}  (or \"XLM\" for Stellar lumens). Provides the total number and amount of payments and trades,  total issued asset supply and volume, established trustlines and prices in  [OPEN, HIGH, LOW, CLOSE] format with a timestamp.  For XLM, show additional total reserve and pool fee with a timestamp.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -2555,7 +2695,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -2563,11 +2703,12 @@
     "/explorer/{network}/asset/{asset}/rating": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Asset rating",
         "operationId": "queryAssetRating",
         "description": "To solve the problem of assets ranking on StellarExpert, we designed a system of technical indicators based purely on the ledger activity, including\n\n  - asset age (time elapsed sisnce the first payment)\n  - established trustlines\n  - total number of payments\n  - total number of trades\n  - weekly trading volume\n  - market liquidity (based on the relative slippage of {ASSET}/XLM market)\n  - asset interoperability (based on additional asset metadata and supported SEP standards)\n\nAll indicators are calculated on the logarithmic scale to normalize distribution for assets with high trading/transfer activity. The compound rating calculated as the average of all seven indicators can be used to roughly estimate the popularity of any Stellar asset purely from the technical point of view.",
+        "security": [],
         "parameters": [
           {
             "name": "network",
@@ -2631,23 +2772,18 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ]
+        }
       }
     },
     "/explorer/{network}/asset/{asset}/history/trades": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Asset trades history",
         "operationId": "queryAssetTrades",
         "description": "Returns the trades history for a given asset in the format {CODE}-{ISSUER}  (or \"XLM\" for Stellar lumens). Provides detailed information about trade  transactions for specified asset at a certain timestamp.\n\nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -2689,7 +2825,7 @@
                             "records": {
                               "type": "array",
                               "items": {
-                                "$ref": "#/components/schemas/AssetTrade"
+                                "$ref": "#/components/schemas/Trade"
                               }
                             }
                           }
@@ -2783,7 +2919,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -2791,12 +2927,12 @@
     "/explorer/{network}/asset/{asset}/holders": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Asset holders list",
         "operationId": "queryAssetHolders",
         "description": "Returns a list of all accounts holding non-zero amount of the given asset sorted by the balance size. Accounts with an established trustline but with zero balance excluded from the results set.\n\nThis API endpoint follows Stellar Horizon API response format convention. A response result contains records and navigation links.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -2897,7 +3033,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -2905,12 +3041,12 @@
     "/explorer/{network}/asset/{asset}/distribution": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Asset distribution statistics",
         "operationId": "queryAssetDistribution",
         "description": "Returns the number of accounts that own a given asset within a specified range.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -3001,7 +3137,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3009,7 +3145,7 @@
     "/explorer/{network}/asset/{asset}/position/{account}": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Asset holder rank",
         "operationId": "queryAssetHolderPosition",
@@ -3105,7 +3241,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3113,12 +3249,12 @@
     "/explorer/{network}/asset/{asset}/trading-pairs": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Asset trading pairs",
         "operationId": "queryAssetTradingPairs",
         "description": "Returns TOP10 trading pairs for a given asset",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -3188,7 +3324,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3196,11 +3332,12 @@
     "/explorer/{network}/asset/{asset}/supply": {
       "get": {
         "tags": [
-          "Asset Info API"
+          "Assets"
         ],
         "summary": "Asset supply",
         "operationId": "queryAssetSupply",
         "description": "Asset supply endpoint returns the total issued supply for an asset. It is handy for displaying the total number of tokens on the website or providing relevant information to third-party platforms. For example, aggregators often require an API endpoint to track the asset supply.",
+        "security": [],
         "parameters": [
           {
             "name": "network",
@@ -3253,18 +3390,13 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ]
+        }
       }
     },
     "/explorer/{network}/asset-list/top50": {
       "get": {
         "tags": [
-          "Asset list"
+          "AssetLists"
         ],
         "summary": "TOP50 asset list",
         "operationId": "querySAL",
@@ -3304,7 +3436,7 @@
                     "assets": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/AssetDescirptor"
+                        "$ref": "#/components/schemas/AssetDescriptor"
                       }
                     }
                   }
@@ -3358,7 +3490,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3368,7 +3500,7 @@
         "operationId": "queryAllContracts",
         "summary": "Load contract list",
         "description": "Returns a list of contracts that exist on the Stellar network.  Provides information about contracts, such as: contract ownership and creation date,  total number of contract invocation and subinvocation,  number of events/errors and wasm bytecode.\n\nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Contracts"
         ],
@@ -3476,7 +3608,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3486,7 +3618,7 @@
         "operationId": "queryContractStats",
         "summary": "Load contract info",
         "description": "Returns general information of smart contract that exist on the Stellar network.  Provides detailed information for given contract, such as:  contract ownership and creation date, total number of contract invocation and subinvocation,  number of events/errors and wasm bytecode, asset and contract asset,  number of storage entries, versions and validation status.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Contracts"
         ],
@@ -3558,7 +3690,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3568,7 +3700,7 @@
         "operationId": "listContractVersions",
         "summary": "List contract versions",
         "description": "Returns WASM versions history for a given smart contract.  Provides the transaction ID and WASM bytecode in a timestamp.\n\nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Contracts"
         ],
@@ -3662,7 +3794,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3672,7 +3804,7 @@
         "operationId": "queryBalances",
         "summary": "Fetch contract balances",
         "description": "Returns balances of all tokens that have been transferred to the contract address.  Provides the balance and value in USD for each asset.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Contracts"
         ],
@@ -3755,7 +3887,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3765,7 +3897,7 @@
         "operationId": "queryContractBalanceHistory",
         "summary": "Fetch contract balance history",
         "description": "Returns the balance history for the transferred asset for a given smart contract address.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Contracts"
         ],
@@ -3855,7 +3987,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3865,7 +3997,7 @@
         "operationId": "estimateContractValue",
         "summary": "Fetch contract value",
         "description": "Returns total value of assets for a given account in defined currency.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Contracts"
         ],
@@ -3959,7 +4091,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -3969,7 +4101,7 @@
         "operationId": "queryContractTopUsers",
         "summary": "Retrieve top account",
         "description": "Returns a list of account invocations for a given smart contract address.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Contracts"
         ],
@@ -4050,7 +4182,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -4060,7 +4192,7 @@
         "operationId": "queryContractInvocationStats",
         "summary": "Fetch contract invocation statistics",
         "description": "Returns invocation statistics for a given smart contract address.  Information about average data for total number invocations and subinvocations at timestamp.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Contracts"
         ],
@@ -4138,7 +4270,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -4148,7 +4280,7 @@
         "operationId": "loadContractWasmByHash",
         "summary": "Download contract WASM",
         "description": "Returns WASM file for a given smart contract address or WASM hash.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
           "Contracts"
         ],
@@ -4220,7 +4352,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -4228,12 +4360,12 @@
     "/explorer/{network}/contract-data/{address}/{durability}/{key}": {
       "get": {
         "tags": [
-          "Contract data API"
+          "ContractData"
         ],
         "summary": "Contract data statistics",
         "operationId": "fetchContractStateEntry",
         "description": "Returns statistics for a given account or contract.  The result is identified by the necessary durability and key parameters:\n\n`durability` - type of durability, one of [\"instance\" , \"persistent\" , \"temporary\"]\n`key` - base64 encoded string of the raw Result XDR struct",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -4341,7 +4473,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -4351,9 +4483,9 @@
         "operationId": "queryContractData",
         "summary": "Load contract data list",
         "description": "Returns list of contract data entries.  Each entry contains information about changes in the contract.\n\nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
-        "cost": 10,
+        "x-cost": 10,
         "tags": [
-          "Contract data API"
+          "ContractData"
         ],
         "parameters": [
           {
@@ -4463,7 +4595,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -4474,7 +4606,7 @@
         "summary": "Directory entries",
         "description": "Returns the list of directory entries with paging navigation links. Optionally filtered by address, tag, or arbitrary search string. This API endpoint follows Stellar Horizon API response format convention. A response result contains records and navigation links.\n\n#### Query examples:\nFetch information about multiple accounts in one call\n\n`curl -g \"https://api.stellar.expert/explorer/directory?address[]=GA6HCMBLTZS5VYYBCATRBRZ3BZJMAFUDKYYF6AH6MVCMGWMRDNSWJPIH&address[]=GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S\"`\n\nSearch for Kraken's deposit account\n\n`curl \"https://api.stellar.expert/explorer/directory?search=kraken\"`\n\nFind accounts tagged as malicious or unsafe\n\n`curl -g \"https://api.stellar.expert/explorer/directory?tag[]=malicious&tag[]=unsafe\"`\n\nLookup addresses reported for \"staking\"-related scams\n\n`curl -g \"https://api.stellar.expert/explorer/directory?tag[]=malicious&search=stacking\"`",
         "tags": [
-          "Directory Info API"
+          "DirectoryInfo"
         ],
         "parameters": [
           {
@@ -4630,17 +4762,13 @@
             }
           }
         },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ]
+        "security": []
       }
     },
     "/explorer/directory/{address}": {
       "get": {
         "tags": [
-          "Directory Info API"
+          "DirectoryInfo"
         ],
         "operationId": "getDirectoryEntry",
         "summary": "Address Directory info",
@@ -4685,17 +4813,13 @@
             }
           }
         },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ]
+        "security": []
       }
     },
     "/explorer/directory/tags": {
       "get": {
         "tags": [
-          "Directory Info API"
+          "DirectoryInfo"
         ],
         "operationId": "getDirectoryTags",
         "summary": "All Directory tags",
@@ -4761,11 +4885,7 @@
             "description": "Available Directory tags fetched"
           }
         },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ]
+        "security": []
       }
     },
     "/explorer/directory/blocked-domains": {
@@ -4774,7 +4894,7 @@
         "summary": "Blocked domains list",
         "description": "Returns the list of domains reported by the community for fraudulent activity. \n\nThis API endpoint follows Stellar Horizon API response format convention. A response result contains records and navigation links.",
         "tags": [
-          "Directory Info API"
+          "DirectoryInfo"
         ],
         "parameters": [
           {
@@ -4880,17 +5000,13 @@
             }
           }
         },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ]
+        "security": []
       }
     },
     "/explorer/directory/blocked-domains/{domain}": {
       "get": {
         "tags": [
-          "Directory Info API"
+          "DirectoryInfo"
         ],
         "summary": "Check domain",
         "operationId": "isDomainBlocked",
@@ -4935,17 +5051,13 @@
             }
           }
         },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ]
+        "security": []
       }
     },
     "/explorer/{network}/domain-meta": {
       "get": {
         "tags": [
-          "Domain meta API"
+          "DomainMeta"
         ],
         "summary": "Domain metadata",
         "operationId": "fetchDomainMeta",
@@ -5037,7 +5149,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -5045,7 +5157,7 @@
     "/explorer/{network}/liquidity-pool": {
       "get": {
         "tags": [
-          "Liquidity Pool API"
+          "LiquidityPools"
         ],
         "summary": "Liquidity pool list",
         "operationId": "queryAllLiquidityPools",
@@ -5225,7 +5337,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -5233,7 +5345,7 @@
     "/explorer/{network}/liquidity-pool/{poolId}": {
       "get": {
         "tags": [
-          "Liquidity Pool API"
+          "LiquidityPools"
         ],
         "summary": "Liquidity pool statistics",
         "operationId": "queryLiquidityPoolStats",
@@ -5366,7 +5478,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -5374,7 +5486,7 @@
     "/explorer/{network}/liquidity-pool/{poolId}/stats-history": {
       "get": {
         "tags": [
-          "Liquidity Pool API"
+          "LiquidityPools"
         ],
         "operationId": "queryLiquidityPoolHistory",
         "summary": "Fetch liquidity pool history",
@@ -5534,7 +5646,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -5542,12 +5654,12 @@
     "/explorer/{network}/liquidity-pool/{poolId}/history/trades": {
       "get": {
         "tags": [
-          "Liquidity Pool API"
+          "LiquidityPools"
         ],
         "summary": "Liquidity pool trades history",
         "operationId": "queryPoolTrades",
         "description": "Returns the trades history for a given liquidity pool, identified by poolId.\n\nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -5593,7 +5705,7 @@
                             "records": {
                               "type": "array",
                               "items": {
-                                "$ref": "#/components/schemas/LiquidityPoolTrades"
+                                "$ref": "#/components/schemas/Trade"
                               }
                             }
                           }
@@ -5668,7 +5780,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -5676,12 +5788,12 @@
     "/explorer/{network}/liquidity-pool/{poolId}/holders": {
       "get": {
         "tags": [
-          "Liquidity Pool API"
+          "LiquidityPools"
         ],
         "summary": "Pool shards holders list",
         "operationId": "queryPoolHolders",
         "description": "Returns a list of all accounts holding non-zero amount of the pool shards sorted by the balance size.\n\nThis API endpoint follows Stellar Horizon API response format convention. A response result contains records and navigation links.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -5791,7 +5903,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -5799,12 +5911,12 @@
     "/explorer/{network}/market": {
       "get": {
         "tags": [
-          "Market Info API"
+          "Markets"
         ],
         "summary": "Market list",
         "operationId": "queryMarkets",
         "description": "Returns a list of markets that exist on the Stellar network.  Provides general information about asset pair, such as:  base and quote volume for 7 days/24 hours, price for 7 days  and total number of trades for 24 hours.\n\nPossible type filter:\n\n`all` - returns all existing markets\n`xlm` - returns all xml markets\n`crypto` - returns all markets with asset type crypto\n`fiat` - returns all markets with asset type fiat\n`other` - returns all other markets, except xlm, crypto and fiat markets\n\nPossible sorting options:\n\n`created` - date of market creation\n`trades7d` - total number of trades for 7 days period \n`trades24h` - total number of trades for last 24 hour\n\nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -6021,7 +6133,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -6029,12 +6141,12 @@
     "/explorer/{network}/market/{selling}/{buying}": {
       "get": {
         "tags": [
-          "Market Info API"
+          "Markets"
         ],
         "summary": "Market statistics",
         "operationId": "queryMarketStats",
         "description": "Returns a list of selling/buying assets that exist on the Stellar network.  Provides general information about asset pair, such as: base and quote  volume for 7 days/24 hours, total number of trades for 24 hours.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -6118,7 +6230,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -6126,7 +6238,7 @@
     "/explorer/{network}/active-market/{asset}": {
       "get": {
         "tags": [
-          "Market Info API"
+          "Markets"
         ],
         "summary": "active Usdc markets",
         "operationId": "fetchActiveUsdcMarkets",
@@ -6198,7 +6310,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -6206,12 +6318,12 @@
     "/explorer/{network}/offer/{offerId}": {
       "get": {
         "tags": [
-          "Offer Info API"
+          "Offers"
         ],
         "summary": "Offer details",
         "operationId": "queryOfferDetails",
         "description": "Returns general details for a given offer, identified by offerId.  Provides the following information: which account created/updated  the offer and when, selling/buying pair, total number of trades  for this offer, the offer amount and price.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -6312,7 +6424,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -6320,12 +6432,12 @@
     "/explorer/{network}/offer/{offerId}/history/trades": {
       "get": {
         "tags": [
-          "Offer Info API"
+          "Offers"
         ],
         "summary": "Offer trades history",
         "operationId": "queryOfferTrades",
         "description": "Returns the trades history for a given offer identifier.  Provides the following information: buyer/seller account,  transaction identifier, transaction asset pair with their  amount and price for the timestamp.\n\nThis API endpoint follows Stellar Horizon API response format convention.  A response result contains records and navigation links.",
-        "cost": 10,
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -6367,7 +6479,7 @@
                             "records": {
                               "type": "array",
                               "items": {
-                                "$ref": "#/components/schemas/OfferTrade"
+                                "$ref": "#/components/schemas/Trade"
                               }
                             }
                           }
@@ -6440,7 +6552,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -6448,12 +6560,12 @@
     "/explorer/{network}/asset/{asset}/candles": {
       "get": {
         "tags": [
-          "Price API"
+          "Prices"
         ],
         "summary": "Aggregate asset candles data",
         "operationId": "aggregateAssetPriceCandlesData",
-        "description": "Returns aggregated asset price history for any period in time (controlled by `from` and `to` parameters). It's possible to adjust data granularity using `resolution` parameter. When omitted, resolutions is automatically calculated based on the requested period to fit up to 200 records.\nNote: Selected range (`from`..`to`) takes precedence over the `resolution` parameter. If the estimated number of records with a given resolution for a particular time range exceeds 200, it is readjusted automatically.\nThis API endpoint returns the data in the following format:\n[`TIMESTAMP`,`OPEN`,`LOW`,`HIGH`,`CLOSE`,`QUOTE_VOLUME`,`BASE_VOLUME`,`TRADES`]\n(Timeframe UNIX timestamp, Open price, Maximum price within timeframe, Minimum price within timeframe, Close price,  Quote Volume, Base volume, Trades count).",
-        "cost": 10,
+        "description": "Returns aggregated asset pari price history for any period in time (controlled by `from` and `to` parameters). It's possible to adjust data granularity using `resolution` parameter. When omitted, resolutions is automatically calculated based on the requested period to fit up to 200 records.\nNote: Selected range (`from`..`to`) takes precedence over the `resolution` parameter. If the estimated number of records with a given resolution for a particular time range exceeds 200, it is readjusted automatically.\nThis API endpoint returns the data in the following format:\n[`TIMESTAMP`,`OPEN`,`LOW`,`HIGH`,`CLOSE`,`QUOTE_VOLUME`,`BASE_VOLUME`,`TRADES`]\n(Timeframe UNIX timestamp, Open price, Minimum price within timeframe, Maximum price within timeframe, Close price,  Quote Volume, Base volume, Trades count).",
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -6556,7 +6668,7 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
@@ -6564,12 +6676,12 @@
     "/explorer/{network}/market/{selling}/{buying}/candles": {
       "get": {
         "tags": [
-          "Price API"
+          "Prices"
         ],
         "summary": "Aggregate market candles data",
         "operationId": "aggregateMarketCandlesData",
-        "description": "Returns aggregated data [TIMESTAMP, OPEN, LOW, HIGH,  CLOSE, QUOTE_VOLUME, BASE_VOLUME, TRADES_COUNT] of  market asset pair that exist on the Stellar network.",
-        "cost": 10,
+        "description": "Returns aggregated asset price history for any period in time (controlled by `from` and `to` parameters). It's possible to adjust data granularity using `resolution` parameter. When omitted, resolutions is automatically calculated based on the requested period to fit up to 200 records.\nNote: Selected range (`from`..`to`) takes precedence over the `resolution` parameter. If the estimated number of records with a given resolution for a particular time range exceeds 200, it is readjusted automatically.\nThis API endpoint returns the data in the following format:\n[`TIMESTAMP`,`OPEN`,`LOW`,`HIGH`,`CLOSE`,`QUOTE_VOLUME`,`BASE_VOLUME`,`TRADES`]\n(Timeframe UNIX timestamp, Open price, Minimum price within timeframe, Maximum price within timeframe, Close price,  Quote Volume, Base volume, Trades count).",
+        "x-cost": 10,
         "parameters": [
           {
             "name": "network",
@@ -6680,16 +6792,24 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "BearerApiAuth": []
           }
         ]
       }
     }
   },
   "components": {
+    "securitySchemes": {
+      "BearerApiAuth": {
+        "description": "Bearer token authentication scheme using API key or access token. Authentication token can be obtained in StellarExpert account dashboard.",
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "ApiKey"
+      }
+    },
     "schemas": {
       "Network": {
-        "description": "Stellar network",
+        "description": "Stellar network identifier (`public` or `testnet`).",
         "type": "string",
         "enum": [
           "public",
@@ -6698,9 +6818,9 @@
         "example": "public"
       },
       "Timestamp": {
-        "description": "Ledger timestamp in UNIX format",
+        "description": "Ledger timestamp in UNIX format.",
         "type": "integer",
-        "minimum": 0,
+        "minimum": 1,
         "example": 1731402776
       },
       "LedgerTimestampSequenceInfo": {
@@ -6732,64 +6852,68 @@
         "type": "object",
         "properties": {
           "accounts": {
-            "description": "Number of accounts",
+            "description": "Total number of existing accounts.",
             "type": "integer"
-          },
-          "avg_ledger_time": {
-            "description": "Average ledger time",
-            "type": "number"
           },
           "active_accounts": {
-            "description": "Number of active accounts",
+            "description": "Number of accounts that participated in transactions within this period.",
             "type": "number"
           },
-          "fee_pool": {
-            "description": "Number of lumens that have been paid in fees",
-            "type": "string"
-          },
-          "ledgers": {
-            "description": "Number of ledgers at a given point in time",
-            "type": "integer"
-          },
-          "operations": {
-            "description": "Number of processed operations at a given point in time",
-            "type": "integer"
-          },
-          "payments": {
-            "description": "Number of payments at a given point in time",
-            "type": "integer"
-          },
-          "reserve": {
-            "description": "Total number of inactive lumens (burned, locked in escrow, held on SDF operational accounts, etc.)",
-            "type": "string"
-          },
-          "total_xlm": {
-            "description": "Total number of lumens",
-            "type": "string"
-          },
-          "trades": {
-            "description": "Number of DEX trades at a given point in time",
-            "type": "integer"
-          },
           "trustlines": {
-            "description": "Number of trustlines at a given point in time",
+            "description": "Total existing token trustlines number.",
             "type": "integer"
           },
           "funded_trustlines": {
-            "description": "Number of funded trustlines at a given point in time",
+            "description": "Total existing funded token trustlines number.",
+            "type": "integer"
+          },
+          "payments": {
+            "description": "Number of payments executed between accounts.",
+            "type": "integer"
+          },
+          "trades": {
+            "description": "Number of DEX trades.",
             "type": "integer"
           },
           "volume": {
-            "description": "DEX value at a given point in time",
+            "description": "Total DEX trading volumes (denominated in USD).",
             "type": "string"
           },
           "new_assets": {
-            "description": "Number of new assets added to the Stellar universe at a given point in time",
+            "description": "Number of new assets created within this period.",
+            "type": "integer"
+          },
+          "ledgers": {
+            "description": "Processed ledgers number.",
+            "type": "integer"
+          },
+          "operations": {
+            "description": "Processed operations number.",
+            "type": "integer"
+          },
+          "avg_ledger_time": {
+            "description": "Average ledger time (in seconds).",
+            "type": "number"
+          },
+          "successful_transactions": {
+            "description": "Total number of success transactions.",
             "type": "integer"
           },
           "failed_transactions": {
-            "description": "Number of failed transactions at a given point in time",
+            "description": "Total number of failed transactions.",
             "type": "integer"
+          },
+          "total_xlm": {
+            "description": "Total number of existing XLM tokens.",
+            "type": "string"
+          },
+          "fee_pool": {
+            "description": "XLM tokens accumulated in fee pool.",
+            "type": "string"
+          },
+          "reserve": {
+            "description": "Total number of inactive XLM tokens (burned, locked in escrow, held on SDF accounts, etc.)",
+            "type": "string"
           }
         }
       },
@@ -6818,19 +6942,10 @@
         ]
       },
       "24HLedgerStats": {
-        "description": "Ledger statistics",
+        "description": "Ledger statistics (24 hours data).",
         "allOf": [
           {
             "$ref": "#/components/schemas/LedgerStats"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "successful_transactions": {
-                "description": "Number of success transactions at a given point in time",
-                "type": "integer"
-              }
-            }
           }
         ]
       },
@@ -7008,21 +7123,21 @@
         ]
       },
       "ResultsLimit": {
-        "description": "Results data page size",
+        "description": "Results page size",
         "type": "number",
         "minimum": 1,
         "maximum": 200,
         "default": 10,
-        "example": 10
+        "example": 30
       },
       "AccountAddress": {
-        "description": "Account address (ED25519 public key)",
+        "description": "Account address (ED25519 public key).",
         "type": "string",
-        "example": "GDMTVHLWJTHSUDMZVVMXXH6VJHA2ZV3HNG5LYNAZ6RTWB7GISM6PGTUV",
-        "pattern": "/^G[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]{55}$/"
+        "pattern": "/^G[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]{55}$/",
+        "example": "GDMTVHLWJTHSUDMZVVMXXH6VJHA2ZV3HNG5LYNAZ6RTWB7GISM6PGTUV"
       },
       "Asset": {
-        "description": "Asset descriptor in {CODE}-{ISSUER}-{TYPE} format (or \"XLM\" for Stellar lumens)",
+        "description": "Asset descriptor. Can be either `XLM` (for Stellar lumens), classic asset in `{CODE}-{ISSUER}-{TYPE}` format or asset contract address.",
         "type": "string",
         "example": "USDC-GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN-1"
       },
@@ -7150,6 +7265,10 @@
           }
         }
       },
+      "PagingToken": {
+        "description": "Cursor value for results pagination.",
+        "type": "string"
+      },
       "TxListInfo": {
         "description": "Protocol upgrades history",
         "allOf": [
@@ -7160,89 +7279,146 @@
             "type": "object",
             "properties": {
               "paging_token": {
-                "description": "Cursor value for results paging",
-                "$ref": "#/components/schemas/AccountAddress"
+                "$ref": "#/components/schemas/PagingToken"
               }
             }
           }
         ]
       },
-      "asset": {
-        "name": "asset",
-        "description": "An asset in the format {CODE}-{ISSUER} (or \"XLM\" for Stellar lumens)",
-        "in": "path",
-        "schema": {
-          "$ref": "#/components/schemas/Asset"
-        },
-        "required": true
+      "AccountActivity": {
+        "description": "Relative account activity level.",
+        "type": "string",
+        "oneOf": [
+          "none",
+          "low",
+          "moderate",
+          "high",
+          "very high"
+        ],
+        "example": "low"
       },
-      "AccountInfo": {
-        "description": "ED25519-encoded account address",
+      "AccountListInfo": {
+        "description": "Account information.",
         "type": "object",
         "properties": {
           "account": {
             "$ref": "#/components/schemas/AccountAddress"
           },
           "creator": {
+            "description": "Creator account address.",
             "$ref": "#/components/schemas/AccountAddress"
           },
           "activity": {
-            "description": "Monthly and yearly account activity [ 'none', 'low', 'moderate', 'high', 'very high' ]",
+            "description": "Account activity assessment.",
             "type": "object",
             "properties": {
               "monthly": {
-                "type": "string"
+                "$ref": "#/components/schemas/AccountActivity"
               },
               "yearly": {
-                "type": "string"
+                "$ref": "#/components/schemas/AccountActivity"
               }
             }
           },
-          "assets": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/asset"
-            }
-          },
           "payments": {
-            "description": "Number of payments for a given account",
+            "description": "Total number of processed payments.",
             "type": "number"
           },
           "trades": {
-            "description": "Number of DEX trades for a given account",
+            "description": "Total number of executed DEX trades.",
             "type": "number"
           },
           "created": {
+            "description": "Account creation timestamp.",
             "$ref": "#/components/schemas/Timestamp"
           }
         }
       },
-      "AccountTrade": {
-        "description": "Account trade info",
+      "AccountInfo": {
+        "description": "Account information.",
         "type": "object",
         "properties": {
-          "bought_amount": {
-            "description": "Amount of bought trading asset",
-            "type": "string"
-          },
-          "bought_asset": {
-            "description": "Bought trading asset",
-            "$ref": "#/components/schemas/Asset"
-          },
-          "buyer": {
-            "description": "Buyer's account address",
+          "account": {
             "$ref": "#/components/schemas/AccountAddress"
           },
+          "creator": {
+            "description": "Creator account address.",
+            "$ref": "#/components/schemas/AccountAddress"
+          },
+          "activity": {
+            "description": "Account activity assessment.",
+            "type": "object",
+            "properties": {
+              "monthly": {
+                "$ref": "#/components/schemas/AccountActivity"
+              },
+              "yearly": {
+                "$ref": "#/components/schemas/AccountActivity"
+              }
+            }
+          },
+          "assets": {
+            "description": "Assets held by account.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Asset"
+            }
+          },
+          "payments": {
+            "description": "Total number of processed payments.",
+            "type": "number"
+          },
+          "trades": {
+            "description": "Total number of executed DEX trades.",
+            "type": "number"
+          },
+          "created": {
+            "description": "Account creation timestamp.",
+            "$ref": "#/components/schemas/Timestamp"
+          }
+        }
+      },
+      "Amount": {
+        "description": "Asset amount.",
+        "type": "string",
+        "example": 502.0451
+      },
+      "Trade": {
+        "description": "DEX trade info",
+        "type": "object",
+        "properties": {
           "id": {
-            "description": "Trade unique id",
+            "description": "Unique trade identifier",
+            "type": "string",
+            "example": "7489418629071504000"
+          },
+          "operation": {
+            "description": "Identifier of operation that generated this trade",
+            "type": "string",
+            "example": "242501812106801151"
+          },
+          "sold_asset": {
+            "description": "Sold asset",
+            "$ref": "#/components/schemas/Asset"
+          },
+          "bought_asset": {
+            "description": "Bought asset",
+            "$ref": "#/components/schemas/Asset"
+          },
+          "bought_amount": {
+            "description": "Amount of asset bought",
+            "$ref": "#/components/schemas/Amount"
+          },
+          "sold_amount": {
+            "description": "Amount of sold trading asset",
             "type": "string"
+          },
+          "buyer": {
+            "description": "Buyer address",
+            "$ref": "#/components/schemas/AccountAddress"
           },
           "offer": {
             "description": "Unique offer id",
-            "type": "string"
-          },
-          "operation": {
-            "description": "Operation unique id",
             "type": "string"
           },
           "price": {
@@ -7253,66 +7429,137 @@
             "description": "Seller's account address",
             "$ref": "#/components/schemas/AccountAddress"
           },
-          "sold_amount": {
-            "description": "Amount of sold trading asset",
-            "type": "string"
-          },
-          "sold_asset": {
-            "description": "Sold trading asset",
-            "type": "string"
-          },
           "ts": {
             "description": "Timestamp of the first recorder operation with asset",
             "$ref": "#/components/schemas/Timestamp"
           },
           "paging_token": {
-            "description": "Cursor value for results paging",
-            "type": "number"
+            "$ref": "#/components/schemas/PagingToken",
+            "example": 7489418629071504000
           }
         }
       },
-      "AccountClaimableBalance": {
-        "description": "Claimable balance of tokens for account address",
+      "ClaimableBalanceAddress": {
+        "description": "Claimable balance identifier.",
+        "type": "string",
+        "pattern": "/^B[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]{55}$/",
+        "example": "BB9K7LLWJTHSUDMZVVMXXH6VJHA2ZV3HNG5LYNAZ6RTWB7GISM6PHU90"
+      },
+      "ClaimantPredicate": {
+        "description": "Logical condition predicate.",
         "type": "object",
-        "properties": {
-          "amount": {
-            "description": "Amount of claim asset",
-            "type": "string"
-          },
-          "asset": {
-            "description": "Claim asset",
-            "$ref": "#/components/schemas/Asset"
-          },
-          "claimants": {
-            "type": "array",
-            "items": {
+        "schema": {
+          "oneOf": [
+            {
               "type": "object",
               "properties": {
-                "destination": {
-                  "$ref": "#/components/schemas/AccountAddress"
-                },
-                "predicate": {
-                  "type": "object"
+                "unconditional": "boolean"
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "abs_before": {
+                  "$ref": "./DateTimestamp.yml"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "rel_before": {
+                  "$ref": "./DateTimestamp.yml"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "not": {
+                  "$ref": "./ClaimantPredicate.yml"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "and": {
+                  "type": "array",
+                  "allOf": {
+                    "$ref": "./ClaimantPredicate.yml"
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "or": {
+                  "type": "array",
+                  "allOf": {
+                    "$ref": "./ClaimantPredicate.yml"
+                  }
                 }
               }
             }
+          ]
+        }
+      },
+      "Claimant": {
+        "description": "Account balance claim condition.",
+        "type": "object",
+        "properties": {
+          "destination": {
+            "$ref": "#/components/schemas/AccountAddress"
           },
+          "predicate": {
+            "$ref": "#/components/schemas/ClaimantPredicate"
+          }
+        }
+      },
+      "ValueAmount": {
+        "description": "Estimated value denominated in USD (with 10^7 precision).",
+        "type": "number",
+        "minimum": 0,
+        "example": 27312776
+      },
+      "AccountClaimableBalance": {
+        "description": "Temporary asset balance claimable under specific conditions.",
+        "type": "object",
+        "properties": {
           "id": {
-            "type": "string"
+            "$ref": "#/components/schemas/ClaimableBalanceAddress"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "amount": {
+            "description": "Amount of asset locked.",
+            "$ref": "#/components/schemas/Amount"
           },
           "sponsor": {
             "$ref": "#/components/schemas/AccountAddress"
           },
+          "claimants": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Claimant"
+                }
+              ]
+            }
+          },
           "value": {
-            "type": "number"
+            "$ref": "#/components/schemas/ValueAmount"
           },
           "created": {
-            "description": "Valid timestamp",
+            "description": "Balance creation timestamp.",
             "$ref": "#/components/schemas/Timestamp"
           },
           "paging_token": {
-            "description": "Cursor value for results paging",
-            "type": "number"
+            "$ref": "#/components/schemas/PagingToken",
+            "example": 7489170213444886000
           }
         }
       },
@@ -7439,8 +7686,7 @@
           },
           "rating": {
             "description": "Composite asset rating",
-            "$ref": "#/components/schemas/AssetRatingStat",
-            "type": "object"
+            "$ref": "#/components/schemas/AssetRatingStat"
           },
           "paging_token": {
             "description": "Cursor value for results paging",
@@ -7471,7 +7717,7 @@
         }
       },
       "ContractAddress": {
-        "description": "ED25519-encoded contract address",
+        "description": "Contract address",
         "type": "string",
         "pattern": "/^C[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]{55}$/",
         "example": "CCBWOUL7XW5XSWD3UKL76VWLLFCSZP4D4GUSCFBHUQCEAW23QVKJZ7ON"
@@ -7576,57 +7822,24 @@
           }
         }
       },
-      "AssetTrade": {
-        "description": "Asset trade info",
+      "Address": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AccountAddress"
+          },
+          {
+            "$ref": "#/components/schemas/ContractAddress"
+          }
+        ]
+      },
+      "AssetAmount": {
         "type": "object",
         "properties": {
-          "bought_amount": {
-            "description": "Amount of bought trading asset",
-            "type": "string"
-          },
-          "bought_asset": {
-            "description": "Bought trading asset",
+          "asset": {
             "$ref": "#/components/schemas/Asset"
           },
-          "buyer": {
-            "description": "Buyer's account address",
-            "$ref": "#/components/schemas/AccountAddress"
-          },
-          "id": {
-            "description": "Trade unique id",
+          "amount": {
             "type": "string"
-          },
-          "offer": {
-            "description": "Unique offer id",
-            "type": "string"
-          },
-          "operation": {
-            "description": "Operation unique id",
-            "type": "string"
-          },
-          "price": {
-            "description": "Price",
-            "type": "string"
-          },
-          "seller": {
-            "description": "Seller's account address",
-            "$ref": "#/components/schemas/AccountAddress"
-          },
-          "sold_amount": {
-            "description": "Amount of sold trading asset",
-            "type": "string"
-          },
-          "sold_asset": {
-            "description": "Sold trading asset",
-            "type": "string"
-          },
-          "ts": {
-            "description": "Timestamp of the first recorder operation with asset",
-            "$ref": "#/components/schemas/UnixTime"
-          },
-          "paging_token": {
-            "description": "Cursor value for results paging",
-            "type": "number"
           }
         }
       },
@@ -7635,20 +7848,20 @@
         "type": "object",
         "properties": {
           "account": {
-            "description": "Account address",
-            "$ref": "#/components/schemas/AccountAddress"
+            "description": "Holder address.",
+            "$ref": "#/components/schemas/Address"
           },
           "balance": {
-            "description": "Asset balance in stroops",
-            "type": "string"
+            "description": "Asset balance.",
+            "$ref": "#/components/schemas/AssetAmount"
           },
           "paging_token": {
             "description": "Cursor value for results paging",
-            "type": "string"
+            "$ref": "#/components/schemas/PagingToken"
           }
         }
       },
-      "AssetDescirptor": {
+      "AssetDescriptor": {
         "description": "General asset information",
         "type": "object",
         "properties": {
@@ -7695,7 +7908,7 @@
             "$ref": "#/components/schemas/Timestamp"
           },
           "creator": {
-            "$ref": "#/components/schemas/AccountAddress"
+            "$ref": "#/components/schemas/Address"
           },
           "paging_token": {
             "description": "Cursor value for results paging",
@@ -7767,7 +7980,7 @@
             "$ref": "#/components/schemas/Timestamp"
           },
           "creator": {
-            "$ref": "#/components/schemas/AccountAddress"
+            "$ref": "#/components/schemas/Address"
           },
           "invocations": {
             "type": "integer",
@@ -7790,25 +8003,25 @@
             "example": 0
           },
           "wasm": {
-            "$ref": "#/components/schemas/Hash",
-            "description": "Contract WASM hash (for WASM-based contracts)"
+            "description": "Contract WASM hash (for WASM-based contracts)",
+            "$ref": "#/components/schemas/Hash"
           },
           "asset": {
-            "$ref": "#/components/schemas/Asset",
-            "description": "Asset descriptor (for contracts created from classic assets)"
+            "description": "Asset descriptor (for contracts created from classic assets)",
+            "$ref": "#/components/schemas/Asset"
           },
           "code": {
-            "type": "string",
             "description": "Asset issuer (for contracts created from classic assets)",
+            "type": "string",
             "example": "USD"
           },
           "issuer": {
-            "$ref": "#/components/schemas/AccountAddress",
-            "description": "Asset issuer (for contracts created from classic assets or from issuer account)"
+            "description": "Asset issuer (for contracts created from classic assets or from issuer account)",
+            "$ref": "#/components/schemas/AccountAddress"
           },
           "salt": {
-            "$ref": "#/components/schemas/Hash",
-            "description": "Token issuer salt (for contracts created from issuer account)"
+            "description": "Token issuer salt (for contracts created from issuer account)",
+            "$ref": "#/components/schemas/Hash"
           },
           "storage_entries": {
             "type": "integer",
@@ -7821,8 +8034,8 @@
             "example": 3
           },
           "validation": {
-            "$ref": "#/components/schemas/ContractValidationStatus",
-            "description": "Validation information (for contracts with turned on validation workflow)"
+            "description": "Validation information (for contracts with turned on validation workflow)",
+            "$ref": "#/components/schemas/ContractValidationStatus"
           }
         },
         "required": [
@@ -8022,7 +8235,7 @@
         "properties": {
           "address": {
             "description": "Account address",
-            "$ref": "#/components/schemas/AccountAddress"
+            "$ref": "#/components/schemas/Address"
           },
           "name": {
             "description": "Entry friendly name",
@@ -8054,8 +8267,7 @@
             "type": "object",
             "properties": {
               "paging_token": {
-                "description": "Cursor value for results paging",
-                "$ref": "#/components/schemas/AccountAddress"
+                "$ref": "#/components/schemas/PagingToken"
               }
             }
           }
@@ -8317,10 +8529,10 @@
         ]
       },
       "LiquidityPoolAddress": {
-        "description": "Liquidity pool address",
+        "description": "Classic liquidity pool address.",
         "type": "string",
         "pattern": "/^L[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]{55}$/",
-        "example": "LBM7UHOFOQZ5Z66S3NZRTUTMWPNB6KHS3AEVUPWDNLKO7HFNWAAT5OI6, ce05eb743321ec8571cda411b6932cd421eabbb7f4d622ec884f5dfa6656a500"
+        "example": "LBM7UHOFOQZ5Z66S3NZRTUTMWPNB6KHS3AEVUPWDNLKO7HFNWAAT5OI6"
       },
       "LiquidityPoolStat": {
         "description": "Liquidity pool statistics",
@@ -8373,56 +8585,6 @@
           },
           "ts": {
             "description": "Valid timestamp",
-            "$ref": "#/components/schemas/UnixTime"
-          },
-          "paging_token": {
-            "description": "Cursor value for results paging",
-            "type": "number"
-          }
-        }
-      },
-      "LiquidityPoolTrades": {
-        "description": "Liquidity pool trade history",
-        "type": "object",
-        "properties": {
-          "bought_amount": {
-            "description": "Amount of bought trading asset",
-            "type": "string"
-          },
-          "bought_asset": {
-            "description": "Bought trading asset",
-            "$ref": "#/components/schemas/Asset"
-          },
-          "buyer": {
-            "description": "Buyer's account address",
-            "$ref": "#/components/schemas/AccountAddress"
-          },
-          "id": {
-            "description": "Trade unique id",
-            "type": "string"
-          },
-          "operation": {
-            "description": "Operation unique id",
-            "type": "string"
-          },
-          "pool": {
-            "description": "Liquidity pool unique id",
-            "type": "string"
-          },
-          "price": {
-            "description": "Price",
-            "type": "string"
-          },
-          "sold_amount": {
-            "description": "Amount of sold trading asset",
-            "type": "string"
-          },
-          "sold_asset": {
-            "description": "Sold trading asset",
-            "type": "string"
-          },
-          "ts": {
-            "description": "Timestamp of the first recorder operation with asset",
             "$ref": "#/components/schemas/UnixTime"
           },
           "paging_token": {
@@ -8496,66 +8658,12 @@
             }
           }
         ]
-      },
-      "OfferTrade": {
-        "description": "Offer trade info",
-        "type": "object",
-        "properties": {
-          "bought_amount": {
-            "description": "Amount of bought trading asset",
-            "type": "string"
-          },
-          "bought_asset": {
-            "description": "Bought trading asset",
-            "$ref": "#/components/schemas/Asset"
-          },
-          "buyer": {
-            "description": "Buyer's account address",
-            "$ref": "#/components/schemas/AccountAddress"
-          },
-          "id": {
-            "description": "Trade unique id",
-            "type": "string"
-          },
-          "offer": {
-            "description": "Unique offer id",
-            "type": "string"
-          },
-          "operation": {
-            "description": "Operation unique id",
-            "type": "string"
-          },
-          "price": {
-            "description": "Price",
-            "type": "string"
-          },
-          "seller": {
-            "description": "Seller's account address",
-            "$ref": "#/components/schemas/AccountAddress"
-          },
-          "sold_amount": {
-            "description": "Amount of sold trading asset",
-            "type": "string"
-          },
-          "sold_asset": {
-            "description": "Sold trading asset",
-            "type": "string"
-          },
-          "ts": {
-            "description": "Timestamp of the first recorder operation with asset",
-            "$ref": "#/components/schemas/UnixTime"
-          },
-          "paging_token": {
-            "description": "Cursor value for results paging",
-            "type": "number"
-          }
-        }
       }
     },
     "parameters": {
       "network": {
         "name": "network",
-        "description": "Stellar network identifier",
+        "description": "Stellar network identifier (`public` or `testnet`).",
         "in": "path",
         "schema": {
           "$ref": "#/components/schemas/Network"
@@ -8564,27 +8672,27 @@
       },
       "sequence": {
         "name": "sequence",
-        "description": "Ledger sequence",
+        "description": "Stellar ledger sequence.",
         "in": "path",
         "schema": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "example": 56309777
         },
-        "required": true,
-        "example": 56309777
+        "required": true
       },
       "limit": {
         "name": "limit",
-        "description": "Results data page size",
+        "description": "Results page size.",
         "in": "query",
         "schema": {
           "$ref": "#/components/schemas/ResultsLimit"
-        }
+        },
+        "required": false
       },
-      "address-array": {
+      "addresses": {
         "name": "address",
-        "originalName": "address-array",
-        "description": "Applies a filter by the addresses list (up to 50 per request)",
+        "description": "List of addresses.",
         "in": "query",
         "schema": {
           "type": "array",
@@ -8595,16 +8703,11 @@
             "$ref": "#/components/schemas/AccountAddress"
           }
         },
-        "required": true,
-        "example": [
-          "GDLL7SAMKVV2DHPAEOTQXJEODXVZ7OOJRNGOZ74GUWGBPFAVFVBWGJTX",
-          "GD37LEKR7BEM4SNWM5AZ2HV34EXNUOWKMVHWMBYTWO6AAORF3RTS5ARN"
-        ]
+        "required": true
       },
-      "asset-array": {
+      "assets": {
         "name": "asset",
-        "originalName": "asset-array",
-        "description": "Applies a filter by the asset list",
+        "description": "Asset list.",
         "in": "query",
         "schema": {
           "type": "array",
@@ -8619,33 +8722,34 @@
       },
       "from": {
         "name": "from",
-        "description": "Lower timeframe boundary (in UNIX format)",
+        "description": "Timeframe lower boundary (UNIX timestamp).",
         "in": "query",
-        "required": false,
         "schema": {
           "$ref": "#/components/schemas/Timestamp"
-        }
+        },
+        "required": false
       },
       "to": {
         "name": "to",
-        "description": "Upper timeframe boundary (in UNIX format)",
+        "description": "Timeframe upper boundary (UNIX timestamp).",
         "in": "query",
-        "required": false,
         "schema": {
           "$ref": "#/components/schemas/Timestamp"
-        }
+        },
+        "required": false
       },
       "order": {
         "name": "order",
-        "description": "Results sorting order",
+        "description": "Results sorting order.",
         "in": "query",
         "schema": {
           "$ref": "#/components/schemas/ResultsSortOrder"
-        }
+        },
+        "required": false
       },
       "cursor": {
         "name": "cursor",
-        "description": "A position from which to continue search (refers to the `paging_token` value from a results set)",
+        "description": "Pagination position to continue from (obtained from `paging_token` value from results set).",
         "in": "query",
         "schema": {
           "type": "string"
@@ -8653,7 +8757,7 @@
       },
       "account": {
         "name": "account",
-        "description": "The address of the account to check",
+        "description": "Account address (ED25519 public key).",
         "in": "path",
         "schema": {
           "$ref": "#/components/schemas/AccountAddress"
@@ -8662,7 +8766,7 @@
       },
       "asset": {
         "name": "asset",
-        "description": "An asset in the format {CODE}-{ISSUER} (or \"XLM\" for Stellar lumens)",
+        "description": "Asset name.",
         "in": "path",
         "schema": {
           "$ref": "#/components/schemas/Asset"
@@ -8671,15 +8775,16 @@
       },
       "ts": {
         "name": "ts",
-        "description": "Results data to a given timestamp",
+        "description": "Retrieves data for given point in time.",
         "in": "query",
         "schema": {
           "$ref": "#/components/schemas/Timestamp"
-        }
+        },
+        "required": false
       },
       "address": {
         "name": "address",
-        "description": "Account/Contract identifier",
+        "description": "Account or contract address.",
         "in": "path",
         "schema": {
           "oneOf": [
@@ -8691,12 +8796,11 @@
             }
           ]
         },
-        "required": true,
-        "example": "GDMTVHLWJTHSUDMZVVMXXH6VJHA2ZV3HNG5LYNAZ6RTWB7GISM6PGTUV"
+        "required": true
       },
       "contract": {
         "name": "contract",
-        "description": "Contract address",
+        "description": "Contract address.",
         "in": "path",
         "schema": {
           "$ref": "#/components/schemas/ContractAddress"
@@ -8705,7 +8809,7 @@
       },
       "domain": {
         "name": "domain",
-        "description": "Domain name (FQDN)",
+        "description": "Domain name (fully-qualified domain name, without protocol or path).",
         "in": "query",
         "schema": {
           "type": "string"
@@ -8714,7 +8818,7 @@
       },
       "poolId": {
         "name": "poolId",
-        "description": "Liquidity pool identifier",
+        "description": "Classic liquidity pool address.",
         "in": "path",
         "schema": {
           "$ref": "#/components/schemas/LiquidityPoolAddress"
@@ -8723,124 +8827,60 @@
       },
       "offerId": {
         "name": "offerId",
-        "description": "Unique offer identifier",
+        "description": "Unique DEX offer identifier.",
         "in": "path",
         "schema": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 1,
+          "example": 1734248586
         },
-        "required": true,
-        "example": 1734248586
+        "required": true
       },
       "resolution": {
         "name": "resolution",
-        "description": "Candle timeframe resolution (in seconds)",
+        "description": "Candle timeframe resolution (in seconds).",
         "in": "query",
         "required": false,
         "schema": {
           "type": "integer",
-          "oneOf": [
-            300,
-            900,
-            180,
-            360,
-            7200,
-            1440,
-            4320,
-            86400,
-            25920,
-            604800,
-            1209600
-          ]
+          "schema": {
+            "type": "integer",
+            "enum": [
+              300,
+              900,
+              1800,
+              3600,
+              7200,
+              14400,
+              43200,
+              86400,
+              259200,
+              604800,
+              1209600
+            ]
+          }
         }
-      }
-    },
-    "securitySchemes": {
-      "ApiKeyAuth": {
-        "type": "apiKey",
-        "description": "Access to private API endpoints with dedicated API key",
-        "name": "Authorization",
-        "in": "header"
       }
     }
   },
   "x-tagGroups": [
     {
-      "name": "Ledger API",
+      "name": "StellarExpert API",
       "tags": [
-        "Ledger Info API"
-      ]
-    },
-    {
-      "name": "Transaction API",
-      "tags": [
-        "Tx API"
-      ]
-    },
-    {
-      "name": "Account API",
-      "tags": [
-        "Accounts"
-      ]
-    },
-    {
-      "name": "Asset API",
-      "tags": [
-        "Asset Info API"
-      ]
-    },
-    {
-      "name": "Asset List API",
-      "tags": [
-        "Asset list"
-      ]
-    },
-    {
-      "name": "Contract API",
-      "tags": [
-        "Contracts"
-      ]
-    },
-    {
-      "name": "Contract Data API",
-      "tags": [
-        "Contract data API"
-      ]
-    },
-    {
-      "name": "Directory API",
-      "tags": [
-        "Directory Info API"
-      ]
-    },
-    {
-      "name": "Domain Meta API",
-      "tags": [
-        "Domain meta API"
-      ]
-    },
-    {
-      "name": "Liquidity Pool API",
-      "tags": [
-        "Liquidity Pool API"
-      ]
-    },
-    {
-      "name": "Market API",
-      "tags": [
-        "Market Info API"
-      ]
-    },
-    {
-      "name": "Offer API",
-      "tags": [
-        "Offer Info API"
-      ]
-    },
-    {
-      "name": "Price API",
-      "tags": [
-        "Price API"
+        "Ledgers",
+        "Transactions",
+        "Accounts",
+        "Trades",
+        "Assets",
+        "AssetLists",
+        "Contracts",
+        "ContractData",
+        "DirectoryInfo",
+        "DomainMeta",
+        "LiquidityPools",
+        "Markets",
+        "Offers",
+        "Prices"
       ]
     }
   ]

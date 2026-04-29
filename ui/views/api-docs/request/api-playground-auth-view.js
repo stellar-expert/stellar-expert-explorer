@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {Button, Dialog, Dropdown} from '@stellar-expert/ui-framework'
-import {authenticate, getAuth} from '../api/auth'
+import {authenticate, getAuth} from '../playground/auth'
 
 export default function ApiPlaygroundAuthView({isOpenAuth, toggleAuth, authData, updateAuthData}) {
     const [auth, setAuth] = useState(authData)

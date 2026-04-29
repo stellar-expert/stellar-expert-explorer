@@ -1,7 +1,7 @@
 const tmpApiDocs = 'https://tmp-api-docs.stellar.expert'
 
 export async function prepareApiData() {
-    const apiDocs = await loadApiDocs('/api-docs/index')
+    const apiDocs = await loadApiDocs('/playground-docs/index')
     if (!apiDocs)
         return null
 
