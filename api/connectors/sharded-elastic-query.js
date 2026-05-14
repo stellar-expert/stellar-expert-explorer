@@ -117,7 +117,7 @@ class ShardedElasticQuery {
             size: limit,
             timeout: '3s',
             track_total_hits: limit + 1,
-            sort: [{[sort]: {order}}]
+            sort: typeof sort === 'string' ? [{[sort]: {order}}] : sort
         }
         if (excludeSource) {
             res._source = false

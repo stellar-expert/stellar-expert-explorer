@@ -25,8 +25,7 @@ async function queryEvents(network, queryFilter, basePath, {order, cursor, limit
     let rows = await elasticQuery.search({
         filter: queryFilter.filter,
         limit,
-        order,
-        sort: 'id',
+        sort: [{op: {order}}, {id: {order}}],
         minYear: queryFilter.minYear,
         maxYear: queryFilter.maxYear
     })
