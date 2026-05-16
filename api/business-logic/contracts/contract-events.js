@@ -98,7 +98,25 @@ class EventQueryParams {
         if (!cursor)
             return  //TODO: automatically determine min/max year based on cursor
         const condition = order === 'asc' ? 'gt' : 'lt'
-        this.filter.push({range: {id: {[condition]: cursor}}})
+        const [opid] = cursor.split('-')
+        this.filter.push({ // (OPID > cursor.OPID) || (OPID == cursor.OPID && ID > cursor.ID)
+            bool: {
+                should: [
+                    {
+                        range: { "op": { [condition]: opid } }
+                    },
+                    {
+                        bool: {
+                            filter: [
+                                { term:  { "op": opid } },
+                                { range: { "id": { [condition]: cursor } } }
+                            ]
+                        }
+                    }
+                ],
+                minimum_should_match: 1
+            }
+        })
     }
 
     /**
