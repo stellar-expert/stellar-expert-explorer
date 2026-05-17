@@ -55,7 +55,7 @@ ${Object.entries(s.fields).map(([name, field]) => insertDocs(field, 1) + indent(
     if (meta.unions) {
         res += '// UNIONS\n\n'
         for (const [name, u] of Object.entries(meta.unions)) {
-            res += insertDocs(u) + `#[contracttype]\nenum ${name} {
+            res += insertDocs(u) + `#[contracttype]\nunion ${name} {
 ${Object.entries(u.cases).map(([name, value]) => insertDocs(value, 1) + `${indent(name, 1)}(${value === 'void' ? '' : value.join(', ')})`).join(',\n')}
 }\n\n`
         }
