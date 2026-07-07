@@ -52,7 +52,8 @@ export default Chart.withErrorBoundary(function LiquidityPoolTradesChartView({id
                 name: 'Trades',
                 data: trades,
                 dataGrouping: {
-                    approximation: 'sum'
+                    approximation: 'sum',
+                    units: [['day', [1]]]
                 }
             },
             {
@@ -64,7 +65,8 @@ export default Chart.withErrorBoundary(function LiquidityPoolTradesChartView({id
                     valueSuffix: ' USD'
                 },
                 dataGrouping: {
-                    approximation: 'sum'
+                    approximation: 'sum',
+                    units: [['day', [1]]]
                 }
             }]
     }

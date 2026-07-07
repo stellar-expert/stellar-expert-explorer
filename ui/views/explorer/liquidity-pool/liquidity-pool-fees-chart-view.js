@@ -36,7 +36,8 @@ export default Chart.withErrorBoundary(function LiquidityPoolFeesChartView({id})
                     valueSuffix: ' USD'
                 },
                 dataGrouping: {
-                    approximation: 'sum'
+                    approximation: 'sum',
+                    units: [['day', [1]]]
                 }
             },
             {
@@ -48,7 +49,8 @@ export default Chart.withErrorBoundary(function LiquidityPoolFeesChartView({id})
                     valueSuffix: '%'
                 },
                 dataGrouping: {
-                    approximation: 'sum'
+                    approximation: 'average',
+                    units: [['day', [1]]]
                 }
             }]
     }

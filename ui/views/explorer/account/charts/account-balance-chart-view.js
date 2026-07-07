@@ -3,10 +3,10 @@ import {Dropdown, AssetSelector, formatExplorerLink} from '@stellar-expert/ui-fr
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {navigation} from '@stellar-expert/navigation'
-import {day, trimDate} from '../../../../util/date-utils'
-import Chart, {Highcharts} from '../../../components/chart/chart'
-import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 import {useAccountBalanceHistory} from '../../../../business-logic/api/account-api'
+import {day, trimDate} from '../../../../util/date-utils'
+import Chart, {ChartEngine} from '../../../components/chart/chart'
+import EmbedWidgetTrigger from '../../widget/embed-widget-trigger'
 
 const timeframe = 24 * 60 * 60 * 1000
 
@@ -42,7 +42,7 @@ function getChartData(balanceHistory, selectedAsset) {
     return {
         type: 'line',
         name: currency,
-        color: Highcharts.getOptions().colors[0],
+        color: ChartEngine.getOptions().colors[0],
         data,
         max: 1.1 * maxBalance
     }
@@ -88,7 +88,7 @@ export default Chart.withErrorBoundary(function AccountBalanceChartView({account
 
 
     const query = `?asset=${selectedAsset}&scale=${scale}`
-    return <Chart type="StockChart" options={options} grouped range noLegend container="" title={
+    return <Chart type="StockChart" options={options} range noLegend container="" title={
         !noTitle && <>
             Balance History
             <EmbedWidgetTrigger path={`account/balance-chart/${account.address}${query}`} title="Account Balance History"/>

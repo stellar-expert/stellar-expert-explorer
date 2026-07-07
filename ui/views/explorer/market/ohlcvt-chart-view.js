@@ -46,6 +46,19 @@ function buildUrl(baseEndpoint, from, to) {
     return endpoint
 }
 
+//finer bucket ladder than the explorer-wide default (which starts at whole days) — intraday candles
+//for short windows (e.g. 12h candles on the 1m view) and single-day candles as long as they fit
+//(e.g. the 6m view), falling back to weeks/months only for multi-year ranges. ~10px per candle.
+const candleDataGrouping = {
+    units: [
+        ['hour', [1, 2, 3, 4, 6, 8, 12]],
+        ['day', [1]],
+        ['week', [1]],
+        ['month', [1, 3, 6]]
+    ],
+    groupPixelWidth: 10
+}
+
 function trimTimestamp5m(ts) {
     if (ts instanceof Date) {
         ts = ts.getTime()
@@ -76,7 +89,7 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
     const loadScaledData = useCallback(function loadScaledData(chart, min, max) {
         if (loadCallbackRef.current)
             return
-        chart.showLoading('...')
+        chart.showLoading()
         loadCallbackRef.current = function (data) {
             //update chart data on scale-in
             const {prices, volumes} = processData(data)
@@ -173,14 +186,18 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
         config.series.push({
             type: 'candlestick',
             name: 'Price',
-            data: prices
+            data: prices,
+            dataGrouping: candleDataGrouping
         })
 
         config.series.push({
             type: 'column',
             name: 'Volume',
+            colorIndex: 0,
             yAxis: 1,
-            data: volumes
+            data: volumes,
+            //same buckets as the price series so volume bars stay aligned with the candles
+            dataGrouping: candleDataGrouping
         })
 
         setConfig(config)
@@ -191,5 +208,5 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
     if (!navigatorData.data.length)
         return <Chart.Loader title={title} unavailable/>
 
-    return <Chart type="StockChart" options={config} range noLegend title={title}/>
+    return <Chart type="StockChart" options={config} range grouped noLegend title={title}/>
 })
