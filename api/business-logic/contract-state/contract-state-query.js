@@ -17,7 +17,7 @@ const errors = require('../errors')
  * @param {'asc'|'desc'} order
  * @return {Promise<MultiRows>}
  */
-async function queryContractState(network, basePath, owner, {cursor, durability, limit, order}) {
+async function queryContractState(network, basePath, owner, {cursor, durability, limit, order, key}) {
     validateNetwork(network)
     validateAccountOrContractAddress(owner)
     if (durability && !['instance', 'persistent', 'temporary'].includes(durability))
@@ -41,6 +41,9 @@ async function queryContractState(network, basePath, owner, {cursor, durability,
                 }
             }
         })
+    }
+    for (const keyFilter of normalizeKeyList(key)) {
+        filter.push({term: {keys: keyFilter}})
     }
     const queryRequest = {
         index: config.networks[network].stateIndex,
@@ -118,6 +121,26 @@ async function countContractStateEntries(network, owner) {
     }
     const res = await elastic.count(queryRequest)
     return res.count
+}
+
+function normalizeKeyList(keys) {
+    if (!keys)
+        return []
+    if (typeof keys === 'string')
+        return [keys] //single key
+    if (keys instanceof Array) {
+        const res = []
+        for (let i = 0; i < keys.length; i++) {
+            if (i >= 10)
+                break //up to 10 filters
+            let key = keys[i]
+            if (!key || typeof key !== 'string')
+                continue
+            res.push(key)
+        }
+        return res
+    }
+    throw errors.validationError('key', 'Invalid key filter condition')
 }
 
 module.exports = {queryContractState, fetchContractStateEntry, countContractStateEntries}
