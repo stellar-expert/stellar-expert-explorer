@@ -19,7 +19,7 @@
     "body-parser": "2.3.0",
     "cors": "2.8.6",
     "express": "5.2.1",
-    "lru-cache": "11.5.2",
+    "lru-cache": "9.1.2",
     "mongodb": "7.5.0",
     "morgan": "1.11.0",
     "qs": "6.15.3",
