@@ -19,7 +19,8 @@ const errors = require('../errors')
  */
 async function queryContractState(network, basePath, owner, {cursor, durability, limit, order, key}) {
     validateNetwork(network)
-    validateAccountOrContractAddress(owner)
+    const owners = normalizeQueryParamList(owner, validateAccountOrContractAddress)
+    const keys = normalizeQueryParamList(key)
     if (durability && !['instance', 'persistent', 'temporary'].includes(durability))
         throw errors.validationError('durability', `Invalid durability: "${durability}".`)
     limit = normalizeLimit(limit)
@@ -29,9 +30,12 @@ async function queryContractState(network, basePath, owner, {cursor, durability,
         sort: {_id: -1},
         projection: {_id: 1}
     })
-    const filter = [{term: {owner}}]
+    const filter = owners.map(owner => ({term: {owner}}))
     if (durability) {
         filter.push({term: {durability}})
+    }
+    for (const keyFilter of keys) {
+        filter.push({term: {keys: keyFilter}})
     }
     if (cursor) {
         filter.push({
@@ -41,9 +45,6 @@ async function queryContractState(network, basePath, owner, {cursor, durability,
                 }
             }
         })
-    }
-    for (const keyFilter of normalizeKeyList(key)) {
-        filter.push({term: {keys: keyFilter}})
     }
     const queryRequest = {
         index: config.networks[network].stateIndex,
@@ -123,19 +124,28 @@ async function countContractStateEntries(network, owner) {
     return res.count
 }
 
-function normalizeKeyList(keys) {
+/**
+ *
+ * @param keys
+ * @param validateCallback
+ * @return {string[]}
+ */
+function normalizeQueryParamList(keys, validateCallback = undefined) {
     if (!keys)
         return []
-    if (typeof keys === 'string')
+    if (typeof keys === 'string') {
+        validateCallback && validateCallback(keys)
         return [keys] //single key
+    }
     if (keys instanceof Array) {
         const res = []
         for (let i = 0; i < keys.length; i++) {
-            if (i >= 10)
-                break //up to 10 filters
+            if (i >= 20)
+                break //up to 20 filters
             let key = keys[i]
             if (!key || typeof key !== 'string')
                 continue
+            validateCallback && validateCallback(key)
             res.push(key)
         }
         return res

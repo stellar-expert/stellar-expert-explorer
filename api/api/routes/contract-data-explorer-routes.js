@@ -15,6 +15,11 @@ module.exports = function (app) {
         {cache: 'stats'},
         ({params, path, query}) => queryContractState(params.network, path, params.parent, query))
 
+    registerRoute(app,
+        'contract-state',
+        {cache: 'stats'},
+        ({params, path, query}) => queryContractState(params.network, path, query.owner, query))
+
     //TODO: legacy, remove these routes
     registerRoute(app,
         'contract-data/:parent/:durability/:key',
