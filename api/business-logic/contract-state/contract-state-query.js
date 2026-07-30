@@ -30,12 +30,21 @@ async function queryContractState(network, basePath, owner, {cursor, durability,
         sort: {_id: -1},
         projection: {_id: 1}
     })
-    const filter = owners.map(owner => ({term: {owner}}))
+    const queryParams = {cursor, limit, order: parsedOrder === 1 ? 'asc' : 'desc'}
+    const filter = []
+    if (owners) {
+        filter.push({terms: {owner: owners}})
+        queryParams['owner'] = owners
+    }
     if (durability) {
         filter.push({term: {durability}})
+        queryParams['durability'] = durability
     }
-    for (const keyFilter of keys) {
-        filter.push({term: {keys: keyFilter}})
+    if (keys.length) {
+        for (const keyFilter of keys) {
+            filter.push({term: {keys: keyFilter}})
+        }
+        queryParams['key'] = keys
     }
     if (cursor) {
         filter.push({
@@ -72,7 +81,7 @@ async function queryContractState(network, basePath, owner, {cursor, durability,
         return entry
     })
 
-    return preparePagedData(basePath, {cursor, limit, order: parsedOrder === 1 ? 'asc' : 'desc'}, dataEntries)
+    return preparePagedData(basePath, queryParams, dataEntries)
 }
 
 async function fetchContractStateEntry(network, owner, key, durability) {
