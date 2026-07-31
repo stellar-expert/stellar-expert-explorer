@@ -49,7 +49,7 @@ async function queryContractState(network, basePath, owner, {cursor, durability,
     if (cursor) {
         filter.push({
             range: {
-                key: {
+                id: {
                     [parsedOrder === 1 ? 'gt' : 'lt']: cursor
                 }
             }
@@ -69,11 +69,13 @@ async function queryContractState(network, basePath, owner, {cursor, durability,
     const dataEntries = elasticResponse.hits.hits.map(({_id, _source}) => {
         const entry = {
             key: _source.key,
+            keyHash: _source.id,
+            owner: _source.owner,
             value: _source.value,
             durability: _source.durability,
             ttl: _source.ttl,
             updated: _source.updated,
-            paging_token: _source.key
+            paging_token: _source.id
         }
         if (entry.ttl && entry.ttl < lastLedger) {
             entry.expired = true
@@ -108,8 +110,10 @@ async function fetchContractStateEntry(network, owner, key, durability) {
     const {_source} = res
     return {
         key: _source.key,
+        keyHash: _source.id,
+        parent: owner, //TODO: deprecated, remove
+        owner: owner,
         value: _source.value,
-        parent: owner,
         durability: _source.durability,
         ttl: _source.ttl,
         updated: _source.updated
