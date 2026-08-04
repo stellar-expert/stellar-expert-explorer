@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 import {Tabs} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import TxHistoryView from '../tx/tx-history-view'
 import TradesView from '../effect/trades-history-view'
 import AssetTokenHoldersList from './asset-holders-list-view'

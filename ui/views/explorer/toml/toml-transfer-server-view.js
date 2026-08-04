@@ -72,7 +72,7 @@ export default function TomlTransferServerView({tomlInfo, standard, assetCode, a
     const transferServer = (tomlInfo?.interop || {})[standard]
     if (!transferServer) return null
     const {endpoints = {}} = transferServer
-    return <>
+    return <div className="segment blank">
         <div className="dimmed text-tiny">
             Please note, the metadata is loaded from the account home domain and was
             not verified by StellarExpert team.
@@ -100,5 +100,5 @@ export default function TomlTransferServerView({tomlInfo, standard, assetCode, a
             <a href={buildSep24DemoUrl({assetCode, assetIssuer})}
                target="_blank" rel="noreferrer noopener">Try transfer server <i className="icon icon-export"/></a>
         </div>
-    </>
+    </div>
 }

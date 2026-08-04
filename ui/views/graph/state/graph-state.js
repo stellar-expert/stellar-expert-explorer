@@ -1,7 +1,7 @@
 import EventEmitter from 'events'
 import {useEffect, useState} from 'react'
 import {throttle} from 'throttle-debounce'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import {getDirectoryEntry} from '@stellar-expert/ui-framework'
 import {getAccountRelations} from '../graph-api'
 import AccountGraphLink from './account-graph-link'

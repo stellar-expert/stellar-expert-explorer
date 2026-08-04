@@ -1,6 +1,6 @@
 import React from 'react'
 import {Dropdown, useStellarNetwork, setStellarNetwork} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import appSettings from '../../app-settings'
 import {resolvePath} from '../../business-logic/path'
 

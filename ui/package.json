@@ -1,7 +1,7 @@
 {
   "name": "ui.stellar.expert",
   "private": true,
-  "version": "0.33.3",
+  "version": "0.40.0",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
@@ -9,7 +9,7 @@
     "build": "webpack --mode=production --config ./webpack-config.js",
     "dev-server": "webpack serve --mode development --config ./webpack-config.js",
     "test": "cross-env NODE_ENV=test node_modules/.bin/mocha --require @babel/register",
-    "build-api-docs": "pnpm --package=@redocly/cli dlx openapi build-docs open-api/openapi.yml -t open-api/openapi-template.hbs -o public/openapi.html"
+    "build-api-docs": "node -v"
   },
   "browserslist": [
     "> 1%",
@@ -28,21 +28,18 @@
     "@stellar-expert/client-cache": "1.1.0",
     "@stellar-expert/contract-wasm-interface-parser": "5.0.1",
     "@stellar-expert/formatter": "3.1.0",
-    "@stellar-expert/navigation": "1.1.0",
     "@stellar-expert/tx-meta-effects-parser": "9.3.0",
     "@stellar-expert/tx-signers-inspector": "^1.8.2",
-    "@stellar-expert/ui-framework": "1.21.4",
+    "@stellar-expert/ui-framework": "2.0.1",
     "@stellar/stellar-sdk": "16.0.1",
     "classnames": "^2.3.2",
     "deepmerge": "^4.3.1",
-    "history": "^4.10.1",
     "markdown-to-jsx": "^9.7.13",
     "prop-types": "^15.8.1",
     "react": ">=17 <18.0.0",
     "react-dom": ">=17 <18.0.0",
     "react-fast-compare": "^3.2.2",
     "react-force-graph-2d": "^1.29.1",
-    "react-router": "^5.3.3",
     "sha.js": "^2.4.12",
     "throttle-debounce": "^5.0.2"
   },

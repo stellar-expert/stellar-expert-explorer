@@ -1,8 +1,7 @@
 import React, {useState} from 'react'
 import {xdr} from '@stellar/stellar-sdk'
-import {useParams} from 'react-router'
+import {useParams, navigation} from '@stellar-expert/ui-framework'
 import {UtcTimestamp, AccountAddress, ScVal, useExplorerPaginatedApi, Dropdown, usePageMetadata} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
 import GridDataActionsView from '../../components/grid-data-actions'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 

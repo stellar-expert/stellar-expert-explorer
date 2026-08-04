@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {StrKey} from '@stellar/stellar-sdk'
 import {AccountAddress, Button, useDirectoryTags, useDependantState, useTheme} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import {isDirectoryAdmin} from './is-directory-admin'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
 import {apiCall} from '../../models/api'

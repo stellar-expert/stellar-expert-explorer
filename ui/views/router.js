@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {Switch, Router, Route, Redirect} from 'react-router'
+import {RouterSwitch, Router, Route, Redirect} from '@stellar-expert/ui-framework'
 import Layout from './layout/layout-view'
 import TopMenu from './layout/top-menu-view'
 import Loadable from './components/loadable'
@@ -9,7 +9,7 @@ import NotFoundView from './pages/not-found-page-view'
 
 export default function AppRouter({history}) {
     return <Router history={history}>
-        <Switch>
+        <RouterSwitch>
             {/*widgets*/}
             <Route path="/widget/:network">
                 <Loadable moduleKey="explorer-widget"
@@ -23,7 +23,7 @@ export default function AppRouter({history}) {
             {/*all other routes*/}
             <Route>
                 <Layout menu={<TopMenu/>}>
-                    <Switch>
+                    <RouterSwitch>
                         <Redirect from="/" to="/explorer/public" exact/>
                         {/*<Route path="/" exact component={Home}/>*/}
                         {/*tools*/}
@@ -60,10 +60,10 @@ export default function AppRouter({history}) {
                         </Route>
                         {/*not found*/}
                         <Route component={NotFoundView}/>
-                    </Switch>
+                    </RouterSwitch>
                 </Layout>
             </Route>
-        </Switch>
+        </RouterSwitch>
     </Router>
 }
 

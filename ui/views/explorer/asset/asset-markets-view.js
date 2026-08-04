@@ -1,7 +1,7 @@
 import React from 'react'
 import {Dropdown, useAssetMeta, useDependantState} from '@stellar-expert/ui-framework'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../../business-logic/path'
 import {apiCall} from '../../../models/api'
 import OrderbookDetails from '../market/orderbook-details-view'

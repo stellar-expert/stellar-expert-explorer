@@ -1,4 +1,4 @@
-import {parseQuery, stringifyQuery} from '@stellar-expert/navigation'
+import {parseQuery, stringifyQuery} from '@stellar-expert/ui-framework'
 
 const authTokenStore = window.localStorage
 

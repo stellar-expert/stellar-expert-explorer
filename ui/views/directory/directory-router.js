@@ -1,5 +1,5 @@
 import React from 'react'
-import {Switch, Route, Redirect} from 'react-router'
+import {RouterSwitch, Route, Redirect} from '@stellar-expert/ui-framework'
 import NotFoundView from '../pages/not-found-page-view'
 import Directory from './directory-view'
 import DirectoryAddEntry from './directory-add-new-entry-view'
@@ -10,7 +10,7 @@ import DirectoryBlockDomainView from './directory-block-domain-view'
 
 function DirectoryRouter({history, match}) {
     return <div className="container narrow">
-        <Switch>
+        <RouterSwitch>
             <Redirect from={`${match.path}/public`} to={match.path} push={true}/>
             <Redirect from={`${match.path}/testnet`} to={match.path} push={true}/>
             <Redirect from={`${match.path}/blocked-domains/public`} to={`${match.path}/blocked-domains`} push={true}/>
@@ -22,7 +22,7 @@ function DirectoryRouter({history, match}) {
             <Route path={`${match.path}/:address/edit`} component={DirectoryEditEntry}/>
             <Route path={`${match.path}`} component={Directory}/>
             <Route component={NotFoundView}/>
-        </Switch>
+        </RouterSwitch>
     </div>
 }
 

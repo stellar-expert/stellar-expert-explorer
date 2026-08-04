@@ -1,4 +1,4 @@
-import {stringifyQuery} from '@stellar-expert/navigation/src/query'
+import {stringifyQuery} from '@stellar-expert/ui-framework'
 
 export default function buildRequestString(path, params = [], requestParams = {}) {
     const pathString = addPathParams(path, params, requestParams)

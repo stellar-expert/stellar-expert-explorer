@@ -3,7 +3,7 @@ import {Dropdown, Tabs, AssetLink, UpdateHighlighter} from '@stellar-expert/ui-f
 import {useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {formatPrice, formatWithAbbreviation} from '@stellar-expert/formatter'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
 import GridDataActionsView from '../../components/grid-data-actions'

@@ -1,5 +1,5 @@
 import React, {useCallback, useState, useEffect} from 'react'
-import {useLocation} from 'react-router'
+import {useLocation} from '@stellar-expert/ui-framework'
 import cn from 'classnames'
 
 export default function ApiDocsMenuView({pathList, menuVisible, toggleMenu}) {

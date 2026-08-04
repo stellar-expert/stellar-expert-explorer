@@ -1,5 +1,5 @@
 import React from 'react'
-import {useParams} from 'react-router'
+import {useParams} from '@stellar-expert/ui-framework'
 import {StrKey, xdr} from '@stellar/stellar-sdk'
 import {useExplorerApi, AccountAddress, usePageMetadata} from '@stellar-expert/ui-framework'
 import config from '../../../app-settings'

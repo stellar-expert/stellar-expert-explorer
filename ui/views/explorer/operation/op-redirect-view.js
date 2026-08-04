@@ -1,5 +1,5 @@
 import React from 'react'
-import {Redirect} from 'react-router'
+import {Redirect} from '@stellar-expert/ui-framework'
 import {parseStellarGenericId} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../../business-logic/path'
 

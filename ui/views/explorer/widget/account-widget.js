@@ -6,7 +6,7 @@ import AccountBalanceView from '../account/account-current-balances-view'
 import AccountBalanceChartView from '../account/charts/account-balance-chart-view'
 import Widget from './widget'
 import {useCompositeAccountInfo} from '../../../business-logic/api/account-api'
-import {useRouteMatch} from 'react-router'
+import {useRouteMatch} from '@stellar-expert/ui-framework'
 
 function AccountHeader({account, title}) {
     if (!account.address) return

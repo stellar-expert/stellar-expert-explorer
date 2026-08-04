@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {AccountAddress, getDirectoryEntry, usePageMetadata} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import DirectoryEntryPropsView from './directory-entry-props-view'
 
 function EditDirectoryLayoutView({address, children}) {

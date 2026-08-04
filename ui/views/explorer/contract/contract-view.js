@@ -1,5 +1,5 @@
 import React from 'react'
-import {useParams} from 'react-router'
+import {useParams} from '@stellar-expert/ui-framework'
 import {StrKey} from '@stellar/stellar-sdk'
 import {AccountAddress, useContractInfo, usePageMetadata} from '@stellar-expert/ui-framework'
 import ErrorNotificationBlock from '../../components/error-notification-block'

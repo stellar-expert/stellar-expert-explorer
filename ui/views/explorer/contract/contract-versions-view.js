@@ -1,5 +1,5 @@
 import React from 'react'
-import {useParams} from 'react-router'
+import {useParams} from '@stellar-expert/ui-framework'
 import {StrKey} from '@stellar/stellar-sdk'
 import {AccountAddress, UtcTimestamp, useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../../business-logic/path'

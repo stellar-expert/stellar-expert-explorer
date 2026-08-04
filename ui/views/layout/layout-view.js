@@ -1,5 +1,5 @@
 import React from 'react'
-import {withRouter} from 'react-router'
+import {withRouter} from '@stellar-expert/ui-framework'
 import {Dropdown, SystemDialog} from '@stellar-expert/ui-framework'
 import Footer from './footer-view'
 import CatcherView from './catcher-view'

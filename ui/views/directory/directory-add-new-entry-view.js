@@ -1,6 +1,6 @@
 import React from 'react'
 import {useDependantState, usePageMetadata} from '@stellar-expert/ui-framework'
-import {navigation, parseQuery} from '@stellar-expert/navigation'
+import {navigation, parseQuery} from '@stellar-expert/ui-framework'
 import DirectoryEntryPropsView from './directory-entry-props-view'
 
 export default function DirectoryAddNewEntryView() {

@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {Federation} from '@stellar/stellar-sdk'
 import {useDependantState, usePageMetadata} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 import {detectSearchType} from '../../../business-logic/search'
 import {resolvePath} from '../../../business-logic/path'

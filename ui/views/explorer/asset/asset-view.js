@@ -1,6 +1,6 @@
 import React from 'react'
 import {usePageMetadata} from '@stellar-expert/ui-framework'
-import {useRouteMatch} from 'react-router'
+import {useRouteMatch} from '@stellar-expert/ui-framework'
 import {useAssetInfo, useAssetIssuerInfo} from '../../../business-logic/api/asset-api'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import CrawlerScreen from '../../components/crawler-screen'

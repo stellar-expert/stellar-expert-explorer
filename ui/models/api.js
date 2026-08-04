@@ -1,4 +1,4 @@
-import {stringifyQuery} from '@stellar-expert/navigation'
+import {stringifyQuery} from '@stellar-expert/ui-framework'
 import appSettings from '../app-settings'
 
 function handleError(e) {

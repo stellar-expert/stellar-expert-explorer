@@ -1,5 +1,5 @@
 import React from 'react'
-import {useRouteMatch} from 'react-router'
+import {useRouteMatch} from '@stellar-expert/ui-framework'
 import {Amount, AssetLink, UtcTimestamp, InfoTooltip as Info, useExplorerApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {AssetDescriptor} from '@stellar-expert/asset-descriptor'

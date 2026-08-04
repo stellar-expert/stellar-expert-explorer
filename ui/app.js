@@ -1,6 +1,6 @@
 import React from 'react'
 import {render} from 'react-dom'
-import {navigation, bindClickNavHandler} from '@stellar-expert/navigation'
+import {navigation, bindClickNavHandler} from '@stellar-expert/ui-framework'
 import {createToastNotificationsContainer, initMeta, subscribeToStellarNetworkChange} from '@stellar-expert/ui-framework'
 import Router from './views/router'
 import appSettings from './app-settings'

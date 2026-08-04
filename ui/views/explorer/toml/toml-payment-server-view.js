@@ -62,7 +62,11 @@ function ReceivingDetails({info, assetIssuer}) {
 export default function TomlPaymentServerView({tomlInfo, assetCode, assetIssuer}) {
     const {sep31: directPaymentServer} = tomlInfo?.interop || {}
     if (!directPaymentServer) return null
-    return <>
+    return <div className="segment blank">
+        <div className="dimmed text-tiny">
+            Please note, the metadata is loaded from the account home domain and was
+            not verified by StellarExpert team.
+        </div>
         Direct payments server (
         <a href="https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0031.md" rel="noreferrer noopener"
            target="_blank">SEP-0031</a> compatibility)
@@ -70,5 +74,5 @@ export default function TomlPaymentServerView({tomlInfo, assetCode, assetIssuer}
             {directPaymentServer.filter(tokenInfo => !assetCode || tokenInfo.assetCode === assetCode)
                 .map(info => <ReceivingDetails key={info.assetCode} {...{info, assetIssuer}}/>)}
         </div>
-    </>
+    </div>
 }

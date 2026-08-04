@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 import {Button, useDirectoryTags, usePageMetadata} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
 import {isDirectoryAdmin} from './is-directory-admin'
 import {apiCall} from '../../models/api'

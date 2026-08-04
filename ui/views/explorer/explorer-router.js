@@ -1,5 +1,5 @@
 import React from 'react'
-import {Switch, Route} from 'react-router'
+import {RouterSwitch, Route} from '@stellar-expert/ui-framework'
 import Loadable from '../components/loadable'
 import NotFoundView from '../pages/not-found-page-view'
 import ExplorerHomePageView from './pages/explorer-home-page-view'
@@ -30,7 +30,7 @@ import SorobanTopContractsView from './ledger/soroban-top-contracts-view'
 export default function ExplorerRouter({match}) {
     const {path} = match
     return <div className="container">
-        <Switch>
+        <RouterSwitch>
             <Route path={`${path}/asset/:asset`} component={Asset}/>
             <Route path={`${path}/asset`} component={AssetsDashboard}/>
             <Route path={`${path}/ledger/:sequence`} component={Ledger}/>
@@ -65,6 +65,6 @@ export default function ExplorerRouter({match}) {
             <Route path={`${path}/search`} component={SearchRedirect}/>
             <Route path={`${path}/operations-live-stream`} component={ActivityStream}/>
             <Route component={NotFoundView}/>
-        </Switch>
+        </RouterSwitch>
     </div>
 }

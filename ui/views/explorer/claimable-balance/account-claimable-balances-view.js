@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react'
-import {useParams} from 'react-router'
+import {useParams} from '@stellar-expert/ui-framework'
 import {AccountAddress, formatExplorerLink, useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import GridDataActionsView from '../../components/grid-data-actions'
 import ErrorNotificationBlock from '../../components/error-notification-block'

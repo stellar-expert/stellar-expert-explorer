@@ -1,5 +1,5 @@
 import React from 'react'
-import {useParams} from 'react-router'
+import {useParams} from '@stellar-expert/ui-framework'
 import NotFoundView from '../../pages/not-found-page-view'
 import ApiDocsView, {apiPathList} from '../api-docs-view'
 import ApiPathView from '../api-path-view'

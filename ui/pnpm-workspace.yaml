@@ -4,4 +4,4 @@ allowBuilds:
 shamefullyHoist: true
 autoInstallPeers: true
 minimumReleaseAgeExclude:
-  - '@stellar-expert/ui-framework@1.21.4'
+  - '@stellar-expert/ui-framework'

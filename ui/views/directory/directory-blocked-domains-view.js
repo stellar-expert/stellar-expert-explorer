@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import {BlockSelect, useExplorerPaginatedApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
 import GridDataActions from '../components/grid-data-actions'

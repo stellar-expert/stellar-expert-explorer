@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import cn from 'classnames'
 import {AccountAddress, useExplorerPaginatedApi, useDirectoryTags, usePageMetadata} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import {useGithubOAuth} from '../../business-logic/oauth/oauth-hooks'
 import DirectoryTagsLineView from './directory-tags-line-view'
 import GridDataActions from '../components/grid-data-actions'

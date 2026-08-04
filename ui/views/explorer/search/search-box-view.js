@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import cn from 'classnames'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import {detectSearchType} from '../../../business-logic/search'
 import {resolvePath} from '../../../business-logic/path'
 

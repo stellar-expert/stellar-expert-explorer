@@ -1,5 +1,5 @@
 import React from 'react'
-import {useParams} from 'react-router'
+import {useParams} from '@stellar-expert/ui-framework'
 import {StrKey} from '@stellar/stellar-sdk'
 import {BlockSelect, AccountAddress, InfoTooltip as Info, useStellarNetwork} from '@stellar-expert/ui-framework'
 import {useDirectory, parseMuxedAccount, usePageMetadata} from '@stellar-expert/ui-framework'
