@@ -7,6 +7,8 @@ import Loadable from './components/loadable'
 
 import NotFoundView from './pages/not-found-page-view'
 
+const loadBilling = () => import(/* webpackChunkName: "billing" */ './billing/billing-router')
+
 export default function AppRouter({history}) {
     return <Router history={history}>
         <RouterSwitch>
@@ -57,6 +59,21 @@ export default function AppRouter({history}) {
                         <Route path="/info">
                             <Loadable moduleKey="info"
                                       load={() => import(/* webpackChunkName: "info" */ './info/info-router')}/>
+                        </Route>
+                        {/*public subscription landing*/}
+                        <Route path="/subscription">
+                            <Loadable moduleKey="subscription"
+                                      load={() => import(/* webpackChunkName: "subscription" */ './subscription/subscription-landing-view')}/>
+                        </Route>
+                        {/*billing dashboard*/}
+                        <Route path="/account">
+                            <Loadable moduleKey="billing" load={loadBilling}/>
+                        </Route>
+                        <Route path="/admin">
+                            <Loadable moduleKey="billing" load={loadBilling}/>
+                        </Route>
+                        <Route path="/login">
+                            <Loadable moduleKey="billing" load={loadBilling}/>
                         </Route>
                         {/*not found*/}
                         <Route component={NotFoundView}/>

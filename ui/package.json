@@ -1,7 +1,7 @@
 {
   "name": "ui.stellar.expert",
   "private": true,
-  "version": "0.40.0",
+  "version": "0.41.0",
   "author": "StellarExpertTeam<info@stellar.expert>",
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
@@ -21,7 +21,7 @@
     "url": "https://github.com/stellar-expert/stellar-expert-explorer.git"
   },
   "dependencies": {
-    "@albedo-link/intent": "^0.13.0",
+    "@auth0/auth0-react": "2.16.1",
     "@stellar-asset-lists/sdk": "^1.0.1",
     "@stellar-expert/asset-descriptor": "2.0.0",
     "@stellar-expert/claimable-balance-utils": "2.0.0",
@@ -40,7 +40,6 @@
     "react-dom": ">=17 <18.0.0",
     "react-fast-compare": "^3.2.2",
     "react-force-graph-2d": "^1.29.1",
-    "sha.js": "^2.4.12",
     "throttle-debounce": "^5.0.2"
   },
   "devDependencies": {

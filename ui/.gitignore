@@ -2,3 +2,6 @@
 public
 
 pnpm-lock.yaml
+
+# Local configuration - copy default.config.json to app.config.json and fill in the credentials
+app.config.json

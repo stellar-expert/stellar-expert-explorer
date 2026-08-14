@@ -13,3 +13,25 @@
     padding-right: 0;
   }
 }
+
+.account-menu {
+  font-size: 1.6rem;
+  font-family: $font-face-header;
+  line-height: 2.2em;
+  text-transform: uppercase;
+  color: var(--color-contrast-border);
+}
+
+.account-status {
+  display: inline-block;
+  vertical-align: middle;
+  white-space: nowrap;
+
+  a + a {
+    margin-left: 0.6em;
+  }
+
+  .icon {
+    font-size: 1.5em;
+  }
+}

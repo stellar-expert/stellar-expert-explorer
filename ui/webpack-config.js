@@ -2,11 +2,20 @@ const path = require('path')
 const {initWebpackConfig} = require('@stellar-expert/webpack-template')
 const pkgInfo = require('./package.json')
 
-const {API_ENDPOINT, DIRECTORY_ADMINS, OAUTH_GITHUB_CLIENTID, TURNSTILE_KEY} = process.env
+const {
+    API_ENDPOINT,
+    DIRECTORY_ADMINS,
+    OAUTH_GITHUB_CLIENTID,
+    TURNSTILE_KEY,
+    BILLING_API_ENDPOINT,
+    AUTH0_DOMAIN,
+    AUTH0_CLIENT_ID,
+    AUTH0_AUDIENCE
+} = process.env
 
 const outputPath = path.join(__dirname, './public/')
 
-module.exports = initWebpackConfig({
+const config = initWebpackConfig({
     entries: {
         app: {
             import: path.join(__dirname, './app.js'),
@@ -28,7 +37,11 @@ module.exports = initWebpackConfig({
             API_ENDPOINT,
             DIRECTORY_ADMINS,
             OAUTH_GITHUB_CLIENTID,
-            TURNSTILE_KEY
+            TURNSTILE_KEY,
+            BILLING_API_ENDPOINT,
+            AUTH0_DOMAIN,
+            AUTH0_CLIENT_ID,
+            AUTH0_AUDIENCE
         }
     },
     devServer: {
@@ -39,3 +52,12 @@ module.exports = initWebpackConfig({
         port: 9001
     }
 })
+
+config.resolve = config.resolve || {}
+config.resolve.alias = {
+    ...config.resolve.alias,
+    react: path.resolve(__dirname, './node_modules/react'),
+    'react-dom': path.resolve(__dirname, './node_modules/react-dom')
+}
+
+module.exports = config

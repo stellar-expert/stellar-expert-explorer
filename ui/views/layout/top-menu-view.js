@@ -1,5 +1,5 @@
-import React, {useState} from 'react'
-import {Dropdown} from '@stellar-expert/ui-framework'
+import React, {useEffect, useState} from 'react'
+import {Dropdown, useLocation} from '@stellar-expert/ui-framework'
 import {resolvePath} from '../../business-logic/path'
 import SearchBoxView from '../explorer/search/search-box-view'
 import LoginStatus from '../components/login-status'
@@ -24,6 +24,9 @@ const services = [
 
 export default function TopMenuView() {
     const [menuVisible, setMenuVisible] = useState(false)
+    const location = useLocation()
+
+    useEffect(() => setMenuVisible(false), [location])
 
     return <div className="top-block">
         <div className="container nav relative">

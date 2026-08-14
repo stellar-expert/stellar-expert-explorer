@@ -1,4 +1,5 @@
 import {setStellarNetwork, getCurrentStellarNetwork} from '@stellar-expert/ui-framework'
+import config from './app.config.json'
 
 class AppSettings {
     constructor() {
@@ -6,9 +7,30 @@ class AppSettings {
         const availableNetworks = Object.keys(this.networks)
         setStellarNetwork(availableNetworks.includes(networkFromUrl) ? networkFromUrl : availableNetworks[0])
         //load from env variables
-        const {API_ENDPOINT, DIRECTORY_ADMINS, OAUTH_GITHUB_CLIENTID, TURNSTILE_KEY} = envSettings
+        const {
+            API_ENDPOINT,
+            DIRECTORY_ADMINS,
+            OAUTH_GITHUB_CLIENTID,
+            TURNSTILE_KEY,
+            BILLING_API_ENDPOINT,
+            AUTH0_DOMAIN,
+            AUTH0_CLIENT_ID,
+            AUTH0_AUDIENCE
+        } = envSettings
         if (API_ENDPOINT) {
             this.apiEndpoint = API_ENDPOINT
+        }
+        if (BILLING_API_ENDPOINT) {
+            this.billingApiEndpoint = BILLING_API_ENDPOINT
+        }
+        if (AUTH0_DOMAIN) {
+            this.auth0.domain = AUTH0_DOMAIN
+        }
+        if (AUTH0_CLIENT_ID) {
+            this.auth0.clientId = AUTH0_CLIENT_ID
+        }
+        if (AUTH0_AUDIENCE) {
+            this.auth0.audience = AUTH0_AUDIENCE
         }
         if (DIRECTORY_ADMINS) {
             this.directoryAdmins = DIRECTORY_ADMINS.split(',').map(a => a.trim())
@@ -50,6 +72,12 @@ class AppSettings {
     }
 
     turnstileKey = '1x00000000000000000000BB'
+
+    //billing API server (separate service from the explorer API)
+    billingApiEndpoint = config.billingApiEndpoint
+
+    //`audience` doubles as the namespace prefix for the custom `/email` and `/roles` token claims
+    auth0 = {...config.auth0}
 
     get activeNetwork() {
         return getCurrentStellarNetwork()

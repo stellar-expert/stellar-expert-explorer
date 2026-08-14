@@ -67,7 +67,7 @@ $top-menu-line-height: 2.2em;
   .nav-menu-dropdown {
     position: absolute;
     right: 0;
-    top: 3.3rem;
+    top: 5.3rem;
     z-index: 5;
     display: none;
     flex-direction: column-reverse;
@@ -76,7 +76,7 @@ $top-menu-line-height: 2.2em;
     padding: 0.6em 1.4em;
     border: 1px solid var(--color-contrast-border);
     border-radius: 0 0 $border-radius-input $border-radius-input;
-    box-shadow: 0 4px 10px -2px rgba(0, 0, 0, .2);
+    box-shadow: 0 8px 8px -6px rgba(0, 0, 0, .3);
     border-top: none;
     min-width: 16em;
 

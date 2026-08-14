@@ -7,10 +7,12 @@
 @import "views/components/tracer";
 @import "views/components/stellar-stats";
 @import "views/components/info-box";
+@import "views/components/panel";
 //layouts
 @import "views/components/layouts/page-layout";
 @import "views/components/layouts/charts";
 @import "views/components/layouts/top-menu";
+@import "views/components/layouts/billing-dashboard";
 
 .nowrap {
   .account-address, .account-key {

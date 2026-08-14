@@ -1,5 +1,5 @@
 {
-  "apiEndpoint": "http://localhost:3000",
+  "apiEndpoint": "https://api.stellar.expert",
   "networks": {
     "public": {
       "title": "public",
@@ -14,16 +14,17 @@
       "demolisher": "GBLHEWM4JUJDIDBPSHRNIF43SCJZ2SRPIJYKNRV3T57A6UGLMBB3QSIN"
     }
   },
-  "directoryAdmins": [
-    "orbitlens",
-    "tomerweller",
-    "rice2000",
-    "stellarjohn"
-  ],
+  "directoryAdmins": [],
   "oauth": {
     "github": {
-      "clientId": "40b33b22410d95480eb2"
+      "clientId": ""
     }
   },
-  "turnstileKey": "1x00000000000000000000BB"
+  "turnstileKey": "1x00000000000000000000BB",
+  "billingApiEndpoint": "http://localhost:5000",
+  "auth0": {
+    "domain": "",
+    "clientId": "",
+    "audience": "https://api.stellar.expert"
+  }
 }
