@@ -42,7 +42,7 @@ const githubActionsIpChecker = {
 }
 
 async function enqueueValidation(network, data, from) {
-    if (await githubActionsIpChecker.isIpAllowed(from) || true) {
+    if (await githubActionsIpChecker.isIpAllowed(from)) {
         await db[network]
             .collection('code_validation_queue')
             .insertOne(data)
