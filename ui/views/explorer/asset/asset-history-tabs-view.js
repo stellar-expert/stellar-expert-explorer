@@ -29,7 +29,7 @@ export default function AssetHistoryTabsView({asset}) {
             isDefault: true,
             render: () => <TxHistoryView {...operationsHistoryProps}/>
         },
-        !asset.isContract && {
+        {
             name: 'trades',
             title: 'Trades',
             render: () => <>
