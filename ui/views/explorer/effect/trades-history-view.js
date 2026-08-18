@@ -72,6 +72,6 @@ function TradingVenue({trade}) {
     if (trade.dapp)
         return <>with&nbsp;{trade.dapp}&nbsp;pool</>
     if (trade.pool)
-        return <>with&nbsp;<AssetLink asset={pool}/>&nbsp;pool</>
-    return <>with&nbsp;offer&nbsp;<OfferLink offer={offer}/>&nbsp;by&nbsp;<AccountAddress account={seller} chars={8}/></>
+        return <>with&nbsp;<AssetLink asset={trade.pool}/>&nbsp;pool</>
+    return <>with&nbsp;offer&nbsp;<OfferLink offer={trade.offer}/>&nbsp;by&nbsp;<AccountAddress account={trade.seller} chars={8}/></>
 }
