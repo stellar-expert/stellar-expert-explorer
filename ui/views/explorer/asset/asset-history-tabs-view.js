@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useMemo, useState} from 'react'
 import {Tabs} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import TxHistoryView from '../tx/tx-history-view'
@@ -6,15 +6,16 @@ import TradesView from '../effect/trades-history-view'
 import AssetTokenHoldersList from './asset-holders-list-view'
 import AssetTradesChart from './charts/asset-trades-chart-view'
 import AssetMarkets from './asset-markets-view'
+import {StrKey} from '@stellar/stellar-sdk'
 
 export default function AssetHistoryTabsView({asset}) {
     const {query} = navigation
     const [operationsFilter, setOpFilter] = useState(query.filter || 'all')
-
+    const assetName = asset.descriptor.toString()
     const operationsHistoryProps = {
-        endpoint: `asset/${asset.descriptor.toString()}/history/${operationsFilter}`,
+        endpoint: `asset/${assetName}/history/${operationsFilter}`,
         context: asset,
-        presetFilter: {asset: [asset.asset]}
+        presetFilter: {[StrKey.isValidContract(assetName) ? 'account' : 'asset']: [asset.asset]}
     }
 
     function selectTab(tabName) {
