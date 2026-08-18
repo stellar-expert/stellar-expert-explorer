@@ -18,7 +18,7 @@ export default withErrorBoundary(function TomlInfoView({homeDomain, account, ass
         //check whether this account is mentioned anywhere in the TOML
         if (meta?.SIGNING_KEY !== account //either signing key
             && !meta?.ACCOUNTS?.includes(account) //or owned accounts list
-            && !meta?.CURRENCIES?.some(c => c.issuer === account)) //or asset issuer account
+            && !meta?.CURRENCIES?.some(c => c.issuer === account || c.contract === account)) //or asset issuer account
             return null //do not show TOML info as this account may just use a federation address,and not an official account
     }
 
