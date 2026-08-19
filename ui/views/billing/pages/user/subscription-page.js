@@ -87,7 +87,7 @@ export default function SubscriptionPage() {
  * @private
  */
 function NoSubscriptionView() {
-    return <div className="card billing-card text-center billing-subscription-card">
+    return <div className="card card-blank billing-card text-center billing-subscription-card">
         <div className="space">
             <div className="dimmed">No active subscription</div>
             <div className="micro-space">

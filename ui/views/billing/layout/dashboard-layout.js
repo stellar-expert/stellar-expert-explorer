@@ -1,7 +1,8 @@
 import React from 'react'
+import cn from 'classnames'
 import {SessionProvider} from '../auth/auth-session'
-import SidebarView from '../components/sidebar-view'
 import {adminSections, userSections} from '../navigation'
+import SidebarView from '../components/sidebar-view'
 import AuthLayout from './auth-layout'
 
 const sidebars = {
@@ -21,7 +22,7 @@ export default function DashboardLayout({role, children}) {
     }
     return <SessionProvider>
         <AuthLayout role={role}>
-            <div className="billing-dashboard container dual-layout">
+            <div className={cn('billing-dashboard container dual-layout', {'billing-admin': role === 'admin'})}>
                 <SidebarView list={sidebars[role]} identity={role === 'user'}/>
                 <div className="content w-100">
                     {children}

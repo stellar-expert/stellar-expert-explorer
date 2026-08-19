@@ -89,7 +89,7 @@ export default function UserSubscriptionPage() {
             .finally(() => setIsSaving(false))
     }, [id, form, back])
 
-    const title = <>Edit subscription&nbsp;&nbsp;<span className="billing-badge admin text-tiny">ADMIN</span></>
+    const title = 'Edit subscription'
     const action = <span className="dimmed text-small">
         <code className="text-small billing-account-ref">account #{shortenString(id, 8)}</code>
         {!!account?.email && <>&nbsp;·&nbsp;{account.email}</>}
@@ -137,9 +137,9 @@ export default function UserSubscriptionPage() {
                         <label className="dimmed text-small">Internal note</label>
                         <textarea value={form.internalNote} onChange={changeNote} rows={4}/>
                     </div>
-                    <label className="micro-space">
+                    <label className="billing-checkbox micro-space">
                         <input type="checkbox" checked={form.notifyOwner} onChange={toggleNotify}/>
-                        &nbsp;Notify account owner by email
+                        Notify account owner by email
                     </label>
                     <div className="row space">
                         <div className="column column-33">
@@ -175,7 +175,7 @@ function PlanOptionView({plan, selected, onSelect}) {
             <div className="dimmed text-tiny">{describePlanOffer(plan, photons, requestsPerMinute)}</div>
         </div>
         {selected ?
-            <i className="icon-ok color-highlight" title="Selected"/> :
+            <i className="icon-ok" title="Selected"/> :
             <a href="#" data-plan={plan.key} onClick={onSelect} className="text-small">Select</a>}
     </div>
 }

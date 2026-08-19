@@ -38,7 +38,7 @@ export default function LogsView() {
 
     return <div className="relative">
         <LogsFilterView onChange={changeFilters}/>
-        <table className="table exportable billing-log micro-space">
+        <table className="billing-table exportable billing-log micro-space">
             <thead>
                 <tr>
                     <th>Account</th>
@@ -49,7 +49,7 @@ export default function LogsView() {
             </thead>
             <tbody className="condensed">
                 {logs?.map(entry => <tr key={entry.id} className={requestTypeStyles[entry.requestType]}>
-                    <td data-header="Account: " className="text-small">
+                    <td data-header="Account: ">
                         {entry.email || shortenString(entry.account)}
                     </td>
                     <td data-header="Request type: ">

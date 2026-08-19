@@ -24,7 +24,7 @@ $accent-line-width: 0.3rem !default;
 .panel-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: $space-micro;
+  gap: 1.5 * $space-micro;
 }
 
 .section-title {

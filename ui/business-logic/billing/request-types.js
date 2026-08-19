@@ -4,9 +4,11 @@
 export const requestTypeTitles = {
     charge: 'Charge',
     rejected: 'Rejected',
+    payment: 'Payment',
     deposit: 'Added deposit',
     burn: 'Burned balance',
     'subscription-renewed': 'Subscription renewed',
+    'subscription-changed': 'Subscription changed',
     'subscription-expired': 'Subscription ended'
 }
 
@@ -16,6 +18,7 @@ export const requestTypeTitles = {
  */
 export const requestTypeStyles = {
     rejected: 'log-alert',
+    payment: 'log-success',
     deposit: 'log-success',
     burn: 'log-warning',
     'subscription-expired': 'log-warning'
