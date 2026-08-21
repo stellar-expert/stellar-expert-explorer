@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {formatWithAutoPrecision} from '@stellar-expert/formatter'
+import {formatWithPrecision} from '@stellar-expert/formatter'
 import PriceDynamic from '../../components/price-dynamic'
 
 //TODO: use PriceDynamic instead
@@ -10,7 +10,7 @@ export default function AssetPriceChange({priceDynamic, digits = 2}) {
         prevPrice = priceDynamic[priceDynamic.length - 2][1]
     if (latestPrice === 0) return <span>-</span>
     return <span>
-        {formatWithAutoPrecision(latestPrice, digits)}<PriceDynamic current={latestPrice} prev={prevPrice}/>
+        {formatWithPrecision(latestPrice, digits)}<PriceDynamic current={latestPrice} prev={prevPrice}/>
         <span className="text-small dimmed">USD</span>
     </span>
 }

@@ -14,7 +14,7 @@ export default withErrorBoundary(function ContractBalancesView({address, onSelec
         {!!valueInfo?.total && <div className="dimmed text-right mobile-left text-small condensed">
             <div className="desktop-only" style={{marginTop: '-2.8em'}}/>
             <span className="mobile-only">Estimated address balances value: </span>
-            ~ {formatWithAutoPrecision(valueInfo.total / 10000000)} <span
+            ~ {formatWithAutoPrecision(valueInfo.total)} <span
             className="text-tiny">{valueInfo.currency}</span>
             <div className="desktop-only space"/>
         </div>}
