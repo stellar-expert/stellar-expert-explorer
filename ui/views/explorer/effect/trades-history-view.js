@@ -21,54 +21,57 @@ export default function TradesHistoryView({endpoint}) {
         {loading && data.length > 0 && <div className="loader cover"/>}
         <table className="table exportable" data-export-prefix="trades">
             <thead>
-                <tr>
-                    <th>Trade</th>
-                    <th className="collapsing">Date</th>
-                </tr>
+            <tr>
+                <th>Trade</th>
+                <th className="collapsing">Date</th>
+            </tr>
             </thead>
             <tbody>
-                {data.map(trade => {
-                    const {
-                        operation,
-                        offer,
-                        pool,
-                        seller,
-                        sold_asset,
-                        buyer,
-                        bought_asset,
-                        sold_amount,
-                        bought_amount,
-                        price,
-                        paging_token,
-                        ts
-                    } = trade
-                    const sold = AssetDescriptor.parse(sold_asset)
-                    const bought = AssetDescriptor.parse(bought_asset)
-                    const counter = pool ?
-                        <>on&nbsp;<AssetLink asset={pool}/>&nbsp;pool</> :
-                        <>on&nbsp;offer&nbsp;<OfferLink offer={offer}/>&nbsp;by&nbsp;<AccountAddress account={seller} chars={8}/></>
+            {data.map(trade => {
+                const {
+                    operation,
+                    sold_asset,
+                    buyer,
+                    bought_asset,
+                    sold_amount,
+                    bought_amount,
+                    price,
+                    paging_token,
+                    ts
+                } = trade
+                const sold = AssetDescriptor.parse(sold_asset)
+                const bought = AssetDescriptor.parse(bought_asset)
 
-                    return <tr key={paging_token}>
-                        <td data-header="Trade: ">
-                            <AccountAddress account={buyer} chars={8}/> exchanged{' '}
-                            <Amount amount={sold_amount} asset={sold} adjust/> <i className="icon icon-shuffle  color-primary"/>{' '}
-                            <Amount amount={bought_amount} asset={bought} adjust/> at{' '}
-                            <span className="nowrap">
-                                {formatPrice(price, 4)}{bought.toCurrency()}/{sold.toCurrency()}
+
+                return <tr key={paging_token}>
+                    <td data-header="Trade: ">
+                        <AccountAddress account={buyer} chars={8}/> exchanged{' '}
+                        <Amount amount={sold_amount} asset={sold} adjust/> <i className="icon icon-shuffle  color-primary"/>{' '}
+                        <Amount amount={bought_amount} asset={bought} adjust/> at{' '}
+                        <span className="nowrap">
+                                {formatPrice(price, 4)} {<AssetLink asset={bought} issuer={false}/>}/{<AssetLink asset={sold} issuer={false}/>}
                             </span>{' '}
-                            {counter}
-                            <div className="mobile-only">
-                                <span className="dimmed">Operation:&nbsp;</span>
-                                <a href={resolvePath('op/' + operation)} className="nowrap">{operation}</a>
-                            </div>
-                        </td>
-                        <td data-header="Date: ">
-                            <a href={resolvePath('op/' + operation)} className="nowrap"><UtcTimestamp date={ts} className="nowrap"/></a>
-                        </td>
-                    </tr>
-                })}
+                        <TradingVenue trade={trade}/>
+                        <div className="mobile-only">
+                            <span className="dimmed">Operation:&nbsp;</span>
+                            <a href={resolvePath('op/' + operation)} className="nowrap">{operation}</a>
+                        </div>
+                    </td>
+                    <td data-header="Date: ">
+                        <a href={resolvePath('op/' + operation)} className="nowrap"><UtcTimestamp date={ts} className="nowrap"/></a>
+                    </td>
+                </tr>
+            })}
             </tbody>
         </table>
         <GridDataActionsView model={trades}/>
     </div>
+}
+
+function TradingVenue({trade}) {
+    if (trade.dapp)
+        return <>with&nbsp;{trade.dapp}&nbsp;pool</>
+    if (trade.pool)
+        return <>with&nbsp;<AssetLink asset={trade.pool}/>&nbsp;pool</>
+    return <>with&nbsp;offer&nbsp;<OfferLink offer={trade.offer}/>&nbsp;by&nbsp;<AccountAddress account={trade.seller} chars={8}/></>
 }

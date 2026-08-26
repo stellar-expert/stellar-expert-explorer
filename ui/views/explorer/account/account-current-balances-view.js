@@ -15,7 +15,7 @@ export default withErrorBoundary(function AccountCurrentBalancesView({account, o
         {!!valueInfo?.total && <div className="dimmed text-right mobile-left text-small condensed">
             <div className="desktop-only" style={{marginTop: '-2.8em'}}/>
             <span className="mobile-only">Estimated account balances value: </span>
-            ~ {formatWithAutoPrecision(valueInfo.total / 10000000)} <span className="text-tiny">{valueInfo.currency}</span>
+            ~ {formatWithAutoPrecision(valueInfo.total)} <span className="text-tiny">{valueInfo.currency}</span>
             <div className="desktop-only space"/>
         </div>}
         <div className="all-account-balances micro-space text-header">

@@ -91,21 +91,11 @@ export default withErrorBoundary(function AssetSummaryView({asset}) {
             {formatWithPrecision(asset.payments || 0, 0)}
             <Info>Total count of all payments with the asset recorded on the ledger.</Info>
         </dd>
-        <dt>Overall payments volume:</dt>
-        <dd>
-            <Amount amount={asset.payments_amount} round asset={descriptor}/>
-            <Info>Total amount of payments executed since asset creation.</Info>
-        </dd>
-        <dt>Total trades count:</dt>
-        <dd>
-            {formatWithPrecision(asset.trades || 0, 0)}
-            <Info>Total count of all trades with the asset recorded on the Stellar ledger.</Info>
-        </dd>
-        {!!asset.volume && <>
-            <dt>Overall traded volume:</dt>
+        {asset.trades > 0 && <>
+            <dt>Total trades count:</dt>
             <dd>
-                <Amount amount={asset.volume} round asset="USD"/>
-                <Info>Volume of all on-chain trading operations.</Info>
+                {formatWithPrecision(asset.trades || 0, 0)}
+                <Info>Total count of all trades with the asset recorded on the Stellar ledger.</Info>
             </dd>
         </>}
         {asset.price > 0 && <>

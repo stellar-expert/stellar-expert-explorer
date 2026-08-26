@@ -60,7 +60,6 @@ function resolveBalanceValue(trustline, currency = 'USD') {
     let {value} = trustline
     if (!value)
         return '-'
-    value /= 10000000
     if (value < 0.01)
         return '-'
     return `~${formatWithAutoPrecision(value)} ${currency}`
