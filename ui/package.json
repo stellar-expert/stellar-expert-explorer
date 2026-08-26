@@ -30,7 +30,7 @@
     "@stellar-expert/formatter": "3.1.0",
     "@stellar-expert/tx-meta-effects-parser": "9.3.0",
     "@stellar-expert/tx-signers-inspector": "^1.8.2",
-    "@stellar-expert/ui-framework": "2.0.1",
+    "@stellar-expert/ui-framework": "2.0.3",
     "@stellar/stellar-sdk": "16.0.1",
     "classnames": "^2.3.2",
     "deepmerge": "^4.3.1",

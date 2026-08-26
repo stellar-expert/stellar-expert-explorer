@@ -29,7 +29,7 @@ export default function UserSettingsView({settings, onUpdate}) {
 
     return <div>
         <SettingsSectionView title="Plan" description="Tariff, limits and renewal.">
-            <UserSubscriptionView account={settings} onUpdate={saveSettings} disabled={isProgress}/>
+            <UserSubscriptionView account={settings} onUpdate={onUpdate} disabled={isProgress}/>
         </SettingsSectionView>
         <div className="space"/>
         <hr/>

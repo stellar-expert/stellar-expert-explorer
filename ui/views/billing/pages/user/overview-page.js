@@ -28,7 +28,7 @@ export default function OverviewPage() {
 
     return <SimplePageLayout title="Overview">
         <StatisticsView summary={summary}/>
-        <BillingPeriodView account={account} used={summary?.month?.credits}/>
+        <BillingPeriodView account={account} usage={usage}/>
         <VolumeChartView stats={usage}/>
         <EndpointUsageView endpoints={summary?.month?.endpoints}/>
     </SimplePageLayout>

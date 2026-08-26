@@ -185,11 +185,11 @@ function OrderSummaryView({plan, period, subscription}) {
             </div>
         </div>
         <hr className="micro-space"/>
-        {credit > 0 && <div className="dual-layout text-small nano-space">
+        {credit > 0 && <div className="dual-layout text-small micro-space">
             <span>Unused {currentPlan} time</span>
             <span className="color-success nowrap">−${credit.toFixed(2)}</span>
         </div>}
-        <div className="dual-layout text-small nano-space">
+        <div className="dual-layout text-small micro-space">
             <span>VAT (0%)</span>
             <span className="nowrap">$0.00</span>
         </div>

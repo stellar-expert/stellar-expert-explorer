@@ -155,17 +155,33 @@ export function toStoredLimits({limits, custom}) {
 }
 
 /**
+ * What a stored subscription allows, whichever vintage the record is
+ * @param {{limits: PlanLimits, monthlyCredits: Number, rpsLimit: Number, maxBatchSize: Number}} [subscription]
+ * @return {PlanLimits}
+ */
+export function resolveSubscriptionLimits(subscription) {
+    const {limits, monthlyCredits, rpsLimit, maxBatchSize} = subscription || {}
+    return {
+        photons: limits?.photons ?? monthlyCredits ?? 0,
+        //`rpsLimit` counts per second, the published limit per minute
+        requestsPerMinute: limits?.requestsPerMinute ?? (rpsLimit ? rpsLimit * 60 : 0),
+        batchSize: limits?.batchSize ?? maxBatchSize ?? 0
+    }
+}
+
+/**
  * Compact form of what a subscription allows
- * @param {{monthlyCredits: Number, rpsLimit: Number}} subscription
+ * @param {{}} subscription - as stored
  * @return {String} - empty when the record carries no limits at all
  */
-export function describeSubscriptionLimits({monthlyCredits, rpsLimit}) {
+export function describeSubscriptionLimits(subscription) {
+    const {photons, requestsPerMinute} = resolveSubscriptionLimits(subscription)
     const parts = []
-    if (monthlyCredits) {
-        parts.push(`${formatWithAbbreviation(monthlyCredits)}/mo`)
+    if (photons) {
+        parts.push(`${formatWithAbbreviation(photons)}/mo`)
     }
-    if (rpsLimit) {
-        parts.push(`${formatWithAutoPrecision(rpsLimit * 60)} req/min`)
+    if (requestsPerMinute) {
+        parts.push(`${formatWithAutoPrecision(requestsPerMinute)} req/min`)
     }
     return parts.join(' · ')
 }

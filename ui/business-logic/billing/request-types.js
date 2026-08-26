@@ -9,6 +9,9 @@ export const requestTypeTitles = {
     burn: 'Burned balance',
     'subscription-renewed': 'Subscription renewed',
     'subscription-changed': 'Subscription changed',
+    'subscription-renewal-cancelled': 'Renewal cancelled',
+    'subscription-renewal-resumed': 'Renewal resumed',
+    'subscription-cancelled': 'Subscription cancelled',
     'subscription-expired': 'Subscription ended'
 }
 
@@ -21,6 +24,8 @@ export const requestTypeStyles = {
     payment: 'log-success',
     deposit: 'log-success',
     burn: 'log-warning',
+    'subscription-renewal-cancelled': 'log-warning',
+    'subscription-cancelled': 'log-warning',
     'subscription-expired': 'log-warning'
 }
 

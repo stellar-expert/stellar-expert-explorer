@@ -41,10 +41,9 @@ export default function SubscriptionPage() {
             !await confirmAction('Cancel automatic renewal? The subscription stays active until it expires.'))
             return
 
-        const updated = {...subscription, autoRenew: isPaused}
-        apiRequest(`account/${userId}`, {method: 'POST', params: {subscription: updated}})
-            .then(() => {
-                setAccount(prev => ({...prev, subscription: updated}))
+        apiRequest(`account/${userId}/subscription/renewal`, {method: 'POST', params: {autoRenew: isPaused}})
+            .then(res => {
+                setAccount(prev => ({...prev, subscription: res.subscription}))
                 notify({type: 'success', message: `Automatic renewal has been ${isPaused ? 'resumed' : 'cancelled'}`})
             })
             .catch(error => notify({type: 'error', message: 'Failed to update subscription. ' + error?.message}))
