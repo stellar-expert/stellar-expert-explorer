@@ -38,8 +38,8 @@ export default function AssetView() {
 
     return <>
         <AssetDetailsView asset={asset}/>
-        {!!asset.home_domain &&
-            <TomlInfo homeDomain={asset.home_domain} assetMeta={asset.meta} account={asset.descriptor.issuer || asset.descriptor.contract}
+        {!!asset.domain &&
+            <TomlInfo homeDomain={asset.domain} assetMeta={asset.meta} account={asset.descriptor.issuer || asset.descriptor.contract}
                       className="space"/>}
         <CrawlerScreen><AssetHistoryTabsView asset={asset}/></CrawlerScreen>
     </>

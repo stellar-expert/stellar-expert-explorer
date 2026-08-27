@@ -6,7 +6,7 @@ export default function TomlSection({data, header}) {
 
     return <div className="segment blank">
         <div className="dimmed text-tiny">
-            Please note, the metadata is loaded from the account home domain and was
+            Please note, the metadata is loaded from the associated domain and was
             not verified by StellarExpert team.
         </div>
         <dl className="micro-space">

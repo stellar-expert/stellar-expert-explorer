@@ -19,7 +19,7 @@ export default function TomlInteropView({data}) {
     const keys = Object.keys(interopServices).filter(key => !!data[key])
     return <div>
         <div className="dimmed text-tiny">
-            Please note, the metadata is loaded from the account home domain and was
+            Please note, the metadata is loaded from the associated domain and was
             not verified by StellarExpert team.
         </div>
         <div className="micro-space">
