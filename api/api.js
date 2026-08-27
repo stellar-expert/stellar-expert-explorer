@@ -30,6 +30,17 @@
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({extended: false}))
 
+    // CSRF protection: reject mutating requests that don't use application/json content-type.
+    // HTML forms cannot set this header, preventing cross-site form-based CSRF attacks.
+    app.use((req, res, next) => {
+        if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+            const contentType = req.headers['content-type'] || ''
+            if (!contentType.includes('application/json'))
+                return res.status(403).end()
+        }
+        next()
+    })
+
     //rewrite requests from the old path convention format
     app.use(function (req, res, next) {
         if (req.url.startsWith('/api/')) {
