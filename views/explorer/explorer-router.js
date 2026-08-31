@@ -9,6 +9,7 @@ import Account from './account/account-view'
 import Contract from './contract/contract-view'
 import ContractValidationInfo from './contract/contract-validation-view'
 import Ledger from './ledger/ledger-view'
+import LiveNetworkStatus from './metrics/live-network-status'
 import Tx from './tx/tx-view'
 import MarketView from './market/market-view'
 import MarketDashboard from './market/all-markets-view'
@@ -64,6 +65,7 @@ export default function ExplorerRouter({match}) {
             <Route path={`${path}/search/new`} component={DedicatedSearchBoxView}/>
             <Route path={`${path}/search`} component={SearchRedirect}/>
             <Route path={`${path}/operations-live-stream`} component={ActivityStream}/>
+            <Route path={`${path}/live-network-status`} component={LiveNetworkStatus}/>
             <Route component={NotFoundView}/>
         </RouterSwitch>
     </div>
