@@ -1,0 +1,40 @@
+.tag-selector-dropdown {
+  padding: $space-micro;
+  border: 1px dashed var(--color-dimmed);
+  border-radius: $border-radius-input;
+
+  .selected-tag {
+    border: 1px solid var(--color-primary);
+    border-radius: $border-radius-input;
+    padding: 0.2em 0.2em 0.2em 0.5em;
+    margin: 0.1em;
+  }
+}
+
+.tag-block {
+  width: 100%;
+  padding: 1.5em 0.5em;
+  margin: 0.3em 0;
+  font-size: 1.6rem;
+  border-radius: $border-radius-input;
+  background: var(--color-alt-bg);
+  line-height: 1.2;
+  display: inline-block;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  .description {
+    display: block;
+    padding-top: 0.5em;
+    height: 2.5em;
+    font-size: 0.8em;
+    opacity: 0.7;
+  }
+
+  &.active {
+    background: var(--color-primary);
+    color: var(--color-bg);
+  }
+}

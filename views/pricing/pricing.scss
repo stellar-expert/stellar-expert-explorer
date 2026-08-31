@@ -1,0 +1,448 @@
+.subscription-landing {
+  --color-bg: #0d1320;
+  --color-dashboard-bg: #0a0d14;
+  --color-alt-bg: #141c2e;
+  --color-alt-border: #232c40;
+  --color-contrast-border: #2b3548;
+  --color-text: #eee;
+  color: var(--color-text);
+  background: var(--color-dashboard-bg);
+  margin: -1rem 0 -2rem;
+  padding-bottom: $space-double;
+
+  h2 {
+    margin: 0;
+    font-size: 3rem;
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    .card {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  .card {
+    border: 1px solid var(--color-alt-border);
+    background-color: var(--color-alt-bg);
+  }
+}
+
+.subscription-block {
+  padding-top: $space-double;
+
+  scroll-margin-top: $space-standard;
+}
+
+.subscription-hero {
+  position: relative;
+  overflow: hidden;
+  padding: $space-double 0;
+  background-color: var(--color-dashboard-bg);
+  background-image: radial-gradient(46rem 38rem at 78% 8%,
+  color-mix(in srgb, var(--color-highlight) 15%, transparent) 0%, transparent 68%),
+  radial-gradient(52rem 44rem at 8% 96%,
+          color-mix(in srgb, var(--color-primary) 20%, transparent) 0%, transparent 68%);
+  background-repeat: no-repeat;
+
+  > .container {
+    z-index: 1;
+  }
+
+  h1 {
+    margin-top: $space-micro;
+    margin-bottom: $space-standard;
+    font-size: 4.4rem;
+    line-height: 1.14;
+
+    > .accent {
+      color: var(--color-highlight);
+    }
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    padding: $space-standard 0;
+
+    h1 {
+      font-size: 3.4rem;
+    }
+  }
+}
+
+.subscription-landing .button.button-outline:before {
+  background: transparent;
+}
+
+.subscription-eyebrow {
+  display: inline-block;
+  padding: 0.4em 0.9em;
+  border: 1px solid color-mix(in srgb, var(--color-highlight) 45%, transparent);
+  color: var(--color-highlight);
+  font-family: $font-face-mono;
+  font-size: 1.1rem;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.subscription-lead {
+  text-align: left;
+  opacity: 0.75;
+}
+
+.subscription-hero .subscription-lead {
+  max-width: 44rem;
+}
+
+.subscription-radar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  > .subscription-radar-art {
+    width: 100%;
+    max-width: 44rem;
+    aspect-ratio: 1 / 0.7;
+    background: url('/img/telescope-base.png') center center no-repeat;
+    background-size: contain;
+    position: relative;
+    perspective: 10rem;
+
+    .dish {
+      width: 20%;
+      aspect-ratio: 1 / 1;
+      background: url('/img/telescope-bowl.png') center center no-repeat;
+      background-size: contain;
+      position: absolute;
+      right: 32%;
+      bottom: 33%;
+      transform: rotate(0deg);
+      transform-origin: 74% 77%;
+      animation: dish-tilt 30s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+  }
+
+  > .subscription-radar-caption {
+    margin-top: $space-micro;
+    font-family: $font-face-mono;
+    font-size: 1.1rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    opacity: 0.45;
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    margin-top: $space-standard;
+  }
+}
+
+.subscription-plans-header {
+  align-items: center;
+  gap: $space-micro;
+}
+
+.subscription-period-switch {
+  flex-shrink: 0;
+  white-space: nowrap;
+
+  .button {
+    margin-bottom: 0;
+  }
+}
+
+.subscription-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-top: $space-standard;
+  padding-bottom: $space-standard;
+
+  &.popular {
+    border-color: var(--color-highlight);
+    background: color-mix(in srgb, var(--color-highlight) 7%, var(--color-alt-bg));
+  }
+
+  > h3 {
+    margin: 0;
+  }
+
+  > .subscription-plan-icon {
+    font-size: 2.4rem;
+    color: var(--color-highlight);
+  }
+
+  > .subscription-plan-audience {
+    min-height: 2 * 0.85 * $font-size-base * $font-line-height-base;
+  }
+
+  > .subscription-plan-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.2em 0.7em;
+    background: var(--color-highlight);
+    color: var(--color-bg);
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+
+  > .subscription-plan-price {
+    margin: $space-double 0 $space-micro;
+  }
+
+  > .button {
+    margin-bottom: $space-standard;
+  }
+
+  > .subscription-plan-limits {
+    margin-top: auto;
+    padding-top: $space-micro;
+    border-top: 1px solid var(--color-alt-border);
+    font-size: 0.85 * $font-size-base;
+  }
+}
+
+.subscription-plan-amount {
+  font-family: $font-face-header;
+  font-size: 3.2rem;
+  letter-spacing: $header-letter-spacing;
+  line-height: 1.1;
+}
+
+.subscription-plan-limits {
+  margin-bottom: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    padding: 0.4em 0;
+  }
+}
+
+.subscription-free {
+  padding-top: $space-standard;
+  padding-bottom: $space-standard;
+
+  .subscription-free-identity {
+    display: flex;
+    align-items: center;
+    gap: $space-micro;
+
+    h4 {
+      margin: 0;
+    }
+
+    > .subscription-free-icon {
+      font-size: 2.4rem;
+      color: var(--color-highlight);
+    }
+  }
+
+  .subscription-free-identity {
+    flex: 0 0 auto;
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .subscription-free-usage {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  .subscription-free-price {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .subscription-free-limits {
+    display: flex;
+    flex-wrap: wrap;
+
+    > li {
+      width: 50%;
+      padding-right: $space-micro;
+      font-size: 0.85 * $font-size-base;
+    }
+  }
+
+  .subscription-plan-amount {
+    color: var(--color-highlight);
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    .column {
+      width: 100%;
+      text-align: left !important;
+    }
+
+    .subscription-free-identity {
+      white-space: normal;
+    }
+
+    .subscription-free-limits > li {
+      width: 100%;
+    }
+  }
+}
+
+.subscription-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-standard;
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.subscription-feature {
+  height: 100%;
+  padding-top: $space-standard;
+  padding-bottom: $space-standard;
+
+  h4 {
+    margin: $space-micro 0 $space-nano;
+  }
+
+  > .subscription-feature-icon {
+    font-size: 2rem;
+    color: var(--color-highlight);
+  }
+}
+
+.subscription-photons {
+  padding: $space-double $space-standard;
+  background: linear-gradient(120deg, var(--color-alt-bg) 0%, var(--color-bg) 100%);
+}
+
+.subscription-cost {
+  display: flex;
+  align-items: center;
+  gap: $space-nano;
+  padding: 0.6em $space-micro;
+  background: var(--color-bg);
+
+  + .subscription-cost {
+    margin-top: $space-nano;
+  }
+
+  > code {
+    flex-grow: 1;
+    min-width: 0;
+    word-break: break-word;
+    padding: 0;
+    background: none;
+  }
+
+  > .subscription-cost-bar {
+    flex-shrink: 0;
+    width: 8rem;
+    height: 0.4rem;
+    border-radius: $border-radius-input;
+    background: var(--color-alt-border);
+    overflow: hidden;
+
+    > span {
+      display: block;
+      height: 100%;
+      background: var(--color-highlight);
+    }
+  }
+
+  > .subscription-cost-value {
+    flex-shrink: 0;
+    min-width: 7rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+.subscription-faq {
+  .subscription-faq-item {
+    border-top: 1px solid var(--color-alt-border);
+  }
+
+  .row {
+    align-items: start;
+  }
+
+  .subscription-faq-question {
+    position: relative;
+    padding: $space-micro 2.5rem $space-micro 0;
+    cursor: pointer;
+    user-select: none;
+
+    &:after {
+      content: '\e864';
+      position: absolute;
+      top: 50%;
+      right: 0;
+      color: var(--color-highlight);
+      font-family: 'icons';
+      font-size: 1.4rem;
+      font-style: normal;
+      font-weight: normal;
+      line-height: 1;
+      transform: translateY(-50%) rotate(45deg);
+      transition: transform 0.25s ease;
+    }
+  }
+
+  .subscription-faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease;
+
+    > div {
+      overflow: hidden;
+    }
+  }
+
+  .subscription-faq-item.expanded {
+    > .subscription-faq-question:after {
+      transform: translateY(-50%) rotate(0deg);
+    }
+
+    > .subscription-faq-answer {
+      grid-template-rows: 1fr;
+
+      > div {
+        padding-bottom: $space-micro;
+      }
+    }
+  }
+}
+
+.subscription-cta {
+  padding: $space-standard;
+  border-left: 0.3rem solid var(--color-highlight) !important;
+  background-color: var(--color-alt-bg);
+  background-image: radial-gradient(30rem 22rem at 84% 45%,
+  color-mix(in srgb, var(--color-primary) 32%, transparent) 0%, transparent 72%);
+  background-repeat: no-repeat;
+
+  h3 {
+    margin-top: 0;
+    font-size: 2.6rem;
+  }
+
+  .button {
+    margin-bottom: 0;
+  }
+}
+
+@keyframes dish-tilt {
+  0%, 10% {
+    transform: rotate3d(0, 0, 0, 0);
+  }
+  35% {
+    transform: rotate3d(0.1, 0.3, 1, 10deg);
+  }
+  75% {
+    transform: rotate3d(0.1, -0.3, 1, -6deg);
+  }
+  95%, 100% {
+    transform: rotate3d(0, 0, 0, 0);
+  }
+}

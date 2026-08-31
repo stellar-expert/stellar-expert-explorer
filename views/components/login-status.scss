@@ -1,0 +1,37 @@
+.logged-in-account {
+  display: inline-block;
+  vertical-align: bottom;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  width: 2em;
+  height: 2em;
+  padding-top: 0.33em;
+  text-align: center;
+  background: var(--color-bg);
+
+  .dd-wrapper {
+    padding-right: 0;
+  }
+}
+
+.account-menu {
+  font-size: 1.6rem;
+  font-family: $font-face-header;
+  line-height: 2.2em;
+  text-transform: uppercase;
+  color: var(--color-contrast-border);
+}
+
+.account-status {
+  display: inline-block;
+  vertical-align: middle;
+  white-space: nowrap;
+
+  a + a {
+    margin-left: 0.6em;
+  }
+
+  .icon {
+    font-size: 1.5em;
+  }
+}

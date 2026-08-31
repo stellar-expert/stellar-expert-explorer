@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "include": [
+    "/*"
+  ],
+  "exclude": [
+    "/*.js",
+    "/*.woff",
+    "/*.woff2",
+    "/*.css",
+    "/*.png",
+    "/*.jpg",
+    "/*.svg",
+    "/*.xml",
+    "/*.json",
+    "/*.toml",
+    "/favicon.ico",
+    "/robots.txt"
+  ]
+}

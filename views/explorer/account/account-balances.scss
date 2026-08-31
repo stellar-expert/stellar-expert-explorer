@@ -1,0 +1,44 @@
+.all-account-balances {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 100%;
+  max-height: 21.5em;
+  overflow-y: auto;
+
+  .account-balance {
+    display: block;
+    padding: $space-micro 0 0.8*$space-micro;
+    margin: 0.2em;
+    font-size: 1.15em;
+    flex: 0 0 30%;
+    max-width: 30%;
+    height: 5em;
+    background: var(--color-highlight);
+    color: var(--color-bg);
+    text-align: center;
+
+    *, *:hover {
+      color: var(--color-bg);
+    }
+
+    .text-small {
+      opacity: 0.7;
+    }
+
+    &.deleted {
+      background: var(--color-dimmed);
+    }
+  }
+
+  @media (max-width: $responsive-mobile-browser-width) {
+    margin-left: 0;
+    margin-right: 0;
+    .account-balance {
+      margin-top: $space-micro;
+      flex: 0 0 96%;
+      max-width: 96%;
+    }
+  }
+}

@@ -1,0 +1,64 @@
+import React from 'react'
+import {usePageMetadata} from '@stellar-expert/ui-framework'
+import {useRouteMatch} from '@stellar-expert/ui-framework'
+import {useAssetInfo, useAssetIssuerInfo} from '../../../business-logic/api/asset-api'
+import ErrorNotificationBlock from '../../components/error-notification-block'
+import CrawlerScreen from '../../components/crawler-screen'
+import TomlInfo from '../toml/toml-info-view'
+import AssetDetailsView from './asset-details-view'
+import AssetHistoryTabsView from './asset-history-tabs-view'
+
+export default function AssetView() {
+    const {params} = useRouteMatch()
+    const {data: asset, loaded} = useAssetInfo(params.asset)
+    const issuerInfo = useAssetIssuerInfo(asset?.descriptor)
+    const title = getTitle(asset)
+    usePageMetadata({
+        title: 'Asset ' + title,
+        description: `Stats, price history, and analytic reports for ${title}.`
+    })
+    if (!loaded)
+        return <div className="loader"/>
+    if (issuerInfo) {
+        asset.issuerInfo = issuerInfo
+    }
+
+    if (asset.invalidAsset) {
+        //handle meta
+        return <ErrorNotificationBlock>
+            The asset does not exist on the ledger.
+        </ErrorNotificationBlock>
+    }
+    if (asset.error) {
+        //handle meta
+        return <ErrorNotificationBlock>
+            Failed to fetch asset info.
+        </ErrorNotificationBlock>
+    }
+
+    return <>
+        <AssetDetailsView asset={asset}/>
+        {!!asset.domain &&
+            <TomlInfo homeDomain={asset.domain} assetMeta={asset.meta} account={asset.descriptor.issuer || asset.descriptor.contract}
+                      className="space"/>}
+        <CrawlerScreen><AssetHistoryTabsView asset={asset}/></CrawlerScreen>
+    </>
+}
+
+function getTitle(assetInfo) {
+    if (!assetInfo)
+        return ''
+    if (assetInfo.asset === 'XLM')
+        return 'XLM - Stellar Lumens'
+    const {meta} = assetInfo
+    if (assetInfo.isContract) {
+        let res = [assetInfo.code, assetInfo.name !== assetInfo.asset ? assetInfo.name : undefined]
+            .filter(v => !!v).join(' ') + ' ' + assetInfo.asset
+        if (meta) {
+            res += ' ' + (meta.domain || meta.name)
+        }
+        return res
+    }
+    const {code, issuer} = assetInfo?.descriptor || {}
+    return `${code} by ${meta?.domain || meta?.name || issuer}`
+}

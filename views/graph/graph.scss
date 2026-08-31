@@ -1,0 +1,16 @@
+.accounts-graph {
+  ul {
+    max-height: 36em;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  input[type=checkbox] {
+    margin-bottom: 0.3em;
+    vertical-align: middle;
+  }
+
+  label {
+    font-size: inherit;
+  }
+}

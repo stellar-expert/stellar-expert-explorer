@@ -1,0 +1,11 @@
+allowBuilds:
+  browser-tabs-lock: false
+  core-js: true
+  protobufjs: false
+shamefullyHoist: true
+autoInstallPeers: true
+minimumReleaseAgeExclude:
+  - '@stellar-expert/ui-framework'
+  - '@stellar-expert/contract-wasm-interface-parser'
+  - '@stellar-expert/tx-meta-effects-parser'
+  - '@stellar-expert/tx-signers-inspector'

@@ -1,0 +1,22 @@
+@import '~@stellar-expert/ui-framework/index.scss';
+
+//components
+@import "views/components/animations";
+//views
+@import "views/components/search-box";
+@import "views/components/tracer";
+@import "views/components/stellar-stats";
+@import "views/components/info-box";
+@import "views/components/panel";
+//layouts
+@import "views/components/layouts/page-layout";
+@import "views/components/layouts/charts";
+@import "views/components/layouts/top-menu";
+@import "views/components/layouts/billing-dashboard";
+
+.nowrap {
+  .account-address, .account-key {
+    white-space: nowrap !important;
+    word-break: unset !important;
+  }
+}

@@ -1,0 +1,40 @@
+.market-reverse {
+  display: inline-block;
+  font-size: 0.65em;
+  vertical-align: middle;
+  padding: 0.3em;
+
+  .icon-exchange {
+    display: none;
+  }
+}
+
+h2:hover .market-reverse {
+  .icon-shuffle {
+    display: none;
+  }
+
+  .icon-exchange {
+    display: inline;
+  }
+}
+
+.market-trades {
+  padding: 0 0.5em;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 1em;
+  width: 100%;
+  max-width: 100%;
+  min-height: 1vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  @media (max-width: $responsive-mobile-browser-width) {
+    position: static;
+    overflow-y: visible;
+    overflow-x: visible;
+    min-height: auto;
+    padding: 0;
+  }
+}

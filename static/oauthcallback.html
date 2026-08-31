@@ -1,0 +1,12 @@
+<html>
+<body>
+<script>
+    try {
+        window.opener[window.name + 'ProcessCallbackUrl'](window.location.href)
+    } catch (e) {
+        console.error(e)
+    }
+    window.close()
+</script>
+</body>
+</html>

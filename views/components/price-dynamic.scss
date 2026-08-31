@@ -1,0 +1,37 @@
+.price-change {
+  vertical-align: super;
+  line-height: 1;
+  font-size: 0.8em;
+  margin-right: -0.2em;
+
+  &:before {
+    font-size: .8em;
+    vertical-align: bottom;
+    padding: 0 .1em;
+    line-height: 2.2;
+  }
+
+  &.positive {
+    color: var(--color-price-up);
+
+    &:before {
+      content: '\2191';
+    }
+    &.zero:before {
+      content: none;
+    }
+  }
+
+  &.negative {
+    color: var(--color-price-down);
+
+    &:before {
+      content: '\2193';
+    }
+  }
+
+  &.standalone {
+    vertical-align: middle;
+    font-size: 0.9em;
+  }
+}

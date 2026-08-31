@@ -1,0 +1,1059 @@
+openapi: 3.1.0
+info:
+  title: StellarExpert API
+  version: 1.4.0
+  description: |
+    ## Intro
+
+    [StellarExpert](https://stellar.expert/) Open APIs are publicly available for developers, free of charge.
+
+    Open API enpoints do not require authentication and can be used directly from the browser.
+
+    ### Cross-Origin Resource Sharing
+
+    This API features Cross-Origin Resource Sharing (CORS) implemented in compliance with W3C spec.
+    And that allows cross-domain communication from the browser. All responses have a wildcard same-origin
+    which makes them completely public and accessible to everyone, including any code on any site.
+
+    ### Rate Limiting and Caching Considerations
+
+    The effective API request rate may be a subject to rate limiting. In such cases the server returns 429 HTTP
+    status code error. To avoid potential problems caused by those limitations it is advised to consider response
+    caching or group queries on the caller side in case of heavy API utilization.
+  termsOfService: 'https://stellar.expert/'
+  contact:
+    url: 'https://stellar.expert/'
+    email: info@stellar.expert
+  license:
+    name: MIT
+    url: 'https://tldrlegal.com/license/mit-license'
+  x-logo:
+    url: 'https://stellar.expert/img/stellar-expert-blue.svg'
+servers:
+  - url: 'https://api.stellar.expert'
+paths:
+  /explorer/directory:
+    get:
+      operationId: listDirectoryEntries
+      summary: Directory entries
+      description: >-
+        Returns the list of directory entries with paging navigation links.
+        Optionally filtered by address, tag, or arbitrary search string.
+        This API endpoint follows Stellar Horizon API response format convention.
+        A response result contains records and navigation links.
+
+        #### Query examples:
+
+        Fetch information about multiple accounts in one call
+
+
+        `curl -g "https://api.stellar.expert/explorer/directory?address[]=GA6HCMBLTZS5VYYBCATRBRZ3BZJMAFUDKYYF6AH6MVCMGWMRDNSWJPIH&address[]=GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"`
+
+
+        Search for Kraken's deposit account
+
+
+        `curl "https://api.stellar.expert/explorer/directory?search=kraken"`
+
+
+        Find accounts tagged as malicious or unsafe
+
+
+        `curl -g "https://api.stellar.expert/explorer/directory?tag[]=malicious&tag[]=unsafe"`
+
+
+        Lookup addresses reported for "staking"-related scams
+
+
+        `curl -g "https://api.stellar.expert/explorer/directory?tag[]=malicious&search=stacking"`
+      tags:
+        - 'Directory API'
+      parameters:
+        - name: address
+          description: Applies a filter by the addresses list (up to 50 per request)
+          in: query
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 50
+            uniqueItems: true
+            items:
+              $ref: '#/components/schemas/AccountAddress'
+          example:
+            - GA2VRL65L3ZFEDDJ357RGI3MAOKPJZ2Z3IJTPSC24I4KDTNFSVEQURRA
+        - name: tag
+          description: Applies a filter by tags
+          in: query
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 10
+            uniqueItems: true
+            items:
+              type: string
+          example:
+            - custodian
+            - anchor
+        - name: search
+          description: Applies a full-test search filter by an entry address, name, or domain
+          in: query
+          schema:
+            type: string
+            minLength: 5
+        - name: cursor
+          description: An address from which to continue search (refers to the `paging_token` value from a results set)
+          in: query
+          schema:
+            $ref: '#/components/schemas/AccountAddress'
+        - name: order
+          description: Results sorting order
+          in: query
+          schema:
+            $ref: '#/components/schemas/ResultsSortOrder'
+        - name: limit
+          description: Results data page size
+          in: query
+          schema:
+            $ref: '#/components/schemas/ResultsLimit'
+      responses:
+        '200':
+          description: Directory entries fetched
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ListApiResponse'
+                  - type: object
+                    properties:
+                      _embedded:
+                        type: object
+                        properties:
+                          records:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/DirectoryEntry'
+              example:
+                _links:
+                  self:
+                    href: /explorer/directory?sort=address&order=asc&limit=2
+                  prev:
+                    href: /explorer/directory?sort=address&order=desc&cursor=GA272U6UMNKYOBDCLH5CDAPZVDG4WAGJWFY2S2RV2DN6YSSOGYECEVOF&limit=2
+                  next:
+                    href: /explorer/directory?sort=address&order=asc&cursor=GA2VRL65L3ZFEDDJ357RGI3MAOKPJZ2Z3IJTPSC24I4KDTNFSVEQURRA&limit=2
+                _embedded:
+                  records:
+                    - address: GA272U6UMNKYOBDCLH5CDAPZVDG4WAGJWFY2S2RV2DN6YSSOGYECEVOF
+                      paging_token: GA272U6UMNKYOBDCLH5CDAPZVDG4WAGJWFY2S2RV2DN6YSSOGYECEVOF
+                      name: Phishing account
+                      tags:
+                        - malicious
+                    - address: GA2VRL65L3ZFEDDJ357RGI3MAOKPJZ2Z3IJTPSC24I4KDTNFSVEQURRA
+                      paging_token: GA2VRL65L3ZFEDDJ357RGI3MAOKPJZ2Z3IJTPSC24I4KDTNFSVEQURRA
+                      domain: stellar.org
+                      name: SDF Escrow Jan 1 2023
+                      tags:
+                        - sdf
+                        - custodian
+        '400':
+          description: Invalid request parameters
+  /explorer/directory/{address}:
+    get:
+      tags:
+        - 'Directory API'
+      operationId: getDirectoryEntry
+      summary: Address Directory info
+      description: >-
+        Returns Directory information for a given account address.
+      parameters:
+        - name: address
+          description: The address of the account to check
+          in: path
+          schema:
+            $ref: '#/components/schemas/AccountAddress'
+          required: true
+          example: GA2VRL65L3ZFEDDJ357RGI3MAOKPJZ2Z3IJTPSC24I4KDTNFSVEQURRA
+      responses:
+        '200':
+          description: Directory entry fetched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryEntry'
+              example:
+                address: GA2VRL65L3ZFEDDJ357RGI3MAOKPJZ2Z3IJTPSC24I4KDTNFSVEQURRA
+                paging_token: GA2VRL65L3ZFEDDJ357RGI3MAOKPJZ2Z3IJTPSC24I4KDTNFSVEQURRA
+                domain: stellar.org
+                name: SDF Escrow Jan 1 2023
+                tags:
+                  - sdf
+                  - custodian
+        '400':
+          description: Invalid request parameters
+        '404':
+          description: Entry not found
+  /explorer/directory/tags:
+    get:
+      tags:
+        - 'Directory API'
+      operationId: getDirectoryTags
+      summary: All Directory tags
+      description: >-
+        Returns a list of all categories that can be used to tag accounts.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DirectoryTagDescription'
+                example:
+                  - name: exchange
+                    description: Centralized exchange account
+                  - name: anchor
+                    description: Operational account of an anchor
+                  - name: issuer
+                    description: Well known asset issuer account
+                  - name: wallet
+                    description: Shared account that belongs to a wallet
+                  - name: custodian
+                    description: Reserved, custodian account, or cold wallet
+                  - name: malicious
+                    description: Account involved in theft/scam/spam/phishing
+                  - name: unsafe
+                    description: Obsolete or potentially dangerous account
+                  - name: personal
+                    description: Personal signing key or account address
+                  - name: sdf
+                    description: Account under the custody of SDF
+                  - name: memo-required
+                    description: Destination requires transaction memo
+                  - name: airdrop
+                    description: Airdrop distribution account
+          description: Available Directory tags fetched
+  /explorer/directory/blocked-domains:
+    get:
+      operationId: listBlockedDomains
+      summary: Blocked domains list
+      description: >-
+        Returns the list of domains reported by the community for fraudulent acitivity.
+        This API endpoint follows Stellar Horizon API response format convention.
+        A response result contains records and navigation links.
+      tags:
+        - 'Directory API'
+      parameters:
+        - name: search
+          description: Case-insesitive search by domain or part of the domain
+          in: query
+          schema:
+            type: string
+            example: org.ro
+            minLength: 2
+        - name: cursor
+          description: An address from which to continue search (refers to the `paging_token` value from a results set)
+          in: query
+          schema:
+            type: string
+        - name: order
+          description: Results sorting order
+          in: query
+          schema:
+            $ref: '#/components/schemas/ResultsSortOrder'
+        - name: limit
+          description: Results data page size
+          in: query
+          schema:
+            default: 1000
+            $ref: '#/components/schemas/HugeResultsLimit'
+      responses:
+        '200':
+          description: Blocked domains fetched
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ListApiResponse'
+                  - type: object
+                    properties:
+                      _embedded:
+                        type: object
+                        properties:
+                          records:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                domain:
+                                  type: string
+                                  description: Fully-qualified domain name
+                                paging_token:
+                                  type: string
+                                  description: Cursor value for results paging
+
+              example:
+                _links:
+                  self:
+                    href: /explorer/directory/blocked-domains/?order=asc&limit=2
+                  prev:
+                    href: /explorer/directory/blocked-domains/?order=desc&limit=2&cursor=agrogenesis.in
+                  next:
+                    href: /explorer/directory/blocked-domains/?order=asc&limit=2&cursor=airdrop-info.vwv.pw
+                _embedded:
+                  records:
+                    - domain: agrogenesis.in
+                      paging_token: agrogenesis.in
+                    - domain: airdrop-info.vwv.pw
+                      paging_token: airdrop-info.vwv.pw
+        '400':
+          description: Invalid request parameters
+  /explorer/directory/blocked-domains/{domain}:
+    get:
+      tags:
+        - 'Directory API'
+      summary: Check domain
+      operationId: isDomainBlocked
+      description: >-
+        Searches through the blocked malicious domains list to determine
+        if the requested domain or its top-level domain is in the blocklist.
+      parameters:
+        - name: domain
+          description: Domain to verify (case-insensitive)
+          in: path
+          required: true
+          schema:
+            type: string
+            example: stellar.org.am
+      responses:
+        '200':
+          description: Domain verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  domain:
+                    type: string
+                    decription: Domain from request
+                    example: stellar.org.am
+                  blocked:
+                    type: boolean
+                    description: Whether the domain should be blocked
+                    example: true
+              example:
+                domain: sub.stellar.org.am
+                blocked: true
+        '400':
+          description: Invalid request parameters
+  /explorer/{network}/asset:
+    get:
+      tags:
+        - 'Asset Info API'
+      summary: List of assets
+      operationId: getAllAssets
+      description: >-
+        Returns a list of assets that exist on Stellar network. It support searching by asset code, issuer, home domain, and metadata
+        from associated `stellar.toml` file.
+        
+        
+        Possible sorting options:
+        
+        - `rating` - composite asset rating derived from on-chain stats
+        
+        - `created` - asset age
+        
+        - `payments` - total number of payments
+        
+        - `trades` - total number of trades
+        
+        - `trustlines` - number of established trustlines
+        
+        - `volume` - overall trading volume
+        
+        - `volume7d` - weekly trading volume
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: testnet
+        - name: search
+          description: Arbitrary search term (asset code, issuer, associated home domain, or information from asset TOML metadata)
+          in: query
+          schema:
+            type: string
+          required: false
+          example: dollar
+        - name: sort
+          description: Results sorting parameter
+          in: query
+          schema:
+            type: string
+            enum: [ rating, created, payments, trades, trustlines, volume, volume7d ]
+            default: rating
+          required: false
+        - name: order
+          description: Results sorting order
+          in: query
+          schema:
+            $ref: '#/components/schemas/ResultsSortOrder'
+        - name: limit
+          description: Results data page size
+          in: query
+          schema:
+            $ref: '#/components/schemas/ResultsLimit'
+        - name: cursor
+          description: A position from which to continue search (refers to the `paging_token` value from a results set)
+          in: query
+          schema:
+            type: integer
+          required: false
+      responses:
+        '200':
+          description: Asset list fetched
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ListApiResponse'
+                  - type: object
+                    properties:
+                      _embedded:
+                        type: object
+                        properties:
+                          records:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/AssetInfo'
+              example:
+                _links:
+                  self:
+                    href: /explorer/public/asset?order=desc&limit=2
+                  prev:
+                    href: /explorer/public/asset?order=asc&limit=2&cursor=1
+                  next:
+                    href: /explorer/public/asset?order=desc&limit=2&cursor=2
+                _embedded:
+                  records:
+                    - asset: yXLM-GARDNV3Q7YGT4AKSDF25LT32YSCCW4EV22Y2TV3I2PU2MMXJTEDL5T55-1
+                      traded_amount: 102588436626011460
+                      payments_amount: 12492248403205108
+                      created: 1615892870
+                      supply: 1669015135707318
+                      trustlines:
+                        total: 32266
+                        authorized: 32266
+                        funded: 19335
+                      trades: 13363178
+                      payments: 13405766
+                      domain: ultrastellar.com
+                      tomlInfo:
+                        orgName: Ultra Stellar LLC dba Ultra Stellar
+                        orgLogo: https://ultrastellar.com/static/images/org_logo.png
+                        image: https://ultrastellar.com/static/images/icons/yXLM.png
+                        status: live
+                        anchorAssetType: crypto
+                        anchorAsset: XLM
+                      rating:
+                        age: 7
+                        trades: 10
+                        payments: 9
+                        trustlines: 7
+                        volume7d: 10
+                        interop: 10
+                        liquidity: 10
+                        average: 9
+                      paging_token: 1
+                    - asset: USDC-GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN-1
+                      traded_amount: 18134208266562304
+                      payments_amount: 24664489154530540
+                      created: 1611089770
+                      supply: 1800404216565311
+                      trustlines:
+                        total: 138801
+                        authorized: 138801
+                        funded: 27503
+                      trades: 20324688
+                      payments: 2862354
+                      domain: centre.io
+                      tomlInfo:
+                        orgName: Centre Consortium LLC dba Centre Consortium
+                        orgLogo: https://www.centre.io/images/logo-icon.png
+                        name: USD Coin
+                        image: https://www.centre.io/images/usdc/usdc-icon-86074d9d49.png
+                        anchorAssetType: fiat
+                        anchorAsset: USD
+                      rating:
+                        age: 7
+                        trades: 10
+                        payments: 8
+                        trustlines: 8
+                        volume7d: 10
+                        interop: 4
+                        liquidity: 10
+                        average: 8.1
+                      paging_token: 2
+        '400':
+          description: Invalid request parameters
+  /explorer/{network}/asset/{asset}/rating:
+    get:
+      tags:
+        - 'Asset Info API'
+      summary: Asset rating
+      operationId: getAssetRating
+      description: >-
+        To solve the problem of assets ranking on StellarExpert, we designed a system of technical indicators based
+        purely on the ledger activity, including
+
+          - asset age (time elapsed sisnce the first payment)
+          - established trustlines
+          - total number of payments
+          - total number of trades
+          - weekly trading volume
+          - market liquidity (based on the relative slippage of {ASSET}/XLM market)
+          - asset interoperability (based on additional asset metadata and supported SEP standards)
+
+        All indicators are calculated on the logarithmic scale to normalize distribution for assets with high trading/transfer activity.
+        The compound rating calculated as the average of all seven indicators can be used to roughly estimate the popularity
+        of any Stellar asset purely from the technical point of view.
+
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: testnet
+        - name: asset
+          description: Target asset
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Asset'
+      responses:
+        '200':
+          description: Asset rating fetched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetRating'
+              example:
+                asset: ABC-GAKP6AHQM4JDI55SK2FGEPLOZU7BTEODS3Y5QNT3VMQQIU3WM99T0L4C-1
+                rating:
+                  age: 9
+                  trades: 6
+                  payments: 10
+                  trustlines: 10
+                  volume7d: 10
+                  interop: 3
+                  liquidty: 8
+                  average: 8
+        '400':
+          description: Invalid request parameters
+        '404':
+          description: Asset not found
+  /explorer/{network}/asset/{asset}/holders:
+    get:
+      tags:
+        - 'Asset Info API'
+      summary: Asset holders list
+      operationId: getAssetHolders
+      description: >-
+        Returns a list of all accounts holding non-zero amount of the given asset sorted by the balance size.
+        Accounts with an established trustline but with zero balance excluded from the results set.
+
+        This API endpoint follows Stellar Horizon API response format convention.
+        A response result contains records and navigation links.
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: testnet
+        - name: asset
+          description: Target asset
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Asset'
+      responses:
+        '200':
+          description: Asset holders fetched
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ListApiResponse'
+                  - type: object
+                    properties:
+                      _embedded:
+                        type: object
+                        properties:
+                          records:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/AssetHolder'
+              example:
+                _links:
+                  self:
+                    href: /explorer/public/asset/EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S/holders?order=desc&limit=2
+                  prev:
+                    href: /explorer/public/asset/EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S/holders?order=asc&limit=2&cursor=AAAFOSpHRlQAeBsb
+                  next:
+                    href: /explorer/public/asset/EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S/holders?order=desc&limit=2&cursor=AAACXn0v0QUAsZIb
+                _embedded:
+                  records:
+                    - account: GCWGHBQLVZ6QXV7OLHBCFHNPWOCSWGRZ7DTW44BN4IQ7QYVRX3JYPJ7E
+                      balance: "5965453988886"
+                      paging_token: "AAAFOSpHRlQAeBsb"
+                    - account: GAFBGZANI7JRXABPEERQGBTFS3AG67M4ZQTMT2VIMWZ6BY4K64QK3D3U
+                      balance: "2604850467077"
+                      paging_token: "AAACXn0v0QUAsZIb"
+        '400':
+          description: Invalid request parameters
+        '404':
+          description: Asset not found
+  /explorer/{network}/asset/{asset}/position:
+    get:
+      tags:
+        - 'Asset Info API'
+      summary: Asset holder rank
+      operationId: getAssetHolderPosition
+      description: >-
+        Retrieves a relative account balance position among all accounts holding a particular asset.
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: testnet
+        - name: asset
+          description: Asset used for rating calculation
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Asset'
+        - name: account
+          description: Account address to check
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/AccountAddress'
+      responses:
+        '200':
+          description: Asset holder rank info fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account:
+                    $ref: '#/components/schemas/AccountAddress'
+                    description: Account address to check
+                  asset:
+                    $ref: '#/components/schemas/Asset'
+                    description: Asset used for rating calculation
+                  balance:
+                    type: string
+                    description: Asset balance owned by the account
+                  position:
+                    type: integer
+                    description: Position among all accounts holding a particular asset
+                  total:
+                    type: integer
+                    description: Total number of accounts with non-zero balance
+              example:
+                account: "GDKIJJIKXLOM2NRMPNQZUUYK24ZPVFC6426GZAEP3KUK6KEJLACCWNMX"
+                asset: "XLM"
+                balance: "39065991792893022"
+                position: 3
+                total: 7159959
+        '400':
+          description: Invalid request parameters
+        '404':
+          description: Asset not found
+  /explorer/{network}/asset/{asset}/supply:
+    get:
+      tags:
+        - 'Asset Info API'
+      summary: Asset supply
+      operationId: getAssetSupply
+      description: >-
+        Asset supply endpoint returns the total issued supply for an asset.
+        It is handy for displaying the total number of tokens on the website or providing relevant information to
+        third-party platforms. For example, aggregators often require an API endpoint to track the asset supply.
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: testnet
+        - name: asset
+          description: Target asset
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Asset'
+          example: EURT-GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S
+      responses:
+        '200':
+          description: Asset supply fetched
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+              example: '1203229.6298700'
+        '404':
+          description: Asset not found
+  /explorer/{network}/ledger/sequence-from-timestamp:
+    get:
+      tags:
+        - 'Ledger Info API'
+      summary: Find sequence by timestamp
+      operationId: getSequenceFromTimestamp
+      description: >-
+        Resolves ledger sequence with a finalization time equal or less than a given timestamp.
+        If the timestamp indicates some time in the future or, vise versa, less than the closing time of the first ledger,
+        server returns 404 Not Found error.
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: public
+        - name: timestamp
+          description: Timestamp to search (UNIX time or RFC 3339 timestamp)
+          in: query
+          required: true
+          schema:
+            anyOf:
+              - type: string
+                format: date-time
+              - type: integer
+                minimum: 0
+          example: 1642597270
+      responses:
+        '200':
+          description: Ledger sequence resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerTimestampSequenceInfo'
+        '400':
+          description: Invalid timestamp
+        '404':
+          description: Ledger sequence cannot be resolved
+  /explorer/{network}/ledger/timestamp-from-sequence:
+    get:
+      tags:
+        - 'Ledger Info API'
+      summary: Find timestamp by sequence
+      operationId: getTimestampFromSequence
+      description: >-
+        Resolves ledger closing timestamp for a give ledger sequence.
+      parameters:
+        - name: network
+          description: Stellar network
+          in: path
+          schema:
+            $ref: '#/components/schemas/Network'
+          required: true
+          example: public
+        - name: sequence
+          description: Ledger sequence
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 32590807
+      responses:
+        '200':
+          description: Timestamp resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerTimestampSequenceInfo'
+        '400':
+          description: Invalid sequence
+        '404':
+          description: Ledger with a given sequence cannot be found
+components:
+  schemas:
+    UnixTime:
+      description: Unix timestamp (UTC)
+      type: integer
+      minimum: 0
+      example: 1615892870
+    Network:
+      description: Stellar network
+      type: string
+      enum:
+        - public
+        - testnet
+      example: public
+    AccountAddress:
+      description: Account address (ED25519 public key)
+      type: string
+      example: GAB6FD5BCBVVQINU5USYV5K4JDAEO6RDL2GZU4K5BILPI6B4FIOF6QWW
+      pattern: '/^G[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]{55}$/'
+    Amount:
+      description: Operation amount
+      type: string
+      example: '145.67'
+    Asset:
+      description: An asset in the format {CODE}-{ISSUER} (or "XLM" for Stellar lumens)
+      type: string
+      example: BTC-GDKIIIL2YPRSCSFAYT7FQCH4VXF34YNBIORTYCOKJK5CZ762LX2ND4L4
+    ResultsSortOrder:
+      description: Results sorting order
+      type: string
+      enum:
+        - asc
+        - desc
+      example: desc
+    ResultsLimit:
+      description: Results data page size
+      type: number
+      minimum: 1
+      maximum: 200
+      default: 10
+      example: 10
+    HugeResultsLimit:
+      description: Results data page size
+      type: number
+      minimum: 1
+      maximum: 1000
+      default: 1000
+      example: 100
+    ListApiResponse:
+      description: List API response
+      type: object
+      properties:
+        _links:
+          type: object
+          properties:
+            self:
+              $ref: '#/components/schemas/ListApiResponseNavLink'
+            prev:
+              $ref: '#/components/schemas/ListApiResponseNavLink'
+            next:
+              $ref: '#/components/schemas/ListApiResponseNavLink'
+        _embedded:
+          type: object
+          properties:
+            records:
+              type: array
+    ListApiResponseNavLink:
+      type: object
+      properties:
+        href:
+          type: string
+    DirectoryEntry:
+      description: Directory entry info
+      type: object
+      properties:
+        address:
+          description: Account address
+          $ref: '#/components/schemas/AccountAddress'
+        paging_token:
+          description: Cursor value for results paging
+          $ref: '#/components/schemas/AccountAddress'
+        name:
+          description: Entry friendly name
+          type: string
+        tags:
+          description: Entry friendly name
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+        domain:
+          description: Domain associated with entry if any
+          type: string
+      required:
+        - address
+        - paging_token
+        - name
+        - tags
+    DirectoryTagDescription:
+      description: Directory tag descriptor
+      required:
+        - name
+        - description
+      type: object
+      properties:
+        name:
+          description: Tag name
+          type: string
+          example: exchange
+        description:
+          description: User-friendly tag description
+          type: string
+          example: Centralized exchange account
+    PaymentEntry:
+      description: Payment info
+      type: object
+      properties:
+        id:
+          description: Operation unique id
+          type: string
+          example: 86172183717662721
+        paging_token:
+          description: Paging token
+          type: string
+          example: 86172183717662721
+        optype:
+          description: Operation type
+          type: integer
+        ledger:
+          description: Ledger containing the payment operation
+          type: integer
+          example: 1640731
+        tx_id:
+          description: Transaction unique id
+          type: string
+          example: 86172183717662720
+        ts:
+          description: Operation timestamp
+          type: string
+          format: date-time
+          example: 2018-09-19T12:23:16.000Z
+        from:
+          description: Source account
+          $ref: '#/components/schemas/AccountAddress'
+        source_asset:
+          description: Source asset
+          $ref: '#/components/schemas/Asset'
+        source_amount:
+          description: Source amount
+          $ref: '#/components/schemas/Amount'
+        to:
+          description: Destination account
+          $ref: '#/components/schemas/AccountAddress'
+        asset:
+          description: Destination asset
+          $ref: '#/components/schemas/Asset'
+        amount:
+          description: Destination amount
+          $ref: '#/components/schemas/Amount'
+    AssetInfo:
+      description: General asset info
+      type: object
+      properties:
+        asset:
+          description: Asset identifier
+          $ref: '#/components/schemas/Asset'
+        traded_amount:
+          description: Total traded amount (in stroops)
+          type: number
+        payments_amount:
+          description: Total payments amount (in stroops)
+          type: number
+        created:
+          description: Timestamp of the first recorder operation with asset
+          $ref: '#/components/schemas/UnixTime'
+        supply:
+          description: Total issued asset supply
+          type: number
+        trustlines:
+          description: Trustlines established to an asset
+          type: object
+          properties:
+            total:
+              description: Total number of trustlines
+              type: integer
+            authorized:
+              description: Trustlines authorized by the issuer
+              type: integer
+            funded:
+              description: Trustlines with non-zero balance
+              type: integer
+        trades:
+          description: Total number of trades
+          type: number
+        payments:
+          description: Total number of payments
+          type: number
+        domain:
+          description: Associated `home_domain`
+          type: string
+        tomlInfo:
+          description: Asset information from stellar.toml file
+          type: object
+        rating:
+          description: Composite asset rating
+          $ref: '#/components/schemas/AssetRating'
+          type: object
+        paging_token:
+          description: Paging token
+          type: number
+    AssetRating:
+      description: Asset rating info
+      type: object
+      properties:
+        asset:
+          $ref: '#/components/schemas/Asset'
+        rating:
+          type: object
+          properties:
+            age:
+              type: integer
+            trages:
+              type: integer
+            payments:
+              type: integer
+            trustlines:
+              type: integer
+            volume7d:
+              type: integer
+            interop:
+              type: integer
+            liqidity:
+              type: integer
+            average:
+              type: integer
+    AssetHolder:
+      description: Asset holder description
+      type: object
+      properties:
+        account:
+          description: Account address
+          $ref: '#/components/schemas/AccountAddress'
+        balance:
+          description: Asset balance in stroops
+          type: string
+        paging_token:
+          description: Paging token
+          type: string
+    LedgerTimestampSequenceInfo:
+      description: Ledger sequence-timestamp pair
+      type: object
+      properties:
+        sequence:
+          description: Ledger sequence
+          type: integer
+        timestamp:
+          description: Ledger UNIX timestamp
+          $ref: '#/components/schemas/UnixTime'
+        date:
+          description: Ledger date
+          type: string
+          format: date-time
+      example:
+        sequence: 42431435
+        timestamp: 1661781078
+        date: '2022-08-29T13:51:18.000Z'
+tags:
+  - name: 'Directory API'
+  - name: 'Asset Info API'

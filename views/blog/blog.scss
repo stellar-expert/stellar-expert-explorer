@@ -1,0 +1,134 @@
+.blog-entry {
+  min-height: 40vmin;
+  display: flex;
+  background-position: center center;
+  background-size: cover;
+  margin: 0 0 $space-double;
+
+  .title {
+    align-self: flex-end;
+    width: 60%;
+    margin: 0 (-$space-standard) (-$space-standard) auto;
+    background: var(--color-highlight);
+    font-family: $font-face-header;
+    font-weight: 500;
+    color: #fff;
+    font-size: 2.6rem;
+    line-height: 1.2;
+    padding: $space-standard $space-standard $space-micro;
+    transition: all 0.15s;
+    opacity: 0.9;
+
+    .info {
+      margin-top: $space-standard;
+      font-size: 1.4rem;
+      font-weight: 300;
+    }
+  }
+
+  &.index-entry {
+    min-height: 30vmin;
+    border: 1px solid var(--color-contrast-border);
+    transition: all 0.15s;
+    margin: $space-standard $space-standard $space-double $space-standard;
+
+    &.mini {
+      margin-left: 0;
+      margin-right: 0;
+
+      .title {
+        width: 70%;
+        font-size: 2rem;
+      }
+    }
+
+    &:hover {
+      border-color: var(--color-highlight);
+
+      .title {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.blog-post {
+  font-size: 1.7rem;
+  line-height: 1.41;
+  padding: 2em!important;
+
+  h1 {
+    font-size: 3.2rem;
+  }
+
+  h2 {
+    font-size: 2.8rem;
+  }
+
+  h3 {
+    font-size: 2.4rem;
+  }
+
+  h4 {
+    font-size: 2.1rem;
+  }
+
+  h2, h3, h4 {
+    margin-top: 1em;
+  }
+
+  p {
+    margin-bottom: 1em;
+  }
+
+  ul {
+    list-style-type: circle;
+    padding-left: $space-double;
+  }
+
+  ol {
+    color: inherit;
+    padding-left: $space-double;
+  }
+
+  code {
+    font-size: 0.9em;
+    letter-spacing: -0.02em;
+    background: transparent;
+  }
+
+  pre.hljs {
+    border-left: solid 5px var(--color-highlight);
+    overflow: auto;
+  }
+
+  hr {
+    border: none;
+    margin: 1.2em auto;
+    width: 100%;
+    max-width: 90vw;
+    height: 1px;
+    background-image: linear-gradient(to right, #{'rgba(var(--color-highlight), 0)'} 5%, var(--color-highlight) 25%, var(--color-highlight) 75%, #{'rgba(var(--color-highlight), 0)'} 95%);
+
+    &.double-space {
+      margin-bottom: 4rem;
+    }
+
+    &[title] {
+      display: flex;
+      justify-content: center;
+      overflow: visible;
+
+      &:after {
+        content: attr(title);
+        display: table;
+        background-color: var(--color-bg);
+        margin: -0.8em 0;
+        padding: 0 0.5em;
+        color: var(--color-dimmed);
+        font-size: 0.85*$font-size-base;
+        text-align: center;
+      }
+    }
+  }
+}

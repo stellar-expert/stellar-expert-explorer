@@ -1,0 +1,48 @@
+input,
+select,
+textarea {
+  margin-bottom: $space-micro;
+}
+
+ol,
+p,
+blockquote,
+pre,
+table {
+  margin-bottom: $space-micro;
+}
+
+blockquote {
+  border-left: 3px solid var(--color-contrast-border);
+  margin-left: -$space-micro;
+  padding-left: $space-micro;
+  font-style: italic;
+}
+
+.micro-space {
+  margin-top: $space-micro;
+}
+
+.space {
+  margin-top: $space-standard;
+}
+
+.double-space {
+  margin-top: $space-double;
+}
+
+.block-indent, .block-indent-screen {
+  padding-left: $space-standard;
+}
+
+@media (max-width: $responsive-mobile-browser-width) {
+  .block-indent-screen {
+    padding-left: 0;
+  }
+}
+
+.text-overflow {
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

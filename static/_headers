@@ -1,0 +1,3 @@
+# The HTML shell must always be revalidated so new deploys are picked up immediately
+/index.html
+  Cache-Control: no-cache

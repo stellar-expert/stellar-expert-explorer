@@ -1,0 +1,49 @@
+import React, {useState} from 'react'
+import {Tabs} from '@stellar-expert/ui-framework'
+import {navigation} from '@stellar-expert/ui-framework'
+import TxHistoryView from '../tx/tx-history-view'
+import {ContractInterfaceView} from './contract-interface-view'
+import ContractUsersView from './contract-users-view'
+import ContractEventsView from './contract-events-view'
+
+export default function ContractTabsView({contract}) {
+    const {query} = navigation
+    const [operationsFilter, setOpFilter] = useState(query.filter || 'history')
+    const operationsHistoryProps = {
+        endpoint: `account/${contract.address}/history/${operationsFilter}`,
+        presetFilter: {account: [contract.address]}
+    }
+
+    function selectTab(tabName) {
+        setOpFilter(tabName)
+        navigation.updateQuery({filter: tabName, cursor: null, skip: null, limit: null, order: null})
+    }
+
+    const tabs = [
+        {
+            name: 'history',
+            title: 'History',
+            isDefault: true,
+            render: () => <TxHistoryView {...operationsHistoryProps}/>
+        },
+        {
+            name: 'events',
+            title: 'Events',
+            render: () => <ContractEventsView contract={contract.address}/>
+        }
+    ]
+    if (contract.wasm) {
+        tabs.push({
+            name: 'interface',
+            title: 'Interface',
+            render: () => <ContractInterfaceView hash={contract.wasm}/>
+        })
+    }
+    tabs.push({
+        name: 'users',
+        title: 'Contract Activity',
+        render: () => <ContractUsersView contract={contract.address} functions={contract.functions}/>
+    })
+
+    return <Tabs right tabs={tabs} className="space" selectedTab={operationsFilter} onChange={selectTab}/>
+}

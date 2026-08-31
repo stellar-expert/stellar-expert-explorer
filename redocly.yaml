@@ -1,0 +1,21 @@
+theme:
+  openapi:
+    disableSearch: true
+    expandSingleSchemaField: true
+    onlyRequiredInSamples: true
+  colors:
+    primary:
+      main: '#0691B7'
+  typography:
+    fontFamily: 'ClearSans'
+    headings:
+      fontFamily: 'RobotoCondensed'
+      fontWeight: 300
+      fontWeightRegular: 300
+      fontSize: '16px'
+      lineHeight: '1.3em'
+    code:
+      fontFamily: 'Consolas, Menlo, Courier, monospace'
+    menu:
+      level1Items:
+        textTransform:'uppercase'

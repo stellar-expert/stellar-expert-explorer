@@ -1,0 +1,51 @@
+.asset-list-block {
+  display: flex;
+  width: 100%;
+  padding: 1.5em 1em;
+  margin: 0.5em 0;
+  background: var(--color-alt-bg);
+
+  .list-logo {
+    width: 4em;
+    margin-right: 1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .name {
+      font-size: 1.2em;
+    }
+
+    .desc {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-align: justify;
+    }
+  }
+}
+
+.asset-list-assets {
+  max-height: calc(100vh - 20em);
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  .asset-icon {
+    width: 2.4em;
+    margin-top: 0.2em;
+    margin-right: 0.2em;
+  }
+
+  .asset-info {
+    margin-left: 0.5em;
+    width: 100%;
+  }
+}

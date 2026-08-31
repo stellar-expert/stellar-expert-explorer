@@ -1,0 +1,42 @@
+.search {
+  .results-section h3 {
+    color: var(--color-dimmed);
+
+    &:after {
+      content: "";
+      display: block;
+      width: 20%;
+      min-width: 10em;
+      margin-top: 0.3em;
+      border-top: 1px solid var(--color-contrast-border);
+    }
+  }
+
+  .result {
+    .title {
+      font-size: 1.25em
+    }
+
+    .description {
+      font-size: 0.9em;
+    }
+
+    .links {
+      margin-top: 0.3em;
+    }
+  }
+
+  .notfound {
+    display: none !important;
+
+    &:only-child {
+      display: block !important;
+      padding-top: 15vh;
+    }
+  }
+
+  .more-results .icon {
+    display: inline-block;
+    transform: rotate(-90deg);
+  }
+}

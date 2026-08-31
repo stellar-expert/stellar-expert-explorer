@@ -1,0 +1,49 @@
+{
+  "name": "ui.stellar.expert",
+  "private": true,
+  "version": "1.0.0",
+  "author": "StellarExpertTeam<info@stellar.expert>",
+  "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
+  "main": "app.js",
+  "scripts": {
+    "build": "webpack --mode=production --config ./webpack-config.js",
+    "dev-server": "webpack serve --mode development --config ./webpack-config.js",
+    "build-api-docs": "node -v"
+  },
+  "browserslist": [
+    "> 1%",
+    "not ie 11",
+    "not op_mini all"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stellar-expert/stellar-expert-explorer.git"
+  },
+  "dependencies": {
+    "@auth0/auth0-react": "2.24.1",
+    "@stellar-asset-lists/sdk": "^1.0.1",
+    "@stellar-expert/contract-wasm-interface-parser": "6.0.1",
+    "@stellar-expert/formatter": "3.2.0",
+    "@stellar-expert/tx-meta-effects-parser": "10.1.1",
+    "@stellar-expert/tx-signers-inspector": "2.0.0",
+    "@stellar-expert/ui-framework": "3.0.1",
+    "@stellar/stellar-sdk": "17.0.1",
+    "classnames": "^2.3.2",
+    "deepmerge": "^4.3.1",
+    "markdown-to-jsx": "^9.7.13",
+    "prop-types": "^15.8.1",
+    "react": ">=17 <18.0.0",
+    "react-dom": ">=17 <18.0.0",
+    "react-fast-compare": "^3.2.2",
+    "react-force-graph-2d": "^1.29.1",
+    "throttle-debounce": "^5.0.2"
+  },
+  "devDependencies": {
+    "@stellar-expert/eslint-config-js": "^1.1.0",
+    "@stellar-expert/eslint-config-react": "^1.1.0",
+    "@stellar-expert/webpack-template": "1.5.1"
+  },
+  "overrides": {
+    "@stellar/stellar-sdk": "17.0.1"
+  }
+}
