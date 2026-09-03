@@ -8,32 +8,32 @@
  */
 export const platformFeatures = [
     {
-        icon: 'icon-key',
+        icon: 'key',
         title: 'One key, every dataset',
         description: 'Accounts, assets, markets, liquidity pools, contracts and protocol history behind a single credential.'
     },
     {
-        icon: 'icon-search-engine',
+        icon: 'index',
         title: 'Indexed, not proxied',
         description: 'Queries run against our own index, so aggregations that would time out on Horizon return in milliseconds.'
     },
     {
-        icon: 'icon-cubes',
+        icon: 'batch',
         title: 'Batch responses',
         description: 'Pull up to 1,000 records per call on Astronomer instead of paging through them one screen at a time.'
     },
     {
-        icon: 'icon-lock',
+        icon: 'origin',
         title: 'Origin restrictions',
         description: 'Pin each key to the domains that may use it, and revoke a leaked key instantly.'
     },
     {
-        icon: 'icon-chart',
+        icon: 'usage',
         title: 'Usage you can see',
         description: 'Per-endpoint photon breakdown updated live, so a runaway loop shows up before the invoice does.'
     },
     {
-        icon: 'icon-lifebelt',
+        icon: 'limits',
         title: 'Soft limits',
         description: 'Run out of photons and requests keep working at free-tier limits until the next cycle. Nothing goes dark.'
     }

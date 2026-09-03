@@ -11,9 +11,10 @@ const emptyRequest = {email: '', company: '', monthlyRequests: '', details: ''}
  * A negotiated plan is quoted per customer, so its card asks for a request instead of subscribing. The
  * enquiry goes to `enterprise-request`, which mails it out and flags the account as awaiting a quote -
  * the admin user list renders that flag, so staff see the request without watching a mailbox
+ * @param {String} [dialogClassName] - lets a host page skin the dialog, as the landing does
  * @return {JSX.Element}
  */
-export default function EnterpriseRequestView() {
+export default function EnterpriseRequestView({dialogClassName}) {
     const {email} = useSession()
     const [isOpen, toggleDialog] = useDialogToggle()
     const [request, setRequest] = useState(emptyRequest)
@@ -47,7 +48,7 @@ export default function EnterpriseRequestView() {
         <Button block outline onClick={openDialog}>Contact us</Button>
         {isOpen && <ActionDialogView title="Custom plan request" confirmTitle="Send request"
                                      disabled={!isValid || isProgress} onConfirm={submitRequest}
-                                     onCancel={toggleDialog} big>
+                                     onCancel={toggleDialog} className={dialogClassName} big>
             <div>
                 Tell us how you intend to use the API and we will come back to you with a quote.
             </div>

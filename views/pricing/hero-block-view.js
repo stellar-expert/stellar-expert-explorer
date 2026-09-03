@@ -11,8 +11,9 @@ export default function HeroBlockView() {
     }, [])
 
     return <section className="subscription-hero">
+        <div className="subscription-hero-sky"/>
         <div className="container">
-            <div className="row row-center">
+            <div className="row">
                 <div className="column column-50">
                     <div className="subscription-eyebrow">StellarExpert API plans</div>
                     <h1>
@@ -24,9 +25,16 @@ export default function HeroBlockView() {
                         The same indexed data that powers the explorer, available for your own product.
                         Pick a plan by the photons you burn each month, not by seat count or feature checklists.
                     </p>
-                    <div className="space">
-                        <a href="#plans" className="button" onClick={scrollToPlans}>See plans</a>
-                        <a href="/openapi.html" target="_blank" className="button button-outline">Read the docs</a>
+                    <div className="row space subscription-hero-actions">
+                        <div className="column column-50">
+                            <a href="#plans" className="button button-block" onClick={scrollToPlans}>See plans</a>
+                        </div>
+                        <div className="mobile-only space"/>
+                        <div className="column column-50">
+                            <a href="/openapi.html" target="_blank" className="button button-block button-outline">
+                                Read the docs
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div className="column column-50">
