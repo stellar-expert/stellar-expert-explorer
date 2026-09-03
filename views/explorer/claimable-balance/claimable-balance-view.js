@@ -1,6 +1,7 @@
 import React from 'react'
-import {useRouteMatch, AssetDescriptor} from '@stellar-expert/ui-framework'
 import {StrKey, xdr} from '@stellar/stellar-sdk'
+import {fromBase32} from '@exodus/bytes/base32.js'
+import {useRouteMatch, AssetDescriptor} from '@stellar-expert/ui-framework'
 import {
     AccountAddress,
     Amount,
@@ -15,19 +16,19 @@ import {formatClaimableBalanceValue} from './account-claimable-balance-row-view'
 
 export default function ClaimableBalanceView() {
     const {params} = useRouteMatch()
-    const hexId = normalizeClaimableBalanceId(params.id)
-    let {loaded, error, data} = useExplorerApi(`claimable-balance/${hexId}`)
+    const balanceId = normalizeClaimableBalanceId(params.id)
+    let {loaded, error, data} = useExplorerApi(`claimable-balance/${balanceId}`)
     if (!error && data?.error) {
         error = data.error
     }
 
     usePageMetadata({
-        title: `Claimable balance ${data?.assets ? data.assets.map(a => a.asset.split('-')[0]).join('/') : params.id}`,
-        description: `Claimable balance ${data?.assets ? data.assets.map(a => a.asset).join('/') : params.id}.`
+        title: `Claimable balance ${data?.assets ? data.assets.map(a => a.asset.split('-')[0]).join('/') : balanceId}`,
+        description: `Claimable balance ${data?.assets ? data.assets.map(a => a.asset).join('/') : balanceId}.`
     })
 
     return <div>
-        <h2><span className="dimmed">Claimable Balance</span> <span>{encodeBalanceAsAddress(params.id)}</span></h2>
+        <h2><span className="dimmed">Claimable Balance</span> <span>{balanceId}</span></h2>
         {!loaded && <div className="loader"/>}
         {!!error &&
             <ErrorNotificationBlock>Failed to load claimable balance data.<br/>Either the address is invalid or the balance has been already
@@ -81,21 +82,18 @@ function ClaimableBalanceSummary({balance}) {
 function normalizeClaimableBalanceId(id) {
     try {
         if (id.startsWith('B')) {
-            id = xdr.encodeBytes(StrKey.decodeClaimableBalance(id), 'hex')
-        } else if (!/^[a-f0-9]{64}$/.test(id))
-            return null
+            if (id.length === 58)
+                return id //correct StellarBase format (with two extra chars)
+            if (id.length === 56) {
+                const bytes = fromBase32(id, {padding: false})
+                const long = new Uint8Array(33)
+                long.set(bytes.subarray(1, 33), 1)
+                return StrKey.encodeClaimableBalance(long)
+            }
+        } else if (/^[a-f0-9]{64}$/.test(id))
+            return StrKey.encodeClaimableBalance(xdr.decodeBytes(id, 'hex'))
     } catch (e) {
         throw new Error('Invalid claimable balance ID')
     }
     return id
-}
-
-function encodeBalanceAsAddress(id) {
-    try {
-        if (id.startsWith('B'))
-            return id
-        return StrKey.encodeClaimableBalance(xdr.decodeBytes(id, 'hex'))
-    } catch (error) {
-        return null
-    }
 }
