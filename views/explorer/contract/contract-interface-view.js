@@ -22,6 +22,20 @@ export function ContractInterfaceView({hash}) {
 
 function parseRustInterface(meta) {
     let res = `// RUST version: ${meta.rustVersion}\n// SDK version: ${meta.sdkVersion}\n\n`
+    if (meta.events) {
+        res += '// EVENTS\n\n'
+        for (const [name, e] of Object.entries(meta.events)) {
+            const attrs = []
+            if (e.prefixTopics?.length) {
+                attrs.push(`topics = [${e.prefixTopics.map(t => `"${t}"`).join(', ')}]`)
+            }
+            attrs.push(`data_format = "${formatEventDataFormat(e.dataFormat)}"`)
+            res += insertDocs(e) + `#[contractevent(${attrs.join(', ')})]\nstruct ${name} {
+${e.params.map(param => insertDocs(param, 1) + (param.location === 'topics' ? indent('#[topic]\n', 1) : '') + indent(param.name, 1) + ': ' + param.type).join(',\n')}
+}\n\n`
+        }
+    }
+
     if (meta.functions) {
         res += '// FUNCTIONS\n\n'
         for (const [name, fn] of Object.entries(meta.functions)) {
@@ -68,6 +82,17 @@ ${Object.entries(meta.errors).map(([name, props]) => insertDocs(props, 1) + inde
 }\n\n`
     }
     return res
+}
+
+function formatEventDataFormat(dataFormat) {
+    switch (dataFormat) {
+        case 'Vec':
+            return 'vec'
+        case 'Map':
+            return 'map'
+        default:
+            return 'single-value'
+    }
 }
 
 function insertDocs(props, level = 0, prefix = '') {
