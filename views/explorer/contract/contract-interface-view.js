@@ -86,12 +86,14 @@ ${Object.entries(meta.errors).map(([name, props]) => insertDocs(props, 1) + inde
 
 function formatEventDataFormat(dataFormat) {
     switch (dataFormat) {
+        case 'SingleValue':
+            return 'single-value'
         case 'Vec':
             return 'vec'
         case 'Map':
             return 'map'
         default:
-            return 'single-value'
+            return dataFormat
     }
 }
 
