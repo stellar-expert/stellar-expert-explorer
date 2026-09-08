@@ -6,21 +6,16 @@ import {Button} from '@stellar-expert/ui-framework'
  * @return {JSX.Element}
  */
 export default function CtaBlockView() {
-    return <section className="subscription-block">
+    return <section className="subscription-block subscription-cta-block">
         <div className="container">
             <div className="card card-blank billing-card subscription-cta">
-                <div className="row row-center">
-                    <div className="column column-75">
-                        <h3>Start on Stargazer, move up when you need to</h3>
-                        <div className="dimmed">
-                            Generate a key in one click. No card until you cross the free limits.
-                        </div>
-                    </div>
-                    <div className="column column-20 text-center">
-                        <div className="mobile-only micro-space"/>
-                        <Button href="/account/api-keys" block>Start Exploring</Button>
+                <div className="subscription-cta-copy">
+                    <h3>Start on Stargazer, move up when you need to</h3>
+                    <div className="dimmed">
+                        Generate a key in one click. No card until you cross the free limits.
                     </div>
                 </div>
+                <Button href="/account/api-keys">Start Exploring</Button>
             </div>
         </div>
     </section>
