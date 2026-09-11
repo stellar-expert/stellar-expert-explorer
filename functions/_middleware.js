@@ -14,8 +14,8 @@ export async function onRequest(context) {
     const ua = request.headers.get('user-agent') || ''
 
     const url = new URL(request.url)
-    if (url.pathname.startsWith('/thumbnail/') || // proxy all /thumbnail/* requests
-        isHtmlNav && botRegex.test(ua)) { //proxy all html requests from crawlers
+    if (url.pathname.startsWith('/thumbnail/')) {// || // proxy all /thumbnail/* requests
+        //isHtmlNav && botRegex.test(ua)) { //proxy all html requests from crawlers
         // reroute
         const target = new URL(url.pathname + url.search, `http://${prerenderHost}`)
         const proxied = new Request(target, request)
