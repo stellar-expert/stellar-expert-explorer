@@ -47,6 +47,7 @@ export const freePlan = {
     audience: 'Free public endpoints for experiments and hobby projects',
     price: 0,
     limits: {photons: 0, requestsPerMinute: 60, batchSize: 25},
+    endpoints: 'Free API endpoints only',
     support: 'Community'
 }
 
@@ -62,6 +63,7 @@ export const paidPlans = [
         price: 90,
         yearlyPrice: 750,
         limits: {photons: 10_000, requestsPerMinute: 600, batchSize: 200},
+        endpoints: 'All API endpoints',
         support: 'Email'
     },
     {
@@ -72,6 +74,7 @@ export const paidPlans = [
         price: 160,
         yearlyPrice: 1_300,
         limits: {photons: 50_000, requestsPerMinute: 1_800, batchSize: 1_000},
+        endpoints: 'All API endpoints',
         support: 'Email',
         popular: true
     },
@@ -83,6 +86,7 @@ export const paidPlans = [
         price: null,
         yearlyPrice: null,
         limits: {photons: null, requestsPerMinute: null, batchSize: null},
+        endpoints: 'All API endpoints',
         support: 'Priority',
         custom: true
     }
@@ -214,13 +218,22 @@ function describeLimit(value, custom) {
 /**
  * The published limits of a plan, as the lines shown on a plan card
  * @param {ApiPlan} plan
- * @return {{value: String, label: String}[]}
+ * @return {{value?: String, label: String}[]} - a row without a `value` reads as a whole phrase
+ * highlights only the figures it actually quotes
  */
-export function describePlanLimits({limits, support, custom}) {
-    return [
-        {value: describeLimit(limits.photons, custom), label: 'photons/month'},
-        {value: describeLimit(limits.requestsPerMinute, custom), label: 'requests/minute'},
-        {value: describeLimit(limits.batchSize, custom), label: 'items per batch response'},
-        {value: support, label: 'support'}
-    ]
+export function describePlanLimits({limits, support, endpoints, custom}) {
+    const rows = []
+    //the free tier has no allowance to quote
+    if (custom || limits.photons) {
+        rows.push({value: describeLimit(limits.photons, custom), label: 'photons / month'})
+    }
+    rows.push(
+        {value: describeLimit(limits.requestsPerMinute, custom), label: 'requests / minute'},
+        {value: describeLimit(limits.batchSize, custom), label: 'items per batch response'}
+    )
+    if (endpoints) {
+        rows.push({label: endpoints})
+    }
+    rows.push({label: `${support} support`})
+    return rows
 }

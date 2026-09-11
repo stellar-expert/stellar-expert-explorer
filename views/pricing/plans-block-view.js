@@ -1,9 +1,11 @@
-import React, {useCallback, useState} from 'react'
+import React, {useState} from 'react'
 import cn from 'classnames'
-import {Button, ButtonGroup} from '@stellar-expert/ui-framework'
+import {Button, Tabs} from '@stellar-expert/ui-framework'
 import {
-    describePlanLimits, formatPrice, freePlan, paidPlans, resolvePlanPrice
+    describePlanLimits, formatPrice, freePlan, maxYearlySavings, paidPlans, resolvePlanPrice
 } from '../../business-logic/billing/api-plans'
+import EnterpriseRequestView from '../billing/user/enterprise-request-view'
+import PricingIconView from './pricing-icons-view'
 
 /**
  * Plan catalogue with a billing period switch - the anchor target of the hero CTA
@@ -11,37 +13,48 @@ import {
  */
 export default function PlansBlockView() {
     const [period, setPeriod] = useState('month')
-
-    const changePeriod = useCallback(e => setPeriod(e.target.dataset.period), [])
+    const isYearly = period === 'year'
 
     return <section className="subscription-block" id="plans">
         <div className="container">
-            <div className="dual-layout subscription-plans-header">
-                <h2>Plans</h2>
+            <div className="subscription-plans-header">
+                <div>
+                    <h2>Plans</h2>
+                    <p className="subscription-plans-lead">
+                        Change or cancel at any time. Unused time is credited when you upgrade.
+                    </p>
+                </div>
                 <div className="subscription-period-switch">
-                    <ButtonGroup>
-                        <Button small disabled={period === 'month'} data-period="month" onClick={changePeriod}>
-                            Monthly
-                        </Button>
-                        <Button small disabled={period === 'year'} data-period="year" onClick={changePeriod}>
-                            Yearly
-                        </Button>
-                    </ButtonGroup>
+                    {!!isYearly && <span className="subscription-period-savings">
+                        Saving up to {maxYearlySavings}%
+                    </span>}
+                    <Tabs className="subscription-period-tabs" right selectedTab={period} onChange={setPeriod}
+                          tabs={[{name: 'month', title: 'Monthly'}, {name: 'year', title: 'Yearly'}]}/>
                 </div>
             </div>
-            <div className="dimmed">Change or cancel at any time. Unused time is credited when you upgrade.</div>
-            <div className="row space">
-                {paidPlans.map(plan => <div key={plan.key} className="column column-33">
-                    <PlanCard plan={plan} period={period}/>
-                </div>)}
+            <div className="subscription-plan-grid">
+                {paidPlans.map(plan => <PlanCard key={plan.key} plan={plan} period={period}/>)}
             </div>
             <FreePlanBar/>
-            <div className="dimmed text-tiny micro-space">
+            <div className="subscription-plans-note">
                 Prices in USD. Pay by card or crypto through our payment processor.
                 Cosmographer plans can be invoiced.
             </div>
         </div>
     </section>
+}
+
+/**
+ * Published limits of a plan - a row quoting a figure highlights it, a whole phrase stands on its own
+ * @param {ApiPlan} plan
+ * @return {JSX.Element}
+ */
+function PlanLimits({plan}) {
+    return <div className="subscription-plan-limits">
+        {describePlanLimits(plan).map(({value, label}) => <div key={label}>
+            {!!value && <span className="subscription-plan-limit-value">{value}</span>} {label}
+        </div>)}
+    </div>
 }
 
 /**
@@ -51,35 +64,34 @@ export default function PlansBlockView() {
  * @return {JSX.Element}
  */
 const PlanCard = React.memo(function PlanCard({plan, period}) {
-    const {name, icon, audience, popular} = plan
+    const {key, name, audience, popular, custom} = plan
     const price = resolvePlanPrice(plan, period)
     const isYearly = period === 'year'
 
-    return <div className={cn('card card-blank billing-card subscription-plan', {popular})}>
-        {!!popular && <div className="subscription-plan-badge">most popular</div>}
-        <i className={cn('subscription-plan-icon icon', icon)}/>
-        <h3>{name}</h3>
-        <div className="dimmed text-small subscription-plan-audience">{audience}</div>
-        <div className="subscription-plan-price">
-            {price.term ? <>
-                {!!isYearly && <div className="dimmed text-tiny"><s>${formatPrice(price.full)}</s></div>}
-                <span className="subscription-plan-amount">${formatPrice(price.term)}</span>
-                <span className="dimmed">/{isYearly ? 'year' : 'month'}</span>
-                <div className="dimmed text-tiny">
-                    {isYearly ? `$${formatPrice(price.monthly)}/month, billed yearly` : 'Billed monthly'}
-                </div>
-            </> : <>
-                <span className="subscription-plan-amount">Custom</span>
-                <div className="dimmed text-tiny">Quoted per contract</div>
-            </>}
+    return <div className={cn('subscription-plan', {popular, custom})}>
+        <div className="subscription-plan-accent"/>
+        {!!popular && <span className="subscription-plan-badge">most popular</span>}
+        <div className="subscription-plan-icon">
+            <PricingIconView name={key}/>
+        </div>
+        <div className="subscription-plan-name">{name}</div>
+        <div className="subscription-plan-audience">{audience}</div>
+        <div className="subscription-plan-strike">
+            {!!price.term && !!isYearly && <s>${formatPrice(price.full)}</s>}
+        </div>
+        <div className="subscription-plan-amount">
+            {price.term ? <>${formatPrice(price.term)}<span> /{isYearly ? ' year' : ' month'}</span></> : 'Custom'}
+        </div>
+        <div className="subscription-plan-note">
+            {price.term ?
+                (isYearly ? `$${formatPrice(price.monthly)} / month, billed yearly` : 'Billed monthly') :
+                'Quoted per contract'}
         </div>
         {price.term ?
-            <a href="/account/subscription/change" className="button button-block">Choose {name}</a> :
-            <a href={`mailto:info@stellar.expert?subject=${encodeURIComponent(name + ' plan enquiry')}`}
-               className="button button-block button-outline">Contact us</a>}
-        <ul className="subscription-plan-limits">
-            {describePlanLimits(plan).map(({value, label}) => <li key={label}>{value} {label}</li>)}
-        </ul>
+            <Button href="/account/subscription/change" block>Choose {name}</Button> :
+            <EnterpriseRequestView dialogClassName="subscription-dialog"/>}
+        <div className="subscription-plan-separator"/>
+        <PlanLimits plan={plan}/>
     </div>
 })
 
@@ -88,26 +100,20 @@ const PlanCard = React.memo(function PlanCard({plan, period}) {
  * @return {JSX.Element}
  */
 function FreePlanBar() {
-    const {name, icon, audience} = freePlan
+    const {key, name, audience} = freePlan
 
-    return <div className="card card-blank billing-card subscription-free space">
-        <div className="row row-center">
-            <div className="column subscription-free-identity">
-                <i className={cn('subscription-free-icon icon', icon)}/>
-                <div>
-                    <h4>{name}</h4>
-                    <div className="dimmed text-small">{audience}</div>
-                </div>
+    return <div className="subscription-free">
+        <div className="subscription-free-identity">
+            <span className="subscription-free-icon"><PricingIconView name={key}/></span>
+            <div>
+                <div className="subscription-plan-name">{name}</div>
+                <div className="subscription-plan-audience">{audience}</div>
             </div>
-            <div className="column subscription-free-usage">
-                <ul className="subscription-plan-limits subscription-free-limits">
-                    {describePlanLimits(freePlan).map(({value, label}) => <li key={label}>{value} {label}</li>)}
-                </ul>
-            </div>
-            <div className="column subscription-free-price text-right">
-                <div className="subscription-plan-amount">Free</div>
-                <div className="dimmed text-tiny">No registration required</div>
-            </div>
+        </div>
+        <PlanLimits plan={freePlan}/>
+        <div className="subscription-free-price">
+            <div className="subscription-plan-amount">Free</div>
+            <div className="subscription-free-registration">No registration required</div>
         </div>
     </div>
 }

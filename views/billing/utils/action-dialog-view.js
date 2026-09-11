@@ -11,6 +11,7 @@ import {Button, Dialog} from '@stellar-expert/ui-framework'
  * @param {Boolean} [dialogOpen]
  * @param {Boolean} [disabled] - blocks the confirm button while the request is in flight
  * @param {Boolean} [big]
+ * @param {String} [className] - extra classes for the dialog box itself
  * @param {*} children
  */
 export default function ActionDialogView({
@@ -21,8 +22,9 @@ export default function ActionDialogView({
                                              dialogOpen = true,
                                              disabled,
                                              big,
+                                             className,
                                              children}) {
-    return <Dialog dialogOpen={dialogOpen} big={big}>
+    return <Dialog dialogOpen={dialogOpen} big={big} className={className}>
         <h3>{title}</h3>
         <hr className="flare"/>
         <div className="space">{children}</div>

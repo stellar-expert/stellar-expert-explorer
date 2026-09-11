@@ -63,7 +63,7 @@ export default function AppRouter({history}) {
                         {/*public pricing landing*/}
                         <Route path="/pricing">
                             <Loadable moduleKey="pricing"
-                                      load={() => import(/* webpackChunkName: "pricing" */ './pricing/pricing-view')}/>
+                                      load={() => import(/* webpackChunkName: "pricing" */ './pricing/pricing-layout')}/>
                         </Route>
                         {/*billing dashboard*/}
                         {/*<Route path="/account">
