@@ -1,8 +1,9 @@
 import React from 'react'
 import {BlockSelect, Amount, UtcTimestamp, InfoTooltip as Info} from '@stellar-expert/ui-framework'
-import {formatExplorerLink, useExplorerApi, usePageMetadata, retrieveLedgerInfo} from '@stellar-expert/ui-framework'
+import {formatExplorerLink, useExplorerApi, usePageMetadata} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
 import {resolvePath} from '../../../business-logic/path'
+import {parseLedgerResponse} from '../../../business-logic/ledger-info'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import CrawlerScreen from '../../components/crawler-screen'
 import Tracer from '../horizon-tracer/tracer-icon-view'
@@ -17,15 +18,20 @@ export default function LedgerView({match}) {
     })
     if (!ledgerInfo.loaded)
         return <div className="loader"/>
-    if (ledgerInfo.error || ledgerInfo.data.status) {
+    if (ledgerInfo.error || ledgerInfo.data?.error || ledgerInfo.data?.status) {
         let error = `Failed to load ledger ${sequence}.`
-        if (ledgerInfo.data.status === 404) {
+        if (ledgerInfo.status === 404 || ledgerInfo.data?.status === 404) {
             error = 'Ledger not found. The requested sequence is greater than the last known Horizon sequence.'
         }
         return <ErrorNotificationBlock>{error}</ErrorNotificationBlock>
     }
 
-    const ledger = retrieveLedgerInfo(ledgerInfo.data)
+    let ledger
+    try {
+        ledger = parseLedgerResponse(ledgerInfo.data)
+    } catch (error) {
+        return <ErrorNotificationBlock>Failed to load ledger {sequence}.</ErrorNotificationBlock>
+    }
 
     return <>
         <div style={{float: 'right', margin: '0.4em -0.4em 0px 0px', position: 'relative', zIndex: 1}}>

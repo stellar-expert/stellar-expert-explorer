@@ -1,0 +1,11 @@
+{
+  "source": "https://api.stellar.expert/explorer/testnet/ledger/last",
+  "sequence": 4634265,
+  "ts": 1789194912,
+  "protocol": 28,
+  "xdr": "AAAAHAujYwmA8XJ4LN3wBhA6IVs+jwRqDT0JgtP67Qsdm7/OOdrCAxu5x1hEFThZUwDJA00Wvv2f2BPofBkJtMZETVUAAAAAaqTyoAAAAAAAAAABAAAAAKgkzRi8nXUGTSmaW1uspDvDqi8yaTgVPYwvm7XLbfAzAAAAQIdbkQAX3YQbwO+MeEDOY8VK/ngZZ85HHUSqOXDKgNCIBB3yy8bsvrb4dPo2J96BtrLKkNsbwIhz+SMbZcTVQgiRQKB9UdGIzjsxUiFJU6BXM/u7rKIgzcQM+4UYao/uoBGn2Jh6XFJ0QL2GC1Fu+/mECSfdWIU12ua9BrvqwvRFAEa2mQ3gtrOnZAAAAAAE8OMELx4AAAAAAAAAAAAMjBgAAABkAExLQAAAAMhlcxs77H8B/C3/2rDpGFzrbLTY9KOamkxIi2qcQ73AzxeM0E43BdgN6L2Je4dNnN/GJDe8NzZiZXuZaGbjjVEF8jw8wfkg4PV7iVYrGtue4pcVu6JsTs5BgDl57NqMx7EAfbRzTOUFrgCd0a1NWFFVuKGt8FhQJ3iV3juXCzeRGwAAAAA=",
+  "successful_operations": 21,
+  "failed_operations": 2,
+  "successful_transactions": 21,
+  "failed_transactions": 2
+}

@@ -1,59 +1,61 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Amount, UpdateHighlighter, ledgerStream, retrieveLedgerInfo} from '@stellar-expert/ui-framework'
+import {Amount, UpdateHighlighter, ledgerStream, useStellarNetwork} from '@stellar-expert/ui-framework'
 import {apiCall} from '../../../models/api'
 import {resolvePath} from '../../../business-logic/path'
+import {parseLedgerResponse} from '../../../business-logic/ledger-info'
 import EmbedWidgetTrigger from '../widget/embed-widget-trigger'
 
-export default function LedgerActivityView({title, className}) {
-    let unmounted
-    let lastLedgerClosedAt = 0
-    const [ledgerInfo, setLedgerInfo] = useState({
-        sequence: 0,
-        txSuccess: 0,
-        txFailed: 0,
-        protocol: 0,
-        baseFee: 0,
-        baseReserve: 0,
-        timeDelta: 6
-    })
-
-    const processLedger = useCallback(ledger => {
-        if (unmounted)
-            return
-        ledger = retrieveLedgerInfo(ledger)
-        let timeDelta = 6
-        if (lastLedgerClosedAt) {
-            timeDelta = (ledger.ts - lastLedgerClosedAt)
-        }
-        lastLedgerClosedAt = ledger.ts
-        setLedgerInfo({
-            sequence: ledger.sequence,
-            protocol: ledger.protocol,
-            operations: ledger.operations,
-            txSuccess: ledger.txSuccess,
-            txFailed: ledger.txFailed,
-            baseFee: ledger.baseFee,
-            baseReserve: ledger.baseReserve,
-            timeDelta
-        })
-    }, [])
+export default function LedgerActivityView({title}) {
+    const network = useStellarNetwork()
+    const [ledgerInfo, setLedgerInfo] = useState(null)
+    const [error, setError] = useState(false)
+    const [retry, setRetry] = useState(0)
 
     useEffect(() => {
-        const onNewLedger = sequence => apiCall('ledger/' + sequence).then(processLedger)
+        let active = true
+        let previousLedger
+        setLedgerInfo(null)
+        setError(false)
+
+        function processLedger(data) {
+            if (!active) return
+            const ledger = parseLedgerResponse(data)
+            //Initial and streamed requests can finish out of order.
+            if (previousLedger && ledger.sequence <= previousLedger.sequence) return
+            const timeDelta = previousLedger ? ledger.ts - previousLedger.ts : 6
+            previousLedger = ledger
+            setLedgerInfo({...ledger, timeDelta})
+            setError(false)
+        }
+
+        function handleError() {
+            if (active) setError(true)
+        }
+
+        const onNewLedger = sequence => apiCall('ledger/' + sequence).then(processLedger).catch(handleError)
+        //Keep listening after an initial failure so a subsequent valid ledger can recover the panel.
+        ledgerStream.on(onNewLedger)
         ledgerStream.getLast()
-            .then(ledger => {
-                processLedger(ledger)
-                //start ledgers updates streaming
-                ledgerStream.on(onNewLedger)
-            })
+            .then(processLedger)
+            .catch(handleError)
 
         return () => {
-            unmounted = true
+            active = false
             ledgerStream.off(onNewLedger)
         }
+    }, [network, retry])
+
+    const retryLoading = useCallback(() => {
+        setRetry(value => value + 1)
     }, [])
 
-    if (!ledgerInfo.sequence)
+    if (error)
+        return <div role="alert" className="segment warning space">
+            <p>Live ledger data is unavailable.</p>
+            <button type="button" onClick={retryLoading}>Retry</button>
+        </div>
+
+    if (!ledgerInfo)
         return <div className="loader"/>
 
     return <>
