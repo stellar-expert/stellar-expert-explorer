@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {Federation} from '@stellar/stellar-sdk'
 import {navigation, useDependantState, usePageMetadata} from '@stellar-expert/ui-framework'
 import appSettings from '../../../app-settings'
@@ -65,7 +65,7 @@ async function processSearchTerm(originalTerm, network) {
 
     } catch (e) {
         console.error(e)
-        if (e instanceof SoranResolutionError) return {term, error: e.message}
+        if (e instanceof SoranResolutionError) return {term, error: e.message, retryable: true}
         return {term, results: [], error: `Nothing found for search term "${term}".`}
     }
 }
@@ -128,6 +128,7 @@ export default function SearchResultsView() {
     })
 
     const [state, setState] = useState(null)
+    const [retry, setRetry] = useState(0)
     useEffect(() => {
         let active = true
         setState(null)
@@ -137,7 +138,11 @@ export default function SearchResultsView() {
         return () => {
             active = false
         }
-    }, [originalTerm, network])
+    }, [originalTerm, network, retry])
+
+    const retryResolution = useCallback(() => {
+        setRetry(value => value + 1)
+    }, [])
 
     //Do not show a previous query's result or apply a late testnet read after changing networks.
     if (!state || state.originalTerm !== originalTerm || state.network !== network) return <div className="loader"/>
@@ -146,6 +151,7 @@ export default function SearchResultsView() {
     if (result.error)
         return <SearchResultsWrapper originalTerm={originalTerm}>
             <ErrorNotificationBlock>{result.error}</ErrorNotificationBlock>
+            {!!result.retryable && <button type="button" onClick={retryResolution}>Retry</button>}
         </SearchResultsWrapper>
 
     if (!originalTerm)

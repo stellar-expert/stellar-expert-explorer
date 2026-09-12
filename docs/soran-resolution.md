@@ -34,7 +34,7 @@ The resolver returns `{name, address, memo}`. `memo` is either `null` or `{type,
 
 Missing/expired names (Lookup error 7) receive a combined explanation because that code does not distinguish those states. Restoration, transport errors, unsupported ABIs, malformed results, and dependency failures remain errors. None is interpreted as a memo-free account or triggers a legacy-address fallback.
 
-Only an explicit namespace-missing error (5) from `resolve_destination` falls back to normal account/asset text search, because a dotted string can be an asset code. Errors in capability checks cannot trigger that fallback. Pending search resolutions are discarded after a query change, network switch, or unmount.
+Only an explicit namespace-missing error (5) from `resolve_destination` falls back to normal account/asset text search, because a dotted string can be an asset code. Errors in capability checks cannot trigger that fallback. Soran errors offer Retry to repeat the same lookup without reloading. Pending search resolutions are discarded after a query change, network switch, or unmount.
 
 ## Raw contract storage
 

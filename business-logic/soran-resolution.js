@@ -112,7 +112,9 @@ export async function resolveSoranName(query, network, settings) {
     if (!name) throw new SoranResolutionError('Enter a Soran name with two valid labels, such as alice.nova.')
 
     const {lookupId, registryId, rpcUrl} = settings.soran
-    const server = new rpc.Server(rpcUrl, {timeout: 15})
+    const server = new rpc.Server(rpcUrl)
+    //SDK 17 configures RPC request timeouts on its HTTP client, in milliseconds.
+    server.httpClient.defaults.timeout = 15000
     const contract = new Contract(lookupId)
     async function read(method, args = []) {
         const transaction = new TransactionBuilder(

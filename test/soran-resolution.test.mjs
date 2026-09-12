@@ -163,3 +163,26 @@ test('report transport failures as unavailable and allow a subsequent retry', as
     assert.equal((await resolveSoranName('alice.nova', 'testnet', settings)).name, 'alice.nova')
     assert.equal(calls.length, 8)
 })
+
+test('pass a 15-second timeout to the SDK HTTP transport without changing other clients', async t => {
+    const simulate = rpc.Server.prototype.simulateTransaction
+    const requests = []
+    const unrelated = new rpc.Server(settings.soran.rpcUrl)
+    const originalTimeout = unrelated.httpClient.defaults.timeout
+    t.mock.method(rpc.Server.prototype, 'simulateTransaction', function (...args) {
+        //Keep the SDK's transaction serialization and HTTP configuration path intact.
+        this.httpClient.defaults.adapter = config => {
+            requests.push(config)
+            return Promise.reject(new Error('timeout'))
+        }
+        return simulate.apply(this, args)
+    })
+    await assert.rejects(resolveSoranName('alice.nova', 'testnet', settings), /unavailable/)
+    assert.equal(requests.length, 3)
+    for (const config of requests) {
+        assert.equal(config.timeout, 15000)
+        assert.equal(config.data.method, 'simulateTransaction')
+    }
+    assert.equal(unrelated.httpClient.defaults.timeout, originalTimeout)
+    assert.equal(new rpc.Server(settings.soran.rpcUrl).httpClient.defaults.timeout, originalTimeout)
+})

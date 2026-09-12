@@ -150,6 +150,22 @@ test('late resolution cannot replace a newer search', async t => {
     assert.doesNotMatch(renderedText(ui.renderer), /alice.nova/)
 })
 
+test('retry a failed Soran read without changing the name or reloading the page', async t => {
+    let attempts = 0
+    const ui = setup(t, () => ++attempts === 1
+        ? Promise.reject(new SoranResolutionError('Soran resolution is unavailable. Please try again later.'))
+        : Promise.resolve({name: 'alice.nova', address: G, memo: {type: 'text', value: 'hello'}}))
+    await ui.show()
+    assert.equal(ui.renderer.root.findAllByProps({role: 'alert'}).length, 1)
+    await act(async () => ui.renderer.root.findByType('button').props.onClick())
+    assert.equal(attempts, 2)
+    assert.equal(ui.renderer.root.findAllByProps({role: 'alert'}).length, 0)
+    assert.match(renderedText(ui.renderer), /Soran name: alice.nova/)
+    assert.equal(ui.renderer.root.findByType('code').children.join(''), 'hello')
+    assert.equal(ui.standardSearches.length, 0)
+    assert.equal(ui.navigations.length, 0)
+})
+
 test('changing to public discards pending testnet reads and makes no new Soran request', async t => {
     let finish
     const ui = setup(t, () => new Promise(resolve => {
