@@ -15,15 +15,15 @@ export default function ApiDocumentationIntroPage() {
             <p>
                 Pass API key in the <code>"Authorization"</code> header: <code>"Authorization: Bearer &#123;API_KEY&#125;"</code> <br/>
                 For example:
-                <CodeBlock lang="js">
+            </p>
+            <CodeBlock lang="js">
 {`fetch('https://api.stellar.expert/{API_ENDPOINT}, {
     headers: {Authorization: 'Bearer {API_KEY}'}
 })
     .then(res => res.json())
     .then(res => console.log(res))
     .catch(err => console.error(err))`}
-                </CodeBlock>
-            </p>
+            </CodeBlock>
             <br/>
             <h3>Cross-Origin Resource Sharing</h3>
             <p>
@@ -36,6 +36,25 @@ export default function ApiDocumentationIntroPage() {
                 The effective API request rate may be a subject to rate limiting. In such cases the server returns 429 HTTP status code error.
                 To avoid potential problems caused by those limitations it is advised to consider response caching or group queries on the caller side
                 in case of heavy API utilization.
+            </p>
+            <br/>
+            <h3>Conventions</h3>
+            <p>
+                <ul className="list">
+                    <li>All responses return JSON data unless stated otherwise. Append `?prettyPrint` to any request to receive indented JSON.</li>
+                    <li>Errors use the envelope <code children={`{"error": "<message>", "status": <http status>}`}/>.</li>
+                    <li>Amounts and supplies are integers designated in stroops (10^-7 units) serialized as strings.</li>
+                    <li>Uint64 identifiers (transactions, trades, operations, offers) are decimal strings.</li>
+                    <li>Timestamps are UNIX seconds unless a field description says otherwise.</li>
+                    <li>For assets the standard input format is either XLM, &#123;CODE&#125;-&#123;ISSUER&#125;, &#123;CODE&#125;-&#123;ISSUER&#125;-&#123;TYPE&#125;, or contract address (starting with C)</li>
+                    <li>Responses always use the fully qualified &#123;CODE&#125;-&#123;ISSUER&#125;-&#123;TYPE&#125; form for classic assets.</li>
+                </ul>
+            </p>
+            <br/>
+            <h3>Pagination</h3>
+            <p>
+                List endpoints return <code>_links (self, prev, next)</code> for pagination and <code>_embedded.records</code> array of data records.
+                To load the next page, pass <code>paging_token</code> of the last record as <code>cursor</code> query parameter.
             </p>
         </div>
     </ApiDocsView>

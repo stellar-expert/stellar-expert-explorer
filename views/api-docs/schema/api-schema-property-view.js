@@ -35,18 +35,19 @@ function PropTypeRestrictionView({prop = {}}) {
 
 function PropRangeView({min, max, type}) {
     const units = {
-        array: 'items',
-        string: 'characters'
+        array: ' items',
+        string: ' characters'
     }
+    const unit = units[type] || ''
+    const hasMin = min !== undefined && min !== null
+    const hasMax = max !== undefined && max !== null
     let content
-    if (min && max) {
-        content = `[${min}..${max}] ${units[type]}`
-    }
-    if (min) {
-        content = `>=${min} ${units[type]}`
-    }
-    if (max) {
-        content = `<=${min} ${units[type]}`
+    if (hasMin && hasMax) {
+        content = `[${min}..${max}]${unit}`
+    } else if (hasMin) {
+        content = `>=${min}${unit}`
+    } else if (hasMax) {
+        content = `<=${max}${unit}`
     }
     if (content)
         return <span className="text-monospace dimmed condensed"><span className="badge outline">{content}</span>&nbsp;</span>
@@ -67,8 +68,8 @@ function PropTypePatternView({prop = {}}) {
 
 function PropExampleView({prop = {}}) {
     const name = prop.name
-    const example = prop.example || prop.items?.example
-    if (!example)
+    const example = prop.example ?? prop.examples?.[0] ?? prop.items?.example
+    if (example === undefined || example === null)
         return null
     let resultString = (prop.in === 'path') ? example :
         (example instanceof Array) ?
@@ -81,12 +82,12 @@ function PropExampleView({prop = {}}) {
 }
 
 function PropDefaultView({prop = {}}) {
-    const defaultValue = prop.default || prop.items?.default
-    if (!defaultValue)
+    const defaultValue = prop.default ?? prop.items?.default
+    if (defaultValue === undefined || defaultValue === null)
         return null
 
     return <div className="word-break dimmed text-monospace condensed">
-        Default: <code>{defaultValue}</code>
+        Default: <code>{defaultValue.toString()}</code>
     </div>
 }
 

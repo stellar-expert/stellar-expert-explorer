@@ -1,15 +1,12 @@
 import React from 'react'
-import apiPropertyTypeParser from '../api-property-type-parser'
+import describeType from '../api-type-description'
 import ApiSchemaPropertyView from './api-schema-property-view'
-import {swapReference} from '../api-component-ref-parser'
-import {componentReference} from '../api-docs-view'
 
 export default function ApiParametersView({parameters}) {
-    if (!parameters)
+    if (!parameters?.length)
         return null
-    const params = parameters.map(p => swapReference(componentReference[p.originalName || p.name], p))
-    const inPath = params.filter(p => p.in === 'path')
-    const inQuery = params.filter(p => p.in === 'query')
+    const inPath = parameters.filter(p => p.in === 'path')
+    const inQuery = parameters.filter(p => p.in === 'query')
     return <div>
         {!!inPath.length && <div className="space word-break">
             <h3 className="dimmed text-small">PATH PARAMETERS</h3>
@@ -25,8 +22,8 @@ export default function ApiParametersView({parameters}) {
 }
 
 function PropertyEntryView({param}) {
-    const {schema, ...otherParameters} = param
-    const prop = {...apiPropertyTypeParser(schema), ...otherParameters}
+    const {schema = {}, ...otherParameters} = param
+    const prop = {...schema, ...otherParameters, typeDescription: describeType(schema)}
     return <div className="row space">
         <div className="column column-25 text-monospace condensed">
             <div>{prop.name}</div>

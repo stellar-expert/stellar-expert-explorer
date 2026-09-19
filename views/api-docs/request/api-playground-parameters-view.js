@@ -1,25 +1,21 @@
 import React, {useCallback, useState} from 'react'
-import {swapReference} from '../api-component-ref-parser'
-import {componentReference} from '../api-docs-view'
+import {defaultParamValue} from './api-request-builder'
 
 export default function ApiPlaygroundParametersView({params, updateRequestParam}) {
     return <div className="card">
         <h4>Parameters</h4>
         <hr/>
         <div className="space">
-            {params.map(p => {
-                const param = swapReference(componentReference[p.originalName || p.name], p)
-                return param.schema.enum ?
-                    <SelectParamControl key={param.name} param={param} updateRequestParam={updateRequestParam}/> :
-                    <TextParamControlView key={param.originalName || param.name} param={param} updateRequestParam={updateRequestParam}/>
-            })}
+            {params.map(param => param.schema?.enum ?
+                <SelectParamControl key={param.name} param={param} updateRequestParam={updateRequestParam}/> :
+                <TextParamControlView key={param.name} param={param} updateRequestParam={updateRequestParam}/>)}
         </div>
     </div>
 }
 
 function TextParamControlView({param, updateRequestParam}) {
-    const [value, setValue] = useState(param.default || param.schema.default || '')
-    const isArray = param.schema.type === 'array'
+    const [value, setValue] = useState(defaultParamValue(param))
+    const isArray = param.schema?.type === 'array'
 
     const onChange = useCallback(e => {
         const val = e.target.value
@@ -38,7 +34,7 @@ function TextParamControlView({param, updateRequestParam}) {
 }
 
 function SelectParamControl({param, inProgress, updateRequestParam}) {
-    const [value, setValue] = useState(param.default || '')
+    const [value, setValue] = useState(defaultParamValue(param))
 
     const changeNetwork = useCallback(e => {
         const val = e.target.value
