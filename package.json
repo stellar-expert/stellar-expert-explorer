@@ -6,6 +6,7 @@
   "description": "Block explorer with analytics platform for Stellar Network that features granular historical statistics, detailed assets dashboard, and advanced payment locator.",
   "main": "app.js",
   "scripts": {
+    "test": "node --test test/*.test.mjs",
     "build": "webpack --mode=production --config ./webpack-config.js",
     "dev-server": "webpack serve --mode development --config ./webpack-config.js",
     "build-api-docs": "node -v"
@@ -39,9 +40,11 @@
     "throttle-debounce": "^5.0.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.7",
     "@stellar-expert/eslint-config-js": "^1.1.0",
     "@stellar-expert/eslint-config-react": "^1.1.0",
-    "@stellar-expert/webpack-template": "1.5.1"
+    "@stellar-expert/webpack-template": "1.5.1",
+    "react-test-renderer": "17.0.2"
   },
   "overrides": {
     "@stellar/stellar-sdk": "17.0.1"

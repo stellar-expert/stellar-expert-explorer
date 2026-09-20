@@ -56,6 +56,11 @@ class AppSettings {
             title: 'testnet',
             horizon: 'https://horizon-testnet.stellar.org',
             passphrase: 'Test SDF Network ; September 2015',
+            soran: {
+                rpcUrl: 'https://soroban-testnet.stellar.org',
+                lookupId: 'CDSORANQAJK35UV2HR63CMB6M5NYISHMUBTB6EQY2CZ3Y7HJDIOHRJWA',
+                registryId: 'CCSORANDPQINYOYB5SVO45WJP2LBBYKC72HHUIRVXB4J6RUZKDAUW7G4'
+            },
             demolisher: 'GA4C3WUE7TL7GNXHF27B6Z54VMRCPTW2JH2OQRHH4U2EHPI6CCLMERGE'
         }
     }

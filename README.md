@@ -51,3 +51,9 @@ pnpm build
 ```
 
 *(check for the generated files in the `./public` repository)*
+
+#### Soran names on testnet
+
+Search for `alice.nova` to see its current destination and required memo. Resolution reads the Universal Lookup contract through Stellar RPC using the existing Stellar SDK. It uses neither the Soran HTTP API nor a Soran SDK.
+
+See [Soran integration and storage format](docs/soran-resolution.md) for the deployment, validation rules, raw ledger keys, and test instructions.

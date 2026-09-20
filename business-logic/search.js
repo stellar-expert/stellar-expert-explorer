@@ -1,5 +1,6 @@
 import {StrKey} from '@stellar/stellar-sdk'
 import {parseStellarGenericId} from '@stellar-expert/ui-framework'
+import {normalizeSoranName} from './soran-name.js'
 
 const searchTypeMap = {
     account: 'account',
@@ -13,9 +14,10 @@ const searchTypeMap = {
 /**
  * Determine appropriate query type for the autolookup.
  * @param {string} query - Raw query.
- * @return {Array<('account'|'asset'|'contract'|'tx'|'ledger'|'text'|'federation'|'sorobandomains')>}
+ * @param {string} [network] - Explorer network.
+ * @return {Array<('account'|'asset'|'contract'|'tx'|'ledger'|'text'|'federation'|'sorobandomains'|'soran')>}
  */
-function detectSearchType(query) {
+function detectSearchType(query, network = 'public') {
     const res = []
     if (query) {
         if (['xlm', 'native', 'lumen'].includes(query.toLowerCase())) return ['asset']
@@ -29,6 +31,7 @@ function detectSearchType(query) {
         //federation address
         if (/^([a-z0-9-+]+)\.xlm$/i.test(query)) return ['sorobandomains']
         if (/^(.+)\*([^.]+\..+)$/.test(query)) return ['federation']
+        if (network === 'testnet' && normalizeSoranName(query)) return ['soran']
         //ledger, offer, tx/op generic id
         if (/^\d{1,19}$/.test(query)) {
             if (query.length <= 10) {
