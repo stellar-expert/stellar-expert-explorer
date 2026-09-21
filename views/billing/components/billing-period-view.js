@@ -102,7 +102,10 @@ export default function BillingPeriodView({account, usage}) {
                     </div>
                     {!!limit && <div className="billing-quota-scale dimmed text-tiny">
                         <span>0</span>
-                        <span>upgrade alert at {upgradeAlertThreshold}%</span>
+                        <span className="billing-quota-scale-alert"
+                              style={{right: `${100 - upgradeAlertThreshold}%`}}>
+                            upgrade alert at {upgradeAlertThreshold}%
+                        </span>
                         <span>{formatWithAutoPrecision(limit)}</span>
                     </div>}
                     {!limit && <div className="billing-quota-scale dimmed text-tiny">

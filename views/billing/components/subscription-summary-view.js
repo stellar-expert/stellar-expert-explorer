@@ -1,7 +1,8 @@
 import React from 'react'
 import {UtcTimestamp} from '@stellar-expert/ui-framework'
 import {formatDateUTC, formatWithAutoPrecision} from '@stellar-expert/formatter'
-import {describeSubscriptionLimits, findPlan} from '../../../business-logic/billing/api-plans'
+import {describePlanShort, describeSubscriptionLimits, resolveAccountPlan}
+    from '../../../business-logic/billing/api-plans'
 import {isAwaitingCustomTariff} from '../../../business-logic/billing/account-status'
 import {describeDays, getDaysLeft} from '../utils/date-resolver'
 import SubscriptionTermView from './subscription-term-view'
@@ -14,27 +15,22 @@ import SubscriptionTermView from './subscription-term-view'
 export default function SubscriptionSummaryView({account}) {
     const {subscription, enterpriseRequest} = account || {}
     const badge = isAwaitingCustomTariff(account) ? <CustomTariffBadgeView request={enterpriseRequest}/> : null
-
-    if (!subscription)
-        return <div className="micro-space">
-            <div className="dimmed">No active subscription</div>
-            {!!badge && <div className="nano-space">{badge}</div>}
-        </div>
-
-    const {plan, from, to} = subscription
-    const catalogue = findPlan(plan)
+    //no stored subscription means the free plan, which has no term and never expires
+    const catalogue = resolveAccountPlan(account)
+    const {from, to} = subscription || {}
+    const limits = subscription ? describeSubscriptionLimits(subscription) : describePlanShort(catalogue)
     return <div className="card card-blank billing-card billing-subscription micro-space">
         <div className="dual-layout">
-            <strong className="nowrap">{catalogue?.name || plan}</strong>
+            <strong className="nowrap">{catalogue?.name || subscription?.plan}</strong>
             <span className="dimmed text-small nano-space nowrap">
-                {describeSubscriptionLimits(subscription) || (catalogue?.custom ? 'Custom options' : null)}
+                {limits || (catalogue?.custom ? 'Custom options' : null)}
             </span>
         </div>
         <SubscriptionTermView from={from} to={to}/>
         <div className="dual-layout">
             <div>{badge}</div>
             <span className="dimmed text-tiny text-right">
-                <UtcTimestamp date={to} dateOnly/>&nbsp;· {describeTerm(to)}
+                {subscription ? <><UtcTimestamp date={to} dateOnly/>&nbsp;· {describeTerm(to)}</> : 'no expiry'}
             </span>
         </div>
     </div>

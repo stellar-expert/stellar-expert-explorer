@@ -1,8 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {shortenString} from '@stellar-expert/formatter'
-import {
-    Amount, Button, ButtonGroup, ElapsedTime, parseFiltersFromQuery, UtcTimestamp
-} from '@stellar-expert/ui-framework'
+import {Button, ButtonGroup, ElapsedTime, parseFiltersFromQuery, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {requestTypeStyles} from '../../../business-logic/billing/request-types'
 import RequestTypeView from '../components/request-type-view'
 import SegmentLoader from '../utils/segment-loader-view'
@@ -43,7 +41,6 @@ export default function LogsView() {
                 <tr>
                     <th>Account</th>
                     <th>Request type</th>
-                    <th className="text-right">Credits</th>
                     <th className="collapsing text-right">Timestamp</th>
                 </tr>
             </thead>
@@ -54,9 +51,6 @@ export default function LogsView() {
                     </td>
                     <td data-header="Request type: ">
                         <RequestTypeView entry={entry}/>
-                    </td>
-                    <td data-header="Credits: " className="text-right">
-                        <Amount amount={entry.data.credits}/>
                     </td>
                     <td className="nowrap text-right" data-header="Timestamp: ">
                         <UtcTimestamp date={entry.timestamp}/>

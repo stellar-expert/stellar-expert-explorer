@@ -1,4 +1,4 @@
-import {Account, Transaction, Operation, TransactionBuilder, Keypair, Memo, Asset} from '@stellar/stellar-sdk'
+import {Account, Operation, TransactionBuilder, Keypair, Memo, Asset} from '@stellar/stellar-sdk'
 import {Horizon} from '@stellar/stellar-sdk'
 import {adjustPrecision} from '@stellar-expert/formatter'
 import appSettings from '../../app-settings'
@@ -21,7 +21,7 @@ function retrieveAsset({asset_code, asset_issuer}) {
 class DemolisherTxBuilder {
     /**
      * Creates the demolisher instance.
-     * @param {Object} settings - Demolisher settings. , horizon, networkPassphrase, mediator, demolisherEndpoint, baseFee
+     * @param {Object} settings - Demolisher settings: horizon, networkPassphrase, mediator, demolisherEndpoint, baseFee
      * @param {String} settings.source - The public key of the account to be merged.
      * @param {String[]} settings.signers - All account signers' secret keys.
      * @param {DemolisherStatusChange} settings.onStatusChange - Callback to use for status updates.

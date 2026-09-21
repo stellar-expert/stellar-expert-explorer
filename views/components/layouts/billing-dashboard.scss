@@ -83,8 +83,6 @@ $admin-accent: hsl(27, 93%, 66%);
       margin-top: $space-nano;
     }
 
-    //the stripe shifts by one row: the header carries the background on a wide screen and is hidden here, so
-    //without this a table of a single row is painted like the page and reads as nothing at all
     tbody > tr:nth-child(2n+1) {
       background: var(--color-alt-bg);
     }
@@ -124,6 +122,7 @@ $admin-accent: hsl(27, 93%, 66%);
   margin-top: $space-micro;
   padding: 0 $space-micro;
   background: var(--color-alt-bg);
+  box-shadow: 0 2px 4px -2px var(--color-backdrop);
 
   &.text-center {
     justify-content: center;
@@ -320,9 +319,16 @@ $stat-value-line-height: 1.2;
 }
 
 .billing-quota-scale {
+  position: relative;
   display: flex;
   justify-content: space-between;
   margin-top: $space-nano;
+
+  > .billing-quota-scale-alert {
+    position: absolute;
+    padding-right: 0.4em;
+    white-space: nowrap;
+  }
 }
 
 .billing-usage-chart {
@@ -397,6 +403,10 @@ $stat-value-line-height: 1.2;
 }
 
 .billing-payment-method {
+  .billing-token {
+    box-shadow: none;
+  }
+
   height: 100%;
 
   .billing-card-number {
@@ -1067,5 +1077,66 @@ $plan-amount-line-height: 1.1;
   hr.flare-half {
     border-image: linear-gradient(to right, var(--color-admin), transparent 70%);
     border-image-slice: 1;
+  }
+}
+
+.billing-login {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  justify-content: center;
+
+  //the framework justifies every paragraph, which gaps badly in a column this narrow
+  p {
+    text-align: left;
+  }
+
+  .billing-login-form {
+    width: 100%;
+    max-width: 30em;
+  }
+
+  &.text-first .simple-page-content {
+    margin-top: $space-standard;
+  }
+
+  .section-title {
+    padding-left: 0;
+
+    &:before {
+      display: none;
+    }
+  }
+
+  .billing-password-input {
+    position: relative;
+
+    input {
+      padding-right: 3.4em;
+    }
+
+    .billing-password-toggle {
+      position: absolute;
+      right: 0.7em;
+      top: 2rem;
+      transform: translateY(-50%);
+      line-height: 1;
+    }
+  }
+
+  .billing-login-notice {
+    border-left: 2px solid var(--color-highlight);
+    background: var(--color-alt-bg);
+    padding: 0.6em 0.9em;
+    margin-bottom: $space-standard;
+  }
+
+  .billing-login-footer {
+    margin-top: $space-standard;
+    text-align: center;
+
+    > div + div {
+      padding-top: 0.35em;
+    }
   }
 }

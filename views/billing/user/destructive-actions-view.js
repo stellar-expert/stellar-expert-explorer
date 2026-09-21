@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
-import {useAuth0} from '@auth0/auth0-react'
 import {apiRequest} from '../../../business-logic/billing/billing-api'
+import {signOut} from '../../../business-logic/billing/billing-session'
 import {useSession} from '../auth/auth-session'
 import {confirmAction} from '../utils/confirm-action'
 
@@ -12,7 +12,6 @@ import {confirmAction} from '../utils/confirm-action'
  */
 export default function DestructiveActionsView({onKeysRevoked}) {
     const {userId} = useSession()
-    const {logout} = useAuth0()
     const [isProgress, setIsProgress] = useState(false)
 
     const revokeKeys = useCallback(async () => {
@@ -29,21 +28,22 @@ export default function DestructiveActionsView({onKeysRevoked}) {
     }, [userId, onKeysRevoked])
 
     const deleteAccount = useCallback(async () => {
-        if (!await confirmAction('Delete the account? Keys, origins and usage history are removed with it.'))
+        if (!await confirmAction('Delete the account? Its API keys stop working and the credits are burned.'))
             return
         setIsProgress(true)
         apiRequest(`account/${userId}`, {method: 'DELETE'})
-            .then(() => logout({logoutParams: {returnTo: window.location.origin}}))
+            .then(() => signOut())
             .catch(() => notify({type: 'error', message: 'Failed to delete your account'}))
             .finally(() => setIsProgress(false))
-    }, [userId, logout])
+    }, [userId])
 
     return <div className="card double-space billing-card billing-danger">
         <div className="billing-danger-title">Destructive actions</div>
         <DangerRowView title="Revoke all API keys" action="Revoke keys" disabled={isProgress} onAction={revokeKeys}
                        description="Every key stops working immediately. Your subscription and usage history are kept."/>
         <DangerRowView title="Delete account" action="Delete account" disabled={isProgress} onAction={deleteAccount}
-                       description="Cancels the subscription, deletes keys, origins and usage history. This cannot be undone."/>
+                       description="Every API key stops working and the remaining credits are burned. Signing in again
+                                    offers to restore the account, but the credits do not come back."/>
     </div>
 }
 

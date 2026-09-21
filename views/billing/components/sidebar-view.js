@@ -13,7 +13,7 @@ import {useSession} from '../auth/auth-session'
 export default function SidebarView({list = [], identity = false}) {
     const location = useLocation()
     const {url} = useRouteMatch()
-    const {email} = useSession()
+    const {email, impersonated} = useSession()
     const base = url.replace(/\/$/, '')
     const activeLink = location.pathname.slice(base.length).replace(/^\//, '').split('/')[0] || list[0]?.link
 
@@ -34,8 +34,9 @@ export default function SidebarView({list = [], identity = false}) {
                 </ul>
             </nav>
             {identity && !!email ? <div className="billing-menu-identity">
-                <div className="dimmed text-tiny">Signed in as</div>
+                <div className="dimmed text-tiny">{impersonated ? 'Viewing as' : 'Signed in as'}</div>
                 <div className="text-small word-break">{email}</div>
+                {impersonated ? <a href="/admin" className="text-tiny">Back to admin</a> : null}
             </div> : null}
         </div>
     </div>

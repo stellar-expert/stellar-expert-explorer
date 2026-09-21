@@ -1,6 +1,6 @@
 import React from 'react'
 import {Dropdown, useLocation} from '@stellar-expert/ui-framework'
-import {hasAdminRole, hasAuth0Session, logOutFromBilling} from '../../business-logic/billing/auth0-session-probe'
+import {getRoles, isSignedIn, signOut} from '../../business-logic/billing/billing-session'
 import {adminSections, userSections} from '../billing/navigation'
 import './login-status.scss'
 
@@ -27,24 +27,17 @@ const menus = {
 
 function userAction(action) {
     if (action === 'logout')
-        return logOutFromBilling()
+        return signOut()
 }
 
 export default function LoginStatus() {
     return null
     //re-probe on navigation so the widget picks up a session established on /login
     useLocation()
-    if (!hasAuth0Session())
-        return <>
-            <span className="account-status desktop-only">
-                <a href="/login" title="Log in to your account"><i className="icon icon-user-circle"/></a>
-            </span>
-            <span className="account-menu mobile-only">
-                <a href="/login"><i className="icon icon-user-circle"/> Account</a>
-            </span>
-        </>
-    const {options, home, title} = hasAdminRole() ? menus.admin : menus.user
-    //the dropdown collapses to plain menu entries on mobile
+    if (!isSignedIn())
+        return null
+    const {options, home, title} = getRoles().includes('admin') ? menus.admin : menus.user
+
     return <>
         <span className="account-status desktop-only" title={title}>
             <Dropdown onChange={userAction} style={{padding: 0}} options={options} showToggle={false}
@@ -52,7 +45,7 @@ export default function LoginStatus() {
         </span>
         <span className="account-menu mobile-only">
             <a href={home}><i className="icon icon-user-circle"/> {title}</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="#" onClick={logOutFromBilling}><i className="icon icon-logout"/> Log out</a>
+            <a href="#" onClick={signOut}><i className="icon icon-logout"/> Log out</a>
         </span>
     </>
 }

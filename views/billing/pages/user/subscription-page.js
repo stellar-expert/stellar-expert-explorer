@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {apiRequest} from '../../../../business-logic/billing/billing-api'
 import {isSubscriptionActive} from '../../../../business-logic/billing/account-status'
+import {describePlanShort, freePlan} from '../../../../business-logic/billing/api-plans'
 import {useSession} from '../../auth/auth-session'
 import {confirmAction} from '../../utils/confirm-action'
 import SimplePageLayout from '../../layout/simple-page-layout'
@@ -60,7 +61,7 @@ export default function SubscriptionPage() {
         {subscription ?
             <SubscriptionCardView subscription={subscription} isActive={isSubscriptionActive(account)}
                                   onToggleRenewal={toggleRenewal}/> :
-            <NoSubscriptionView/>}
+            <FreePlanView/>}
         <div className="row space">
             <div className="column column-50">
                 <PaymentMethodView method={paymentMethod}/>
@@ -82,13 +83,18 @@ export default function SubscriptionPage() {
 }
 
 /**
+ * Free plan card, shown while an account has no subscription
  * @return {JSX.Element}
  * @private
  */
-function NoSubscriptionView() {
+function FreePlanView() {
     return <div className="card card-blank billing-card text-center billing-subscription-card">
         <div className="space">
-            <div className="dimmed">No active subscription</div>
+            <div>
+                <strong>{freePlan.name}</strong>
+                <span className="dimmed">&nbsp;· {describePlanShort(freePlan)}</span>
+            </div>
+            <div className="dimmed text-small micro-space">{freePlan.audience}</div>
             <div className="micro-space">
                 <a href="/account/subscription/change" className="button">Choose a plan</a>
             </div>

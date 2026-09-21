@@ -1,5 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
+import {endImpersonation} from '../../../business-logic/billing/impersonation'
 import {SessionProvider} from '../auth/auth-session'
 import {adminSections, userSections} from '../navigation'
 import SidebarView from '../components/sidebar-view'
@@ -17,8 +18,8 @@ const sidebars = {
  */
 export default function DashboardLayout({role, children}) {
     if (role === 'admin') {
-        //reaching the admin dashboard ends an impersonation session started from a user card
-        localStorage.removeItem('loginAsToken')
+        //reaching the admin dashboard ends an impersonation session
+        endImpersonation()
     }
     return <SessionProvider>
         <AuthLayout role={role}>

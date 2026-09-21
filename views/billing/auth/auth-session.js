@@ -1,65 +1,66 @@
-import React, {createContext, useCallback, useContext, useEffect, useState} from 'react'
-import {useAuth0} from '@auth0/auth0-react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/ui-framework'
-import {performApiCall} from '../../../business-logic/billing/billing-api'
+import {apiRequest} from '../../../business-logic/billing/billing-api'
+import {getRoles, getSession, getToken, isSignedIn, logOut, mustSetPassword}
+    from '../../../business-logic/billing/billing-session'
+import {isImpersonating} from '../../../business-logic/billing/impersonation'
+import {session, SessionContext, useSession} from './session-context'
 
-export const session = {
-    userId: null,
-    //the account the dashboard is actually showing, which is not the Auth0 identity of the browser while an
-    //admin is signed in as somebody else - anything naming the customer has to read it from here
-    email: null,
-    inactive: false,
-    getToken: null
-}
+export {useSession}
 
-const SessionContext = createContext(session)
-
-export const SessionProvider = ({children}) => {
-    const {isAuthenticated, getAccessTokenSilently, logout} = useAuth0()
+/**
+ * Session state
+ * @param {{children: JSX.Element}} props
+ * @return {JSX.Element}
+ */
+export function SessionProvider({children}) {
     const [userSession, setUserSession] = useState(session)
-    session.getToken = getAccessTokenSilently
 
-    //exposed as `reload` so the account restore flow can pick up the cleared `inactive` flag
+    session.getToken = getToken
+
     const syncSession = useCallback(() => {
-        if (!isAuthenticated)
-            return
-        resolveSession(getAccessTokenSilently, logout)
+        session.roles = getRoles()
+        session.mustSetPassword = mustSetPassword()
+        session.impersonated = isImpersonating()
+        resolveAccount()
+            .then(account => {
+                session.userId = account?.id || null
+                session.email = account?.email || null
+                session.inactive = !!account?.inactive
+            })
             .finally(() => setUserSession({...session, synced: true}))
-    }, [isAuthenticated, getAccessTokenSilently, logout])
+    }, [])
 
     useEffect(syncSession, [syncSession])
+
+    //a token that can no longer be renewed means the session is over, wherever the failure surfaced
+    useEffect(() => {
+        if (!isSignedIn())
+            return
+        getToken().catch(() => {
+            notify({type: 'error', message: 'Your session has expired. Please sign in again'})
+            logOut().finally(() => navigation.navigate('/login'))
+        })
+    }, [])
 
     return <SessionContext.Provider value={{...userSession, reload: syncSession}}>
         {children}
     </SessionContext.Provider>
 }
 
-export const useSession = () => useContext(SessionContext)
-
 /**
- * Load the signed-in account, or end the session when the browser can no longer obtain a token
- * @param {Function} getToken
- * @param {Function} logout
- * @return {Promise}
+ * The account the dashboard renders, which is the one its requests authorize as
+ * @return {Promise<{id: String, email: String, inactive: Boolean}|null>}
  * @private
  */
-async function resolveSession(getToken, logout) {
+async function resolveAccount() {
+    const stored = getSession()?.account
+    if (!isImpersonating() && !stored?.inactive)
+        return stored || null
     try {
-        await getToken()
+        return await apiRequest('auth/session', {method: 'POST'})
     } catch (e) {
-        console.warn('Cannot obtain an access token - ending the session', e)
-        session.userId = null
-        session.email = null
-        session.inactive = false
-        notify({type: 'error', message: 'Your session has expired. Please sign in again'})
-        await logout({openUrl: false})
-        navigation.navigate('/login')
-        return
+        notify({type: 'error', message: e.message || 'Could not load the account'})
+        return stored || null
     }
-    const {id, email, inactive, error} = await performApiCall('auth/session', {method: 'POST'})
-    if (error)
-        return notify({type: 'error', message: error})
-    session.userId = id
-    session.email = email || null
-    session.inactive = !!inactive
 }
