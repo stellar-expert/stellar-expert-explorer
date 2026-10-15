@@ -80,77 +80,143 @@ $height-property: 1rem;
     padding-right: 1em;
   }
 
+  .api-call-cost {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    column-gap: 0.4em;
+    padding: $space-nano 0;
+
+    .api-call-cost-label {
+      padding-right: 1.4em;
+    }
+
+    .api-call-cost-value {
+      margin-left: auto;
+      text-align: right;
+    }
+  }
+
+  .response-example-foldable {
+    > summary {
+      cursor: pointer;
+      list-style: none;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      .icon {
+        display: inline-block;
+        margin-left: 0.3em;
+        font-size: 0.8em;
+        transition: transform 0.15s;
+      }
+
+      &:hover {
+        text-decoration: underline dotted;
+      }
+    }
+
+    &[open] > summary {
+      margin-bottom: $space-nano;
+
+      .icon {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
   .response-schema-block {
     background: var(--color-success-bg);
   }
 
-  .response-object {
-    position: relative;
-    padding: $space-micro $space-micro 0;
+  .schema-tree {
+    $indent: 1.2em; //width of one nesting level
+    $label-gap: 0.4em; //space between a branch connector and the property name
+    $row-padding: 0.5em;
+    $line-height: 1.5em;
+    $branch-y: $row-padding + $line-height * 0.5; //middle of the first line of the property name
+    $line: 1px solid var(--color-dimmed);
+    //one grid for all rows keeps the type column aligned and sizes the name column to the longest indented name
+    display: grid;
+    grid-template-columns: fit-content(50%) minmax(0, 1fr);
 
-    .property-name {
-      position: relative;
-      padding-left: $space-micro;
-
-      &:after {
-        content: '';
-        position: absolute;
-        top: $space-nano;
-        left: 0;
-        width: 1px;
-        height: $space-micro;
-        background: var(--color-dimmed);
-      }
-
-      &:before {
-        content: '';
-        position: absolute;
-        top: $space-micro;
-        left: -$space-micro;
-        height: 1px;
-        width: $space-micro;
-        background: var(--color-dimmed);
-      }
+    .schema-tree-root {
+      grid-column: 1 / -1;
+      padding: $row-padding 0;
     }
 
-    &:after {
+    .schema-tree-node {
+      display: contents;
+    }
+
+    .schema-tree-name {
+      display: flex;
+      align-items: stretch;
+      min-width: 0;
+      padding-right: $space-micro;
+    }
+
+    .schema-tree-guide,
+    .schema-tree-branch {
+      position: relative;
+      flex: 0 0 $indent;
+    }
+
+    .schema-tree-guide.continues:before,
+    .schema-tree-branch:before {
       content: '';
       position: absolute;
-      top: $space-micro;
-      left: 0;
-      width: 1px;
-      height: 100%;
-      background: var(--color-dimmed);
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      border-left: $line;
     }
 
-    &:first-child {
+    .schema-tree-branch {
+      &.last:before {
+        bottom: auto;
+        height: $branch-y;
+      }
+
       &:after {
-        top: $space-micro * 2;
-        height: calc(100% - #{$space-micro});
+        content: '';
+        position: absolute;
+        top: $branch-y;
+        left: 50%;
+        right: -$label-gap * 0.5;
+        border-top: $line;
       }
     }
 
-    &:last-child {
-      &:after {
-        height: $space-micro;
+    .schema-tree-label {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-width: 0;
+      padding-left: $label-gap;
+    }
+
+    .schema-tree-label-text {
+      padding-top: $row-padding;
+      line-height: $line-height;
+    }
+
+    .schema-tree-stem {
+      flex: 1 1 auto;
+      min-height: $row-padding;
+      //centered under the property name start, where the child branches are drawn
+      margin-left: calc(#{$indent} / 2 - #{$label-gap});
+
+      &.active {
+        border-left: $line;
       }
     }
 
-    &:first-child:last-child {
-      &:after {
-        display: none;
-      }
-    }
-
-    & .response-object-group {
-      .response-object {
-        &:first-child {
-          &:after {
-            top: $space-micro * 2;
-            height: calc(100% - #{$space-micro})
-          }
-        }
-      }
+    .schema-tree-type {
+      min-width: 0;
+      padding: $row-padding 0;
     }
   }
 

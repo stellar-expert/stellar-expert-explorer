@@ -1,12 +1,16 @@
 import React from 'react'
 import describeType from '../api-type-description'
+import {isEstimateParam} from '../request/api-call-cost-view'
 import ApiSchemaPropertyView from './api-schema-property-view'
 
 export default function ApiParametersView({parameters}) {
     if (!parameters?.length)
         return null
     const inPath = parameters.filter(p => p.in === 'path')
-    const inQuery = parameters.filter(p => p.in === 'query')
+    //"estimate" is a billing switch, not an operation argument - the playground quotes the call cost on its own
+    const inQuery = parameters.filter(p => p.in === 'query' && !isEstimateParam(p))
+    if (!inPath.length && !inQuery.length)
+        return null
     return <div>
         {!!inPath.length && <div className="space word-break">
             <h3 className="dimmed text-small">PATH PARAMETERS</h3>

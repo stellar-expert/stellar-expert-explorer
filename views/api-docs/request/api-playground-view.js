@@ -1,26 +1,29 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import {Button, ButtonGroup, CodeBlock, CopyToClipboard} from '@stellar-expert/ui-framework'
 import settings from '../../../app-settings'
 import ApiPlaygroundParametersView from './api-playground-parameters-view'
 import buildRequestString, {defaultParamValue, validateParams} from './api-request-builder'
+import ApiCallCostView, {isEstimateParam} from './api-call-cost-view'
 
 export default function ApiPlaygroundView({path, params = []}) {
     const [inProgress, setInProgress] = useState(false)
     const [requestParams, setRequestParams] = useState({})
     const [response, setResponse] = useState('')
-    const requestString = buildRequestString(path, params, requestParams)
-    const isValid = validateParams(params, requestParams)
+    //"estimate" is driven by the cost widget, not by the caller - keep it out of the request the playground composes
+    const callParams = useMemo(() => params.filter(param => !isEstimateParam(param)), [params])
+    const requestString = buildRequestString(path, callParams, requestParams)
+    const isValid = validateParams(callParams, requestParams)
 
     useEffect(() => {
         setResponse('')
-        setRequestParams(params.reduce((prev, param) => {
+        setRequestParams(callParams.reduce((prev, param) => {
             const defaultValue = defaultParamValue(param)
             if (defaultValue !== '') {
                 prev[param.name] = defaultValue
             }
             return prev
         }, {}))
-    }, [params])
+    }, [callParams])
 
     const onSend = useCallback(() => {
         setInProgress(true)
@@ -40,8 +43,9 @@ export default function ApiPlaygroundView({path, params = []}) {
         </div>
         <hr/>
         <div className="space">
-            {!!params.length && <ApiPlaygroundParametersView params={params} updateRequestParam={setRequestParams}/>}
+            {!!callParams.length && <ApiPlaygroundParametersView params={callParams} updateRequestParam={setRequestParams}/>}
             <CodeBlock className="space">{requestString}</CodeBlock>
+            <ApiCallCostView params={params} requestString={requestString} enabled={isValid}/>
             <ButtonGroup inline>
                 <Button disabled={!isValid || inProgress} onClick={onSend} className="micro-space" style={{width: '50%'}}>Try it</Button>
                 <CopyRequestStringView text={requestString}/>

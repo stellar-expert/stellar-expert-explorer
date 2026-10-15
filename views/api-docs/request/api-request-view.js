@@ -24,13 +24,24 @@ function ResponseSchemaExamplesView({code, content}) {
     if (!content)
         return null
 
+    //client errors are secondary to the successful response, so only their titles are shown until expanded
+    const foldable = +code >= 400 && +code < 500
     return Object.entries(content).map(([mediaType, data]) => {
         const colorClass = 'text-monospace condensed ' + (code === '200' ? 'color-success' : 'color-warning')
-        return listExamples(data).map(({name, value}) => <div key={code + mediaType + name}>
-            <div className={colorClass}>{code} {mediaType}{name && <span className="dimmed"> – {name}</span>}</div>
-            <CodeBlock>{formatExample(value)}</CodeBlock>
-            <div className="space"/>
-        </div>)
+        return listExamples(data).map(({name, value}) => {
+            const title = <>{code} {mediaType}{!!name && <span className="dimmed"> – {name}</span>}</>
+            const example = <CodeBlock>{formatExample(value)}</CodeBlock>
+            if (foldable)
+                return <details key={code + mediaType + name} className="response-example-foldable micro-space">
+                    <summary className={colorClass}>{title}<i className="icon icon-more"/></summary>
+                    {example}
+                </details>
+            return <div key={code + mediaType + name}>
+                <div className={colorClass}>{title}</div>
+                {example}
+                <div className="space"/>
+            </div>
+        })
     })
 }
 
