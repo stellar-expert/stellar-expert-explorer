@@ -7,7 +7,7 @@ import Loadable from './components/loadable'
 
 import NotFoundView from './pages/not-found-page-view'
 
-const loadBilling = () => import(/* webpackChunkName: "billing" */ './billing/billing-router')
+//const loadBilling = () => import(/* webpackChunkName: "billing" */ './billing/billing-router')
 
 export default function AppRouter({history}) {
     return <Router history={history}>
@@ -21,6 +21,11 @@ export default function AppRouter({history}) {
             <Route path="/api-docs">
                 <Loadable moduleKey="api-docs"
                           load={() => import(/* webpackChunkName: "apidocs" */ './api-docs/api-docs-router')}/>
+            </Route>
+            {/*public pricing landing*/}
+            <Route path="/pricing">
+                <Loadable moduleKey="pricing"
+                          load={() => import(/* webpackChunkName: "pricing" */ './pricing/pricing-layout')}/>
             </Route>
             {/*all other routes*/}
             <Route>
@@ -60,11 +65,6 @@ export default function AppRouter({history}) {
                             <Loadable moduleKey="info"
                                       load={() => import(/* webpackChunkName: "info" */ './info/info-router')}/>
                         </Route>
-                        {/*public pricing landing*/}
-                        <Route path="/pricing">
-                            <Loadable moduleKey="pricing"
-                                      load={() => import(/* webpackChunkName: "pricing" */ './pricing/pricing-layout')}/>
-                        </Route>
                         {/*billing dashboard*/}
                         {/*<Route path="/account">
                             <Loadable moduleKey="billing" load={loadBilling}/>
@@ -73,6 +73,9 @@ export default function AppRouter({history}) {
                             <Loadable moduleKey="billing" load={loadBilling}/>
                         </Route>
                         <Route path="/login">
+                            <Loadable moduleKey="billing" load={loadBilling}/>
+                        </Route>
+                        <Route path="/reset-password">
                             <Loadable moduleKey="billing" load={loadBilling}/>
                         </Route>*/}
                         {/*not found*/}

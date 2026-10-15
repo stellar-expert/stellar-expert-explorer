@@ -12,8 +12,6 @@ class AppSettings {
             OAUTH_GITHUB_CLIENTID,
             TURNSTILE_KEY,
             BILLING_API_ENDPOINT,
-            AUTH0_DOMAIN,
-            AUTH0_CLIENT_ID,
             AUTH0_AUDIENCE
         } = envSettings
         if (API_ENDPOINT) {
@@ -21,12 +19,6 @@ class AppSettings {
         }
         if (BILLING_API_ENDPOINT) {
             this.billingApiEndpoint = BILLING_API_ENDPOINT
-        }
-        if (AUTH0_DOMAIN) {
-            this.auth0.domain = AUTH0_DOMAIN
-        }
-        if (AUTH0_CLIENT_ID) {
-            this.auth0.clientId = AUTH0_CLIENT_ID
         }
         if (AUTH0_AUDIENCE) {
             this.auth0.audience = AUTH0_AUDIENCE

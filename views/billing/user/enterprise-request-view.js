@@ -1,6 +1,7 @@
 import React, {useCallback, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
 import {apiRequest} from '../../../business-logic/billing/billing-api'
+import {isValidEmail} from '../../../business-logic/billing/email'
 import {useSession} from '../auth/auth-session'
 import {useDialogToggle} from '../utils/dialog-hooks'
 import ActionDialogView from '../utils/action-dialog-view'
@@ -8,10 +9,8 @@ import ActionDialogView from '../utils/action-dialog-view'
 const emptyRequest = {email: '', company: '', monthlyRequests: '', details: ''}
 
 /**
- * A negotiated plan is quoted per customer, so its card asks for a request instead of subscribing. The
- * enquiry goes to `enterprise-request`, which mails it out and flags the account as awaiting a quote -
- * the admin user list renders that flag, so staff see the request without watching a mailbox
- * @param {String} [dialogClassName] - lets a host page skin the dialog, as the landing does
+ * Asks staff to quote a custom plan
+ * @param {String} [dialogClassName] - lets a host page skin the dialog
  * @return {JSX.Element}
  */
 export default function EnterpriseRequestView({dialogClassName}) {
@@ -32,7 +31,7 @@ export default function EnterpriseRequestView({dialogClassName}) {
 
     const submitRequest = useCallback(() => {
         setIsProgress(true)
-        apiRequest('enterprise-request', {method: 'POST', params: request})
+        apiRequest('enterprise-request', {method: 'POST', auth: false, params: request})
             .then(() => {
                 notify({type: 'success', message: 'Request sent. We will get back to you shortly'})
                 setRequest(emptyRequest)
@@ -42,7 +41,7 @@ export default function EnterpriseRequestView({dialogClassName}) {
             .finally(() => setIsProgress(false))
     }, [request, toggleDialog])
 
-    const isValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(request.email)
+    const isValid = isValidEmail(request.email)
 
     return <>
         <Button block outline onClick={openDialog}>Contact us</Button>

@@ -12,7 +12,10 @@ export const requestTypeTitles = {
     'subscription-renewal-cancelled': 'Renewal cancelled',
     'subscription-renewal-resumed': 'Renewal resumed',
     'subscription-cancelled': 'Subscription cancelled',
-    'subscription-expired': 'Subscription ended'
+    'subscription-expired': 'Subscription ended',
+    'account-provisioned': 'Account created by staff',
+    'account-deleted': 'Account deleted',
+    'account-restored': 'Account restored'
 }
 
 /**
@@ -26,7 +29,9 @@ export const requestTypeStyles = {
     burn: 'log-warning',
     'subscription-renewal-cancelled': 'log-warning',
     'subscription-cancelled': 'log-warning',
-    'subscription-expired': 'log-warning'
+    'subscription-expired': 'log-warning',
+    'account-deleted': 'log-warning',
+    'account-restored': 'log-success'
 }
 
 /**

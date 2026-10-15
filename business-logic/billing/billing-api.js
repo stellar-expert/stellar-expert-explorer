@@ -1,6 +1,7 @@
 import {navigation} from '@stellar-expert/ui-framework'
-import {session} from '../../views/billing/auth/auth-session'
+import {session} from '../../views/billing/auth/session-context'
 import appSettings from '../../app-settings'
+import {endImpersonation, getImpersonationToken} from './impersonation'
 
 let unauthorizedRedirected = false
 
@@ -9,7 +10,7 @@ let unauthorizedRedirected = false
  * @private
  */
 function handleUnauthorized() {
-    localStorage.removeItem('loginAsToken')
+    endImpersonation()
     if (unauthorizedRedirected || window.location.pathname === '/login')
         return
     unauthorizedRedirected = true
@@ -31,8 +32,7 @@ export async function performApiCall(endpointWithQuery, {method = 'GET', auth = 
         'Content-Type': 'application/json'
     }
     if (auth && session.getToken) {
-        const loginAsToken = localStorage.getItem('loginAsToken')
-        const token = loginAsToken || await session.getToken()
+        const token = getImpersonationToken() || await session.getToken()
         headers.Authorization = 'Bearer ' + token
     }
     try {
@@ -42,7 +42,7 @@ export async function performApiCall(endpointWithQuery, {method = 'GET', auth = 
             body: params ? JSON.stringify(params) : undefined
         })
         if (!resp.ok) {
-            if (resp.status === 401) {
+            if (resp.status === 401 && auth) {
                 handleUnauthorized()
             }
             let errorExt

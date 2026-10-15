@@ -3,6 +3,7 @@ import cn from 'classnames'
 import {Button, CopyToClipboard} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision, shortenString} from '@stellar-expert/formatter'
 import {apiRequest} from '../../../business-logic/billing/billing-api'
+import {startImpersonation} from '../../../business-logic/billing/impersonation'
 import {confirmAction} from '../utils/confirm-action'
 import SubscriptionSummaryView from '../components/subscription-summary-view'
 import TokenListView from '../components/token-list-view'
@@ -11,15 +12,18 @@ import UserCreditDepositView from './user-credit-deposit-view'
 export default function UserCardView({account, onUpdate}) {
     const userId = account.id
 
+    //deletion only deactivates, so the same button restores
     const toggleAccount = useCallback(async () => {
-        if (await confirmAction(`${account.inactive ? 'Restore' : 'Delete'} this account?`)) {
-            apiRequest(`account/${userId}`, {
-                method: 'DELETE'
-            })
-                //refresh user list
-                .then(onUpdate)
-                .catch(e => notify({type: 'warning', message: e.message}))
-        }
+        const restoring = !!account.inactive
+        if (!await confirmAction(`${restoring ? 'Restore' : 'Delete'} this account?`))
+            return
+        const request = restoring ?
+            apiRequest(`account/${userId}/restore`, {method: 'POST'}) :
+            apiRequest(`account/${userId}`, {method: 'DELETE'})
+        request
+            //refresh user list
+            .then(onUpdate)
+            .catch(e => notify({type: 'warning', message: e.message}))
     }, [userId, account.inactive, onUpdate])
 
     return <div className="space">
@@ -89,7 +93,7 @@ function logInAs(e) {
         params: {userId}
     })
         .then(res => {
-            localStorage.setItem('loginAsToken', res.accessToken)
+            startImpersonation(res.accessToken)
             location.href = '/account'
         })
         .catch(e => notify({type: 'warning', message: e.message}))

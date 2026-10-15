@@ -56,19 +56,16 @@ export default function ApiKeysPage() {
             .finally(() => setIsSaving(false))
     }, [userId])
 
-    const action = <ApiKeyGenerationView onUpdate={updateApiKeys}
-                                         disabled={!apiKeyList || apiKeyList.length >= maxApiKeys}/>
-
     if (isLoading || !apiKeyList)
-        return <SimplePageLayout title="API keys" action={action}>
+        return <SimplePageLayout title="API keys">
             <SegmentLoader inside/>
         </SimplePageLayout>
 
-    return <SimplePageLayout title="API keys" action={action}>
+    return <SimplePageLayout title="API keys">
         <div className="row">
             <div className="column column-50">
                 <UserApiKeysView apiKeys={apiKeyList} updateApiKeys={updateApiKeys} details={apiKeyDetails}/>
-                {/*each note follows the list it explains, rather than sitting in a row of its own*/}
+                {apiKeyList.length < maxApiKeys && <ApiKeyGenerationView onUpdate={updateApiKeys}/>}
                 <div className="dimmed text-tiny micro-space">
                     Keys inherit the limits of your current plan. Revoking a key takes effect immediately.
                 </div>

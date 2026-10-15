@@ -32,8 +32,6 @@ Available app settings ENV variables:
 - `OAUTH_GITHUB_CLIENTID`
 - `TURNSTILE_KEY`
 - `BILLING_API_ENDPOINT`
-- `AUTH0_DOMAIN`
-- `AUTH0_CLIENT_ID`
 - `AUTH0_AUDIENCE`
 
 #### Start the application in the development mode

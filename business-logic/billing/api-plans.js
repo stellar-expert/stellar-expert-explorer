@@ -149,13 +149,23 @@ export function formatPrice(amount) {
  * @return {{monthlyCredits: Number, rpsLimit: Number}|null} - null when they are agreed per customer, which
  * leaves whatever staff entered by hand alone
  */
-export function toStoredLimits({limits, custom}) {
+function toStoredLimits({limits, custom}) {
     if (custom)
         return null
     return {
         monthlyCredits: limits.photons || 0,
         rpsLimit: limits.requestsPerMinute ? Math.round(limits.requestsPerMinute / 60) : 0
     }
+}
+
+/**
+ * The plan an account is on
+ * @param {{subscription: {plan: String}}} [account]
+ * @return {ApiPlan|undefined} - undefined only for a stored plan that is not in the catalogue
+ */
+export function resolveAccountPlan(account) {
+    const plan = account?.subscription?.plan
+    return plan ? findPlan(plan) : freePlan
 }
 
 /**
