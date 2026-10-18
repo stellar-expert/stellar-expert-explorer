@@ -4,11 +4,13 @@ import NotFoundView from '../../pages/not-found-page-view'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import ApiDocsView from '../api-docs-view'
 import ApiPathView from '../api-path-view'
-import {useApiSpec} from '../api-docs-hooks'
+import {useApiCatalog, useApiSpec} from '../api-docs-hooks'
+import {findAdjacentOperations} from '../api-docs-catalog'
 
 export default function ApiDocumentationOperationPage() {
     const {doc, operationId} = useParams()
     const {spec, loaded, error} = useApiSpec(doc)
+    const {catalog} = useApiCatalog()
     const operation = spec?.operations.find(op => op.operationId === operationId)
 
     return <ApiDocsView>
@@ -18,9 +20,6 @@ export default function ApiDocumentationOperationPage() {
                 <ErrorNotificationBlock>{error}</ErrorNotificationBlock> :
                 !operation ?
                     <NotFoundView/> :
-                    <>
-                        <h2>{spec.title}</h2>
-                        <ApiPathView operation={operation}/>
-                    </>}
+                    <ApiPathView spec={spec} operation={operation} adjacent={findAdjacentOperations(catalog, spec.slug, operationId)}/>}
     </ApiDocsView>
 }

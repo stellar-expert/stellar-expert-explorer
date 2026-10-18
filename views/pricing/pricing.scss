@@ -327,13 +327,13 @@ $landing-ink: #0b1f26;
     perspective: 10rem;
 
     .dish {
-      width: 20%;
+      width: 28%;
       aspect-ratio: 1 / 1;
-      background: url('/img/telescope-bowl.png') center center no-repeat;
+      background: url(/img/telescope-bowl.png) center center no-repeat;
       background-size: contain;
       position: absolute;
-      right: 32%;
-      bottom: 33%;
+      right: 24%;
+      bottom: 34%;
       transform: rotate(0deg);
       transform-origin: 74% 77%;
       animation: dish-tilt 30s cubic-bezier(0.45, 0, 0.55, 1) infinite;

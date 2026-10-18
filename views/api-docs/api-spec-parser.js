@@ -14,6 +14,8 @@
  * @typedef {{}} ApiSpec
  * @property {String} slug - documentation section identifier used in the URL
  * @property {String} title - documentation section title
+ * @property {String} label - short section name for the navigation (the tag name for single-tag sections)
+ * @property {String} summary - one-line section description
  * @property {String} version - API version
  * @property {String} description - general API description (markdown)
  * @property {{name: String, description: String}[]} tags - tags declared by the spec
@@ -28,9 +30,14 @@
  */
 export default function parseApiSpec(spec, entry) {
     dereference(spec)
+    const tags = spec.tags || []
+    //a single-tag section is named after its tag, which reads better in the navigation ("Liquidity pools")
+    const tag = tags.length === 1 ? tags[0] : null
     return {
         slug: entry.slug,
         title: entry.title,
+        label: tag?.name || entry.title,
+        summary: tag?.description || spec.info?.description || '',
         version: spec.info?.version,
         description: spec.info?.description,
         tags: spec.tags || [],

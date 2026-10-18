@@ -1,40 +1,64 @@
 import React from 'react'
-import describeType from '../api-type-description'
+import ApiDocsText from '../api-docs-text'
+import describeType, {describeConstraints} from '../api-type-description'
 import {isEstimateParam} from '../request/api-call-cost-view'
-import ApiSchemaPropertyView from './api-schema-property-view'
+
+const locations = [
+    {key: 'path', title: 'Path'},
+    {key: 'query', title: 'Query'},
+    {key: 'header', title: 'Header'}
+]
 
 export default function ApiParametersView({parameters}) {
-    if (!parameters?.length)
-        return null
-    const inPath = parameters.filter(p => p.in === 'path')
     //"estimate" is a billing switch, not an operation argument - the playground quotes the call cost on its own
-    const inQuery = parameters.filter(p => p.in === 'query' && !isEstimateParam(p))
-    if (!inPath.length && !inQuery.length)
+    const documented = (parameters || []).filter(p => !isEstimateParam(p))
+    if (!documented.length)
         return null
-    return <div>
-        {!!inPath.length && <div className="space word-break">
-            <h3 className="dimmed text-small">PATH PARAMETERS</h3>
-            <hr/>
-            {inPath.map(param => <PropertyEntryView key={param.name} param={param}/>)}
+    return <section className="api-section">
+        <h2 className="api-section-title">Parameters</h2>
+        {locations.map(({key, title}) => {
+            const params = documented.filter(p => p.in === key)
+            if (!params.length)
+                return null
+            return <div key={key} className="api-param-group">
+                <div className="api-caption">{title}</div>
+                {params.map(param => <ParameterView key={param.name} param={param}/>)}
+            </div>
+        })}
+    </section>
+}
+
+function ParameterView({param}) {
+    const schema = param.schema || {}
+    const constraints = describeConstraints(schema)
+    const defaultValue = param.default ?? schema.default
+    const enumValues = schema.enum || schema.items?.enum
+    const example = param.example ?? schema.example
+    return <div className="api-param">
+        <div className="api-param-header">
+            <span className="api-field-name">{param.name}</span>
+            <span className="api-type">{describeType(schema)}{!!constraints && <span className="dimmed"> · {constraints}</span>}</span>
+            {!!param.required && <span className="api-required">required</span>}
+            {defaultValue !== undefined && <span className="api-param-default">
+                <span className="dimmed">Default</span> <code>{formatValue(defaultValue)}</code>
+            </span>}
+        </div>
+        <div className="api-docs-text api-field-description">
+            <ApiDocsText text={param.description || schema.description}/>
+        </div>
+        {!!enumValues && <div className="api-enum">
+            {enumValues.map(value => <code key={value}>{formatValue(value)}</code>)}
         </div>}
-        {!!inQuery.length && <div className="space word-break">
-            <h3 className="dimmed text-small">QUERY PARAMETERS</h3>
-            <hr/>
-            {inQuery.map(param => <PropertyEntryView key={param.name} param={param}/>)}
+        {!enumValues && example !== undefined && <div className="api-param-example text-small dimmed">
+            Example: <code>{formatValue(example)}</code>
         </div>}
     </div>
 }
 
-function PropertyEntryView({param}) {
-    const {schema = {}, ...otherParameters} = param
-    const prop = {...schema, ...otherParameters, typeDescription: describeType(schema)}
-    return <div className="row space">
-        <div className="column column-25 text-monospace condensed">
-            <div>{prop.name}</div>
-            {prop.required && <div className="text-tiny color-danger">required</div>}
-        </div>
-        <div className="column column-75">
-            <ApiSchemaPropertyView prop={prop}/>
-        </div>
-    </div>
+function formatValue(value) {
+    if (Array.isArray(value))
+        return value.join(', ')
+    if (value !== null && typeof value === 'object')
+        return JSON.stringify(value)
+    return String(value)
 }

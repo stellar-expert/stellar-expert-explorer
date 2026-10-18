@@ -107,3 +107,31 @@ export function loadApiSpec(slug) {
         return parseApiSpec(await fetchJson(entry.url), entry)
     })
 }
+
+/**
+ * @typedef {{}} ApiCatalog
+ * @property {String} version - API version
+ * @property {ApiSpec[]} specs - loaded documentation sections in the index order
+ * @property {{spec: ApiSpec, operation: ApiOperation}[]} operations - every operation across all sections, in the menu order
+ */
+
+/**
+ * Load all documentation sections at once - the navigation needs endpoint counts, filtering and prev/next links
+ * @return {Promise<ApiCatalog>}
+ */
+export function loadApiCatalog() {
+    return cached('catalog', async () => {
+        const index = await loadApiDocsIndex()
+        const specs = await Promise.all(index.docs.map(entry => loadApiSpec(entry.slug)
+            .catch(e => {
+                console.error(e)
+                return null //a broken section should not take the whole navigation down
+            })))
+        const loaded = specs.filter(spec => !!spec)
+        return {
+            version: index.version,
+            specs: loaded,
+            operations: loaded.flatMap(spec => spec.operations.map(operation => ({spec, operation})))
+        }
+    })
+}

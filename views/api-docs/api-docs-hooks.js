@@ -1,6 +1,6 @@
 import {useRef} from 'react'
 import {useDependantState} from '@stellar-expert/ui-framework'
-import {loadApiDocsIndex, loadApiSpec} from './api-docs-loader'
+import {loadApiCatalog, loadApiDocsIndex, loadApiSpec} from './api-docs-loader'
 
 /**
  * Load the list of available API documentation sections
@@ -17,6 +17,14 @@ export function useApiDocsIndex() {
  */
 export function useApiSpec(slug) {
     return useAsyncState(() => slug ? loadApiSpec(slug) : Promise.resolve(null), 'spec', slug || '')
+}
+
+/**
+ * Load all documentation sections
+ * @return {{catalog: ApiCatalog|null, loaded: Boolean, error: String|null}}
+ */
+export function useApiCatalog() {
+    return useAsyncState(() => loadApiCatalog(), 'catalog', 'catalog')
 }
 
 function useAsyncState(load, prop, dependency) {

@@ -1,100 +1,87 @@
-import React from 'react'
+import React, {useCallback, useState} from 'react'
 import cn from 'classnames'
-import ApiSchemaPropertyView from '../schema/api-schema-property-view'
+import ApiDocsText from '../api-docs-text'
 import describeType from '../api-type-description'
 
 const maxNestingLevel = 12
+//nested objects with more fields than this start collapsed
+const collapseThreshold = 5
 
 /**
- * @typedef {{}} SchemaTreeNode
- * @property {String} key - unique node key
+ * @typedef {{}} SchemaField
  * @property {String} name - property name, or a variant title for oneOf/anyOf branches
  * @property {{}} schema - dereferenced property schema
  * @property {Boolean} required - whether the parent object declares the property as required
  * @property {String} [variant] - "one of"/"any of" for schema variant branches
- * @property {Number} depth - nesting level, 0 for top-level properties
- * @property {Boolean} last - whether this is the last child of its parent
- * @property {Boolean[]} guides - for every ancestor level, whether the ancestor branch continues below this node
- * @property {Boolean} hasChildren - whether the node is followed by its own children
  */
 
 export default function ApiResponseSchemaView({schema}) {
     if (!schema)
         return null
-    const nodes = []
-    collectNodes(schema, 0, [], '', nodes)
-    const rootType = schema.type === 'array' || !nodes.length ? describeType(schema) : null
-    return <div className="schema-tree">
-        {!!rootType && <div className="schema-tree-root dimmed text-small text-monospace condensed">{rootType}</div>}
-        {nodes.map(node => <SchemaTreeNodeView key={node.key} node={node}/>)}
+    const fields = listChildren(schema)
+    const rootType = schema.type === 'array' || !fields.length ? describeType(schema) : null
+    return <div className="api-schema">
+        {!!rootType && <div className="api-schema-root"><span className="api-type">{rootType}</span></div>}
+        {fields.map(field => <SchemaFieldView key={field.name} field={field} depth={0}/>)}
     </div>
 }
 
-function SchemaTreeNodeView({node}) {
-    const {name, schema, required, variant, depth, last, guides, hasChildren} = node
-    const prop = {...schema, name, typeDescription: describeNodeType(node)}
-    return <div className="schema-tree-node">
-        <div className="schema-tree-name text-monospace condensed">
-            {guides.map((continues, i) => <span key={i} className={cn('schema-tree-guide', {continues})}/>)}
-            {depth > 0 && <span className={cn('schema-tree-branch', {last})}/>}
-            <div className="schema-tree-label">
-                <div className={cn('schema-tree-label-text', {dimmed: !!variant})}>
-                    <div>{name}</div>
-                    {!!required && <div className="text-tiny color-danger">required</div>}
-                </div>
-                {/*fills the rest of the row, drawing the line down to the first child when there is one*/}
-                <div className={cn('schema-tree-stem', {active: hasChildren})}/>
-            </div>
-        </div>
-        <div className="schema-tree-type">
-            <ApiSchemaPropertyView prop={prop} compact/>
-        </div>
-    </div>
-}
-
-function describeNodeType({schema, variant}) {
+function SchemaFieldView({field, depth}) {
+    const {name, schema, required, variant, description} = flattenSingleChild(field)
+    const children = depth < maxNestingLevel ? listChildren(schema) : []
+    const collapsible = depth > 0 && children.length > collapseThreshold
+    const [expanded, setExpanded] = useState(!collapsible)
+    const toggle = useCallback(() => setExpanded(prev => !prev), [])
     const type = describeType(schema)
-    if (schema.recursive)
-        return type + ' (recursive)'
-    if (variant)
-        return type ? `${variant}: ${type}` : variant
-    return type
+    const enumValues = schema.enum || schema.items?.enum
+
+    return <div className="api-field">
+        <div className="api-field-header">
+            <span className={cn('api-field-name', {dimmed: !!variant})}>{name}</span>
+            <span className="api-type">
+                {variant ? `${variant}${type ? ' ' + type : ''}` : type}{!!schema.recursive && ' (recursive)'}
+            </span>
+            {!!required && <span className="api-required">required</span>}
+            {collapsible && <a href="#" className="api-field-toggle" onClick={toggle}>
+                {expanded ? 'Hide fields' : `Show ${children.length} fields`}
+            </a>}
+        </div>
+        {!!description && <div className="api-docs-text api-field-description"><ApiDocsText text={description}/></div>}
+        {!!enumValues && <div className="api-enum">
+            {enumValues.map(value => <code key={value}>{String(value)}</code>)}
+        </div>}
+        {expanded && children.length > 0 && <div className="api-field-children">
+            {children.map(child => <SchemaFieldView key={child.name} field={child} depth={depth + 1}/>)}
+        </div>}
+    </div>
 }
 
 /**
- * Flatten the schema into the list of tree rows in the display order
- * @param {{}} schema - dereferenced schema
- * @param {Number} depth - nesting level of the children
- * @param {Boolean[]} guides - ancestor guide lines inherited by the children
- * @param {String} keyPrefix - key path of the parent node
- * @param {SchemaTreeNode[]} nodes - accumulator
+ * Merge an object holding a single property into a dotted path, e.g. "_embedded.records"
+ * @param {SchemaField} field
+ * @return {SchemaField}
  */
-function collectNodes(schema, depth, guides, keyPrefix, nodes) {
-    if (depth > maxNestingLevel)
-        return
-    const children = listChildren(schema)
-    children.forEach((child, i) => {
-        const last = i === children.length - 1
-        const node = {
-            ...child,
-            key: keyPrefix + '/' + child.name,
-            depth,
-            last,
-            guides,
-            hasChildren: false
+function flattenSingleChild(field) {
+    let current = {...field, description: field.schema?.description}
+    while (!current.variant && current.schema?.type === 'object' && !current.schema.recursive) {
+        const children = listChildren(current.schema)
+        if (children.length !== 1 || children[0].variant)
+            break
+        const [child] = children
+        current = {
+            name: current.name + '.' + child.name,
+            schema: child.schema,
+            required: current.required,
+            description: child.schema?.description || current.description
         }
-        nodes.push(node)
-        const before = nodes.length
-        //a branch continues past the nested rows of the node only if the node has siblings below
-        collectNodes(child.schema, depth + 1, depth > 0 ? [...guides, !last] : guides, node.key, nodes)
-        node.hasChildren = nodes.length > before
-    })
+    }
+    return current
 }
 
 /**
  * List properties shown as children of a schema node
  * @param {{}} schema - dereferenced schema
- * @return {Array<{name: String, schema: {}, required: Boolean, variant: String}>}
+ * @return {SchemaField[]}
  */
 function listChildren(schema) {
     if (!schema || typeof schema !== 'object' || schema.recursive)

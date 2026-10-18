@@ -1,248 +1,1138 @@
-$height-property: 1rem;
+$api-sidebar-width: 28rem;
+$api-side-width: 44rem;
+$api-wide-layout-width: 1199px;
+$api-radius: $border-radius-input;
+$api-border: 1px solid var(--color-contrast-border);
+$api-hairline: 1px solid var(--color-alt-border);
+$api-hover-bg: var(--color-border-shadow);
+$api-field-height: 3.4rem;
+$api-filter-height: 3.6rem;
 
-.api-documentation {
-  .segment {
-    code {
-      background: var(--color-dashboard-bg);
-    }
+//shared small-caps caption, e.g. "PATH", "REQUEST URL"
+@mixin api-caption {
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-dimmed);
+}
+
+@mixin api-mono-tag {
+  font-family: $font-face-mono;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  padding: 0 0.5em;
+  border-radius: $api-radius;
+}
+
+//header
+
+.api-docs-header.top-block {
+  height: auto;
+  padding: 0.7em 0;
+
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-micro;
   }
 
-  .sidebar-menu {
-    background: var(--color-bg);
-    padding: 2rem 0;
-    box-shadow: 0 2px 4px -2px var(--color-backdrop);
-
-    .toggle-group {
-      position: relative;
-
-      .toggle-icon {
-        cursor: pointer;
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 4rem;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    }
-
-    .dropdown {
-      display: none;
-
-      a {
-        padding: 1rem 2rem 1rem 3rem;
-      }
-
-      &.active {
-        display: block;
-      }
-    }
-
-    a {
-      display: block;
-      padding: 1rem 2rem;
-
-      &.active, &:hover {
-        background: var(--color-backdrop);
-      }
-    }
+  .logo {
+    float: none;
+    padding-right: 0;
   }
+}
 
-  .word-break {
-    word-break: break-word;
+.api-docs-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.api-docs-header-divider {
+  font-size: 2.2rem;
+  font-weight: 300;
+}
+
+.api-docs-header-name {
+  font-family: $font-face-header;
+  font-size: 2.2rem;
+  color: var(--color-text);
+
+  &:hover {
+    color: var(--color-highlight);
   }
+}
 
-  .badge {
+.api-docs-version {
+  @include api-mono-tag;
+  border: $api-border;
+  color: var(--color-dimmed);
+}
+
+.api-docs-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-size: 1.4rem;
+
+  a:not(.button) {
     color: var(--color-text);
-    padding: 0.1em 0.2em;
 
-    &.outline {
-      background: var(--color-backdrop);
-      border: 1px solid var(--color-alt-border);
-    }
-
-    &.success {
-      background: var(--color-success-bg);
-    }
-
-    &.error {
-      background: var(--color-alert-bg);
-    }
-
-    &.info-color {
+    &:hover {
       color: var(--color-highlight);
     }
   }
 
-  .response-block {
-    padding-right: 1em;
+  .button {
+    margin: 0 0 0 0.6rem;
+  }
+}
+
+.api-docs-menu-toggle {
+  font-size: 2.4rem;
+  color: var(--color-text);
+}
+
+//page grid
+
+.api-documentation.page-container {
+  padding: $space-standard 0 $space-double;
+  //sunken fill of the form controls, darker than the panels in the night theme
+  --api-field-bg: rgba(0, 0, 0, 0.2);
+}
+
+:root[data-theme=day] .api-documentation.page-container {
+  --api-field-bg: var(--color-bg);
+}
+
+//boxed form controls; the framework draws underlined fields with !important, so these have to override it the same way
+.api-documentation {
+  input:not([type=checkbox], [type=radio], [type=range]),
+  select {
+    height: $api-field-height;
+    padding: 0 1rem;
+    font-size: 1.4rem;
+    background-color: var(--api-field-bg) !important;
+    border: 1px solid var(--color-alt-border) !important;
+    border-radius: $api-radius;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: var(--color-contrast-border) !important;
+    }
+
+    &:focus {
+      background-color: var(--api-field-bg) !important;
+      border-color: var(--color-highlight) !important;
+    }
+
+    &::placeholder {
+      font-family: $font-face-primary;
+      color: var(--color-dimmed);
+      opacity: 0.8;
+    }
   }
 
-  .api-call-cost {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    column-gap: 0.4em;
-    padding: $space-nano 0;
+  //the framework resets the native select look, so draw the dropdown arrow back
+  select {
+    padding-right: 2.8rem;
+    cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--color-dimmed) 50%),
+    linear-gradient(135deg, var(--color-dimmed) 50%, transparent 50%);
+    background-position: calc(100% - 1.5rem) 50%, calc(100% - 1rem) 50%;
+    background-size: 0.5rem 0.5rem;
+    background-repeat: no-repeat;
 
-    .api-call-cost-label {
-      padding-right: 1.4em;
-    }
-
-    .api-call-cost-value {
-      margin-left: auto;
-      text-align: right;
-    }
-  }
-
-  .response-example-foldable {
-    > summary {
-      cursor: pointer;
-      list-style: none;
-
-      &::-webkit-details-marker {
-        display: none;
-      }
-
-      .icon {
-        display: inline-block;
-        margin-left: 0.3em;
-        font-size: 0.8em;
-        transition: transform 0.15s;
-      }
-
-      &:hover {
-        text-decoration: underline dotted;
-      }
-    }
-
-    &[open] > summary {
-      margin-bottom: $space-nano;
-
-      .icon {
-        transform: rotate(180deg);
-      }
+    option {
+      background: var(--color-bg);
+      color: var(--color-text);
     }
   }
+}
 
-  .response-schema-block {
+.api-docs-grid {
+  display: grid;
+  grid-template-columns: $api-sidebar-width minmax(0, 1fr);
+  gap: $space-standard;
+  align-items: start;
+}
+
+//sticks below the window top while the menu fits the window; a taller menu scrolls with the page
+//until its bottom edge shows up and sticks there (--api-sidebar-height is measured by ApiDocsView)
+.api-docs-sidebar {
+  position: sticky;
+  top: min(#{$space-micro}, calc(100vh - var(--api-sidebar-height, 0px) - #{$space-micro}));
+}
+
+//sidebar navigation
+
+.api-docs-menu {
+  padding: $space-micro 0;
+}
+
+.api-docs-menu-scroll {
+  padding: 0 $space-micro;
+  letter-spacing: -0.01em;
+}
+
+.api-docs-filter {
+  position: relative;
+  margin: 0 0 0.8rem;
+
+  .icon {
+    position: absolute;
+    left: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.4rem;
+    color: var(--color-dimmed);
+    pointer-events: none;
+  }
+
+  //nested under .api-documentation to outrank the shared field rule
+  .api-documentation & input {
+    height: $api-filter-height;
+    padding-left: 3.4rem;
+    font-size: 1.5rem;
+    margin-bottom: 0;
+  }
+
+  input::-webkit-search-cancel-button {
+    cursor: pointer;
+  }
+}
+
+.api-docs-menu-caption {
+  @include api-caption;
+  font-size: 1.2rem;
+  margin: 1.8rem 0 0.6rem;
+  padding: 0 0.6rem;
+}
+
+.api-docs-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+  padding: 0.6rem;
+  border-radius: $api-radius;
+  font-size: 1.55rem;
+  color: var(--color-text);
+
+  > .icon {
+    flex-shrink: 0;
+    width: 1.8rem;
+    text-align: center;
+    color: var(--color-dimmed);
+  }
+
+  &:hover {
+    background: $api-hover-bg;
+    color: var(--color-text);
+  }
+
+  &.active {
+    color: var(--color-highlight);
+
+    > .icon {
+      color: var(--color-highlight);
+    }
+  }
+}
+
+.api-docs-menu-item-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.api-docs-menu-group-header {
+  display: flex;
+  align-items: center;
+
+  .api-docs-menu-item {
+    flex: 1;
+  }
+}
+
+.api-docs-menu-count {
+  font-size: 1.2rem;
+  color: var(--color-dimmed);
+}
+
+.api-docs-menu-chevron {
+  flex-shrink: 0;
+  width: 2.6rem;
+  line-height: 3.2rem;
+  text-align: center;
+  cursor: pointer;
+  color: var(--color-dimmed);
+  user-select: none;
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.api-docs-menu-operations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0.4rem 0 0.8rem 1.5rem;
+  padding-left: 0.6rem;
+  border-left: $api-hairline;
+}
+
+.api-docs-menu-operation {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.6rem;
+  border-radius: $api-radius;
+  font-size: 1.45rem;
+  line-height: 1.35;
+  color: var(--color-text);
+
+  .api-method {
+    font-size: 1.1rem;
+  }
+
+  &:hover {
+    background: $api-hover-bg;
+    color: var(--color-text);
+  }
+
+  &.active {
+    background: var(--color-highlight);
+    color: var(--color-bg);
+
+    .api-method {
+      background: var(--color-bg);
+      color: var(--color-highlight);
+    }
+  }
+}
+
+//shared elements
+
+.api-caption {
+  @include api-caption;
+}
+
+.api-method {
+  @include api-mono-tag;
+  flex-shrink: 0;
+  font-size: 1rem;
+  padding: 0 0.4em;
+  text-transform: uppercase;
+  background: var(--color-success-bg);
+  color: var(--color-success);
+
+  &.large {
+    font-size: 1.3rem;
+    padding: 0.15em 0.6em;
+  }
+
+  &.api-method-post,
+  &.api-method-put,
+  &.api-method-patch {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+  }
+
+  &.api-method-delete {
+    background: var(--color-alert-bg);
+    color: var(--color-alert);
+  }
+}
+
+.api-status {
+  @include api-mono-tag;
+
+  &.success {
     background: var(--color-success-bg);
+    color: var(--color-success);
   }
 
-  .schema-tree {
-    $indent: 1.2em; //width of one nesting level
-    $label-gap: 0.4em; //space between a branch connector and the property name
-    $row-padding: 0.5em;
-    $line-height: 1.5em;
-    $branch-y: $row-padding + $line-height * 0.5; //middle of the first line of the property name
-    $line: 1px solid var(--color-dimmed);
-    //one grid for all rows keeps the type column aligned and sizes the name column to the longest indented name
-    display: grid;
-    grid-template-columns: fit-content(50%) minmax(0, 1fr);
+  &.warning {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+  }
 
-    .schema-tree-root {
-      grid-column: 1 / -1;
-      padding: $row-padding 0;
+  &.error {
+    background: var(--color-alert-bg);
+    color: var(--color-alert);
+  }
+}
+
+.api-field-name {
+  font-family: $font-face-mono;
+  font-size: 1.45rem;
+  font-weight: 600;
+  color: var(--color-text);
+  word-break: break-all;
+}
+
+.api-type {
+  font-family: $font-face-mono;
+  font-size: 1.25rem;
+  color: var(--color-highlight);
+}
+
+.api-required {
+  font-family: $font-face-mono;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-warning);
+}
+
+.api-endpoint {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: 0.8rem 1.2rem;
+  font-family: $font-face-mono;
+  font-size: 1.5rem;
+  background: var(--color-dashboard-bg);
+  border: $api-border;
+  border-radius: $api-radius;
+
+  .api-endpoint-path {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 1.4rem;
+  }
+
+  .api-path-param {
+    color: var(--color-highlight);
+  }
+
+  &.compact {
+    padding: 0;
+    font-size: 1.3rem;
+    background: none;
+    border: none;
+  }
+}
+
+//markdown and long-form text
+
+.api-docs-text {
+  line-height: 1.6;
+  text-align: left;
+
+  p {
+    margin: 0 0 0.8em;
+    text-align: left;
+  }
+
+  ul, ol {
+    margin: 0 0 1em;
+    padding-left: 1.6em;
+    color: inherit;
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  li {
+    margin: 0.3em 0;
+  }
+
+  code {
+    font-size: 0.9em;
+    padding: 0.05em 0.35em;
+    background: var(--color-dashboard-bg);
+    //long inline snippets (URLs, curl calls) wrap at any point instead of pushing the column wider
+    overflow-wrap: anywhere;
+  }
+
+  //fenced blocks keep their line breaks, so they scroll sideways within the column instead
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  pre.hljs {
+    margin: $space-micro 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 0 1em;
+
+    th, td {
+      padding: 0.5em 0.7em;
+      text-align: left;
+      border-bottom: $api-hairline;
+    }
+  }
+
+  blockquote {
+    margin: 0 0 1em;
+    padding: 0.8em 1.2em;
+    border-left: 3px solid var(--color-highlight);
+    background: var(--color-dashboard-bg);
+    border-radius: 0 $api-radius $api-radius 0;
+  }
+
+  > :last-child,
+  > div > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+//content pages
+
+.api-operation-content.segment,
+.api-section-page.segment,
+.api-intro.segment {
+  padding: 2.4rem 3.2rem 3.2rem;
+}
+
+.api-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-dimmed);
+
+  .icon {
+    font-size: 0.8em;
+  }
+}
+
+.api-page-title {
+  margin: 0.3em 0 0.6em;
+
+  .icon {
+    font-size: 0.8em;
+    color: var(--color-dimmed);
+  }
+}
+
+.api-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.2rem 0 1.8rem;
+}
+
+.api-trait {
+  padding: 0.1em 0.8em;
+  border: $api-border;
+  border-radius: $api-radius;
+  color: var(--color-dimmed);
+  cursor: default;
+}
+
+.api-section {
+  margin-top: 3.2rem;
+}
+
+.api-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0 0 1.2rem;
+
+  .icon {
+    font-size: 0.8em;
+    color: var(--color-dimmed);
+  }
+}
+
+//parameters
+
+.api-param-group + .api-param-group {
+  margin-top: 2rem;
+}
+
+.api-param {
+  padding: 1.2rem 0;
+
+  + .api-param {
+    border-top: $api-hairline;
+  }
+}
+
+.api-param-header,
+.api-field-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.8rem;
+}
+
+.api-param-default {
+  margin-left: auto;
+  font-size: 1.25rem;
+
+  code {
+    background: var(--color-dashboard-bg);
+  }
+}
+
+.api-field-description {
+  margin-top: 0.3rem;
+  font-size: 1.4rem;
+}
+
+.api-enum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+
+  code {
+    font-size: 1.2rem;
+    padding: 0.1em 0.5em;
+    border: $api-border;
+    background: var(--color-dashboard-bg);
+  }
+}
+
+.api-param-example {
+  margin-top: 0.4rem;
+  word-break: break-word;
+}
+
+//responses
+
+.api-response {
+  + .api-response {
+    margin-top: 2.4rem;
+  }
+}
+
+.api-response-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.8rem;
+  padding: 0.8rem 1.2rem;
+  background: var(--color-dashboard-bg);
+  border: $api-border;
+  border-radius: $api-radius;
+
+  .api-response-media {
+    margin-left: auto;
+    font-family: $font-face-mono;
+    font-size: 1.2rem;
+  }
+}
+
+.api-schema {
+  padding: 0.4rem 0 0 1.2rem;
+}
+
+.api-schema-root {
+  padding: 0.8rem 0;
+}
+
+.api-field {
+  padding: 0.8rem 0 0;
+}
+
+.api-field-children {
+  margin: 0.4rem 0 0 0.3rem;
+  padding-left: 1.6rem;
+  border-left: $api-hairline;
+}
+
+.api-field-toggle {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  padding: 0 0.6em;
+  border: $api-border;
+  border-radius: $api-radius;
+  color: var(--color-dimmed);
+
+  &:hover {
+    color: var(--color-highlight);
+    border-color: var(--color-highlight);
+  }
+}
+
+//prev/next links
+
+.api-adjacent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-micro;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: $api-hairline;
+}
+
+.api-adjacent-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem 1.4rem;
+  border: $api-border;
+  border-radius: $api-radius;
+
+  &.text-right {
+    align-items: flex-end;
+  }
+
+  &:hover {
+    border-color: var(--color-highlight);
+  }
+}
+
+.api-adjacent-title {
+  color: var(--color-highlight);
+}
+
+//section overview
+
+.api-endpoint-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 0.8rem;
+  border: $api-border;
+  border-radius: $api-radius;
+  color: var(--color-text);
+
+  &:hover {
+    color: var(--color-text);
+    border-color: var(--color-highlight);
+
+    .api-endpoint-card-title {
+      color: var(--color-highlight);
+    }
+  }
+}
+
+.api-endpoint-card-title {
+  font-size: 1.6rem;
+}
+
+//introduction
+
+.api-intro-chapter {
+  scroll-margin-top: $space-standard;
+
+  + .api-intro-chapter {
+    margin-top: 3.2rem;
+  }
+}
+
+//operation layout: documentation + playground column
+
+.api-operation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, $api-side-width);
+  gap: $space-standard;
+  align-items: start;
+}
+
+.api-operation-side {
+  display: flex;
+  flex-direction: column;
+  gap: $space-standard;
+  min-width: 0;
+}
+
+.api-panel.segment {
+  padding: 1.6rem 2rem 2rem;
+}
+
+.api-panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $space-micro;
+  margin-bottom: 1.2rem;
+
+  h3 {
+    margin: 0;
+  }
+}
+
+//playground
+
+//argument values are code, so they are typed in the monospace font (scoped to outrank the shared field rule)
+.api-documentation .api-playground-param {
+  input,
+  select {
+    font-family: $font-face-mono;
+    font-size: 1.35rem;
+  }
+}
+
+.api-playground-group {
+  margin-top: 1.8rem;
+
+  > .api-caption {
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.3rem;
+    border-bottom: $api-hairline;
+  }
+}
+
+.api-playground-param + .api-playground-param {
+  margin-top: 1.2rem;
+}
+
+.api-playground-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.7rem;
+  margin-bottom: 0.4rem;
+
+  .api-field-name {
+    font-size: 1.3rem;
+  }
+
+  .api-type {
+    font-size: 1.15rem;
+  }
+
+  .api-required {
+    margin-left: auto;
+  }
+}
+
+.api-playground-hint {
+  margin-top: 0.4rem;
+}
+
+//flat two- or three-way switch, e.g. public/testnet
+.api-segmented {
+  display: flex;
+  height: $api-field-height;
+  background: var(--api-field-bg);
+  border: 1px solid var(--color-alt-border);
+  border-radius: $api-radius;
+  overflow: hidden;
+
+  //plain buttons get the skewed framework look, reset it here
+  .api-segment {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0 0.8rem;
+    font-family: $font-face-mono;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: var(--color-dimmed);
+    background: none;
+    border-radius: 0;
+    transition: color 0.15s, background-color 0.15s;
+
+    &:before {
+      content: none;
     }
 
-    .schema-tree-node {
-      display: contents;
+    + .api-segment {
+      border-left: 1px solid var(--color-alt-border);
     }
 
-    .schema-tree-name {
-      display: flex;
-      align-items: stretch;
-      min-width: 0;
-      padding-right: $space-micro;
+    &:hover {
+      color: var(--color-text);
     }
 
-    .schema-tree-guide,
-    .schema-tree-branch {
-      position: relative;
-      flex: 0 0 $indent;
+    &.selected {
+      color: var(--color-bg);
+      background: var(--color-highlight) !important;
     }
 
-    .schema-tree-guide.continues:before,
-    .schema-tree-branch:before {
+    &:focus-visible {
+      outline: 1px solid var(--color-highlight);
+      outline-offset: -2px;
+    }
+  }
+}
+
+//compact rectangular switch for boolean flags
+.api-toggle {
+  display: inline-block;
+  position: relative;
+  flex-shrink: 0;
+  width: 3.4rem;
+  height: 1.8rem;
+  margin: 0 0 0 auto;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .api-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--api-field-bg);
+    border: 1px solid var(--color-alt-border);
+    border-radius: $api-radius;
+    transition: background-color 0.2s, border-color 0.2s;
+
+    &:before {
       content: '';
       position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 50%;
-      border-left: $line;
-    }
-
-    .schema-tree-branch {
-      &.last:before {
-        bottom: auto;
-        height: $branch-y;
-      }
-
-      &:after {
-        content: '';
-        position: absolute;
-        top: $branch-y;
-        left: 50%;
-        right: -$label-gap * 0.5;
-        border-top: $line;
-      }
-    }
-
-    .schema-tree-label {
-      display: flex;
-      flex-direction: column;
-      flex: 1 1 auto;
-      min-width: 0;
-      padding-left: $label-gap;
-    }
-
-    .schema-tree-label-text {
-      padding-top: $row-padding;
-      line-height: $line-height;
-    }
-
-    .schema-tree-stem {
-      flex: 1 1 auto;
-      min-height: $row-padding;
-      //centered under the property name start, where the child branches are drawn
-      margin-left: calc(#{$indent} / 2 - #{$label-gap});
-
-      &.active {
-        border-left: $line;
-      }
-    }
-
-    .schema-tree-type {
-      min-width: 0;
-      padding: $row-padding 0;
+      top: 0.3rem;
+      left: 0.3rem;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 0.2rem;
+      background: var(--color-dimmed);
+      transition: transform 0.2s, background-color 0.2s;
     }
   }
 
-  @media all and (max-width: $responsive-mobile-browser-width) {
-    &.page-container {
-      padding: 1rem;
+  &:hover .api-toggle-slider {
+    border-color: var(--color-contrast-border);
+  }
 
-      .card {
-        margin: 0;
-      }
+  input:checked + .api-toggle-slider {
+    background: var(--color-highlight);
+    border-color: var(--color-highlight);
+
+    &:before {
+      transform: translateX(1.6rem);
+      background: var(--color-bg);
+    }
+  }
+
+  input:focus-visible + .api-toggle-slider {
+    outline: 1px solid var(--color-highlight);
+    outline-offset: 2px;
+  }
+}
+
+.api-request-url {
+  margin-top: 1.8rem;
+  padding: 0.8rem 1.2rem 1rem;
+  background: var(--color-dashboard-bg);
+  border: $api-border;
+  border-radius: $api-radius;
+
+  .api-caption {
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
+
+  code {
+    display: block;
+    padding: 0;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    word-break: break-all;
+    background: none;
+  }
+}
+
+.api-call-cost {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  background: var(--color-warning-bg);
+  border-radius: $api-radius;
+
+  .api-call-cost-label {
+    padding-right: 1.4em;
+    color: var(--color-warning);
+  }
+
+  .api-call-cost-value {
+    text-align: right;
+  }
+}
+
+.api-playground-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin-top: 2rem;
+
+  .button {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+  }
+}
+
+.api-playground-result {
+  margin-top: 1.8rem;
+
+  .api-caption {
+    align-items: center;
+    margin-bottom: 0.6rem;
+  }
+
+  .hljs {
+    max-height: 48rem;
+    margin: 0;
+  }
+}
+
+//response examples
+
+.api-example-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.api-example-tab {
+  @include api-mono-tag;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  border: $api-border;
+  color: var(--color-dimmed);
+
+  &:before {
+    content: '';
+    width: 0.6em;
+    height: 0.6em;
+    border-radius: 50%;
+    background: var(--color-dimmed);
+  }
+
+  &.success:before {
+    background: var(--color-success);
+  }
+
+  &.warning:before {
+    background: var(--color-warning);
+  }
+
+  &.error:before {
+    background: var(--color-alert);
+  }
+
+  &:hover,
+  &.selected {
+    color: var(--color-text);
+  }
+
+  &.selected {
+    border-color: var(--color-highlight);
+  }
+}
+
+.api-examples {
+  > .api-caption {
+    margin-bottom: 0.8rem;
+  }
+
+  .hljs {
+    max-height: 64rem;
+    margin: 0;
+    font-size: 1.25rem;
+  }
+}
+
+.api-example + .api-example {
+  margin-top: 1.2rem;
+}
+
+.api-example-name {
+  margin-bottom: 0.4rem;
+}
+
+.api-example-more {
+  display: inline-block;
+  margin-top: 0.6rem;
+}
+
+.api-example-foldable {
+  border-top: $api-hairline;
+
+  > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0;
+    font-family: $font-face-mono;
+    font-size: 1.3rem;
+    color: var(--color-warning);
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
     }
 
-    & .nav-menu-dropdown {
-      top: 7.3rem;
-      flex-direction: column;
-
-      .card {
-        background: none;
-        padding: 0;
-        box-shadow: none;
-      }
+    .icon {
+      color: var(--color-dimmed);
+      transition: transform 0.15s;
     }
 
-    & .response-block {
-      margin-top: 2rem;
-      padding-right: 0;
+    &:hover .icon {
+      color: var(--color-text);
     }
+  }
+
+  &[open] {
+    padding-bottom: 1rem;
+
+    > summary .icon {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+//narrower screens: the playground column moves below the documentation
+
+@media all and (max-width: $api-wide-layout-width) {
+  .api-operation {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media all and (max-width: $responsive-mobile-browser-width) {
+  .api-docs-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .api-docs-sidebar {
+    display: none;
+    position: static;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  .api-operation-content.segment,
+  .api-section-page.segment,
+  .api-intro.segment {
+    padding: 1.6rem;
+  }
+
+  .api-panel.segment {
+    padding: 1.4rem 1.6rem 1.6rem;
+  }
+
+  .api-schema {
+    padding-left: 0;
+  }
+
+  .api-adjacent {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

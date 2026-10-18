@@ -1,29 +1,49 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
+import {useLocation} from '@stellar-expert/ui-framework'
+import cn from 'classnames'
 import ApiDocsLayout from './api-docs-layout'
 import ApiDocsMenuView from './api-docs-menu-view'
-import {useApiDocsIndex} from './api-docs-hooks'
+import {useApiCatalog} from './api-docs-hooks'
 import './api-docs.scss'
 
 export default function ApiDocsView({children}) {
-    const {index, loaded, error} = useApiDocsIndex()
+    const {catalog, loaded, error} = useApiCatalog()
+    const location = useLocation()
     const [menuVisible, setMenuVisible] = useState(false)
-    const toggleMenu = useCallback(() => setMenuVisible(prev => !prev), [])
+    const toggleMenu = useCallback(e => {
+        e?.preventDefault()
+        setMenuVisible(prev => !prev)
+    }, [])
     const closeMenu = useCallback(() => setMenuVisible(false), [])
+    const sidebarRef = useRef(null)
 
-    const title = <h2 style={{margin: '0.2em', width: '20em'}}>
-        &nbsp;/&nbsp;API Docs {!!index && <span className="dimmed text-small">({index.version})</span>}</h2>
+    useEffect(closeMenu, [location.pathname])
+    useSidebarHeight(sidebarRef)
 
-    return <ApiDocsLayout title={title} toggleMenu={toggleMenu}>
-        <div className="row">
-            <div className="column column-20">
-                <h2 className="desktop-only">&nbsp;&nbsp;API Docs</h2>
-                {!loaded && <div className="loader"/>}
-                {!!error && <div className="space text-small dimmed">Failed to load documentation index</div>}
-                {!!index && <ApiDocsMenuView docs={index.docs} menuVisible={menuVisible} closeMenu={closeMenu}/>}
-            </div>
-            <div className="column column-80">
+    return <ApiDocsLayout version={catalog?.version} toggleMenu={toggleMenu}>
+        <div className="api-docs-grid">
+            <aside ref={sidebarRef} className={cn('api-docs-sidebar', {active: menuVisible})}>
+                <ApiDocsMenuView catalog={catalog} loaded={loaded} error={error} closeMenu={closeMenu}/>
+            </aside>
+            <div className="api-docs-main">
                 {children}
             </div>
         </div>
     </ApiDocsLayout>
+}
+
+/**
+ * Expose the sidebar height to the stylesheet, which uses it to let a menu taller than the window scroll with the page
+ * @param {{current: HTMLElement}} ref - sidebar element ref
+ */
+function useSidebarHeight(ref) {
+    useEffect(() => {
+        const sidebar = ref.current
+        if (!sidebar || typeof ResizeObserver === 'undefined')
+            return
+        //fires on the initial layout too, then on every expanded/collapsed section and filter change
+        const observer = new ResizeObserver(() => sidebar.style.setProperty('--api-sidebar-height', sidebar.offsetHeight + 'px'))
+        observer.observe(sidebar)
+        return () => observer.disconnect()
+    }, [ref])
 }

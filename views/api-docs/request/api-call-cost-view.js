@@ -16,7 +16,7 @@ export function isEstimateParam(param) {
 
 /**
  * Price of the API call composed in the playground, re-quoted whenever its arguments change.
- * Renders nothing for a free endpoint - only a priced route declares the "estimate" parameter, and on a free route
+ * Renders nothing for a free endpoint - only a paid route declares the "estimate" parameter, and on a free route
  * "estimate" is not a reserved word, so the same request would execute instead of being quoted.
  * @param {Array} params - dereferenced parameters list of the operation
  * @param {String} requestString - relative request path with the query string, exactly as the playground shows it
@@ -24,14 +24,14 @@ export function isEstimateParam(param) {
  * @return {JSX.Element|null}
  */
 export default function ApiCallCostView({params = [], requestString, enabled}) {
-    const priced = params.some(isEstimateParam)
-    const estimate = useCallCostEstimate(requestString, enabled && priced)
-    if (!priced)
+    const paid = params.some(isEstimateParam)
+    const estimate = useCallCostEstimate(requestString, enabled && paid)
+    if (!paid)
         return null
 
-    return <div className="api-call-cost text-small micro-space">
+    return <div className="api-call-cost text-small">
         {/*the tooltip icon is absolutely positioned, so it has to sit inside an inline-flow item, not in the flex row*/}
-        <span className="api-call-cost-label dimmed">Estimated call cost<InfoTooltip>
+        <span className="api-call-cost-label">Estimated cost<InfoTooltip>
             How many photons (compute units) this call is charged with the arguments set above. The price depends on
             the endpoint and on the arguments - the page size, the number of items in a batch request, the applied
             filters, the requested time range. Quoting the price is free of charge and does not execute the request.

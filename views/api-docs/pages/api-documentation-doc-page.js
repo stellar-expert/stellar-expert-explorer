@@ -3,8 +3,11 @@ import {useParams} from '@stellar-expert/ui-framework'
 import NotFoundView from '../../pages/not-found-page-view'
 import ErrorNotificationBlock from '../../components/error-notification-block'
 import ApiDocsView from '../api-docs-view'
-import ApiPathView from '../api-path-view'
+import ApiDocsText from '../api-docs-text'
+import ApiEndpointView from '../api-endpoint-view'
+import ApiBreadcrumbsView from '../api-breadcrumbs-view'
 import {useApiSpec} from '../api-docs-hooks'
+import {operationLink, sectionIcon} from '../api-docs-catalog'
 
 export default function ApiDocumentationDocPage() {
     const {doc} = useParams()
@@ -22,14 +25,20 @@ export default function ApiDocumentationDocPage() {
 }
 
 function DocContentView({spec}) {
-    return <>
-        <h2>{spec.title}</h2>
-        {groupByTag(spec).map(({tag, operations}) => <div key={tag}>
+    return <article className="segment api-section-page">
+        <ApiBreadcrumbsView/>
+        <h1 className="api-page-title"><i className={'icon ' + sectionIcon(spec.slug)}/> {spec.label}</h1>
+        <div className="api-docs-text api-operation-description"><ApiDocsText text={spec.summary}/></div>
+        {groupByTag(spec).map(({tag, operations}) => <section key={tag} className="api-section">
             {/*show the tag heading only for sections that mix several tags*/}
-            {spec.tags.length > 1 && <h3 className="space">{tag}</h3>}
-            {operations.map(operation => <ApiPathView key={operation.operationId} operation={operation}/>)}
-        </div>)}
-    </>
+            <h2 className="api-section-title">{spec.tags.length > 1 ? tag : 'Endpoints'}</h2>
+            {operations.map(operation => <a key={operation.operationId} href={operationLink(spec, operation)}
+                                            className="api-endpoint-card">
+                <span className="api-endpoint-card-title">{operation.summary}</span>
+                <ApiEndpointView method={operation.method} path={operation.path} compact/>
+            </a>)}
+        </section>)}
+    </article>
 }
 
 function groupByTag({operations}) {

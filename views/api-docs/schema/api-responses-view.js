@@ -1,23 +1,29 @@
 import React from 'react'
-import cn from 'classnames'
 import ApiResponseSchemaView from '../request/api-response-schema-view'
+import ApiStatusBadge from '../api-status-badge'
 
 export default function ApiResponsesView({responses = {}}) {
-    return <div className="space word-break">
-        <h3 className="dimmed text-small">RESPONSE FORMAT</h3>
-        {Object.entries(responses).map(([code, schema]) => <div key={code} className="space">
-            <div>
-                <span className={cn(`text-large badge text-monospace`, {
-                    'success': +code === 200,
-                    'error': +code >= 400,
-                })} style={{textTransform: 'uppercase'}}>{code}</span>&nbsp;
-                <span className="dimmed">{schema.description}</span>
-            </div>
-            {Object.entries(schema.content || {}).map(([type, data]) => <div key={type} className="space">
-                <h3 className="dimmed text-small">Schema: <span className="text-tiny text-monospace">{type}</span></h3>
-                <hr/>
+    const entries = Object.entries(responses)
+    if (!entries.length)
+        return null
+    return <section className="api-section">
+        <h2 className="api-section-title">Response</h2>
+        {entries.map(([code, response]) => {
+            const content = Object.entries(response.content || {})
+            if (!content.length)
+                return <ResponseHeaderView key={code} code={code} description={response.description}/>
+            return content.map(([mediaType, data]) => <div key={code + mediaType} className="api-response">
+                <ResponseHeaderView code={code} description={response.description} mediaType={mediaType}/>
                 <ApiResponseSchemaView schema={data.schema}/>
-            </div>)}
-        </div>)}
+            </div>)
+        })}
+    </section>
+}
+
+function ResponseHeaderView({code, description, mediaType}) {
+    return <div className="api-response-header">
+        <ApiStatusBadge code={code}/>
+        <span className="api-response-title">{description}</span>
+        {!!mediaType && <span className="api-response-media dimmed">{mediaType}</span>}
     </div>
 }
