@@ -56,4 +56,9 @@ config.resolve.alias = {
     'react-dom': path.resolve(__dirname, './node_modules/react-dom')
 }
 
-module.exports = config
+module.exports = (env, argv) => {
+    const webpackConfig = config(env, argv)
+    //legal pages are authored as markdown and bundled as plain text
+    webpackConfig.module.rules.push({test: /\.md$/, type: 'asset/source'})
+    return webpackConfig
+}

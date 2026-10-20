@@ -16,8 +16,9 @@ export default function Footer() {
                 <ThemeSelector/>
             </div>
             <div>
-                <a href="/info/tos">Terms of use</a>&emsp;
+                <a href="/info/tos">Terms of service</a>&emsp;
                 <a href="/info/privacy">Privacy policy</a>&emsp;
+                <a href="/info/refund">Refund policy</a>&emsp;
                 <a href="https://stellarexpert.statuspage.io/" target="_blank" rel="noreferrer noopener" className="nowrap">
                     Status
                 </a>
