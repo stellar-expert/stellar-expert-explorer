@@ -11,6 +11,12 @@ export default function PricingHeaderView() {
             <a href={resolvePath('')} className="logo">
                 Stellar<img alt="StellarExpert" src="/img/stellar-expert-blue.svg"/>Expert
             </a>
+            <nav className="pricing-header-nav">
+                <a href={resolvePath('')} className="desktop-only">Explorer</a>
+                <a href="/api-docs">API docs</a>
+                <a href="/pricing" className="current desktop-only">Pricing</a>
+                <a href="/login" className="pricing-header-sign-in">Sign in</a>
+            </nav>
         </div>
     </div>
 }

@@ -28,7 +28,7 @@ export default function SubscriptionCardView({subscription, isActive, onToggleRe
             <span className="dimmed text-small">
                 {periodCost ?
                     <>${formatPrice(periodCost)}/{period === 'year' ? 'year' : 'month'}</> :
-                    'Quoted per contract'}
+                    'Flexible'}
             </span>
         </div>
         <PlanLimitsView limits={catalogue?.limits || subscription.limits} support={catalogue?.support}

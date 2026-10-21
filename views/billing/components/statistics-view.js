@@ -3,7 +3,7 @@ import cn from 'classnames'
 import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 
 /**
- * Charged photons and request counters for the last day and month
+ * Charged compute units and request counters for the last day and month
  * @param {{day: {}, month: {}}} [summary]
  * @return {JSX.Element}
  */
@@ -11,8 +11,8 @@ export default function StatisticsView({summary}) {
     const {day, month} = summary || {}
 
     return <div className="panel-grid">
-        <EntryStatisticView title="24H PHOTONS" value={day?.credits} changes={day?.creditsChange}/>
-        <EntryStatisticView title="MONTHLY PHOTONS" value={month?.credits} changes={month?.creditsChange}/>
+        <EntryStatisticView title="24H COMPUTE UNITS" value={day?.credits} changes={day?.creditsChange}/>
+        <EntryStatisticView title="MONTHLY COMPUTE UNITS" value={month?.credits} changes={month?.creditsChange}/>
         <EntryStatisticView title="24H REQUESTS" value={day?.requests} changes={day?.requestsChange}/>
         <EntryStatisticView title="MONTHLY REQUESTS" value={month?.requests} changes={month?.requestsChange}/>
     </div>

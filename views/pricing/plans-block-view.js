@@ -6,6 +6,8 @@ import {
 } from '../../business-logic/billing/api-plans'
 import EnterpriseRequestView from '../billing/user/enterprise-request-view'
 import PricingIconView from './pricing-icons-view'
+import ComputeUnitsBlockView from './compute-units-block-view'
+import AgentsBlockView from './agents-block-view'
 
 /**
  * Plan catalogue with a billing period switch - the anchor target of the hero CTA
@@ -13,21 +15,16 @@ import PricingIconView from './pricing-icons-view'
  */
 export default function PlansBlockView() {
     const [period, setPeriod] = useState('month')
-    const isYearly = period === 'year'
 
-    return <section className="subscription-block" id="plans">
+    return <section className="subscription-block subscription-plans-block" id="plans">
         <div className="container">
             <div className="subscription-plans-header">
                 <div>
-                    <h2>Plans</h2>
-                    <p className="subscription-plans-lead">
-                        Change or cancel at any time. Unused time is credited when you upgrade.
-                    </p>
+                    <div className="subscription-block-eyebrow">/ API plans</div>
+                    <h2>From weekend prototypes <br/>to mission-critical systems</h2>
                 </div>
                 <div className="subscription-period-switch">
-                    {!!isYearly && <span className="subscription-period-savings">
-                        Saving up to {maxYearlySavings}%
-                    </span>}
+                    <span className="subscription-period-savings">Save up to {maxYearlySavings}% yearly</span>
                     <Tabs className="subscription-period-tabs" right selectedTab={period} onChange={setPeriod}
                           tabs={[{name: 'month', title: 'Monthly'}, {name: 'year', title: 'Yearly'}]}/>
                 </div>
@@ -40,6 +37,8 @@ export default function PlansBlockView() {
                 Prices in USD. Pay by card or crypto through our payment processor.
                 Cosmographer plans can be invoiced.
             </div>
+            <ComputeUnitsBlockView/>
+            <AgentsBlockView/>
         </div>
     </section>
 }
@@ -85,7 +84,7 @@ const PlanCard = React.memo(function PlanCard({plan, period}) {
         <div className="subscription-plan-note">
             {price.term ?
                 (isYearly ? `$${formatPrice(price.monthly)} / month, billed yearly` : 'Billed monthly') :
-                'Quoted per contract'}
+                'Flexible'}
         </div>
         {price.term ?
             <Button href="/account/subscription/change" block>Choose {name}</Button> :

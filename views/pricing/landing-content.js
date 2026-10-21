@@ -4,84 +4,119 @@
  */
 
 /**
- * Platform capabilities - the "What you get" grid
+ * Sample endpoint weights - ordered cheapest first so the glyphs read as a ramp
+ */
+export const computeUnitCosts = [
+    {endpoint: '/tx/{hash}', units: 1, description: 'One transaction'},
+    {endpoint: '/account/{id}/history', units: 2, description: 'Account history page'},
+    {endpoint: '/asset/{id}/stats', units: 4, description: 'Aggregated asset stats'},
+    {endpoint: '/market/{pair}/candles?7d', units: 8, description: 'Seven days of candles'}
+]
+
+/**
+ * What indexing the ledger in-house takes - the left side of the self-hosted comparison
+ */
+export const selfHostedSteps = [
+    'Run and sync your own Stellar node',
+    'Backfill ledger history for the period you need',
+    'Decode XDR into your own database',
+    'Keep it running through every protocol upgrade'
+]
+
+/**
+ * The right side of the self-hosted comparison
+ */
+export const hostedBenefits = [
+    'Complete history, already indexed',
+    'Protocol upgrades handled for you',
+    'Nothing to host, sync or maintain'
+]
+
+/**
+ * Data endpoints per domain - the coverage headline is their sum
+ */
+export const apiCoverage = [
+    {count: 18, title: 'Smart contracts', description: 'Stats, events, state, invocations, WASM, users'},
+    {count: 14, title: 'Assets', description: 'Stats, holders, supply, ratings, prices, lists'},
+    {count: 9, title: 'Accounts', description: 'Stats, balances, history, trades, claimable balances'},
+    {count: 9, title: 'Ledgers and network', description: 'Ledgers, protocol history, daily network stats'},
+    {count: 8, title: 'Markets and prices', description: 'Pairs, tickers, candles, offers, price history'},
+    {count: 6, title: 'Directory', description: 'Known accounts, asset lists, scam-domain blocklist'},
+    {count: 5, title: 'Liquidity pools', description: 'Pool stats, share holders, trades, history'},
+    {count: 4, title: 'Transactions', description: 'Search, count, lookup by hash or ledger'}
+]
+
+/**
+ * Track record figures of the reliability block
+ */
+export const reliabilityStats = [
+    {value: '99.92%', label: 'uptime in 2026'},
+    {value: '9 years', label: 'in production'}
+]
+
+/**
+ * Infrastructure behind the reliability claims
  */
 export const platformFeatures = [
     {
-        icon: 'key',
-        title: 'One key, every dataset',
-        description: 'Accounts, assets, markets, liquidity pools, contracts and protocol history behind a single credential.'
-    },
-    {
         icon: 'index',
-        title: 'Indexed, not proxied',
-        description: 'Queries run against our own index, so aggregations that would time out on Horizon return in milliseconds.'
+        title: 'Indexed queries',
+        description: 'Queries run through distributed indexes, so heavy aggregations return in milliseconds.'
     },
     {
-        icon: 'batch',
-        title: 'Batch responses',
-        description: 'Pull up to 1,000 records per call on Astronomer instead of paging through them one screen at a time.'
+        icon: 'cluster',
+        title: 'High-availability cluster',
+        description: 'Independent servers in a failover configuration keep every data layer available.'
     },
     {
-        icon: 'origin',
-        title: 'Origin restrictions',
-        description: 'Pin each key to the domains that may use it, and revoke a leaked key instantly.'
-    },
-    {
-        icon: 'usage',
-        title: 'Usage you can see',
-        description: 'Per-endpoint photon breakdown updated live, so a runaway loop shows up before the invoice does.'
-    },
-    {
-        icon: 'limits',
-        title: 'Soft limits',
-        description: 'Run out of photons and requests keep working at free-tier limits until the next cycle. Nothing goes dark.'
+        icon: 'bolt',
+        title: 'Fast delivery',
+        description: 'Edge caching for API responses. Images, TOML and metadata served from a CDN.'
     }
 ]
 
 /**
- * Sample endpoint weights - ordered cheapest first so the bars read as a ramp
+ * Round trip of an x402 request, as it reads left to right
  */
-export const photonCosts = [
-    {endpoint: '/tx/{hash}', photons: 1},
-    {endpoint: '/account/{id}/history', photons: 2},
-    {endpoint: '/asset/{id}/stats', photons: 4},
-    {endpoint: '/market/{pair}/candles?7d', photons: 8}
+export const x402Flow = [
+    {step: 'GET'},
+    {step: '402 Payment Required', status: 'warning'},
+    {step: 'Signed payment'},
+    {step: '200 OK + data', status: 'success'}
 ]
 
 /**
- * Rendered row-major into two columns, so the order here is left, right, left, right...
+ * Rendered row-major into the grid, so the order here is left to right, then top to bottom
  */
 export const faq = [
     {
-        question: 'What exactly is a photon?',
-        answer: 'A photon is one compute unit — a weight assigned to each endpoint based on how much work the ' +
-            'query does. Simple lookups cost one photon, heavy aggregations cost more. The reference table lists ' +
-            'every endpoint.'
+        question: 'What exactly is a compute unit?',
+        answer: 'A weight assigned to each endpoint by how much work the query does. ' +
+            'Simple lookups cost less, heavy aggregations cost more. The reference lists every endpoint.'
     },
     {
-        question: 'What happens when I run out?',
-        answer: 'Nothing goes dark. Once the monthly allowance is spent, requests keep being served at free-tier ' +
-            'limits until the next cycle starts, so a traffic spike degrades instead of failing.'
+        question: 'What happens when compute runs out?',
+        answer: 'Nothing goes dark. Requests keep being served at free-tier limits until the next cycle, ' +
+            'so a traffic spike degrades instead of failing.'
+    },
+    {
+        question: 'Do unused compute units roll over?',
+        answer: 'No. The allowance resets each billing cycle. If you regularly finish the month with compute units ' +
+            'to spare, a smaller plan will cost less.'
     },
     {
         question: 'Can I change plan mid-cycle?',
-        answer: 'Yes. Change or cancel at any time — unused time on the current plan is credited towards the ' +
-            'upgrade, so you never pay for the same period twice.'
+        answer: 'Yes. Unused time on the current plan is credited towards the upgrade, so you never pay ' +
+            'for the same period twice.'
     },
     {
         question: 'How do I pay?',
-        answer: 'By card or crypto through our payment processor. Prices are quoted in USD. Cosmographer plans ' +
-            'can be invoiced instead.'
+        answer: 'By card or crypto through our payment processor, in USD. Cosmographer plans can be ' +
+            'invoiced directly.'
     },
     {
-        question: 'Do unused photons roll over?',
-        answer: 'No. The allowance resets at the start of each billing cycle. If you regularly finish the month ' +
-            'with photons to spare, a smaller plan will cost less.'
-    },
-    {
-        question: 'Is there a rate limit on Stargazer?',
-        answer: 'Yes — 60 requests per minute across the free public endpoints, with up to 25 items per batch ' +
-            'response. No registration required.'
+        question: 'Can I use it in a commercial product?',
+        answer: 'Yes, even a rival explorer. Cosmographer contracts can include licensable data. ' +
+            'Check the Terms of Service for the limitations.'
     }
 ]

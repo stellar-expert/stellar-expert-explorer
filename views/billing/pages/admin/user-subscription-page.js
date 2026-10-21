@@ -21,7 +21,7 @@ const extendOptions = [
  * The negotiated figures of a custom contract, named as the server's `SubscriptionInput` names them
  */
 const limitFields = [
-    {name: 'photons', title: 'Photons/month'},
+    {name: 'computeUnits', title: 'Compute units/month'},
     {name: 'requestsPerMinute', title: 'Requests/minute'},
     {name: 'batchSize', title: 'Items/batch response'},
     {name: 'priceOverride', title: 'Price override, USD/month'}
@@ -167,12 +167,12 @@ export default function UserSubscriptionPage() {
  * @private
  */
 function PlanOptionView({plan, selected, onSelect}) {
-    const {photons, requestsPerMinute} = plan.limits
+    const {computeUnits, requestsPerMinute} = plan.limits
 
     return <div className={cn('billing-plan-option-row', {selected})}>
         <div>
             <strong>{plan.name}</strong>
-            <div className="dimmed text-tiny">{describePlanOffer(plan, photons, requestsPerMinute)}</div>
+            <div className="dimmed text-tiny">{describePlanOffer(plan, computeUnits, requestsPerMinute)}</div>
         </div>
         {selected ?
             <i className="icon-ok" title="Selected"/> :
@@ -216,7 +216,7 @@ function initForm(subscription) {
     const limits = subscription?.limits || {}
     return {
         plan: subscription?.plan || allPlans[0].key,
-        photons: valueOf(limits.photons),
+        computeUnits: valueOf(limits.computeUnits),
         requestsPerMinute: valueOf(limits.requestsPerMinute),
         batchSize: valueOf(limits.batchSize),
         priceOverride: subscription?.custom ? valueOf(subscription.price) : '',
@@ -239,7 +239,7 @@ function buildParams(form) {
         notifyOwner: form.notifyOwner
     }
     if (findPlan(form.plan)?.custom) {
-        params.photons = form.photons
+        params.computeUnits = form.computeUnits
         params.requestsPerMinute = form.requestsPerMinute
         params.batchSize = form.batchSize
         params.priceOverride = form.priceOverride
@@ -252,15 +252,15 @@ function buildParams(form) {
 
 /**
  * @param {ApiPlan} plan
- * @param {Number|null} photons
+ * @param {Number|null} computeUnits
  * @param {Number|null} requestsPerMinute
  * @return {String}
  * @private
  */
-function describePlanOffer(plan, photons, requestsPerMinute) {
+function describePlanOffer(plan, computeUnits, requestsPerMinute) {
     if (plan.custom)
         return 'Custom limits'
-    const allowance = photons ? `${formatWithAutoPrecision(photons)} photons/month` : 'Free'
+    const allowance = computeUnits ? `${formatWithAutoPrecision(computeUnits)} compute units/month` : 'Free'
     return `${allowance} · ${formatWithAutoPrecision(requestsPerMinute)} req/min`
 }
 

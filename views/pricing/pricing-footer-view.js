@@ -11,8 +11,9 @@ export default function PricingFooterView() {
             </div>
             <div className="pricing-footer-links">
                 <a href="/openapi.html" target="_blank">Open API docs</a>
-                <a href="/info/tos">Terms of use</a>
+                <a href="/info/tos">Terms of service</a>
                 <a href="/info/privacy">Privacy policy</a>
+                <a href="/info/refund">Refund policy</a>
                 <a href="https://stellarexpert.statuspage.io/" target="_blank" rel="noreferrer noopener">Status</a>
             </div>
         </div>

@@ -2,6 +2,9 @@ $pricing-header-height: 4.4 * $font-size-base + 0.3rem;
 
 $hero-text-width: 44rem;
 
+$block-padding: 7.2rem;
+$block-padding-top-plans: 8.8rem;
+
 $plan-grid-gap: 1.6rem;
 $plan-card-padding: 2.2rem;
 
@@ -18,6 +21,15 @@ $landing-cyan-soft: #7fd8f5;
 $landing-accent-soft: #b9a8ff;
 $landing-button-hover-fill: $landing-accent;
 $landing-ink: #0b1f26;
+$landing-success: #5ec45a;
+
+$blueprint-bg: #08223f;
+$blueprint-ink: #bfe3ff;
+$blueprint-line: rgba(#fff, 0.6);
+$blueprint-corner: 1.4rem;
+$blueprint-corner-offset: -0.9rem;
+//room kept clear for the launch pad drawing at the right edge of the self-hosted block
+$blueprint-art-width: 18rem;
 
 @function landing-star-step($seed) {
   @return ($seed * 75 + 74) % 65537;
@@ -141,10 +153,28 @@ $landing-ink: #0b1f26;
   @include landing-button-hover;
 }
 
+//drafting crop marks just outside each corner of the box
+@mixin blueprint-corners($color) {
+  $mark: linear-gradient($color, $color);
+  $across: $blueprint-corner 1px;
+  $down: 1px $blueprint-corner;
+
+  &:before {
+    content: '';
+    position: absolute;
+    inset: $blueprint-corner-offset;
+    pointer-events: none;
+    background: $mark left top / $across, $mark left top / $down,
+    $mark right top / $across, $mark right top / $down,
+    $mark left bottom / $across, $mark left bottom / $down,
+    $mark right bottom / $across, $mark right bottom / $down;
+    background-repeat: no-repeat;
+  }
+}
+
 .subscription-landing {
   --color-bg: #0d1320;
   --color-dashboard-bg: #0d1417;
-  --color-rule: #{rgba(#fff, 0.09)};
   --color-alt-bg: #141c2e;
   --color-alt-border: #232c40;
   --color-contrast-border: #2b3548;
@@ -164,39 +194,48 @@ $landing-ink: #0b1f26;
   color: var(--color-text);
   background: var(--color-dashboard-bg);
   margin: -1rem 0 0;
-  padding-bottom: 7.4rem;
-
-  @media all and (max-width: $responsive-mobile-browser-width) {
-    padding-bottom: $space-double - $space-standard;
-  }
 
   h2 {
-    margin: 0;
-    font-size: 3rem;
-  }
+    margin: 1.2rem 0 0;
+    color: var(--color-title);
+    font-size: 4rem;
+    line-height: 1.1;
 
-  .card {
-    border: 1px solid var(--color-alt-border);
-    background-color: var(--color-alt-bg);
+    @media all and (max-width: $responsive-mobile-browser-width) {
+      font-size: 3rem;
+    }
   }
 }
 
 .subscription-block {
-  padding-top: 7rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 50vh;
+  padding: $block-padding 0;
 
-  scroll-margin-top: $space-standard;
-
-  &.subscription-cta-block {
-    padding-top: 6.4rem;
-  }
+  isolation: isolate;
 
   @media all and (max-width: $responsive-mobile-browser-width) {
-    padding-top: $space-double;
-
-    &.subscription-cta-block {
-      padding-top: $space-double;
-    }
+    padding: $space-double 0;
   }
+}
+
+.subscription-block-eyebrow {
+  color: var(--color-highlight);
+  font-family: $font-face-mono;
+  font-size: 1.2rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.subscription-block-lead {
+  margin: 1.2rem 0 0;
+  color: var(--color-muted);
+  font-size: 1.6rem;
+  text-align: left;
 }
 
 .subscription-hero {
@@ -283,6 +322,38 @@ $landing-ink: #0b1f26;
   padding: $space-standard 0;
 }
 
+//a sample API call, between the pitch and the buttons
+.subscription-hero-request {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.6rem;
+  max-width: $hero-text-width + $space-standard;
+  margin-top: 0.8rem;
+  padding: 1.4rem 1.8rem;
+  border: 1px solid rgba(#fff, 0.1);
+  background: rgba(13, 20, 23, 0.8);
+  font-family: $font-face-mono;
+  font-size: 1.3rem;
+
+  > .subscription-hero-request-method {
+    padding: 0.2rem 0.8rem;
+    background: rgba($landing-cyan, 0.16);
+    color: var(--color-cyan-soft);
+  }
+
+  > .subscription-hero-request-path {
+    min-width: 0;
+    color: var(--color-title);
+    overflow-wrap: anywhere;
+  }
+
+  > .subscription-hero-request-status {
+    margin-left: auto;
+    color: $landing-success;
+  }
+}
+
 .subscription-hero-actions {
   max-width: $hero-text-width + $space-standard;
 
@@ -358,6 +429,18 @@ $landing-ink: #0b1f26;
   }
 }
 
+//plans
+
+.subscription-plans-block {
+  padding-top: $block-padding-top-plans;
+  border-top: 1px solid var(--color-hairline);
+  background: linear-gradient(180deg, var(--color-dashboard-bg) 0%, #0f1d24 100%);
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    padding-top: $space-double;
+  }
+}
+
 .subscription-plan-amount {
   font-family: $font-face-header;
   font-size: 3.2rem;
@@ -378,17 +461,19 @@ $landing-ink: #0b1f26;
 .subscription-plans-header {
   display: flex;
   align-items: flex-end;
+  justify-content: space-between;
   flex-wrap: wrap;
-  gap: $space-standard;
+  gap: 2.4rem;
 
   > div:first-child {
     min-width: 0;
+    max-width: 64rem;
   }
 
   .subscription-plans-lead {
-    margin: 0.8rem 0 0;
+    margin: 1.2rem 0 0;
     color: var(--color-muted);
-    font-size: 1.45rem;
+    font-size: 1.6rem;
     text-align: left;
   }
 }
@@ -396,17 +481,19 @@ $landing-ink: #0b1f26;
 .subscription-period-switch {
   display: flex;
   align-items: center;
-  gap: 1.4rem;
-  margin-left: auto;
+  flex-wrap: wrap;
+  gap: 1.8rem;
   white-space: nowrap;
 }
 
 .subscription-period-savings {
-  font-size: 1.3rem;
-  color: #5ec45a;
+  color: $landing-success;
+  font-size: 1.4rem;
 }
 
 .subscription-period-tabs.tabs {
+  padding-left: 0.6rem;
+
   .tabs-header {
     margin-top: 0;
   }
@@ -417,29 +504,31 @@ $landing-ink: #0b1f26;
 
   .tabs-header .tabs-item {
     height: auto;
-    padding: 0.9rem 2.6rem;
-    color: #9fb6bc;
+    min-width: 11.2rem;
+    padding: 1.5rem 2.2rem;
+    color: var(--color-cyan-soft);
     font-family: inherit;
-    font-size: 1.35rem;
+    font-size: 1.4rem;
     line-height: 1;
 
     &:hover {
-      color: #9fb6bc;
+      color: var(--color-cyan-soft);
     }
 
     &:before {
-      background: rgba(255, 255, 255, 0.08);
+      top: 0;
+      border: 1px solid rgba($landing-cyan, 0.5);
+      background: transparent;
       transform: skewX(-14deg);
-      margin-top: -1rem;
     }
 
     &:hover:before {
-      background: rgba(255, 255, 255, 0.14);
+      background: rgba($landing-cyan, 0.12);
     }
 
     + .tabs-item:before {
       border-left: 0;
-      margin-left: -1px;
+      margin-left: 0;
     }
 
     &.selected {
@@ -456,13 +545,9 @@ $landing-ink: #0b1f26;
 
 .subscription-plan-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
   gap: $plan-grid-gap;
   margin-top: 2.6rem;
-
-  @media all and (max-width: $responsive-mobile-browser-width) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .subscription-plan {
@@ -473,6 +558,7 @@ $landing-ink: #0b1f26;
   padding: $plan-card-padding $plan-card-padding 2.6rem;
   border: 1px solid var(--color-hairline);
   background: var(--color-panel);
+  text-align: center;
 
   &.popular {
     border-color: rgba(28, 179, 228, 0.45);
@@ -510,6 +596,7 @@ $landing-ink: #0b1f26;
   > .subscription-plan-icon {
     display: flex;
     align-items: center;
+    justify-content: center;
     height: 4rem;
     margin-bottom: 1.2rem;
     color: #8bdcf7;
@@ -521,6 +608,27 @@ $landing-ink: #0b1f26;
 
   > .subscription-plan-audience {
     min-height: 5.7rem;
+  }
+
+  //the highlighted card sits on a lighter panel, so its secondary text steps up to keep contrast
+  &.popular {
+    > .subscription-plan-audience,
+    > .subscription-plan-note,
+    > .subscription-plan-amount > span {
+      color: #a9c1c7;
+    }
+
+    > .subscription-plan-strike {
+      color: var(--color-muted);
+    }
+
+    > .subscription-plan-separator {
+      background: rgba(#fff, 0.12);
+    }
+  }
+
+  > .subscription-plan-limits {
+    text-align: left;
   }
 
   @media all and (max-width: $responsive-mobile-browser-width) {
@@ -576,7 +684,7 @@ $landing-ink: #0b1f26;
 .subscription-landing .subscription-plan > .button {
   @include landing-button;
   margin: 1.6rem 0 0;
-  padding: 1.1rem 0;
+  padding: 1.4rem 0;
 }
 
 .subscription-plan-separator {
@@ -618,7 +726,7 @@ $landing-ink: #0b1f26;
 
 .subscription-free {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 2fr 1fr;
   align-items: center;
   column-gap: $plan-grid-gap;
   margin-top: $plan-grid-gap;
@@ -713,275 +821,620 @@ $landing-ink: #0b1f26;
   font-size: 1.25rem;
 }
 
-.subscription-feature-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  margin-top: 2.6rem;
-  background: rgba(255, 255, 255, 0.07);
+//billing unit explainer, closing the plans block
 
-  @media all and (max-width: $responsive-mobile-browser-width) {
-    grid-template-columns: 1fr;
-    gap: $space-micro;
-    background: transparent;
+.subscription-compute-units {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6rem 4rem;
+  margin-top: $space-double;
+
+  > div:first-child {
+    flex: 1 1 28rem;
+    min-width: 0;
+    max-width: 34rem;
   }
-}
-
-.subscription-feature {
-  padding: 2.6rem 2.4rem 2.8rem;
-  background: var(--color-panel);
-
-  > svg {
-    display: block;
-    color: var(--color-cyan);
-  }
-
-  &:nth-child(even) > svg {
-    color: var(--color-accent-soft);
-  }
-
-  > .subscription-feature-title {
-    margin-top: 1.6rem;
-    color: var(--color-title);
-    font-size: 1.7rem;
-  }
-
-  > .subscription-feature-text {
-    margin-top: 0.8rem;
-    color: var(--color-muted);
-    font-size: 1.35rem;
-    line-height: 1.65;
-    text-align: left;
-  }
-
-  @media all and (max-width: $responsive-mobile-browser-width) {
-    padding: $space-standard;
-    border: 1px solid var(--color-hairline);
-  }
-}
-
-.subscription-photons {
-  display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 3.6rem;
-  align-items: center;
-  padding: 3.2rem 3.4rem;
-  border: 1px solid rgba(28, 179, 228, 0.22);
-  background: linear-gradient(120deg, rgba(28, 179, 228, 0.14), rgba(122, 86, 255, 0.14));
 
   h3 {
     margin: 0;
-    color: #f2f9fb;
+    color: var(--color-title);
     font-size: 2.4rem;
-    font-weight: 300;
+    line-height: 1.2;
   }
 
-  > div > .subscription-photons-lead {
-    margin: 1.2rem 0 0;
-    color: #9fb6bc;
-    font-size: 1.45rem;
-    line-height: 1.65;
+  .subscription-compute-units-lead {
+    margin: 1rem 0 0;
+    color: var(--color-limit);
+    font-size: 1.5rem;
     text-align: left;
-  }
-
-  > div > .subscription-photons-link {
-    display: inline-block;
-    margin-top: 1.4rem;
-    color: #4ec3ea;
-    font-size: 1.35rem;
-
-    &:hover {
-      color: $landing-accent;
-    }
-  }
-
-  @media all and (max-width: $responsive-mobile-browser-width) {
-    grid-template-columns: 1fr;
-    gap: $space-standard;
-    padding: $space-double $space-standard;
   }
 }
 
 .subscription-cost-list {
-  display: flex;
-  flex-direction: column;
+  flex: 999 1 56rem;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  align-content: start;
   gap: 1rem;
 }
 
 .subscription-cost {
   display: flex;
-  align-items: center;
-  gap: 1.4rem;
-  padding: 1.1rem 1.4rem;
-  background: rgba(13, 20, 23, 0.5);
+  flex-direction: column;
+  padding: 1.4rem 1.6rem;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-panel);
+
+  > .subscription-cost-weight {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.4rem;
+  }
+
+  .subscription-cost-value {
+    color: var(--color-cyan);
+    font-family: $font-face-header;
+    font-size: 3rem;
+    letter-spacing: $header-letter-spacing;
+    line-height: 1;
+
+    > span {
+      margin-left: 0.6rem;
+      color: var(--color-muted);
+      font-family: $font-face-primary;
+      font-size: 1.3rem;
+      letter-spacing: normal;
+    }
+  }
+
+  //one square per compute unit, stacked bottom up
+  .subscription-cost-bar {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: flex-end;
+    align-content: flex-start;
+    gap: 0.2rem;
+    width: 1.8rem;
+    height: 3.8rem;
+
+    > span {
+      width: 0.8rem;
+      height: 0.8rem;
+      background: var(--color-cyan);
+    }
+  }
 
   > .subscription-cost-endpoint {
-    flex: 1;
-    min-width: 0;
-    color: #cfe3e8;
-    font-family: $font-face-mono;
-    font-size: 1.3rem;
-    word-break: break-word;
-  }
-
-  > .subscription-cost-bar {
-    flex-shrink: 0;
-    height: 0.6rem;
-    background: linear-gradient(90deg, var(--color-cyan), var(--color-accent));
-  }
-
-  @media all and (max-width: $responsive-mobile-browser-width) {
-    flex-wrap: wrap;
-    row-gap: 0.6rem;
-
-    > .subscription-cost-endpoint {
-      flex: 0 0 100%;
-      white-space: nowrap;
-    }
-  }
-
-  > .subscription-cost-value {
-    flex-shrink: 0;
-    min-width: 5.4rem;
+    margin-top: 1rem;
+    padding: 0;
+    background: none;
     color: var(--color-title);
+    font-size: 1.25rem;
+    overflow-wrap: anywhere;
+  }
+
+  > .subscription-cost-description {
+    margin-top: 0.4rem;
+    color: var(--color-muted);
     font-size: 1.3rem;
-    text-align: right;
-    white-space: nowrap;
   }
 }
 
-.subscription-faq {
-  .subscription-faq-item {
-    border-top: 1px solid var(--color-rule);
+//self-hosted comparison
+
+.subscription-diy-block {
+  background: radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(3, 12, 26, 0.6) 100%),
+  linear-gradient(rgba(#fff, 0.1) 1px, transparent 1px) 0 0 / 10rem 10rem,
+  linear-gradient(90deg, rgba(#fff, 0.1) 1px, transparent 1px) 0 0 / 10rem 10rem,
+  linear-gradient(rgba(#fff, 0.045) 1px, transparent 1px) 0 0 / 2rem 2rem,
+  linear-gradient(90deg, rgba(#fff, 0.045) 1px, transparent 1px) 0 0 / 2rem 2rem,
+  $blueprint-bg;
+
+  .subscription-block-eyebrow {
+    color: $blueprint-ink;
   }
 
-  .row {
-    align-items: start;
+  h2 {
+    color: #fff;
   }
 
-  .subscription-faq-question {
-    position: relative;
-    padding: $space-micro 2.5rem $space-micro 0;
-    cursor: pointer;
-    user-select: none;
-
-    &:after {
-      content: '\e864';
-      position: absolute;
-      top: 50%;
-      right: 0;
-      color: var(--color-highlight);
-      font-family: 'icons';
-      font-size: 1.4rem;
-      font-style: normal;
-      font-weight: normal;
-      line-height: 1;
-      transform: translateY(-50%) rotate(45deg);
-      transition: transform 0.25s ease;
-    }
-
-    &:hover:after {
-      color: $landing-accent;
-    }
-  }
-
-  .subscription-faq-answer {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.25s ease;
-
-    > div {
-      overflow: hidden;
-    }
-  }
-
-  .subscription-faq-item.expanded {
-    > .subscription-faq-question:after {
-      transform: translateY(-50%) rotate(0deg);
-    }
-
-    > .subscription-faq-answer {
-      grid-template-rows: 1fr;
-
-      > div {
-        padding-bottom: $space-micro;
-      }
+  @media all and (min-width: $responsive-mobile-browser-width + 1) {
+    > .container {
+      padding-right: $blueprint-art-width;
     }
   }
 }
 
-.subscription-landing .subscription-cta {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: 3rem;
-  padding: 3.8rem $space-double;
-  border: 0;
-  border-left: 0.3rem solid var(--color-highlight);
-  background: #16262d;
+.subscription-blueprint {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
 
-  &:before {
-    content: '';
-    position: absolute;
-    left: auto;
-    top: -16rem;
-    right: -5rem;
-    width: 36rem;
-    height: 36rem;
-    background: radial-gradient(circle closest-side,
-    color-mix(in srgb, var(--color-accent) 35%, transparent), transparent);
-    pointer-events: none;
+  &.rocket {
+    top: 2rem;
+    right: 0.4rem;
+    width: $blueprint-art-width - 0.4rem;
+    height: calc(100% - 2rem);
   }
 
-  > .subscription-cta-copy {
-    position: relative;
+  &.section {
+    top: 3.6rem;
+    right: 23rem;
+    width: 13rem;
+    height: 14.8rem;
   }
 
-  > .button {
-    flex: 0 0 auto;
-    margin-left: auto;
-    height: auto;
-    padding: 1.3rem 3.6rem;
-    font-size: 1.5rem;
-    line-height: 1.2;
-    white-space: nowrap;
-    @include landing-button-hover;
+  text {
+    fill: rgba(#fff, 0.55);
+    stroke: none;
+    font-family: $font-face-mono;
+    font-size: 11px;
+    text-anchor: middle;
   }
 
   @media all and (max-width: $responsive-mobile-browser-width) {
-    margin: 0 0 $space-standard;
-    flex-direction: column;
-    align-items: stretch;
-    gap: $space-standard;
+    display: none;
+  }
+}
+
+.subscription-diy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(44rem, 100%), 1fr));
+  gap: 3.2rem;
+  margin-top: 4.4rem;
+}
+
+.subscription-diy-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 3.2rem;
+  border: 1px dashed $blueprint-line;
+  background: rgba(#000, 0.1);
+  color: #e3f1ff;
+  @include blueprint-corners($blueprint-line);
+
+  &.hosted {
+    border: 1.5px solid #fff;
+    background: rgba(#fff, 0.1);
+    color: #fff;
+    @include blueprint-corners(#fff);
+  }
+
+  > .subscription-diy-caption {
+    color: $blueprint-ink;
+    font-family: $font-face-mono;
+    font-size: 1.25rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  > .subscription-diy-summary {
+    margin: auto 0 0;
+    padding-top: 2.4rem;
+    color: $blueprint-ink;
+    font-size: 1.6rem;
+    text-align: left;
+  }
+
+  &.hosted > .subscription-diy-caption,
+  &.hosted > .subscription-diy-summary {
+    color: #fff;
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
     padding: $space-standard;
+  }
+}
 
-    &:before {
-      top: auto;
-      right: -16rem;
-      bottom: -16rem;
-    }
+.subscription-diy-steps,
+.subscription-diy-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  margin: 2.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: inherit;
+  font-size: 1.7rem;
 
-    > .button {
-      margin-left: 0;
+  > li {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+  }
+}
+
+.subscription-diy-benefits {
+  margin-top: 2rem;
+
+  > li {
+    gap: 1.2rem;
+
+    > svg {
+      flex-shrink: 0;
     }
+  }
+}
+
+.subscription-diy-step-number {
+  display: flex;
+  flex: 0 0 3rem;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  border: 1px solid rgba(#fff, 0.7);
+  border-radius: 50%;
+  color: #fff;
+  font-family: $font-face-mono;
+  font-size: 1.4rem;
+}
+
+.subscription-diy-request {
+  margin-top: 2.2rem;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid rgba(#fff, 0.5);
+  font-family: $font-face-mono;
+  font-size: 1.5rem;
+  overflow-wrap: anywhere;
+
+  > span {
+    color: $blueprint-ink;
+  }
+}
+
+//coverage
+
+.subscription-coverage-block {
+  background: radial-gradient(90rem 60rem at 0% 0%, rgba($landing-accent, 0.24), transparent 60%),
+  radial-gradient(90rem 60rem at 100% 100%, rgba($landing-cyan, 0.22), transparent 60%),
+  var(--color-dashboard-bg);
+}
+
+.subscription-coverage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.4rem 5.6rem;
+
+  h2 {
+    font-size: 3.4rem;
+    line-height: 1.12;
+  }
+}
+
+.subscription-coverage-summary {
+  flex: 1 1 28rem;
+  min-width: 0;
+  max-width: 34rem;
+
+  > .subscription-coverage-total {
+    margin-top: 2.2rem;
+    color: var(--color-title);
+    font-family: $font-face-header;
+    font-size: 7.2rem;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  > .subscription-coverage-text {
+    color: var(--color-muted);
+    font-size: 1.5rem;
+  }
+}
+
+.subscription-coverage-grid {
+  flex: 999 1 56rem;
+  min-width: 0;
+  display: grid;
+  //four columns at most, so the eight domains always split into even rows
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(17rem, (100% - 2.4rem) / 4)), 1fr));
+  align-content: start;
+  gap: 0.8rem;
+}
+
+.subscription-coverage-item {
+  display: flex;
+  flex-direction: column;
+  padding: 2.2rem 2.2rem 2.4rem;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-panel);
+  text-align: right;
+
+  > .subscription-coverage-count {
+    color: var(--color-cyan);
+    font-family: $font-face-header;
+    font-size: 4rem;
+    letter-spacing: $header-letter-spacing;
+    line-height: 1;
+  }
+
+  > .subscription-coverage-title {
+    margin-top: 1.4rem;
+    color: var(--color-title);
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  > .subscription-coverage-description {
+    margin-top: 0.4rem;
+    color: var(--color-muted);
+    font-size: 1.3rem;
+  }
+}
+
+//reliability
+
+.subscription-reliability-block {
+  background: linear-gradient(110deg, #0c232b 0%, #141a31 100%);
+}
+
+.subscription-reliability {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3.2rem 5.6rem;
+
+  > div:first-child {
+    flex: 1 1 36rem;
+    min-width: 0;
+    max-width: 52rem;
+  }
+}
+
+.subscription-reliability-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.4rem 6.4rem;
+  text-align: right;
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    text-align: left;
+  }
+}
+
+.subscription-reliability-value {
+  color: var(--color-cyan);
+  font-family: $font-face-header;
+  font-size: 8.4rem;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    font-size: 6rem;
+  }
+}
+
+.subscription-reliability-label {
+  margin-top: 1rem;
+  color: var(--color-muted);
+  font-size: 1.5rem;
+}
+
+.subscription-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(28rem, 100%), 1fr));
+  gap: 3.2rem;
+  margin-top: 4.8rem;
+}
+
+.subscription-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.6rem;
+
+  > .subscription-feature-icon {
+    display: flex;
+    flex: 0 0 4.4rem;
+    align-items: center;
+    justify-content: center;
+    height: 4.4rem;
+    background: rgba(#fff, 0.06);
+    color: var(--color-limit);
+  }
+
+  .subscription-feature-title {
+    color: var(--color-title);
+    font-size: 1.6rem;
+    font-weight: bold;
+  }
+
+  .subscription-feature-text {
+    margin-top: 0.6rem;
+    color: var(--color-muted);
+    font-size: 1.4rem;
+    text-align: left;
+  }
+}
+
+//agentic access, closing the plans block
+
+.subscription-agents {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2.4rem 4.8rem;
+  margin-top: 2rem;
+  padding-top: 5.6rem;
+
+  > div:nth-child(2) {
+    flex: 1 1 32rem;
+    min-width: 0;
   }
 
   h3 {
-    margin-top: 0;
-    font-size: 2.6rem;
+    margin: 1rem 0 0;
+    color: var(--color-title);
+    font-size: 2.8rem;
+    line-height: 1.15;
   }
 
-  .button {
-    margin-bottom: 0;
+  .subscription-block-lead {
+    margin-top: 1rem;
+    color: var(--color-limit);
+    font-size: 1.5rem;
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    margin-top: $space-double;
+    padding-top: $space-double;
   }
 }
+
+.subscription-agents-watermark {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  right: -6rem;
+  transform: translateY(-40%);
+  color: rgba(#fff, 0.04);
+  font-family: $font-face-header;
+  font-size: 30rem;
+  font-weight: normal;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.subscription-agents-flow {
+  flex: 1 1 36rem;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 2rem;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-panel);
+  font-family: $font-face-mono;
+  font-size: 1.2rem;
+  opacity: 0.8;
+
+  > .subscription-agents-step {
+    padding: 0.6rem 0.8rem;
+    background: var(--color-dashboard-bg);
+    color: var(--color-title);
+    letter-spacing: 0;
+
+    &.warning {
+      color: #f0b45a;
+    }
+
+    &.success {
+      color: $landing-success;
+    }
+  }
+
+  > .subscription-agents-arrow {
+    color: #56707a;
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    padding: $space-standard;
+  }
+}
+
+//questions
+
+.subscription-faq-block {
+  background: linear-gradient(180deg, var(--color-dashboard-bg) 0%, #111e25 100%);
+}
+
+.subscription-faq {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(34rem, 100%), 1fr));
+  gap: 1.6rem;
+  margin: 3.2rem 0 0;
+  letter-spacing: normal;
+  line-height: $font-line-height-base;
+}
+
+.subscription-faq-item {
+  padding: 2.4rem 2.6rem;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-panel);
+
+  > .subscription-faq-question {
+    display: flex;
+    align-items: baseline;
+    gap: 1.2rem;
+    color: var(--color-title);
+    font-size: 1.6rem;
+    font-weight: bold;
+  }
+
+  > .subscription-faq-answer {
+    display: block;
+    margin: 0.8rem 0 0 3rem;
+    padding: 0;
+    color: var(--color-muted);
+    font-size: 1.4rem;
+
+    &:after {
+      content: none;
+    }
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    padding: $space-standard;
+  }
+}
+
+.subscription-faq-index {
+  flex: 0 0 1.8rem;
+  color: var(--color-cyan);
+  font-family: $font-face-mono;
+  font-size: 1.2rem;
+  font-weight: 300;
+}
+
+//page chrome
 
 .pricing-header {
   position: relative;
   z-index: 2;
   background: transparent;
   border-bottom-color: transparent;
+
+  > .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.6rem;
+  }
+
+  .logo {
+    float: none;
+  }
+}
+
+.pricing-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2.8rem;
+  font-size: 1.5rem;
+  font-weight: 300;
+
+  > a {
+    color: #bcd2d7;
+
+    &.current {
+      color: #eaf5f7;
+    }
+
+    &.pricing-header-sign-in {
+      color: $landing-cyan-soft;
+    }
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    gap: 1.6rem;
+  }
 }
 
 .pricing-page {
@@ -999,9 +1452,10 @@ $landing-ink: #0b1f26;
 }
 
 .pricing-footer {
-  padding: 2.4rem 0;
+  padding: 2.8rem 0 4rem;
   background: transparent;
   border-top: 1px solid var(--color-rule);
+  color: #8fa8ae;
   font-size: 1.3rem;
   line-height: 1.5;
 
@@ -1013,11 +1467,11 @@ $landing-ink: #0b1f26;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 0.9rem 2rem;
-    margin-top: 0.9rem;
+    gap: 0.8rem 2.4rem;
+    margin-top: 1rem;
 
     a {
-      color: #4ec3ea;
+      color: $landing-cyan-soft;
 
       &:hover {
         color: $landing-accent;

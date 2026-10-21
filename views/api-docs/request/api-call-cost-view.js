@@ -32,7 +32,7 @@ export default function ApiCallCostView({params = [], requestString, enabled}) {
     return <div className="api-call-cost text-small">
         {/*the tooltip icon is absolutely positioned, so it has to sit inside an inline-flow item, not in the flex row*/}
         <span className="api-call-cost-label">Estimated cost<InfoTooltip>
-            How many photons (compute units) this call is charged with the arguments set above. The price depends on
+            How many compute units this call is charged with the arguments set above. The price depends on
             the endpoint and on the arguments - the page size, the number of items in a batch request, the applied
             filters, the requested time range. Quoting the price is free of charge and does not execute the request.
         </InfoTooltip></span>
@@ -51,13 +51,13 @@ function EstimateView({cost, inProgress, error}) {
         return <span className="dimmed">estimating<InlineProgress/></span>
     //keep the previous quote on screen while the next one is in flight instead of blinking the value away
     return <span className={inProgress ? 'dimmed' : undefined}>
-        <b>{formatWithAutoPrecision(cost)}</b> {cost === 1 ? 'photon' : 'photons'}
+        <b>{formatWithAutoPrecision(cost)}</b> {cost === 1 ? 'compute unit' : 'compute units'}
     </span>
 }
 
 /**
  * @typedef {{}} CallCostEstimate
- * @property {Number|null} cost - quoted price in photons, null until the first quote arrives
+ * @property {Number|null} cost - quoted price in compute units, null until the first quote arrives
  * @property {Boolean} inProgress - whether a quote is in flight
  * @property {String|null} error - reason the endpoint refused to quote the price
  */

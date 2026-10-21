@@ -130,7 +130,7 @@ export default function LoginFormView() {
                             <div>Already have an account? <a href="#" onClick={switchTo('login')}>
                                 Sign in</a></div>
                             <div className="dimmed">By creating an account you accept the{' '}
-                                <a href="/info/tos">terms of use</a> and{' '}
+                                <a href="/info/tos">terms of service</a> and{' '}
                                 <a href="/info/privacy">privacy policy</a>.</div>
                         </> : null}
                         {isReset ? <>

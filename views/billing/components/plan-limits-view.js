@@ -3,14 +3,14 @@ import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 
 /**
  * The limits a plan grants, as a row of accented figures
- * @param {{photons: Number, requestsPerMinute: Number, batchSize: Number}} limits
+ * @param {{computeUnits: Number, requestsPerMinute: Number, batchSize: Number}} limits
  * @param {String} support
  * @param {Boolean} [custom] - limits agreed per customer rather than published
  * @return {JSX.Element}
  */
 export default function PlanLimitsView({limits, support, custom}) {
     const entries = [
-        {value: limits?.photons, caption: 'PHOTONS/MONTH'},
+        {value: limits?.computeUnits, caption: 'COMPUTE UNITS/MONTH'},
         {value: limits?.requestsPerMinute, caption: 'REQUESTS/MINUTE'},
         {value: limits?.batchSize, caption: 'ITEMS/BATCH RESPONSE'},
         {value: support, caption: 'SUPPORT', text: true}

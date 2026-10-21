@@ -18,20 +18,26 @@ export default function HeroBlockView() {
                     <div className="subscription-eyebrow">StellarExpert API plans</div>
                     <h1>
                         Every account, asset and<br/>
-                        trade on Stellar<span className="accent">.</span><br/>
-                        One API key<span className="accent">.</span>
+                        trade on Stellar<span className="accent"></span><br/>
+                        With one API key<span className="accent"></span>
                     </h1>
+                    <div className="subscription-hero-request">
+                        <span className="subscription-hero-request-method">GET</span>
+                        <span className="subscription-hero-request-path">{'/explorer/public/contract/{id}/events'}</span>
+                        <span className="subscription-hero-request-status">200 OK</span>
+                    </div>
                     <p className="subscription-lead">
-                        The same indexed data that powers the explorer, available for your own product.
-                        Pick a plan by the photons you burn each month, not by seat count or feature checklists.
+                        The same indexed data that powers the explorer, fully indexed and aggregated, is available for your own app.
+                        <br/>
+                        Start developing right away or reach us for a custom plan.
                     </p>
                     <div className="row space subscription-hero-actions">
                         <div className="column column-50">
-                            <a href="#plans" className="button button-block" onClick={scrollToPlans}>See plans</a>
+                            <a href="#plans" className="button button-block" onClick={scrollToPlans}>Compare plans</a>
                         </div>
                         <div className="mobile-only space"/>
                         <div className="column column-50">
-                            <a href="/openapi.html" target="_blank" className="button button-block button-outline">
+                            <a href="/api-docs" target="_blank" className="button button-block button-outline">
                                 Read the docs
                             </a>
                         </div>

@@ -38,7 +38,7 @@ export default function PlanSelectorView({currentPlan, currentTerm, period, onSe
                     <div className="billing-plan-price">
                         {plan.custom ? <>
                             <span className="subscription-plan-amount">Custom</span>
-                            <div className="dimmed text-tiny">Quoted per contract</div>
+                            <div className="dimmed text-tiny">Flexible</div>
                         </> : <>
                             {!!price.term && !!isYearly && <div className="dimmed text-tiny">
                                 <s>${formatPrice(price.full)}</s>

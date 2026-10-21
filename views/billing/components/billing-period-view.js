@@ -41,7 +41,7 @@ function resolveCurrentPeriod({from, to}, now) {
 }
 
 /**
- * Photons charged within the window, totalled from the daily series the dashboard already loads
+ * Compute units charged within the window, totalled from the daily series the dashboard already loads
  * @param {{ts: Number, credits: Number}[]} [usage] - daily totals, `ts` in Unix seconds
  * @param {Number} start - epoch ms
  * @param {Number} end - epoch ms
@@ -73,7 +73,7 @@ export default function BillingPeriodView({account, usage}) {
         return null
 
     const {plan} = subscription
-    const {photons: limit, requestsPerMinute, batchSize} = resolveSubscriptionLimits(subscription)
+    const {computeUnits: limit, requestsPerMinute, batchSize} = resolveSubscriptionLimits(subscription)
     const {start, end, elapsed, length, daysLeft} = resolveCurrentPeriod(subscription, Date.now())
     //totalled over the window shown rather than over a trailing month
     const used = sumPeriodUsage(usage, start, end)
@@ -91,7 +91,7 @@ export default function BillingPeriodView({account, usage}) {
                     <div className="dual-layout billing-period-headline">
                         <div>
                             <span className="billing-period-value">{formatWithAutoPrecision(used)}</span>
-                            {!!limit && <span className="dimmed"> of {formatWithAutoPrecision(limit)} photons</span>}
+                            {!!limit && <span className="dimmed"> of {formatWithAutoPrecision(limit)} compute units</span>}
                         </div>
                         <span className="dimmed space">{planName} plan</span>
                     </div>
@@ -109,7 +109,7 @@ export default function BillingPeriodView({account, usage}) {
                         <span>{formatWithAutoPrecision(limit)}</span>
                     </div>}
                     {!limit && <div className="billing-quota-scale dimmed text-tiny">
-                        <span>No photon allowance included</span>
+                        <span>No compute unit allowance included</span>
                     </div>}
                     <div className="row billing-period-facts micro-space text-small">
                         {!!requestsPerMinute && <div className="column column-33">
@@ -122,7 +122,7 @@ export default function BillingPeriodView({account, usage}) {
                         </div>}
                         {!!used && <div className="column column-33">
                             <div className="dimmed nano-space">Projected period end</div>
-                            <div><strong>{formatWithAutoPrecision(projected)} photons</strong></div>
+                            <div><strong>{formatWithAutoPrecision(projected)} compute units</strong></div>
                         </div>}
                     </div>
                     <div className="mobile-only space"/>

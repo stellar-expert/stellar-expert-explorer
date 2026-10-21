@@ -36,7 +36,7 @@ export function sectionIcon(slug) {
 export const introChapters = [
     {id: 'introduction', title: 'Introduction', icon: 'icon-document'},
     {id: 'authentication', title: 'Authentication', icon: 'icon-key'},
-    {id: 'pricing', title: 'Pricing & photons', icon: 'icon-flash', href: '/pricing'},
+    {id: 'pricing', title: 'Pricing & compute units', icon: 'icon-flash', href: '/pricing'},
     {id: 'conventions', title: 'Conventions', icon: 'icon-settings'},
     {id: 'pagination', title: 'Pagination', icon: 'icon-menu'},
     {id: 'rate-limits', title: 'Errors & rate limits', icon: 'icon-warning-circle'},
@@ -90,7 +90,7 @@ export function describeOperationTraits(operation) {
     const traits = []
     //only priced routes declare the "estimate" switch
     traits.push(params.some(isEstimateParam) ?
-        {title: 'Paid', hint: 'Every call is charged in photons, the price depends on the arguments'} :
+        {title: 'Paid', hint: 'Every call is charged in compute units, the price depends on the arguments'} :
         {title: 'Free', hint: 'Calls to this endpoint are not charged'})
     if (params.some(p => p.in === 'query' && p.name === 'cursor'))
         traits.push({title: 'Paginated', hint: 'Returns a page of records with prev/next navigation links'})

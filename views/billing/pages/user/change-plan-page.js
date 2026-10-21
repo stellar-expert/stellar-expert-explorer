@@ -67,15 +67,15 @@ export default function ChangePlanPage() {
             <PlanSelectorView currentPlan={currentPlan} currentTerm={currentTerm} period={period}
                               onSelect={selectPlan}/>
         </div>
-        <div className="card card-blank billing-card billing-photon-note space">
+        <div className="card card-blank billing-card billing-compute-units-note space">
             <div className="dual-layout">
                 <div className="dimmed text-small">
-                    A photon is one compute unit. Each request charges a different number of photons depending
+                    Each request charges a different number of compute units depending
                     on how much work the query does. When the monthly allocation runs out, requests keep working
                     at free-tier limits (60 req/min, free endpoints) until the next cycle — we prompt you to
                     upgrade instead of cutting you off.
                 </div>
-                <a href="/openapi.html" target="_blank" className="nowrap">Photon reference&nbsp;→</a>
+                <a href="/openapi.html" target="_blank" className="nowrap">Compute unit reference&nbsp;→</a>
             </div>
         </div>
     </SimplePageLayout>

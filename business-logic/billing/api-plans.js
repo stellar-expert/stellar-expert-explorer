@@ -1,18 +1,17 @@
 import {formatWithAbbreviation, formatWithAutoPrecision} from '@stellar-expert/formatter'
 
 /**
- * Public API plan catalogue - the single vocabulary the whole dashboard speaks, from the /subscription
- * landing to the admin plan picker. It mirrors the server's own catalogue in `src/api-plans.js`, which is
- * the authority: a preset plan is stored with the limits published there, whatever a client sends.
- *
- * A stored subscription still keeps `monthlyCredits` and `rpsLimit` - the gateways read those fields, so
- * they are converted here (`toStoredLimits`, `describeSubscriptionLimits`) rather than renamed.
+ * Public API plan catalogue - the single vocabulary the whole dashboard speaks, from the /pricing
+ * landing to the admin plan picker. It mirrors the server's own catalogue in
+ * `business-logic/billing/api-plans.js`, which is the authority: a preset plan is stored with the limits
+ * published there, whatever a client sends.
  */
 
 /**
  * @typedef {Object} PlanLimits
- * @property {Number|null} photons - monthly allowance; null on a quoted plan, 0 when there is none
+ * @property {Number|null} computeUnits - monthly allowance; null on a quoted plan, 0 when there is none
  * @property {Number|null} requestsPerMinute
+ * @property {Number|null} requestsPerHour
  * @property {Number|null} batchSize - max items in a batch response
  */
 
@@ -46,8 +45,8 @@ export const freePlan = {
     icon: 'icon-star',
     audience: 'Free public endpoints for experiments and hobby projects',
     price: 0,
-    limits: {photons: 0, requestsPerMinute: 60, batchSize: 25},
-    endpoints: 'Free API endpoints only',
+    limits: {computeUnits: 0, requestsPerMinute: 60, requestsPerHour: 800, batchSize: 25},
+    endpoints: 'Free Mainnet + All Testnet endpoints',
     support: 'Community'
 }
 
@@ -56,13 +55,24 @@ export const freePlan = {
  */
 export const paidPlans = [
     {
+        key: 'navigator',
+        name: 'Navigator',
+        icon: 'icon-rocket',
+        audience: 'For personal use and research',
+        price: 40,
+        yearlyPrice: 384,
+        limits: {computeUnits: 2_500, requestsPerMinute: 60, requestsPerHour: 1800, batchSize: 100},
+        endpoints: 'All API endpoints',
+        support: 'Email'
+    },
+    {
         key: 'observer',
         name: 'Observer',
         icon: 'icon-zoom-in',
         audience: 'For production apps with steady traffic',
-        price: 90,
-        yearlyPrice: 750,
-        limits: {photons: 10_000, requestsPerMinute: 600, batchSize: 200},
+        price: 180,
+        yearlyPrice: 1620,
+        limits: {computeUnits: 10_000, requestsPerMinute: 240, requestsPerHour: 7200, batchSize: 200},
         endpoints: 'All API endpoints',
         support: 'Email'
     },
@@ -70,10 +80,10 @@ export const paidPlans = [
         key: 'astronomer',
         name: 'Astronomer',
         icon: 'icon-bright-star',
-        audience: 'For data-heavy services, indexers and dashboards',
-        price: 160,
-        yearlyPrice: 1_300,
-        limits: {photons: 50_000, requestsPerMinute: 1_800, batchSize: 1_000},
+        audience: 'For data-heavy services, indexers and apps',
+        price: 340,
+        yearlyPrice: 2856,
+        limits: {computeUnits: 50_000, requestsPerMinute: 480, requestsPerHour: 18000, batchSize: 1000},
         endpoints: 'All API endpoints',
         support: 'Email',
         popular: true
@@ -82,10 +92,10 @@ export const paidPlans = [
         key: 'cosmographer',
         name: 'Cosmographer',
         icon: 'icon-spiral',
-        audience: 'Fully customizable limits, dedicated capacity and SLA',
+        audience: 'Fully customizable limits, private endpoints, dedicated support',
         price: null,
         yearlyPrice: null,
-        limits: {photons: null, requestsPerMinute: null, batchSize: null},
+        limits: {computeUnits: null, requestsPerMinute: null, requestsPerHour: null, batchSize: null},
         endpoints: 'All API endpoints',
         support: 'Priority',
         custom: true
@@ -144,21 +154,6 @@ export function formatPrice(amount) {
 }
 
 /**
- * Limits of a catalogue plan in the shape a stored subscription keeps them
- * @param {ApiPlan} plan
- * @return {{monthlyCredits: Number, rpsLimit: Number}|null} - null when they are agreed per customer, which
- * leaves whatever staff entered by hand alone
- */
-function toStoredLimits({limits, custom}) {
-    if (custom)
-        return null
-    return {
-        monthlyCredits: limits.photons || 0,
-        rpsLimit: limits.requestsPerMinute ? Math.round(limits.requestsPerMinute / 60) : 0
-    }
-}
-
-/**
  * The plan an account is on
  * @param {{subscription: {plan: String}}} [account]
  * @return {ApiPlan|undefined} - undefined only for a stored plan that is not in the catalogue
@@ -169,17 +164,17 @@ export function resolveAccountPlan(account) {
 }
 
 /**
- * What a stored subscription allows, whichever vintage the record is
- * @param {{limits: PlanLimits, monthlyCredits: Number, rpsLimit: Number, maxBatchSize: Number}} [subscription]
+ * What a stored subscription allows
+ * @param {{limits: PlanLimits}} [subscription]
  * @return {PlanLimits}
  */
 export function resolveSubscriptionLimits(subscription) {
-    const {limits, monthlyCredits, rpsLimit, maxBatchSize} = subscription || {}
+    const {limits} = subscription || {}
     return {
-        photons: limits?.photons ?? monthlyCredits ?? 0,
-        //`rpsLimit` counts per second, the published limit per minute
-        requestsPerMinute: limits?.requestsPerMinute ?? (rpsLimit ? rpsLimit * 60 : 0),
-        batchSize: limits?.batchSize ?? maxBatchSize ?? 0
+        computeUnits: limits?.computeUnits ?? 0,
+        requestsPerMinute: limits?.requestsPerMinute ?? 0,
+        requestsPerHour: limits?.requestsPerHour ?? 0,
+        batchSize: limits?.batchSize ?? 0
     }
 }
 
@@ -189,13 +184,16 @@ export function resolveSubscriptionLimits(subscription) {
  * @return {String} - empty when the record carries no limits at all
  */
 export function describeSubscriptionLimits(subscription) {
-    const {photons, requestsPerMinute} = resolveSubscriptionLimits(subscription)
+    const limits = resolveSubscriptionLimits(subscription)
     const parts = []
-    if (photons) {
-        parts.push(`${formatWithAbbreviation(photons)}/mo`)
+    if (limits.computeUnits) {
+        parts.push(`${formatWithAbbreviation(limits.computeUnits)}/mo`)
     }
-    if (requestsPerMinute) {
-        parts.push(`${formatWithAutoPrecision(requestsPerMinute)} req/min`)
+    if (limits.requestsPerMinute) {
+        parts.push(`${formatWithAutoPrecision(limits.requestsPerMinute)} req/min`)
+    }
+    if (limits.requestsPerHour) {
+        parts.push(`${formatWithAutoPrecision(limits.requestsPerHour)} req/h`)
     }
     return parts.join(' · ')
 }
@@ -206,8 +204,7 @@ export function describeSubscriptionLimits(subscription) {
  * @return {String}
  */
 export function describePlanShort(plan) {
-    const stored = toStoredLimits(plan)
-    return stored ? describeSubscriptionLimits(stored) : 'Custom options'
+    return describeSubscriptionLimits(plan)
 }
 
 /**
@@ -234,12 +231,13 @@ function describeLimit(value, custom) {
 export function describePlanLimits({limits, support, endpoints, custom}) {
     const rows = []
     //the free tier has no allowance to quote
-    if (custom || limits.photons) {
-        rows.push({value: describeLimit(limits.photons, custom), label: 'photons / month'})
+    if (custom || limits.computeUnits) {
+        rows.push({value: describeLimit(limits.computeUnits, custom), label: 'compute units / month'})
     }
     rows.push(
         {value: describeLimit(limits.requestsPerMinute, custom), label: 'requests / minute'},
-        {value: describeLimit(limits.batchSize, custom), label: 'items per batch response'}
+        {value: describeLimit(limits.requestsPerHour, custom), label: 'requests / hour'},
+        {value: describeLimit(limits.batchSize, custom), label: 'max items in batch response'}
     )
     if (endpoints) {
         rows.push({label: endpoints})

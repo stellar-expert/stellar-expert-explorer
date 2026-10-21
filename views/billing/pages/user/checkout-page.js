@@ -166,7 +166,7 @@ function resolveUnusedCredit(subscription) {
  */
 function OrderSummaryView({plan, period, subscription}) {
     const total = resolvePlanPrice(plan, period).term
-    const allowance = plan.limits.photons
+    const allowance = plan.limits.computeUnits
     const credit = Math.min(resolveUnusedCredit(subscription), total)
     const due = total - credit
     const [, renewsOn] = getSubscriptionPeriod(period)
@@ -181,7 +181,7 @@ function OrderSummaryView({plan, period, subscription}) {
             </div>
             <div className="dimmed text-tiny">
                 {period === 'year' ? 'Yearly' : 'Monthly'} billing
-                {!!allowance && <> · {formatWithAutoPrecision(allowance)} photons/month</>}
+                {!!allowance && <> · {formatWithAutoPrecision(allowance)} compute units/month</>}
             </div>
         </div>
         <hr className="micro-space"/>
