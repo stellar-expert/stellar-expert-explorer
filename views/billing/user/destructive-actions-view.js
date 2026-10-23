@@ -28,12 +28,13 @@ export default function DestructiveActionsView({onKeysRevoked}) {
     }, [userId, onKeysRevoked])
 
     const deleteAccount = useCallback(async () => {
-        if (!await confirmAction('Delete the account? Its API keys stop working and the credits are burned.'))
+        if (!await confirmAction('Delete the account? The subscription is cancelled immediately with no refund, ' +
+            'its API keys stop working and the credits are burned.'))
             return
         setIsProgress(true)
         apiRequest(`account/${userId}`, {method: 'DELETE'})
             .then(() => signOut())
-            .catch(() => notify({type: 'error', message: 'Failed to delete your account'}))
+            .catch(err => notify({type: 'error', message: 'Failed to delete your account. ' + err.message}))
             .finally(() => setIsProgress(false))
     }, [userId])
 
@@ -42,8 +43,10 @@ export default function DestructiveActionsView({onKeysRevoked}) {
         <DangerRowView title="Revoke all API keys" action="Revoke keys" disabled={isProgress} onAction={revokeKeys}
                        description="Every key stops working immediately. Your subscription and usage history are kept."/>
         <DangerRowView title="Delete account" action="Delete account" disabled={isProgress} onAction={deleteAccount}
-                       description="Every API key stops working and the remaining credits are burned. Signing in again
-                                    offers to restore the account, but the credits do not come back."/>
+                       description="The subscription is cancelled immediately with no refund for the unused time,
+                                    every API key stops working and the remaining credits are burned. Signing in
+                                    again offers to restore the account, but the subscription and the credits do
+                                    not come back."/>
     </div>
 }
 

@@ -3,6 +3,8 @@ import {Button, navigation} from '@stellar-expert/ui-framework'
 import {getRoles, isSignedIn, logIn, requestPasswordReset, signUp}
     from '../../../business-logic/billing/billing-session'
 import {isValidEmail} from '../../../business-logic/billing/email'
+import {resolveReturnPath} from '../../../business-logic/billing/return-path'
+import {useSession} from './session-context'
 import {AuthScreenView, FieldView, PasswordFieldView, checkNewPassword, fail, passwordHint}
     from './auth-form'
 
@@ -18,6 +20,8 @@ const screens = {
  * @return {JSX.Element}
  */
 export default function LoginFormView() {
+    //only a dashboard page wraps the form in a session provider - the /login page has none
+    const {reload} = useSession()
     const [screen, setScreen] = useState('login')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -69,19 +73,23 @@ export default function LoginFormView() {
         setIsProgress(true)
         try {
             await (isSignUp ? signUp : logIn)({email, password})
-            const isAdmin = getRoles().includes('admin')
-            navigation.navigate(isAdmin ? '/admin' : '/account')
         } catch (e) {
-            fail(e.message || 'Something went wrong. Please try again.')
-        } finally {
             setIsProgress(false)
+            return fail(e.message || 'Something went wrong. Please try again.')
         }
-    }, [email, password, repeated, screen, isReset, isSignUp, sendResetLink])
+        if (reload) {
+            //shown in place of a dashboard page, which is where the visitor was going - a checkout link from
+            //the pricing page, say - so the page stays and only the session catches up
+            reload()
+        } else {
+            navigation.navigate(resolveReturnPath(getRoles().includes('admin') ? '/admin' : '/account'))
+        }
+    }, [email, password, repeated, screen, isReset, isSignUp, sendResetLink, reload])
 
     //nothing to sign in to - the dashboard is already reachable
     useEffect(() => {
-        if (isSignedIn()) {
-            navigation.navigate('/account')
+        if (isSignedIn() && !reload) {
+            navigation.navigate(resolveReturnPath('/account'))
         }
     }, [])
 

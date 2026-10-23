@@ -5,8 +5,11 @@ import {formatWithAutoPrecision, shortenString} from '@stellar-expert/formatter'
 import {apiRequest} from '../../../../business-logic/billing/billing-api'
 import {allPlans, findPlan} from '../../../../business-logic/billing/api-plans'
 import {addMonths, describeDays, getDaysLeft} from '../../utils/date-resolver'
+import {confirmAction} from '../../utils/confirm-action'
 import SimplePageLayout from '../../layout/simple-page-layout'
 import SegmentLoader from '../../utils/segment-loader-view'
+import NoticeView from '../../components/notice-view'
+import SubscriptionSummaryView, {ProviderBadgeView} from '../../components/subscription-summary-view'
 
 /**
  * Term extensions the server accepts - `extendOptions` in its `src/subscription.js`
@@ -104,6 +107,11 @@ export default function UserSubscriptionPage() {
     const {subscription} = account
     const isTermSet = !!subscription || !!form.extendMonths
 
+    if (subscription?.provider === 'paddle')
+        return <SimplePageLayout title="Subscription" action={action}>
+            <PaddleSubscriptionView account={account} back={back}/>
+        </SimplePageLayout>
+
     return <SimplePageLayout title={title} action={action}>
         <div className="row">
             <div className="column column-50">
@@ -156,6 +164,83 @@ export default function UserSubscriptionPage() {
             </div>
         </div>
     </SimplePageLayout>
+}
+
+/**
+ * A subscription the customer bought through Paddle. Its plan and term follow the payments Paddle reports, so
+ * staff can look at it and end it, but not edit it
+ * @param {{id: String, subscription: {}}} account
+ * @param {String} back - where to return once it is cancelled
+ * @return {JSX.Element}
+ * @private
+ */
+function PaddleSubscriptionView({account, back}) {
+    const {id, subscription} = account
+    const {subscriptionId, nextBilledAt, scheduledChange} = subscription.paddle || {}
+    const [environment, setEnvironment] = useState()
+    const [isProgress, setIsProgress] = useState(false)
+
+    useEffect(() => {
+        apiRequest('plans', {auth: false})
+            .then(res => setEnvironment(res.paddle?.environment))
+            .catch(() => setEnvironment(undefined))
+    }, [])
+
+    const cancel = useCallback(async () => {
+        if (!await confirmAction('Cancel the subscription immediately? Paddle stops billing now and the account ' +
+            'drops to the free plan. Nothing is refunded automatically - issue a refund from the Paddle dashboard ' +
+            'if one is due.'))
+            return
+        setIsProgress(true)
+        apiRequest(`account/${id}/subscription`, {method: 'DELETE'})
+            .then(() => {
+                notify({type: 'success', message: 'Subscription has been cancelled'})
+                navigation.navigate(back)
+            })
+            .catch(error => {
+                notify({type: 'error', message: 'Failed to cancel the subscription. ' + error?.message})
+                setIsProgress(false)
+            })
+    }, [id, back])
+
+    const dashboardLink = subscriptionId && environment &&
+        `https://${environment === 'sandbox' ? 'sandbox-' : ''}vendors.paddle.com/subscriptions-v2/${subscriptionId}`
+
+    return <div className="row">
+        <div className="column column-50">
+            <SubscriptionSummaryView account={account}/>
+        </div>
+        <div className="column column-50">
+            <div className="card card-blank billing-card billing-subscription-terms">
+                <div className="dimmed text-small">PADDLE</div>
+                <NoticeView className="micro-space text-small">
+                    The customer bought this plan and manages it from their dashboard. Plan, limits and term follow
+                    the payments Paddle reports, so they cannot be edited here.
+                </NoticeView>
+                <div className="text-small">
+                    <div>Status: <ProviderBadgeView subscription={subscription}/></div>
+                    {!!nextBilledAt && <div>Next payment: <UtcTimestamp date={nextBilledAt} dateOnly/></div>}
+                    {!!scheduledChange?.effectiveAt && <div>
+                        Scheduled {scheduledChange.action}: <UtcTimestamp date={scheduledChange.effectiveAt} dateOnly/>
+                    </div>}
+                    {!!subscriptionId && <div>
+                        Subscription:{' '}
+                        {dashboardLink ?
+                            <a href={dashboardLink} target="_blank" rel="noreferrer noopener">{subscriptionId}</a> :
+                            <code>{subscriptionId}</code>}
+                    </div>}
+                </div>
+                <div className="row space">
+                    <div className="column column-50">
+                        <Button block outline disabled={isProgress} onClick={cancel}>Cancel immediately</Button>
+                    </div>
+                    <div className="column column-33">
+                        <Button block outline href={back}>Back</Button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 /**

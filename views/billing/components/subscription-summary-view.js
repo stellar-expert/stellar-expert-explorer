@@ -1,4 +1,5 @@
 import React from 'react'
+import cn from 'classnames'
 import {UtcTimestamp} from '@stellar-expert/ui-framework'
 import {formatDateUTC, formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {describePlanShort, describeSubscriptionLimits, resolveAccountPlan}
@@ -6,6 +7,15 @@ import {describePlanShort, describeSubscriptionLimits, resolveAccountPlan}
 import {isAwaitingCustomTariff} from '../../../business-logic/billing/account-status'
 import {describeDays, getDaysLeft} from '../utils/date-resolver'
 import SubscriptionTermView from './subscription-term-view'
+
+/**
+ * Badge style per Paddle subscription status
+ */
+const providerStatusStyles = {
+    active: 'billing-badge',
+    trialing: 'billing-badge',
+    past_due: 'billing-badge pending'
+}
 
 /**
  * Read-only summary of an account subscription - the plan and what it allows, how much of the paid term
@@ -28,12 +38,27 @@ export default function SubscriptionSummaryView({account}) {
         </div>
         <SubscriptionTermView from={from} to={to}/>
         <div className="dual-layout">
-            <div>{badge}</div>
+            <div>{badge}{!!badge && !!subscription?.paddle && ' '}<ProviderBadgeView subscription={subscription}/></div>
             <span className="dimmed text-tiny text-right">
                 {subscription ? <><UtcTimestamp date={to} dateOnly/>&nbsp;· {describeTerm(to)}</> : 'no expiry'}
             </span>
         </div>
     </div>
+}
+
+/**
+ * Marks a subscription the customer bought and pays for through Paddle, which staff cannot edit
+ * @param {{provider: String, paddle: {status: String}}} [subscription]
+ * @return {JSX.Element|null}
+ */
+export function ProviderBadgeView({subscription}) {
+    if (subscription?.provider !== 'paddle')
+        return null
+    const status = subscription.paddle?.status || 'active'
+    return <code className={cn('text-tiny nowrap', providerStatusStyles[status] || 'billing-badge inactive')}
+                 title="Paid through Paddle - the customer manages it from their dashboard">
+        paddle · {status.replace(/_/g, ' ')}
+    </code>
 }
 
 /**

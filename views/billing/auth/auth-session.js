@@ -4,6 +4,7 @@ import {apiRequest} from '../../../business-logic/billing/billing-api'
 import {getRoles, getSession, getToken, isSignedIn, logOut, mustSetPassword}
     from '../../../business-logic/billing/billing-session'
 import {isImpersonating} from '../../../business-logic/billing/impersonation'
+import {buildLoginUrl} from '../../../business-logic/billing/return-path'
 import {session, SessionContext, useSession} from './session-context'
 
 export {useSession}
@@ -39,7 +40,8 @@ export function SessionProvider({children}) {
             return
         getToken().catch(() => {
             notify({type: 'error', message: 'Your session has expired. Please sign in again'})
-            logOut().finally(() => navigation.navigate('/login'))
+            //back to the same page once signed in again
+            logOut().finally(() => navigation.navigate(buildLoginUrl()))
         })
     }, [])
 

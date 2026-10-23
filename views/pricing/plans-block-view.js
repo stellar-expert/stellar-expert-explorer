@@ -34,7 +34,7 @@ export default function PlansBlockView() {
             </div>
             <FreePlanBar/>
             <div className="subscription-plans-note">
-                Prices in USD. Pay by card or crypto through our payment processor.
+                Prices in USD, taxes included. Pay by card, PayPal, Apple Pay or Google Pay.
                 Cosmographer plans can be invoiced.
             </div>
             <ComputeUnitsBlockView/>
@@ -87,7 +87,9 @@ const PlanCard = React.memo(function PlanCard({plan, period}) {
                 'Flexible'}
         </div>
         {price.term ?
-            <Button href="/account/subscription/change" block>Choose {name}</Button> :
+            <Button href={`/account/subscription/checkout?plan=${key}&period=${period}`} block>
+                Choose {name}
+            </Button> :
             <EnterpriseRequestView dialogClassName="subscription-dialog"/>}
         <div className="subscription-plan-separator"/>
         <PlanLimits plan={plan}/>

@@ -417,13 +417,7 @@ $stat-value-line-height: 1.2;
   }
 
   .billing-card-brand {
-    display: inline-block;
-    width: 2.4em;
-    height: 1.5em;
-    border-radius: 0.2em;
-    background: var(--color-contrast-border);
-    text-indent: -999em;
-    overflow: hidden;
+    font-weight: bold;
   }
 }
 
@@ -648,73 +642,34 @@ $plan-amount-line-height: 1.1;
   }
 }
 
-.billing-payment-option {
-  display: flex;
-  align-items: center;
-  gap: $space-micro;
-  margin-top: $space-micro;
-  padding: $space-micro;
-  border: 1px solid var(--color-alt-border);
-  cursor: pointer;
+.billing-notice {
+  margin-bottom: $space-micro;
+  padding: 0.6em 0.9em;
+  border-left: 2px solid var(--color-highlight);
+  background: var(--color-alt-bg);
 
-  &.selected {
-    border-color: var(--color-highlight);
+  &.warning {
+    border-left-color: var(--color-warning);
+  }
+
+  .billing-card > & {
     background: var(--color-bg);
   }
 
-  &.disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-
-  > input[type=radio] {
-    appearance: none;
-    flex-shrink: 0;
-    position: relative;
-    width: 1.6rem;
-    height: 1.6rem;
-    margin: 0;
-    border: 1px solid var(--color-dimmed);
-    border-radius: 50%;
-    filter: none;
-    cursor: inherit;
-
-    &:checked {
-      border-color: var(--color-highlight);
-
-      &:after {
-        content: '';
-        position: absolute;
-        top: 0.3rem;
-        right: 0.3rem;
-        bottom: 0.3rem;
-        left: 0.3rem;
-        background: var(--color-highlight);
-        border-radius: 50%;
-      }
-    }
-  }
-
-  > span {
-    display: flex;
-    flex-direction: column;
+  .button {
+    margin: $space-nano 0 0;
   }
 }
 
-.billing-card-fields {
-  > div + div {
-    margin-top: $space-micro;
-  }
-
-  .billing-field-placeholder {
-    padding: 0.4em 0;
-    border-bottom: 1px solid var(--color-contrast-border);
-    font-family: $font-face-mono;
-    color: var(--color-dimmed);
-  }
+.billing-checkout-frame {
+  min-height: 1px;
 }
 
-.billing-checkout-methods,
+.billing-checkout > ul > li + li {
+  margin-top: $space-nano;
+}
+
+.billing-checkout,
 .billing-order-summary {
   height: auto;
   padding-bottom: $space-standard;

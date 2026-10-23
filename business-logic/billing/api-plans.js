@@ -154,6 +154,18 @@ export function formatPrice(amount) {
 }
 
 /**
+ * An amount charged or quoted, to the cent
+ * @param {Number} amount
+ * @param {String} [currency] - ISO code; every catalogue price is in USD
+ * @return {String}
+ */
+export function formatAmount(amount, currency = 'USD') {
+    const value = Math.abs(amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})
+    const sign = amount < 0 ? '−' : ''
+    return currency === 'USD' ? `${sign}$${value}` : `${sign}${value} ${currency}`
+}
+
+/**
  * The plan an account is on
  * @param {{subscription: {plan: String}}} [account]
  * @return {ApiPlan|undefined} - undefined only for a stored plan that is not in the catalogue

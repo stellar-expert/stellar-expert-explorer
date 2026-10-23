@@ -13,14 +13,6 @@ export function describeDays(days) {
     return `${days} ${days === 1 ? 'day' : 'days'}`
 }
 
-export function getSubscriptionPeriod(period = 'year', from, to) {
-    const fromDate = from ? new Date(from) : new Date()
-    const start = new Date(fromDate).setUTCHours(0, 0, 0, 0)
-    const end = to ? new Date(to).getTime() : addMonths(start, period === 'year' ? 12 : 1)
-
-    return [start, end]
-}
-
 /**
  * Advance a timestamp by whole calendar months
  * @param {Number} ts - epoch ms

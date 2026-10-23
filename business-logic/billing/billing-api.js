@@ -2,6 +2,7 @@ import {navigation} from '@stellar-expert/ui-framework'
 import {session} from '../../views/billing/auth/session-context'
 import appSettings from '../../app-settings'
 import {endImpersonation, getImpersonationToken} from './impersonation'
+import {buildLoginUrl} from './return-path'
 
 let unauthorizedRedirected = false
 
@@ -14,7 +15,7 @@ function handleUnauthorized() {
     if (unauthorizedRedirected || window.location.pathname === '/login')
         return
     unauthorizedRedirected = true
-    navigation.navigate('/login')
+    navigation.navigate(buildLoginUrl())
 }
 
 /**

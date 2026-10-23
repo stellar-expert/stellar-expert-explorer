@@ -10,20 +10,21 @@ export default function UserSettingsView({settings, onUpdate}) {
     const [isProgress, setIsProgress] = useState(false)
     const {id} = useParams()
 
-    const saveSettings = useCallback((key, value) => {
-        const {origins, subscription} = {...settings, [key]: value}
+    //only the origins are sent - the subscription has its own routes, and re-posting it would overwrite one
+    //the payment processor manages
+    const saveOrigins = useCallback((key, origins) => {
         setIsProgress(true)
         return apiRequest(`account/${id}`, {
             method: 'POST',
-            params: {origins, subscription}
+            params: {origins}
         })
             .then(() => {
-                onUpdate(prev => ({...prev, [key]: value}))
+                onUpdate(prev => ({...prev, origins}))
                 notify({type: 'success', message: 'User settings has been updated'})
             })
             .catch(error => notify({type: 'error', message: 'Failed to save user settings. ' + error?.message}))
             .finally(() => setIsProgress(false))
-    }, [settings, id, onUpdate])
+    }, [id, onUpdate])
 
     const {apiKeys = [], origins = []} = settings
 
@@ -43,7 +44,7 @@ export default function UserSettingsView({settings, onUpdate}) {
                 <div className="column column-50">
                     <div className="mobile-only micro-space"/>
                     <UserOriginsView caption={<>ORIGINS&nbsp;·&nbsp;{origins.length}</>} origins={origins}
-                                     onUpdate={saveSettings} disabled={isProgress}/>
+                                     onUpdate={saveOrigins} disabled={isProgress}/>
                 </div>
             </div>
         </SettingsSectionView>

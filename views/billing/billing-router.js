@@ -4,10 +4,11 @@ import Loadable from '../components/loadable'
 import LoginFormView from './auth/login-form-view'
 import ResetPasswordView from './auth/reset-password-view'
 import UserRouter from './pages/user/user-router'
+import PayPage from './pages/pay-page'
 import ConfirmationDialogView from './utils/confirm-action'
 
 /**
- * Billing dashboard router - mounted on /account, /admin, /login and /reset-password
+ * Billing dashboard router - mounted on /account, /admin, /login, /reset-password and /pay
  */
 export default function BillingRouter() {
     return <>
@@ -19,6 +20,7 @@ export default function BillingRouter() {
             <Route path="/account" component={UserRouter}/>
             <Route path="/login" component={LoginFormView}/>
             <Route path="/reset-password" component={ResetPasswordView}/>
+            <Route path="/pay" component={PayPage}/>
         </RouterSwitch>
         <ConfirmationDialogView/>
     </>

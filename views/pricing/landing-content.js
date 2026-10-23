@@ -106,12 +106,13 @@ export const faq = [
     },
     {
         question: 'Can I change plan mid-cycle?',
-        answer: 'Yes. Unused time on the current plan is credited towards the upgrade, so you never pay ' +
-            'for the same period twice.'
+        answer: 'Yes. Unused time on the current plan is credited towards the new one, so you never pay ' +
+            'for the same period twice. Compute units are prorated too: the difference between the two ' +
+            'allowances is credited for what is left of the cycle.'
     },
     {
         question: 'How do I pay?',
-        answer: 'By card or crypto through our payment processor, in USD. Cosmographer plans can be ' +
+        answer: 'By card, PayPal, Apple Pay or Google Pay, in USD with taxes included. Cosmographer plans can be ' +
             'invoiced directly.'
     },
     {

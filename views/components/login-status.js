@@ -31,7 +31,6 @@ function userAction(action) {
 }
 
 export default function LoginStatus() {
-    return null
     //re-probe on navigation so the widget picks up a session established on /login
     useLocation()
     if (!isSignedIn())

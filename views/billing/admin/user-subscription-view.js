@@ -33,7 +33,8 @@ export default function UserSubscriptionView({account, onUpdate, disabled}) {
         <SubscriptionSummaryView account={account}/>
         <div className="billing-subscription-actions space">
             <Button stackable small href={`/admin/user/${account?.id}/subscription`}>
-                {subscription ? 'Change subscription' : 'Subscribe user'}</Button>
+                {!subscription ? 'Subscribe user' :
+                    subscription.provider === 'paddle' ? 'Subscription details' : 'Change subscription'}</Button>
             {!!subscription && <Button stackable small outline disabled={disabled || isProgress}
                                        onClick={toggleRenewal}>
                 {isPaused ? 'Resume renewal' : 'Cancel renewal'}</Button>}
