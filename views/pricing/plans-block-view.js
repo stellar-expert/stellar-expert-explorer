@@ -87,7 +87,7 @@ const PlanCard = React.memo(function PlanCard({plan, period}) {
                 'Flexible'}
         </div>
         {price.term ?
-            <Button href="/account/subscription/change" block>Choose {name}</Button> :
+            <Button href="#" block>Choose {name}</Button> :
             <EnterpriseRequestView dialogClassName="subscription-dialog"/>}
         <div className="subscription-plan-separator"/>
         <PlanLimits plan={plan}/>
