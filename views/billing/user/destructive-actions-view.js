@@ -27,6 +27,17 @@ export default function DestructiveActionsView({onKeysRevoked}) {
             .finally(() => setIsProgress(false))
     }, [userId, onKeysRevoked])
 
+    const signOutEverywhere = useCallback(async () => {
+        if (!await confirmAction('Sign out everywhere? Every browser signed in to this account, this one ' +
+            'included, has to sign in again.'))
+            return
+        setIsProgress(true)
+        apiRequest(`account/${userId}/sign-out-everywhere`, {method: 'POST'})
+            .then(() => signOut())
+            .catch(err => notify({type: 'error', message: 'Failed to sign out everywhere. ' + err.message}))
+            .finally(() => setIsProgress(false))
+    }, [userId])
+
     const deleteAccount = useCallback(async () => {
         if (!await confirmAction('Delete the account? The subscription is cancelled immediately with no refund, ' +
             'its API keys stop working and the credits are burned.'))
@@ -42,6 +53,10 @@ export default function DestructiveActionsView({onKeysRevoked}) {
         <div className="billing-danger-title">Destructive actions</div>
         <DangerRowView title="Revoke all API keys" action="Revoke keys" disabled={isProgress} onAction={revokeKeys}
                        description="Every key stops working immediately. Your subscription and usage history are kept."/>
+        <DangerRowView title="Sign out everywhere" action="Sign out" disabled={isProgress}
+                       onAction={signOutEverywhere}
+                       description="Ends every session of this account in every browser, this one included. Your API
+                                    keys keep working."/>
         <DangerRowView title="Delete account" action="Delete account" disabled={isProgress} onAction={deleteAccount}
                        description="The subscription is cancelled immediately with no refund for the unused time,
                                     every API key stops working and the remaining credits are burned. Signing in

@@ -10,8 +10,6 @@ export const session = {
     inactive: false,
     //roles claimed by the token
     roles: [],
-    //staff created this sign-in and its owner has not chosen a password yet
-    mustSetPassword: false,
     //an admin is looking at this account through "log in as"
     impersonated: false,
     getToken: null

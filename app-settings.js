@@ -10,18 +10,10 @@ class AppSettings {
             API_ENDPOINT,
             DIRECTORY_ADMINS,
             OAUTH_GITHUB_CLIENTID,
-            TURNSTILE_KEY,
-            BILLING_API_ENDPOINT,
-            AUTH0_AUDIENCE
+            TURNSTILE_KEY
         } = envSettings
         if (API_ENDPOINT) {
             this.apiEndpoint = API_ENDPOINT
-        }
-        if (BILLING_API_ENDPOINT) {
-            this.billingApiEndpoint = BILLING_API_ENDPOINT
-        }
-        if (AUTH0_AUDIENCE) {
-            this.auth0.audience = AUTH0_AUDIENCE
         }
         if (DIRECTORY_ADMINS) {
             this.directoryAdmins = DIRECTORY_ADMINS.split(',').map(a => a.trim())
@@ -64,9 +56,9 @@ class AppSettings {
 
     turnstileKey = '1x00000000000000000000BB'
 
-    billingApiEndpoint = 'https://api.stellar.expert'
-
-    auth0 = {}
+    get billingApiEndpoint() {
+        return this.apiEndpoint + '/billing'
+    }
 
     get activeNetwork() {
         return getCurrentStellarNetwork()

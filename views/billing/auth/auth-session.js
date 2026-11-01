@@ -1,8 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/ui-framework'
 import {apiRequest} from '../../../business-logic/billing/billing-api'
-import {getRoles, getSession, getToken, isSignedIn, logOut, mustSetPassword}
-    from '../../../business-logic/billing/billing-session'
+import {getRoles, getSession, getToken, isSignedIn, logOut} from '../../../business-logic/billing/billing-session'
 import {isImpersonating} from '../../../business-logic/billing/impersonation'
 import {buildLoginUrl} from '../../../business-logic/billing/return-path'
 import {session, SessionContext, useSession} from './session-context'
@@ -21,7 +20,6 @@ export function SessionProvider({children}) {
 
     const syncSession = useCallback(() => {
         session.roles = getRoles()
-        session.mustSetPassword = mustSetPassword()
         session.impersonated = isImpersonating()
         resolveAccount()
             .then(account => {
@@ -34,7 +32,7 @@ export function SessionProvider({children}) {
 
     useEffect(syncSession, [syncSession])
 
-    //a token that can no longer be renewed means the session is over, wherever the failure surfaced
+    //an expired token means the session is over, wherever the failure surfaced
     useEffect(() => {
         if (!isSignedIn())
             return

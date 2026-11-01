@@ -75,9 +75,6 @@ export default function AppRouter({history}) {
                         <Route path="/login">
                             <Loadable moduleKey="billing" load={loadBilling}/>
                         </Route>
-                        <Route path="/reset-password">
-                            <Loadable moduleKey="billing" load={loadBilling}/>
-                        </Route>
                         {/*payment links Paddle mails for renewals and card updates*/}
                         <Route path="/pay">
                             <Loadable moduleKey="billing" load={loadBilling}/>

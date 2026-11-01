@@ -1,49 +1,55 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Button, navigation} from '@stellar-expert/ui-framework'
-import {getRoles, isSignedIn, logIn, requestPasswordReset, signUp}
+import {Button, navigation, parseQuery} from '@stellar-expert/ui-framework'
+import {completeSignIn, getRoles, isSignedIn, onSignInElsewhere, requestSignInLink}
     from '../../../business-logic/billing/billing-session'
 import {isValidEmail} from '../../../business-logic/billing/email'
 import {resolveReturnPath} from '../../../business-logic/billing/return-path'
+import SegmentLoader from '../utils/segment-loader-view'
 import {useSession} from './session-context'
-import {AuthScreenView, FieldView, PasswordFieldView, checkNewPassword, fail, passwordHint}
-    from './auth-form'
+import {AuthScreenView, FieldView, fail} from './auth-form'
 
 const screens = {
-    login: {title: 'Authentication', action: 'Sign in'},
-    signup: {title: 'Create an account', action: 'Create account'},
-    reset: {title: 'Reset your password', action: 'Send reset link', textFirst: true},
-    sent: {title: 'Check your inbox', textFirst: true}
+    form: {title: 'Sign in'},
+    sent: {title: 'Check your inbox', textFirst: true},
+    verifying: {title: 'Signing in'},
+    failed: {title: 'Sign-in link expired', textFirst: true}
 }
 
 /**
- * Sign in, register, or start a password reset, all on one screen
+ * Passwordless sign-in: ask for an address, mail a link, and sign in when the link is opened. Registering
+ * is the same - the first sign-in creates the account
  * @return {JSX.Element}
  */
 export default function LoginFormView() {
     //only a dashboard page wraps the form in a session provider - the /login page has none
     const {reload} = useSession()
-    const [screen, setScreen] = useState('login')
+    //a mailed link opens this page with the token in the query
+    const [linkToken] = useState(() => parseQuery().token || null)
+    const [screen, setScreen] = useState(linkToken ? 'verifying' : 'form')
     const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [repeated, setRepeated] = useState('')
     const [isProgress, setIsProgress] = useState(false)
 
-    const isSignUp = screen === 'signup'
-    const isReset = screen === 'reset'
+    const proceed = useCallback(() => {
+        if (reload) {
+            //shown in place of a dashboard page, which is where the visitor was going - a checkout link from
+            //the pricing page, say - so the page stays and only the session catches up
+            reload()
+        } else {
+            navigation.navigate(resolveReturnPath(getRoles().includes('admin') ? '/admin' : '/account'))
+        }
+    }, [reload])
 
-    const switchTo = useCallback(next => e => {
-        e?.preventDefault()
-        setScreen(next)
-    }, [])
-
-    //used by the form and by the screen that follows it
-    const sendResetLink = useCallback(async () => {
+    const sendLink = useCallback(async () => {
         setIsProgress(true)
         try {
-            await requestPasswordReset(email)
+            //the page to come back to travels inside the link, since it opens in a tab of its own
+            const returnTo = reload ?
+                window.location.pathname + window.location.search :
+                resolveReturnPath(undefined)
+            await requestSignInLink({email, returnTo})
             //the first request answers with a screen, a repeat with a toast
             if (screen === 'sent') {
-                notify({type: 'success', message: 'Reset link sent again'})
+                notify({type: 'success', message: 'Sign-in link sent again'})
             } else {
                 setScreen('sent')
             }
@@ -52,101 +58,78 @@ export default function LoginFormView() {
         } finally {
             setIsProgress(false)
         }
-    }, [email, screen])
+    }, [email, screen, reload])
 
-    const submit = useCallback(async e => {
+    const submit = useCallback(e => {
         e?.preventDefault()
         //validation goes to a toast, which does not change the height of the form
         if (!isValidEmail(email))
-            return fail('Enter the email address for your account.')
-        if (isSignUp) {
-            const invalid = checkNewPassword(password, repeated)
-            if (invalid)
-                return fail(invalid)
-        }
-        if (screen === 'login' && !password)
-            return fail('Enter your password.')
+            return fail('Enter your email address.')
+        sendLink()
+    }, [email, sendLink])
 
-        if (isReset)
-            return await sendResetLink()
+    const switchTo = useCallback(next => e => {
+        e?.preventDefault()
+        setScreen(next)
+    }, [])
 
-        setIsProgress(true)
-        try {
-            await (isSignUp ? signUp : logIn)({email, password})
-        } catch (e) {
-            setIsProgress(false)
-            return fail(e.message || 'Something went wrong. Please try again.')
-        }
-        if (reload) {
-            //shown in place of a dashboard page, which is where the visitor was going - a checkout link from
-            //the pricing page, say - so the page stays and only the session catches up
-            reload()
-        } else {
-            navigation.navigate(resolveReturnPath(getRoles().includes('admin') ? '/admin' : '/account'))
-        }
-    }, [email, password, repeated, screen, isReset, isSignUp, sendResetLink, reload])
+    //the link was opened: spend it, and keep it out of the address bar and the history
+    useEffect(() => {
+        if (!linkToken)
+            return
+        navigation.updateQuery({token: undefined})
+        completeSignIn(linkToken)
+            .then(proceed)
+            .catch(e => {
+                setScreen('failed')
+                fail(e.message || 'Could not sign in. Please request a new link.')
+            })
+    }, [])
+
+    //the link is usually opened in another tab - this one follows it in
+    useEffect(() => {
+        if (screen !== 'sent')
+            return
+        return onSignInElsewhere(proceed)
+    }, [screen, proceed])
 
     //nothing to sign in to - the dashboard is already reachable
     useEffect(() => {
-        if (isSignedIn() && !reload) {
+        if (isSignedIn() && !reload && !linkToken) {
             navigation.navigate(resolveReturnPath('/account'))
         }
     }, [])
 
+    if (screen === 'verifying')
+        return <AuthScreenView title={screens.verifying.title}>
+            <SegmentLoader/>
+        </AuthScreenView>
+
     if (isSignedIn())
         return null
 
-    return <AuthScreenView title={screens[screen].title} textFirst={screens[screen].textFirst}>
+    const {title, textFirst} = screens[screen]
+    return <AuthScreenView title={title} textFirst={textFirst}>
         {screen === 'sent' ?
-            <InboxView email={email} disabled={isProgress} onResend={sendResetLink}
-                       onBack={switchTo('login')}/> :
+            <InboxView email={email} disabled={isProgress} onResend={sendLink} onBack={switchTo('form')}/> :
             <>
-                {isReset ? <p className="dimmed text-small">
-                    Enter the email on your account and we will send a link to set a new password.
-                    The link works once and expires shortly.
+                {screen === 'failed' ? <p className="dimmed text-small">
+                    The link has expired or has already been used. Enter your email address to get a new one.
                 </p> : null}
                 <form onSubmit={submit} className="double-space">
                     <FieldView title="Email address">
-                        <input type="email" name="email" value={email} autoComplete="username"
-                               autoFocus disabled={isProgress}
-                               onChange={e => setEmail(e.target.value.trim())}/>
+                        <input type="email" name="email" value={email} autoComplete="email" autoFocus
+                               disabled={isProgress} onChange={e => setEmail(e.target.value.trim())}/>
                     </FieldView>
-                    {!isReset && <>
-                        <PasswordFieldView title="Password" name="password" value={password}
-                                           autoComplete={isSignUp ? 'new-password' : 'current-password'}
-                                           placeholder={isSignUp ? passwordHint : ''}
-                                           disabled={isProgress}
-                                           onChange={setPassword}/>
-                        {isSignUp ? <PasswordFieldView title="Repeat password" name="repeatPassword"
-                                                       value={repeated} autoComplete="new-password"
-                                                       disabled={isProgress}
-                                                       onChange={setRepeated}/> : null}
-                    </>}
                     <div className="space">
-                        <Button type="submit" disabled={isProgress} block>
-                            {screens[screen].action}
-                        </Button>
+                        <Button type="submit" disabled={isProgress} block>Email me a sign-in link</Button>
                     </div>
                     <div className="billing-login-footer text-small">
-                        {screen === 'login' && <>
-                            <div>No account yet? <a href="#" onClick={switchTo('signup')}>Create an
-                                account</a></div>
-                            <div><a href="#" onClick={switchTo('reset')}>Forgot your password?</a>
-                            </div>
-                        </>}
-                        {isSignUp ? <>
-                            <div>Already have an account? <a href="#" onClick={switchTo('login')}>
-                                Sign in</a></div>
-                            <div className="dimmed">By creating an account you accept the{' '}
-                                <a href="/info/tos">terms of service</a> and{' '}
-                                <a href="/info/privacy">privacy policy</a>.</div>
-                        </> : null}
-                        {isReset ? <>
-                            <div>Remembered it? <a href="#" onClick={switchTo('login')}>Sign in</a>
-                            </div>
-                            <div>No account yet? <a href="#" onClick={switchTo('signup')}>Create an
-                                account</a></div>
-                        </> : null}
+                        <div className="dimmed">
+                            No password needed. If you have no account yet, the link creates one - by
+                            continuing you accept the <a href="/info/tos">terms of service</a> and{' '}
+                            <a href="/info/privacy">privacy policy</a>.
+                        </div>
                     </div>
                 </form>
             </>}
@@ -154,7 +137,7 @@ export default function LoginFormView() {
 }
 
 /**
- * Shown once the reset mail is on its way
+ * Shown once the link is on its way
  * @param {String} email
  * @param {Boolean} disabled
  * @param {Function} onResend
@@ -165,16 +148,17 @@ export default function LoginFormView() {
 function InboxView({email, disabled, onResend, onBack}) {
     return <>
         <div className="billing-login-notice">
-            A reset link is on its way to <b>{email}</b>. It works once, and expires shortly.
+            A sign-in link is on its way to <b>{email}</b>. It works once, and expires in an hour.
         </div>
         <p className="dimmed text-small">
-            Nothing after a minute or two? Check the spam folder, or send it again.
+            Open it in this browser and this page continues by itself. Nothing after a minute or two? Check
+            the spam folder, or send it again.
         </p>
         <div className="space">
             <Button outline disabled={disabled} onClick={onResend} block>Send again</Button>
         </div>
         <div className="billing-login-footer text-small">
-            <div><a href="#" onClick={onBack}>Back to sign in</a></div>
+            <div><a href="#" onClick={onBack}>Use another address</a></div>
         </div>
     </>
 }

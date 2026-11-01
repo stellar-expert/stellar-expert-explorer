@@ -1,20 +1,16 @@
-import appSettings from '../../app-settings'
 import {performApiCall} from './billing-api'
 import {endImpersonation, getImpersonationToken} from './impersonation'
 
 /**
- * The signed-in session. Every call here goes to the billing server, which performs the Auth0 exchange -
- * the browser never contacts the tenant
+ * The signed-in session. Signing in is passwordless: the billing server mails a link, and the token it
+ * carries is traded here for a session token
  */
 
 const storageKey = 'billingSession'
-//refresh a little early - a request must never carry a token that expires in flight
-const refreshMargin = 60_000
 
 /**
  * @typedef {Object} StoredSession
- * @property {String} token - access token
- * @property {String} [refreshToken]
+ * @property {String} token - session token
  * @property {Number} expiresAt - epoch ms
  * @property {{id: String, email: String, inactive: Boolean}} account
  */
@@ -24,12 +20,6 @@ const refreshMargin = 60_000
  * @private
  */
 let current = read()
-
-/**
- * @type {Promise<String>|null} - in-flight refresh, shared by every caller that arrives during it
- * @private
- */
-let refreshing = null
 
 /**
  * @return {StoredSession|null}
@@ -62,15 +52,21 @@ function write(session) {
 }
 
 /**
- * Turn what the API answered into what we keep
- * @param {{token: String, refreshToken: String, expiresIn: Number, account: {}}} res
- * @return {StoredSession}
- * @private
+ * Call back once another tab signs in - the one the mailed link was opened in
+ * @param {Function} callback - receives the session that tab stored
+ * @return {Function} - stops watching
  */
-function store({token, refreshToken, expiresIn, account}) {
-    const session = {token, refreshToken, expiresAt: Date.now() + (expiresIn || 3600) * 1000, account}
-    write(session)
-    return session
+export function onSignInElsewhere(callback) {
+    const listener = e => {
+        if (e.key !== storageKey || !e.newValue)
+            return
+        current = read()
+        if (current) {
+            callback(current)
+        }
+    }
+    window.addEventListener('storage', listener)
+    return () => window.removeEventListener('storage', listener)
 }
 
 /**
@@ -96,87 +92,52 @@ export function decodeClaims(token) {
 
 /**
  * @param {{}} res - whatever performApiCall resolved with
- * @return {{}} - the session, or a thrown error carrying the server's message
+ * @return {{}} - the answer, or a thrown error carrying the server's message
  * @private
  */
-function applyOrThrow(res) {
+function unwrap(res) {
     if (res?.error) {
         const error = new Error(res.error)
         error.status = res.status
         error.ext = res.ext
         throw error
     }
-    return store(res)
+    return res
 }
 
 /**
- * Sign in with an email and a password
- * @param {{email: String, password: String}} credentials
- * @return {Promise<StoredSession>}
- */
-export async function logIn({email, password}) {
-    return applyOrThrow(await performApiCall('auth/login', {
-        method: 'POST',
-        auth: false,
-        params: {email, password}
-    }))
-}
-
-/**
- * Register, and sign in with the same credentials
- * @param {{email: String, password: String}} credentials
- * @return {Promise<StoredSession>}
- */
-export async function signUp({email, password}) {
-    return applyOrThrow(await performApiCall('auth/signup', {
-        method: 'POST',
-        auth: false,
-        params: {email, password}
-    }))
-}
-
-/**
- * Replace the temporary password staff mailed with one of the customer's own choosing
- * @param {String} password
- * @return {Promise<StoredSession>}
- */
-export async function setPassword(password) {
-    return applyOrThrow(await performApiCall('auth/set-password', {method: 'POST', params: {password}}))
-}
-
-/**
- * Mail a password reset link. Answers the same whether or not the address is registered.
- * @param {String} email
+ * Mail a sign-in link. The same for a new address and a registered one - following the link creates
+ * the account
+ * @param {{email: String, returnTo: String}} params - returnTo: dashboard page to open once signed in
  * @return {Promise<void>}
  */
-export async function requestPasswordReset(email) {
-    await performApiCall('auth/password-reset', {method: 'POST', auth: false, params: {email}})
+export async function requestSignInLink({email, returnTo}) {
+    unwrap(await performApiCall('auth/link', {method: 'POST', auth: false, params: {email, returnTo}}))
 }
 
 /**
- * Set the password a mailed link was issued for, and sign in with it
- * @param {{token: String, password: String}} params
+ * Trade the token of a mailed link for a session
+ * @param {String} token
  * @return {Promise<StoredSession>}
  */
-export async function completePasswordReset({token, password}) {
-    return applyOrThrow(await performApiCall('auth/password-reset/confirm', {
+export async function completeSignIn(token) {
+    const {token: sessionToken, expiresIn, account} = unwrap(await performApiCall('auth/verify', {
         method: 'POST',
         auth: false,
-        params: {token, password}
+        params: {token}
     }))
+    const session = {token: sessionToken, expiresAt: Date.now() + expiresIn * 1000, account}
+    write(session)
+    return session
 }
 
 /**
- * End the session here and on the tenant
+ * End the session in this browser - a session token is not kept anywhere else
  * @return {Promise<void>}
  */
 export async function logOut() {
-    const refreshToken = current?.refreshToken
     write(null)
     endImpersonation()
-    if (refreshToken) {
-        await performApiCall('auth/logout', {method: 'POST', auth: false, params: {refreshToken}})
-    }
 }
 
 /**
@@ -189,7 +150,7 @@ export function signOut() {
 }
 
 /**
- * A usable access token
+ * A usable session token
  * @return {Promise<String>}
  */
 export async function getToken() {
@@ -199,32 +160,10 @@ export async function getToken() {
         return impersonation
     if (!current)
         throw new Error('Not signed in')
-    if (current.expiresAt - refreshMargin > Date.now())
+    if (current.expiresAt > Date.now())
         return current.token
-    if (!current.refreshToken) {
-        write(null)
-        throw new Error('Session expired')
-    }
-    //one renewal serves every caller waiting on it
-    if (!refreshing) {
-        refreshing = performApiCall('auth/refresh', {
-            method: 'POST',
-            auth: false,
-            params: {refreshToken: current.refreshToken}
-        })
-            .then(res => {
-                if (res?.error) {
-                    write(null)
-                    throw new Error(res.error)
-                }
-                //the account does not come back from a refresh
-                return store({...res, account: current.account}).token
-            })
-            .finally(() => {
-                refreshing = null
-            })
-    }
-    return refreshing
+    write(null)
+    throw new Error('Session expired')
 }
 
 /**
@@ -242,28 +181,9 @@ export function isSignedIn() {
 }
 
 /**
- * A namespaced claim of the token requests are sent with. An impersonation token carries none of them
- * @param {String} name - claim name without the audience prefix
- * @return {*}
- * @private
- */
-function claim(name) {
-    const token = getImpersonationToken() || current?.token
-    return decodeClaims(token)?.[`${appSettings.auth0.audience}/${name}`]
-}
-
-/**
- * Roles claimed by the current token
+ * Roles claimed by the token requests are sent with. An impersonation token carries none
  * @return {String[]}
  */
 export function getRoles() {
-    return claim('roles') || []
-}
-
-/**
- * Whether this account is still on the temporary password staff mailed its owner
- * @return {Boolean}
- */
-export function mustSetPassword() {
-    return !!claim('mustSetPassword')
+    return decodeClaims(getImpersonationToken() || current?.token)?.roles || []
 }
