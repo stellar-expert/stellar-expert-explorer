@@ -96,7 +96,7 @@ function InvoiceRowView({invoice, accountId}) {
             <StatusView status={status}/>
         </td>
         <td className="text-right">
-            {!!transactionId && !!accountId && <a href="#" onClick={download}>PDF</a>}
+            {!!transactionId && !!accountId && <a href="#" onClick={download}>Download</a>}
         </td>
     </tr>
 }

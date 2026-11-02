@@ -1,0 +1,82 @@
+//palette and controls the pricing landing shares with the plan catalogue, which the dashboard shows as well
+
+$landing-panel: #111a1e;
+$landing-accent: #7a56ff;
+$landing-hairline: rgba(#fff, 0.08);
+$landing-accent-bar: 0.2rem;
+$landing-cyan: #1cb3e4;
+$landing-cyan-soft: #7fd8f5;
+$landing-accent-soft: #b9a8ff;
+$landing-button-hover-fill: $landing-accent;
+$landing-ink: #0b1f26;
+$landing-success: #5ec45a;
+
+@mixin landing-button-hover {
+  &:hover {
+    color: #fff;
+
+    &:before {
+      border-color: $landing-button-hover-fill;
+      background: $landing-button-hover-fill;
+    }
+  }
+
+  &:active:before {
+    background: $landing-button-hover-fill;
+  }
+
+  &.button-outline {
+    &:hover {
+      color: $landing-accent-soft;
+
+      &:before {
+        border-color: $landing-accent;
+        background: rgba($landing-accent, 0.16);
+      }
+    }
+
+    &:active:before {
+      border-color: $landing-accent;
+      background: rgba($landing-accent, 0.16);
+    }
+  }
+}
+
+@mixin landing-button {
+  height: auto;
+  color: $landing-ink;
+  font-size: 1.35rem;
+  line-height: 1.2;
+
+  &:before {
+    background: $landing-cyan;
+    transform: skewX(-14deg);
+  }
+
+  &.button-outline {
+    color: $landing-cyan-soft;
+
+    &:before {
+      border: 1px solid rgba($landing-cyan, 0.5);
+      background: transparent;
+    }
+  }
+
+  @include landing-button-hover;
+}
+
+//custom properties the landing palette is read through
+@mixin landing-palette {
+  --color-accent: #{$landing-accent};
+  --color-accent-soft: #{$landing-accent-soft};
+  --color-panel: #{$landing-panel};
+  --color-panel-active: #16323c;
+  --color-hairline: #{$landing-hairline};
+  --color-rule: #{rgba(#fff, 0.09)};
+  --color-cyan: #{$landing-cyan};
+  --color-cyan-soft: #{$landing-cyan-soft};
+  --color-ink: #{$landing-ink};
+  --color-title: #eaf5f7;
+  --color-muted: #8fa8ae;
+  --color-limit: #bcd2d7;
+}

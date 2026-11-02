@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import cn from 'classnames'
-import {Button, UtcTimestamp, navigation, useParams} from '@stellar-expert/ui-framework'
+import {Button, UtcTimestamp, navigation, parseQuery, useParams} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision, shortenString} from '@stellar-expert/formatter'
 import {apiRequest} from '../../../../business-logic/billing/billing-api'
 import {allPlans, findPlan} from '../../../../business-logic/billing/api-plans'
@@ -51,7 +51,8 @@ export default function UserSubscriptionPage() {
         apiRequest(`account/${id}`)
             .then(res => {
                 setAccount(res)
-                setForm(initForm(res.subscription))
+                //the new account dialog sends staff here with the plan already picked
+                setForm(initForm(res.subscription, parseQuery().plan))
             })
             .catch(error => notify({type: 'error', message: 'Failed to retrieve account data. ' + error?.message}))
             .finally(() => setIsLoading(false))
@@ -294,13 +295,14 @@ function TermView({subscription, extendMonths}) {
 /**
  * Form state for a subscription, or for the absence of one
  * @param {{}} [subscription] - as stored, normalized by the server
+ * @param {String} [preselected] - plan to start a new subscription on
  * @return {{}}
  * @private
  */
-function initForm(subscription) {
+function initForm(subscription, preselected) {
     const limits = subscription?.limits || {}
     return {
-        plan: subscription?.plan || allPlans[0].key,
+        plan: subscription?.plan || findPlan(preselected)?.key || allPlans[0].key,
         computeUnits: valueOf(limits.computeUnits),
         requestsPerMinute: valueOf(limits.requestsPerMinute),
         batchSize: valueOf(limits.batchSize),

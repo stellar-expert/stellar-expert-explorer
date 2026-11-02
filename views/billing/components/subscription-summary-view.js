@@ -38,7 +38,13 @@ export default function SubscriptionSummaryView({account}) {
         </div>
         <SubscriptionTermView from={from} to={to}/>
         <div className="dual-layout">
-            <div>{badge}{!!badge && !!subscription?.paddle && ' '}<ProviderBadgeView subscription={subscription}/></div>
+            <div>
+                {badge}{!!badge && !!subscription?.paddle && ' '}<ProviderBadgeView subscription={subscription}/>
+                {!!subscription?.complimentary && <code className="text-tiny nowrap billing-badge"
+                                                        title="Given away by staff - ends with its term, nobody is billed">
+                    free months
+                </code>}
+            </div>
             <span className="dimmed text-tiny text-right">
                 {subscription ? <><UtcTimestamp date={to} dateOnly/>&nbsp;· {describeTerm(to)}</> : 'no expiry'}
             </span>

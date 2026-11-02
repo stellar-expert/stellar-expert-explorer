@@ -7,6 +7,7 @@ import ApiKeysPage from './api-keys-page'
 import SubscriptionPage from './subscription-page'
 import ChangePlanPage from './change-plan-page'
 import CheckoutPage from './checkout-page'
+import PaymentMethodPage from './payment-method-page'
 import BillingHistoryPage from './billing-history-page'
 
 export default function UserRouter() {
@@ -16,6 +17,7 @@ export default function UserRouter() {
             <Route path={`${path}/api-keys`} component={ApiKeysPage}/>
             <Route path={`${path}/subscription/change`} component={ChangePlanPage}/>
             <Route path={`${path}/subscription/checkout`} component={CheckoutPage}/>
+            <Route path={`${path}/subscription/payment-method`} component={PaymentMethodPage}/>
             <Route path={`${path}/subscription`} component={SubscriptionPage}/>
             <Route path={`${path}/billing-history`} component={BillingHistoryPage}/>
             <Route path={`${path}/`} component={OverviewPage}/>

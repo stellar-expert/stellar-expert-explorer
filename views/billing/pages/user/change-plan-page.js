@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Button, ButtonGroup, UtcTimestamp, navigation, parseQuery} from '@stellar-expert/ui-framework'
+import {UtcTimestamp, navigation, parseQuery} from '@stellar-expert/ui-framework'
 import {formatDateUTC} from '@stellar-expert/formatter'
 import {apiRequest} from '../../../../business-logic/billing/billing-api'
-import {findPlan, freePlan, maxYearlySavings} from '../../../../business-logic/billing/api-plans'
+import {findPlan, freePlan} from '../../../../business-logic/billing/api-plans'
 import {isManagedByStaff, isPaymentOverdue} from '../../../../business-logic/billing/account-status'
 import {useSession} from '../../auth/auth-session'
 import {confirmAction} from '../../utils/confirm-action'
@@ -32,8 +32,6 @@ export default function ChangePlanPage() {
             .then(setAccount)
             .catch(error => notify({type: 'error', message: 'Failed to retrieve account data. ' + error?.message}))
     }, [userId])
-
-    const changePeriod = useCallback(e => setPeriod(e.target.dataset.period), [])
 
     const selectPlan = useCallback(plan => {
         navigation.navigate(`/account/subscription/checkout?plan=${plan.key}&period=${period}`)
@@ -72,33 +70,23 @@ export default function ChangePlanPage() {
     const currentTerm = subscription?.period === 'year' ? 'year' : 'month'
     const lock = resolveLock(account, period, impersonated)
 
+    const header = !!currentPlan && <span className="dimmed text-small billing-current-plan">
+        Current plan: <strong>{findPlan(currentPlan)?.name || currentPlan}
+            {!!subscription && (subscription.complimentary ?
+                <>, free until <UtcTimestamp date={subscription.to} dateOnly/></> :
+                <>, {currentTerm === 'year' ? 'yearly' : 'monthly'}</>)}</strong>
+    </span>
+
     return <SimplePageLayout title="Change plan" action={action}>
-        <div className="dual-layout billing-plan-toolbar">
-            <div className="billing-period-switch">
-                <ButtonGroup>
-                    <Button small disabled={period === 'month'} data-period="month" onClick={changePeriod}>
-                        Monthly
-                    </Button>
-                    <Button small disabled={period === 'year'} data-period="year" onClick={changePeriod}>
-                        Yearly
-                    </Button>
-                </ButtonGroup>
-                <span className="color-success text-small">Yearly billing saves up to {maxYearlySavings}%</span>
-            </div>
-            {!!currentPlan && <span className="dimmed text-small billing-current-plan">
-                Current plan: <strong>{findPlan(currentPlan)?.name || currentPlan}
-                    {!!subscription && <>, {currentTerm === 'year' ? 'yearly' : 'monthly'}</>}</strong>
-            </span>}
-        </div>
-        {!!lock && <div className="space">
-            <NoticeView warning>{lock.message}</NoticeView>
-        </div>}
-        <div className="space">
-            <PlanSelectorView currentPlan={currentPlan} currentTerm={currentTerm} period={period}
-                              highlight={highlight} lock={lock} disabled={isProgress}
-                              endsAt={subscription?.autoRenew === false ? subscription.to : undefined}
-                              onSelect={selectPlan} onCancel={cancelAtPeriodEnd}/>
-        </div>
+        <PlanSelectorView currentPlan={currentPlan} currentTerm={currentTerm} complimentary={subscription?.complimentary}
+                          period={period} onChangePeriod={setPeriod}
+                          highlight={highlight} lock={lock} disabled={isProgress || !account} header={header}
+                          endsAt={subscription?.autoRenew === false ? subscription.to : undefined}
+                          onSelect={selectPlan} onCancel={cancelAtPeriodEnd}>
+            {!!lock && <div className="space">
+                <NoticeView warning>{lock.message}</NoticeView>
+            </div>}
+        </PlanSelectorView>
         <div className="card card-blank billing-card billing-compute-units-note space">
             <div className="dual-layout">
                 <div className="dimmed text-small">

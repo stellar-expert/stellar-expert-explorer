@@ -60,25 +60,23 @@ export function subscribePaddleEvents(listener) {
 }
 
 /**
- * Open Paddle's overlay checkout for a transaction the server prepared
+ * Open Paddle's inline checkout for a transaction the server prepared, inside the page rather than over it
+ * @param {Paddle} paddle - as `initializePaddle()` resolves it
  * @param {String} transactionId
- * @return {Promise<Boolean>} - true once the transaction completes, false when the overlay is closed without it
+ * @param {String} frameTarget - class of the element the checkout frame goes into
  */
-export async function openOverlayCheckout(transactionId) {
-    const paddle = await initializePaddle()
-    return new Promise(resolve => {
-        const unsubscribe = subscribePaddleEvents(({name, data}) => {
-            if (data?.transaction_id && data.transaction_id !== transactionId)
-                return
-            if (name === 'checkout.completed' || name === 'checkout.closed') {
-                unsubscribe()
-                resolve(name === 'checkout.completed')
-            }
-        })
-        paddle.Checkout.open({
-            transactionId,
-            settings: {displayMode: 'overlay', theme: resolveCheckoutTheme(), allowLogout: false}
-        })
+export function openInlineCheckout(paddle, transactionId, frameTarget) {
+    paddle.Checkout.open({
+        transactionId,
+        settings: {
+            displayMode: 'inline',
+            frameTarget,
+            frameInitialHeight: 450,
+            frameStyle: 'width: 100%; min-width: 312px; background-color: transparent; border: none;',
+            variant: 'one-page',
+            theme: resolveCheckoutTheme(),
+            allowLogout: false
+        }
     })
 }
 

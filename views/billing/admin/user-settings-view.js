@@ -4,7 +4,7 @@ import {apiRequest} from '../../../business-logic/billing/billing-api'
 import SettingsSectionView from '../layout/settings-section-view'
 import TokenListView from '../components/token-list-view'
 import UserOriginsView from '../components/user-origins-view'
-import UserSubscriptionView from './user-subscription-view'
+import SubscriptionCardView from '../components/subscription-card-view'
 
 export default function UserSettingsView({settings, onUpdate}) {
     const [isProgress, setIsProgress] = useState(false)
@@ -26,11 +26,15 @@ export default function UserSettingsView({settings, onUpdate}) {
             .finally(() => setIsProgress(false))
     }, [id, onUpdate])
 
-    const {apiKeys = [], origins = []} = settings
+    const {apiKeys = [], origins = [], subscription} = settings
+    //a plan bought through Paddle is the customer's to change - staff can only look at it
+    const changeTitle = !subscription ? 'Subscribe user' :
+        subscription.provider === 'paddle' ? 'Details' : 'Change'
 
     return <div>
         <SettingsSectionView title="Plan" description="Tariff, limits and renewal.">
-            <UserSubscriptionView account={settings} onUpdate={onUpdate} disabled={isProgress}/>
+            <SubscriptionCardView account={settings} onUpdate={onUpdate} disabled={isProgress}
+                                  changeLink={`/admin/user/${id}/subscription`} changeTitle={changeTitle}/>
         </SettingsSectionView>
         <div className="space"/>
         <hr/>
@@ -43,7 +47,7 @@ export default function UserSettingsView({settings, onUpdate}) {
                 </div>
                 <div className="column column-50">
                     <div className="mobile-only micro-space"/>
-                    <UserOriginsView caption={<>ORIGINS&nbsp;·&nbsp;{origins.length}</>} origins={origins}
+                    <UserOriginsView caption={<>ASSOCIATED ORIGINS&nbsp;·&nbsp;{origins.length}</>} origins={origins}
                                      onUpdate={saveOrigins} disabled={isProgress}/>
                 </div>
             </div>

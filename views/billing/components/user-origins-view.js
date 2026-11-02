@@ -10,9 +10,10 @@ import TokenListView from './token-list-view'
  * @param {String[]} origins
  * @param {String|JSX.Element} [caption] - omitted where the surrounding section already names the list
  * @param {Function} [onUpdate] - omitted to render the list without the editing actions
+ * @param {Boolean} [canAdd] - false leaves only the removal of the origins already listed
  * @param {Boolean} [disabled]
  */
-export default function UserOriginsView({origins = [], caption, onUpdate, disabled}) {
+export default function UserOriginsView({origins = [], caption, onUpdate, canAdd = true, disabled}) {
     const [isOpen, toggleDialog] = useDialogToggle()
 
     const updateOrigins = useCallback(value => {
@@ -38,8 +39,8 @@ export default function UserOriginsView({origins = [], caption, onUpdate, disabl
         <div className="space mobile-only"/>
         <TokenListView tokens={origins} caption={caption} placeholder="(No origins)"
                        renderAction={onUpdate && renderAction}/>
-        {!!onUpdate && <a href="#" onClick={disabled ? undefined : toggleDialog}
-                          className={cn('billing-token billing-token-add text-small', {dimmed: disabled})}>
+        {!!onUpdate && canAdd && <a href="#" onClick={disabled ? undefined : toggleDialog}
+                                    className={cn('billing-token billing-token-add text-small', {dimmed: disabled})}>
             + Add origin</a>}
         {isOpen && <UserOriginForm updateOrigin={addOrigin} toggleDialog={toggleDialog}/>}
     </div>

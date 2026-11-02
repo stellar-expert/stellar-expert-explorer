@@ -25,6 +25,7 @@ import {formatWithAbbreviation, formatWithAutoPrecision} from '@stellar-expert/f
  * @property {PlanLimits} limits
  * @property {String} support
  * @property {Boolean} [custom] - limits are agreed per customer rather than published
+ * @property {Boolean} [originAccess] - requests from the origins of the account are served without a key
  * @property {Boolean} [popular]
  */
 
@@ -86,6 +87,7 @@ export const paidPlans = [
         limits: {computeUnits: 50_000, requestsPerMinute: 480, requestsPerHour: 18000, batchSize: 1000},
         endpoints: 'All API endpoints',
         support: 'Email',
+        originAccess: true,
         popular: true
     },
     {
@@ -98,6 +100,7 @@ export const paidPlans = [
         limits: {computeUnits: null, requestsPerMinute: null, requestsPerHour: null, batchSize: null},
         endpoints: 'All API endpoints',
         support: 'Priority',
+        originAccess: true,
         custom: true
     }
 ]
@@ -240,7 +243,7 @@ function describeLimit(value, custom) {
  * @return {{value?: String, label: String}[]} - a row without a `value` reads as a whole phrase
  * highlights only the figures it actually quotes
  */
-export function describePlanLimits({limits, support, endpoints, custom}) {
+export function describePlanLimits({price, limits, support, endpoints, custom, originAccess}) {
     const rows = []
     //the free tier has no allowance to quote
     if (custom || limits.computeUnits) {
@@ -249,10 +252,14 @@ export function describePlanLimits({limits, support, endpoints, custom}) {
     rows.push(
         {value: describeLimit(limits.requestsPerMinute, custom), label: 'requests / minute'},
         {value: describeLimit(limits.requestsPerHour, custom), label: 'requests / hour'},
-        {value: describeLimit(limits.batchSize, custom), label: 'max items in batch response'}
+        {value: describeLimit(limits.batchSize, custom), label: 'max records per batch'}
     )
     if (endpoints) {
         rows.push({label: endpoints})
+    }
+    //the free endpoints take neither a key nor an origin
+    if (price !== 0) {
+        rows.push({label: originAccess ? 'Access by key and origin' : 'Access by API key'})
     }
     rows.push({label: `${support} support`})
     return rows

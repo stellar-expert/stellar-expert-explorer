@@ -4,7 +4,7 @@ import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {apiRequest, performApiCall} from '../../../../business-logic/billing/billing-api'
 import {findPlan, formatAmount, resolvePlanPrice} from '../../../../business-logic/billing/api-plans'
 import {isManagedByStaff} from '../../../../business-logic/billing/account-status'
-import {initializePaddle, resolveCheckoutTheme, subscribePaddleEvents}
+import {initializePaddle, openInlineCheckout, subscribePaddleEvents}
     from '../../../../business-logic/billing/paddle-loader'
 import {useSession} from '../../auth/auth-session'
 import SimplePageLayout from '../../layout/simple-page-layout'
@@ -85,7 +85,13 @@ export default function CheckoutPage() {
             <ContactLinkView subject="Subscription change"/> to switch to {plan.name}.
         </NoticeView>
     } else {
-        content = <NewSubscriptionView key={order} userId={userId} plan={plan} period={period}/>
+        content = <>
+            {!!subscription?.complimentary && <NoticeView>
+                Your free {findPlan(subscription.plan)?.name || subscription.plan} months end as soon as this payment
+                goes through, and the plan you buy starts right away.
+            </NoticeView>}
+            <NewSubscriptionView key={order} userId={userId} plan={plan} period={period}/>
+        </>
     }
 
     return <SimplePageLayout title={title} action={action}>
@@ -161,18 +167,7 @@ function NewSubscriptionView({userId, plan, period}) {
                 if (unmounted)
                     return
                 transactionId = res.transactionId
-                paddle.Checkout.open({
-                    transactionId,
-                    settings: {
-                        displayMode: 'inline',
-                        frameTarget,
-                        frameInitialHeight: 450,
-                        frameStyle: 'width: 100%; min-width: 312px; background-color: transparent; border: none;',
-                        variant: 'one-page',
-                        theme: resolveCheckoutTheme(),
-                        allowLogout: false
-                    }
-                })
+                openInlineCheckout(paddle, transactionId, frameTarget)
             })
             .catch(e => {
                 if (!unmounted) {
@@ -279,6 +274,9 @@ function PlanChangeView({account, plan, period}) {
                 </div>
                 <ul className="dimmed text-small micro-space">
                     <li>The new limits apply as soon as the payment goes through.</li>
+                    {subscription.autoRenew === false && <li>
+                        Automatic renewal, cancelled earlier, is turned back on.
+                    </li>}
                     {preview?.credit > 0 && <li>
                         Unused {currentPlan} time is credited against the price.
                     </li>}

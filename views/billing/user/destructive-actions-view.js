@@ -7,25 +7,11 @@ import {confirmAction} from '../utils/confirm-action'
 
 /**
  * Irreversible account operations, kept together and away from the rest of the settings
- * @param {Function} [onKeysRevoked] - lets the surrounding page drop the keys it already rendered
  * @return {JSX.Element}
  */
-export default function DestructiveActionsView({onKeysRevoked}) {
+export default function DestructiveActionsView() {
     const {userId} = useSession()
     const [isProgress, setIsProgress] = useState(false)
-
-    const revokeKeys = useCallback(async () => {
-        if (!await confirmAction('Revoke every API key? Applications using them stop working immediately.'))
-            return
-        setIsProgress(true)
-        apiRequest(`account/${userId}/api-key`, {method: 'POST', params: {apiKeys: []}})
-            .then(() => {
-                onKeysRevoked?.([])
-                notify({type: 'success', message: 'All API keys have been revoked'})
-            })
-            .catch(err => notify({type: 'error', message: 'Failed to revoke API keys. ' + err.message}))
-            .finally(() => setIsProgress(false))
-    }, [userId, onKeysRevoked])
 
     const signOutEverywhere = useCallback(async () => {
         if (!await confirmAction('Sign out everywhere? Every browser signed in to this account, this one ' +
@@ -51,8 +37,6 @@ export default function DestructiveActionsView({onKeysRevoked}) {
 
     return <div className="card double-space billing-card billing-danger">
         <div className="billing-danger-title">Destructive actions</div>
-        <DangerRowView title="Revoke all API keys" action="Revoke keys" disabled={isProgress} onAction={revokeKeys}
-                       description="Every key stops working immediately. Your subscription and usage history are kept."/>
         <DangerRowView title="Sign out everywhere" action="Sign out" disabled={isProgress}
                        onAction={signOutEverywhere}
                        description="Ends every session of this account in every browser, this one included. Your API
@@ -66,6 +50,7 @@ export default function DestructiveActionsView({onKeysRevoked}) {
 }
 
 /**
+ * One irreversible operation, inside a `billing-danger` card
  * @param {String} title
  * @param {String} description
  * @param {String} action - button caption
@@ -73,7 +58,7 @@ export default function DestructiveActionsView({onKeysRevoked}) {
  * @param {Function} onAction
  * @return {JSX.Element}
  */
-function DangerRowView({title, description, action, disabled, onAction}) {
+export function DangerRowView({title, description, action, disabled, onAction}) {
     return <div className="billing-danger-row dual-layout">
         <div>
             <strong>{title}</strong>

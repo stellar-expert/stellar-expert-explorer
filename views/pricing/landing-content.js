@@ -4,13 +4,14 @@
  */
 
 /**
- * Sample endpoint weights - ordered cheapest first so the glyphs read as a ramp
+ * Sample endpoint weights, as the API charges them (the `cost` of each route in its api/routes) - ordered
+ * cheapest first so the glyphs read as a ramp
  */
 export const computeUnitCosts = [
-    {endpoint: '/tx/{hash}', units: 1, description: 'One transaction'},
-    {endpoint: '/account/{id}/history', units: 2, description: 'Account history page'},
-    {endpoint: '/asset/{id}/stats', units: 4, description: 'Aggregated asset stats'},
-    {endpoint: '/market/{pair}/candles?7d', units: 8, description: 'Seven days of candles'}
+    {endpoint: '/tx/{id}', units: 2, description: 'One transaction'},
+    {endpoint: '/account/{address}', units: 4, description: 'Account with its balances'},
+    {endpoint: '/asset/{asset}/stats-history', units: 20, description: 'Daily history of an asset'},
+    {endpoint: '/asset/{asset}/candles', units: 40, description: 'Price candles of an asset'}
 ]
 
 /**

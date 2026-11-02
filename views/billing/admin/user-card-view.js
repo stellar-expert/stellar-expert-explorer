@@ -54,7 +54,7 @@ export default function UserCardView({account, onUpdate}) {
                         </div>
                         <div className="column column-50">
                             <div className="mobile-only micro-space"/>
-                            <TokenListView caption={<>ORIGINS&nbsp;·&nbsp;{account.origins.length}</>}
+                            <TokenListView caption={<>ASSOCIATED ORIGINS&nbsp;·&nbsp;{account.origins.length}</>}
                                            tokens={account.origins} placeholder="(No origins)"/>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react'
+import React from 'react'
 import TokenListView from './token-list-view'
 
 /**
@@ -44,30 +44,20 @@ const cardBrands = {
 /**
  * How the account pays - the instrument every invoice of its billing history was charged to
  * @param {PaymentMethod} [method]
- * @param {Function} [onChange] - omitted where the instrument cannot be replaced from the dashboard
- * @param {Boolean} [disabled]
+ * @param {String} [changeLink] - page that replaces the instrument; omitted where the dashboard cannot
  * @return {JSX.Element}
  */
-export default function PaymentMethodView({method, onChange, disabled}) {
-    const change = useCallback(e => {
-        e.preventDefault()
-        if (!disabled) {
-            onChange()
-        }
-    }, [onChange, disabled])
-
-    const changeLink = !!onChange && <a href="#" className={disabled ? 'disabled' : undefined} onClick={change}>
-        {method ? 'Change' : 'Add'}
-    </a>
+export default function PaymentMethodView({method, changeLink}) {
+    const change = !!changeLink && <a href={changeLink}>{method ? 'Change' : 'Add'}</a>
 
     return <div className="card card-blank billing-card billing-payment-method">
         <div className="dimmed text-small">PAYMENT METHOD</div>
         {method ? <div className="dual-layout micro-space">
             <MethodDetailsView method={method}/>
-            {changeLink}
+            {change}
         </div> : <div className="dual-layout">
             <TokenListView tokens={[]} placeholder="(No payment method)"/>
-            {changeLink}
+            {change}
         </div>}
         <div className="dimmed text-tiny space">
             Card, PayPal, Apple Pay or Google Pay. Cosmographer plans can be invoiced.
