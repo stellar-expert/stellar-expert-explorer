@@ -6,7 +6,7 @@ import './account-balances.scss'
 
 export default withErrorBoundary(function AccountCurrentBalancesView({account, onSelectAsset}) {
     const {address, deleted} = account
-    const {data: valueInfo} = useExplorerApi(`account/${address}/value`)
+    const {data: valueInfo} = useExplorerApi(`account/${address}/balance?value=USD`)
     if (deleted)
         return <div className="dimmed space">Balances unavailable</div>
     if (!valueInfo || valueInfo?.error)

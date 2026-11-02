@@ -5,7 +5,7 @@ import {AccountTrustlineBalanceView} from '../account/account-trustline-balance-
 
 //TODO: unify logic with AccountCurrentBalancesView
 export default withErrorBoundary(function ContractBalancesView({address, onSelectAsset}) {
-    const {data: valueInfo, loaded} = useExplorerApi(`contract/${address}/value`)
+    const {data: valueInfo, loaded} = useExplorerApi(`account/${address}/balance?value=USD`)
     if (!loaded || !valueInfo)
         return <div className="loader"/>
     if (valueInfo?.error)

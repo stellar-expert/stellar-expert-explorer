@@ -31,6 +31,6 @@ export default function UsersPage() {
     const isPending = !synced || isLoading
 
     return <SimplePageLayout title={title} action={<NewUserView onCreate={refresh}/>}>
-        {isPending ? <SegmentLoader inside/> : <UserListView accounts={accountList} onUpdate={refresh}/>}
+        {isPending ? <SegmentLoader inside/> : <UserListView accounts={accountList}/>}
     </SimplePageLayout>
 }
