@@ -21,9 +21,9 @@
   },
   "dependencies": {
     "@stellar-asset-lists/sdk": "^1.0.1",
-    "@stellar-expert/contract-wasm-interface-parser": "6.0.1",
+    "@stellar-expert/contract-wasm-interface-parser": "6.2.0",
     "@stellar-expert/formatter": "3.2.0",
-    "@stellar-expert/tx-meta-effects-parser": "10.1.1",
+    "@stellar-expert/tx-meta-effects-parser": "11.0.0",
     "@stellar-expert/tx-signers-inspector": "2.0.0",
     "@stellar-expert/ui-framework": "3.0.1",
     "@stellar/stellar-sdk": "17.0.1",
