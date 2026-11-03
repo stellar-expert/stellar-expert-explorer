@@ -25,8 +25,8 @@
     "@stellar-expert/formatter": "3.2.0",
     "@stellar-expert/tx-meta-effects-parser": "11.0.0",
     "@stellar-expert/tx-signers-inspector": "2.0.0",
-    "@stellar-expert/ui-framework": "3.0.1",
-    "@stellar/stellar-sdk": "17.0.1",
+    "@stellar-expert/ui-framework": "3.1.0",
+    "@stellar/stellar-sdk": "17.4.0",
     "classnames": "^2.3.2",
     "deepmerge": "^4.3.1",
     "markdown-to-jsx": "^9.7.13",
@@ -43,6 +43,6 @@
     "@stellar-expert/webpack-template": "1.5.1"
   },
   "overrides": {
-    "@stellar/stellar-sdk": "17.0.1"
+    "@stellar/stellar-sdk": "17.4.0"
   }
 }
