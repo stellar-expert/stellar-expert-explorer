@@ -62,7 +62,7 @@ export const paidPlans = [
         audience: 'For personal use and research',
         price: 40,
         yearlyPrice: 384,
-        limits: {computeUnits: 2_500, requestsPerMinute: 60, requestsPerHour: 1800, batchSize: 100},
+        limits: {computeUnits: 800_000, requestsPerMinute: 60, requestsPerHour: 1800, batchSize: 100},
         endpoints: 'All API endpoints',
         support: 'Email'
     },
@@ -73,7 +73,7 @@ export const paidPlans = [
         audience: 'For production apps with steady traffic',
         price: 180,
         yearlyPrice: 1620,
-        limits: {computeUnits: 10_000, requestsPerMinute: 240, requestsPerHour: 7200, batchSize: 200},
+        limits: {computeUnits: 1_800_000, requestsPerMinute: 240, requestsPerHour: 7200, batchSize: 200},
         endpoints: 'All API endpoints',
         support: 'Email'
     },
@@ -84,7 +84,7 @@ export const paidPlans = [
         audience: 'For data-heavy services, indexers and apps',
         price: 340,
         yearlyPrice: 2856,
-        limits: {computeUnits: 50_000, requestsPerMinute: 480, requestsPerHour: 18000, batchSize: 1000},
+        limits: {computeUnits: 4_000_000, requestsPerMinute: 480, requestsPerHour: 18000, batchSize: 1000},
         endpoints: 'All API endpoints',
         support: 'Email',
         originAccess: true,

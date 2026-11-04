@@ -35,3 +35,12 @@
     font-size: 1.5em;
   }
 }
+
+//the address the dashboard is signed in as, heading the account dropdown - the list is portaled out of
+//.account-status, so this is not nested under it
+.account-status-email {
+  max-width: 20em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

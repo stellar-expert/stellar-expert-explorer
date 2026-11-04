@@ -10,7 +10,7 @@ export default function PricingFooterView() {
             <div>{new Date().getFullYear()}&nbsp;©&nbsp;StellarExpert <span className="dimmed">v{appVersion}</span>
             </div>
             <div className="pricing-footer-links">
-                <a href="/openapi.html" target="_blank">Open API docs</a>
+                <a href="/api-docs" target="_blank">API docs</a>
                 <a href="/info/tos">Terms of service</a>
                 <a href="/info/privacy">Privacy policy</a>
                 <a href="/info/refund">Refund policy</a>

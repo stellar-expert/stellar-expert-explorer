@@ -7,8 +7,8 @@ export default function Footer() {
             <div>{new Date().getFullYear()}&nbsp;©&nbsp;StellarExpert <span className="dimmed">v{appVersion}</span>
             </div>
             <div>
-                <a href="/openapi.html" target="_blank" className="nowrap">
-                    <i className="icon icon-embed"/> Open API docs
+                <a href="/api-docs" target="_blank" className="nowrap">
+                    <i className="icon icon-embed"/> API docs
                 </a>&emsp;
                 <a href="https://github.com/orbitlens/stellar-expert-explorer/issues/" target="_blank" rel="noreferrer noopener" className="nowrap">
                     <i className="icon icon-github"/> Report a bug

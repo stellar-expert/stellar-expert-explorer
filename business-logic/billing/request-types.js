@@ -18,7 +18,8 @@ export const requestTypeTitles = {
     refund: 'Refund',
     'account-provisioned': 'Account created by staff',
     'account-deleted': 'Account deleted',
-    'account-restored': 'Account restored'
+    'account-restored': 'Account restored',
+    'email-changed': 'Email changed'
 }
 
 /**

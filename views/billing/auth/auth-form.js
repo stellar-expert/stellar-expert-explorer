@@ -29,18 +29,3 @@ export function AuthScreenView({title, textFirst, children}) {
         </div>
     </div>
 }
-
-/**
- * One labelled input
- * @param {String} title
- * @param {*} children - the input itself
- * @return {JSX.Element}
- */
-export function FieldView({title, children}) {
-    return <div className="space">
-        <label>
-            {title}
-            {children}
-        </label>
-    </div>
-}

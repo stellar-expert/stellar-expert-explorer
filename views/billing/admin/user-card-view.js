@@ -8,6 +8,7 @@ import TokenListView from '../components/token-list-view'
 //acting on the account - crediting it, logging in as its owner, deleting it - happens on its settings page
 export default function UserCardView({account}) {
     const userId = account.id
+    const {apiKeys = [], origins = []} = account
 
     return <div className="space">
         <div className="card billing-card billing-user-card">
@@ -32,13 +33,13 @@ export default function UserCardView({account}) {
                     <div className="row">
                         <div className="column column-50">
                             <div className="mobile-only micro-space"/>
-                            <TokenListView caption={<>API KEYS&nbsp;·&nbsp;{account.apiKeys.length}</>}
-                                           tokens={account.apiKeys} shorten={16} placeholder="(No API keys)"/>
+                            <TokenListView caption={<>API KEYS&nbsp;·&nbsp;{apiKeys.length}</>}
+                                           tokens={apiKeys} shorten={16} placeholder="(No API keys)"/>
                         </div>
                         <div className="column column-50">
                             <div className="mobile-only micro-space"/>
-                            <TokenListView caption={<>ASSOCIATED ORIGINS&nbsp;·&nbsp;{account.origins.length}</>}
-                                           tokens={account.origins} placeholder="(No origins)"/>
+                            <TokenListView caption={<>ASSOCIATED ORIGINS&nbsp;·&nbsp;{origins.length}</>}
+                                           tokens={origins} placeholder="(No origins)"/>
                         </div>
                     </div>
                     <div className="row micro-space">

@@ -6,7 +6,7 @@ import {isValidEmail} from '../../../business-logic/billing/email'
 import {resolveReturnPath} from '../../../business-logic/billing/return-path'
 import SegmentLoader from '../utils/segment-loader-view'
 import {useSession} from './session-context'
-import {AuthScreenView, FieldView, fail} from './auth-form'
+import {AuthScreenView, fail} from './auth-form'
 
 const screens = {
     form: {title: 'Sign in'},
@@ -14,6 +14,9 @@ const screens = {
     verifying: {title: 'Signing in'},
     failed: {title: 'Sign-in link expired', textFirst: true}
 }
+
+//the link takes a moment to arrive, and the server limits how many an address may request
+const resendCooldown = 60_000
 
 /**
  * Passwordless sign-in: ask for an address, mail a link, and sign in when the link is opened. Registering
@@ -28,14 +31,16 @@ export default function LoginFormView() {
     const [screen, setScreen] = useState(linkToken ? 'verifying' : 'form')
     const [email, setEmail] = useState('')
     const [isProgress, setIsProgress] = useState(false)
+    //when the last link went out - "Send again" waits out the cooldown from then
+    const [sentAt, setSentAt] = useState(0)
 
-    const proceed = useCallback(() => {
+    const proceed = useCallback(session => {
         if (reload) {
             //shown in place of a dashboard page, which is where the visitor was going - a checkout link from
             //the pricing page, say - so the page stays and only the session catches up
             reload()
         } else {
-            navigation.navigate(resolveReturnPath(getRoles().includes('admin') ? '/admin' : '/account'))
+            navigation.navigate(resolveReturnPath(resolveHomePath(session)))
         }
     }, [reload])
 
@@ -47,6 +52,7 @@ export default function LoginFormView() {
                 window.location.pathname + window.location.search :
                 resolveReturnPath(undefined)
             await requestSignInLink({email, returnTo})
+            setSentAt(Date.now())
             //the first request answers with a screen, a repeat with a toast
             if (screen === 'sent') {
                 notify({type: 'success', message: 'Sign-in link sent again'})
@@ -111,23 +117,27 @@ export default function LoginFormView() {
     const {title, textFirst} = screens[screen]
     return <AuthScreenView title={title} textFirst={textFirst}>
         {screen === 'sent' ?
-            <InboxView email={email} disabled={isProgress} onResend={sendLink} onBack={switchTo('form')}/> :
+            <InboxView email={email} disabled={isProgress} resendAt={sentAt + resendCooldown} onResend={sendLink}
+                       onBack={switchTo('form')}/> :
             <>
                 {screen === 'failed' ? <p className="dimmed text-small">
                     The link has expired or has already been used. Enter your email address to get a new one.
                 </p> : null}
-                <form onSubmit={submit} className="double-space">
-                    <FieldView title="Email address">
-                        <input type="email" name="email" value={email} autoComplete="email" autoFocus
+                <form onSubmit={submit} className="space">
+                    <label className="dimmed">
+                        Email address
+                        <input type="email" name="email" value={email} autoComplete="email" autoFocus className="micro-space"
+                               placeholder="Provide your email address"
                                disabled={isProgress} onChange={e => setEmail(e.target.value.trim())}/>
-                    </FieldView>
+                    </label>
                     <div className="space">
-                        <Button type="submit" disabled={isProgress} block>Email me a sign-in link</Button>
+                        <Button type="submit" disabled={isProgress} block>Send me a sign-in link</Button>
                     </div>
-                    <div className="billing-login-footer text-small">
+                    <div className="billing-login-footer text-tiny">
                         <div className="dimmed">
-                            No password needed. If you have no account yet, the link creates one - by
-                            continuing you accept the <a href="/info/tos">terms of service</a> and{' '}
+                            No password needed. A new account will be created if you don't have one.
+                            <br/>
+                            By continuing you accept the <a href="/info/tos">terms of service</a> and{' '}
                             <a href="/info/privacy">privacy policy</a>.
                         </div>
                     </div>
@@ -137,15 +147,32 @@ export default function LoginFormView() {
 }
 
 /**
+ * Where a sign-in lands when nothing asked to return anywhere - an account without a plan is offered one
+ * @param {StoredSession} [session] - the session just started
+ * @return {String}
+ * @private
+ */
+function resolveHomePath(session) {
+    if (getRoles().includes('admin'))
+        return '/admin'
+    //null rather than absent: only a server that reports the plan can say there is none
+    if (session?.account?.plan === null)
+        return '/account/subscription/change'
+    return '/account'
+}
+
+/**
  * Shown once the link is on its way
  * @param {String} email
  * @param {Boolean} disabled
+ * @param {Number} resendAt - epoch ms when "Send again" unlocks
  * @param {Function} onResend
  * @param {Function} onBack
  * @return {JSX.Element}
  * @private
  */
-function InboxView({email, disabled, onResend, onBack}) {
+function InboxView({email, disabled, resendAt, onResend, onBack}) {
+    const secondsLeft = useSecondsLeft(resendAt)
     return <>
         <div className="billing-login-notice">
             A sign-in link is on its way to <b>{email}</b>. It works once, and expires in an hour.
@@ -155,10 +182,36 @@ function InboxView({email, disabled, onResend, onBack}) {
             the spam folder, or send it again.
         </p>
         <div className="space">
-            <Button outline disabled={disabled} onClick={onResend} block>Send again</Button>
+            <Button outline disabled={disabled || secondsLeft > 0} onClick={onResend} block>
+                {secondsLeft > 0 ? `Send again in ${secondsLeft}s` : 'Send again'}
+            </Button>
         </div>
         <div className="billing-login-footer text-small">
             <div><a href="#" onClick={onBack}>Use another address</a></div>
         </div>
     </>
+}
+
+/**
+ * Whole seconds left until a moment, re-rendering every second until it comes
+ * @param {Number} until - epoch ms
+ * @return {Number}
+ * @private
+ */
+function useSecondsLeft(until) {
+    const [now, setNow] = useState(Date.now)
+    useEffect(() => {
+        setNow(Date.now())
+        if (until <= Date.now())
+            return
+        const timer = setInterval(() => {
+            const current = Date.now()
+            setNow(current)
+            if (current >= until) {
+                clearInterval(timer)
+            }
+        }, 1000)
+        return () => clearInterval(timer)
+    }, [until])
+    return Math.max(0, Math.ceil((until - now) / 1000))
 }

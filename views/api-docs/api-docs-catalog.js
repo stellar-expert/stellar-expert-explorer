@@ -37,6 +37,7 @@ export const introChapters = [
     {id: 'introduction', title: 'Introduction', icon: 'icon-document'},
     {id: 'authentication', title: 'Authentication', icon: 'icon-key'},
     {id: 'pricing', title: 'Pricing & compute units', icon: 'icon-flash', href: '/pricing'},
+    {id: 'charges', title: 'Charges & estimates', icon: 'icon-credit-card'},
     {id: 'conventions', title: 'Conventions', icon: 'icon-settings'},
     {id: 'pagination', title: 'Pagination', icon: 'icon-menu'},
     {id: 'rate-limits', title: 'Errors & rate limits', icon: 'icon-warning-circle'},

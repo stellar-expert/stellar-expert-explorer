@@ -1,8 +1,9 @@
 import {parseQuery} from '@stellar-expert/ui-framework'
+import {findPlan} from './api-plans'
 
 /**
- * Where a sign-in sends the visitor back to - a plan picked on the pricing page, or the dashboard page a
- * session expired on
+ * Where a sign-in sends the visitor back to - the checkout of a plan picked on the pricing page, or the
+ * dashboard page a session expired on
  */
 
 const loginPath = '/login'
@@ -19,13 +20,40 @@ export function buildLoginUrl(returnTo = window.location.pathname + window.locat
 }
 
 /**
- * The page the sign-in page was asked to return to
+ * Sign-in page address that continues to the checkout of a plan picked on the pricing page
+ * @param {String} plan - plan key
+ * @param {'month'|'year'} period
+ * @return {String}
+ */
+export function buildPlanSignInUrl(plan, period) {
+    return `${loginPath}?plan=${encodeURIComponent(plan)}&period=${encodeURIComponent(period)}`
+}
+
+/**
+ * The page the sign-in page was asked to return to - a dashboard page, or the checkout of the plan named
+ * by `?plan=observer&period=month`
  * @param {String} fallback - where to go when it names none
  * @return {String}
  */
 export function resolveReturnPath(fallback) {
-    const {returnTo} = parseQuery()
-    return isReturnPath(returnTo) ? returnTo : fallback
+    const {returnTo, plan, period} = parseQuery()
+    if (isReturnPath(returnTo))
+        return returnTo
+    return buildCheckoutPath(plan, period) || fallback
+}
+
+/**
+ * Checkout of a priced plan - the free one has nothing to buy, and a quoted one is arranged with the team
+ * @param {String} [plan] - plan key
+ * @param {String} [period] - 'month' unless 'year'
+ * @return {String|null}
+ * @private
+ */
+function buildCheckoutPath(plan, period) {
+    const picked = findPlan(plan)
+    if (!picked?.price)
+        return null
+    return `/account/subscription/checkout?plan=${picked.key}&period=${period === 'year' ? 'year' : 'month'}`
 }
 
 /**

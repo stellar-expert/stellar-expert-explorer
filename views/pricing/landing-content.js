@@ -97,8 +97,8 @@ export const faq = [
     },
     {
         question: 'What happens when compute runs out?',
-        answer: 'Nothing goes dark. Requests keep being served at free-tier limits until the next cycle, ' +
-            'so a traffic spike degrades instead of failing.'
+        answer: 'Paid endpoints respond with 402 Payment Required until the allowance resets with the next billing month. ' +
+            'Free endpoints and Testnet keep working at free-tier limits, and single requests can still be paid over x402.'
     },
     {
         question: 'Do unused compute units roll over?',

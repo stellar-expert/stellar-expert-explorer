@@ -9,6 +9,7 @@ import UserOriginsView from '../components/user-origins-view'
 import SubscriptionCardView from '../components/subscription-card-view'
 import UserCreditDepositView from './user-credit-deposit-view'
 import UserAccountActionsView from './user-account-actions-view'
+import UserEmailView from './user-email-view'
 
 export default function UserSettingsView({settings, onUpdate, onReload}) {
     const [isProgress, setIsProgress] = useState(false)
@@ -36,6 +37,11 @@ export default function UserSettingsView({settings, onUpdate, onReload}) {
         subscription.provider === 'paddle' ? 'Details' : 'Change'
 
     return <div>
+        <SettingsSectionView title="Email" description="The address the owner signs in with.">
+            <UserEmailView account={settings} onUpdate={onUpdate}/>
+        </SettingsSectionView>
+        <div className="space"/>
+        <hr/>
         <SettingsSectionView title="Plan" description="Tariff, limits and renewal.">
             <SubscriptionCardView account={settings} onUpdate={onUpdate} disabled={isProgress}
                                   changeLink={`/admin/user/${id}/subscription`} changeTitle={changeTitle}/>

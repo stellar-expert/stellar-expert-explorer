@@ -6,7 +6,7 @@ for [Stellar Network](https://stellar.org).
 #### Links
 
 - 📡 [StellarExpert explorer](https://stellar.expert)
-- 📖 [Open API documetation](https://stellar.expert/openapi.html) for
+- 📖 [API documetation](https://stellar.expert/api-docs) for
   developers (the data from Open Directory API is publicly available for
   developers and users, free of charge)
 - 📩 [Request](https://github.com/stellar-expert/stellar-expert-explorer/issues)

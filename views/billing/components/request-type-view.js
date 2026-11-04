@@ -26,6 +26,9 @@ export default function RequestTypeView({entry: {requestType, data}}) {
         {requestType === 'refund' && <span className="dimmed text-small">
             &nbsp;{formatAmount(data?.amount)}{!!data?.action && <>&nbsp;·&nbsp;{data.action}</>}
         </span>}
+        {requestType === 'email-changed' && <span className="dimmed text-small">
+            &nbsp;{data?.from}&nbsp;→&nbsp;{data?.to}
+        </span>}
         {!!credits && <span className="dimmed text-small">&nbsp;{credits}</span>}
         {requestType === 'allowance-reset' && data?.burned > 0 && <span className="dimmed text-small">
             &nbsp;·&nbsp;{formatWithAutoPrecision(data.burned)} unused burned

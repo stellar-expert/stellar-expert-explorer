@@ -187,3 +187,15 @@ export function isSignedIn() {
 export function getRoles() {
     return decodeClaims(getImpersonationToken() || current?.token)?.roles || []
 }
+
+/**
+ * Address of the account requests are sent as - the customer's while impersonating. Taken from the token, as
+ * issued: an address changed since shows once the owner signs in again
+ * @return {String|null}
+ */
+export function getEmail() {
+    const impersonation = getImpersonationToken()
+    if (impersonation)
+        return decodeClaims(impersonation)?.email || null
+    return current?.account?.email || decodeClaims(current?.token)?.email || null
+}
