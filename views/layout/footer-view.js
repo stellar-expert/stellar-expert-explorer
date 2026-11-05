@@ -10,8 +10,11 @@ export default function Footer() {
                 <a href="/api-docs" target="_blank" className="nowrap">
                     <i className="icon icon-embed"/> API docs
                 </a>&emsp;
-                <a href="https://github.com/orbitlens/stellar-expert-explorer/issues/" target="_blank" rel="noreferrer noopener" className="nowrap">
-                    <i className="icon icon-github"/> Report a bug
+                <a href="/pricing" className="nowrap">
+                    <i className="icon icon-coin"/> Pricing
+                </a>&emsp;
+                <a href="mailto:info@stellar.expert" target="_blank" rel="noreferrer noopener" className="nowrap">
+                    <i className="icon icon-lightbulb"/> Report a bug
                 </a>&emsp;
                 <ThemeSelector/>
             </div>
@@ -24,7 +27,7 @@ export default function Footer() {
                 </a>
             </div>
             <div>
-                <a href="https://twitter.com/orbitlens" target="_blank" rel="noreferrer noopener" className="nowrap">
+                <a href="https://twitter.com/stellar_experts" target="_blank" rel="noreferrer noopener" className="nowrap">
                     <i className="icon icon-twitter"/>
                 </a>&emsp;
                 <a href="mailto:info@stellar.expert" target="_blank" rel="noreferrer noopener" className="nowrap">

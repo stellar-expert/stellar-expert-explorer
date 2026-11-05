@@ -117,8 +117,26 @@ export const faq = [
             'invoiced directly.'
     },
     {
+        question: 'How does the subscription renewal work?',
+        answer: 'Paid plans renew automatically: unless you cancel before the billing date, the next period is charged ' +
+            'to your payment method on file. The renewal date is on your Subscription page, where renewal can be turned ' +
+            'off any time. The plan then stays active until the end of the paid period, with no further charges. ' +
+            'A failed renewal payment drops the plan to free-tier limits until the payment method is updated.'
+    },
+    {
         question: 'Can I use it in a commercial product?',
-        answer: 'Yes, even a rival explorer. Cosmographer contracts can include licensable data. ' +
+        answer: 'Yes, on any paid plan. The free tier covers non-commercial use only. ' +
             'Check the Terms of Service for the limitations.'
+    },
+    {
+        question: 'What counts as personal or commercial use?',
+        answer: 'Personal and research use covers personal projects, academic research, education, testing and ' +
+            'development. Anything run by or for a company, client or organization is commercial: production services, ' +
+            'internal business tools, and apps that earn revenue or have paying users.'
+    },
+    {
+        question: 'Can I resell data or build competing products',
+        answer: 'Only under a license, available on the Cosmographer plan. It covers reselling API data, as is or ' +
+            'transformed, and using it in products that compete directly with our services.'
     }
 ]

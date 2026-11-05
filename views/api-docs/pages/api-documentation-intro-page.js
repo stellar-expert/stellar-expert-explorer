@@ -30,19 +30,6 @@ export default function ApiDocumentationIntroPage() {
                     network are charged in compute units and require an identified caller, while free endpoints are open to anyone.
                     Every <code>testnet</code> endpoint is free of charge.
                 </p>
-                <h3>Cross-Origin Resource Sharing</h3>
-                <p>
-                    This API sets Cross-Origin Resource Sharing (CORS) headers for browser requests
-                    from origins registered on a customer account (see <a href="/api-docs#authentication">authentication</a>):
-                    responses, preflight included, carry CORS headers for the requesting origin. Public free endpoints accept requests
-                    from any origin. Other endpoints refuse requests from other websites with <code>403</code>.
-                    CORS rules apply only to browser requests carrying the <code>Origin</code> header, server-side calls are not affected.
-                </p>
-                <p>
-                    A request with custom headers (including <code>Authorization</code>) from an unregistered website triggers a CORS
-                    preflight check. Instead of exposing an API key in the browser, register
-                    the website origin, or proxy API calls through your own backend that holds the key.
-                </p>
             </section>
             <section id="authentication" className="api-intro-chapter">
                 <h2 className="api-section-title"><i className="icon icon-key"/> Authentication</h2>
@@ -87,6 +74,19 @@ export default function ApiDocumentationIntroPage() {
                     unidentified request receives <code>402</code> with the price in the <code>PAYMENT-REQUIRED</code> header, and the
                     client repeats it with a signed payment in the <code>PAYMENT-SIGNATURE</code> header. The payment is settled only if
                     the request succeeds, and the response is returned after the on-chain settlement, which takes several seconds.
+                </p>
+                <h3>Cross-Origin Resource Sharing</h3>
+                <p>
+                    This API sets Cross-Origin Resource Sharing (CORS) headers for browser requests
+                    from origins registered on a customer account (see <a href="/api-docs#authentication">authentication</a>):
+                    responses, preflight included, carry CORS headers for the requesting origin. Public free endpoints accept requests
+                    from any origin. Other endpoints refuse requests from other websites with <code>403</code>.
+                    CORS rules apply only to browser requests carrying the <code>Origin</code> header, server-side calls are not affected.
+                </p>
+                <p>
+                    A request with custom headers (including <code>Authorization</code>) from an unregistered website triggers a CORS
+                    preflight check. Instead of exposing an API key in the browser, register
+                    the website origin, or proxy API calls through your own backend that holds the key.
                 </p>
             </section>
             <section id="charges" className="api-intro-chapter">
