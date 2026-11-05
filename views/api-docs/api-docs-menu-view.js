@@ -35,7 +35,10 @@ export default function ApiDocsMenuView({catalog, loaded, error, closeMenu}) {
 
 function IntroChaptersView({active, closeMenu}) {
     const {hash} = useLocation()
-    const current = active ? (hash || '').replace('#', '') || introChapters[0].id : null
+    //a chapter without an entry of its own, opened by a link from the page, keeps the introduction highlighted
+    const chapter = (hash || '').replace('#', '')
+    const listed = introChapters.some(({id, href}) => !href && id === chapter)
+    const current = active ? (listed ? chapter : introChapters[0].id) : null
     return introChapters.map(({id, title, icon, href}) => {
         const link = href || (id === introChapters[0].id ? '/api-docs' : '/api-docs#' + id)
         return <a key={id} href={link} className={cn('api-docs-menu-item', {active: !href && current === id})}
