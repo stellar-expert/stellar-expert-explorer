@@ -1,11 +1,8 @@
-import React, {useState} from 'react'
-import cn from 'classnames'
-import {Button, Tabs} from '@stellar-expert/ui-framework'
-import {
-    describePlanLimits, formatPrice, freePlan, maxYearlySavings, paidPlans, resolvePlanPrice
-} from '../../business-logic/billing/api-plans'
+import React, {useCallback, useState} from 'react'
+import {Button} from '@stellar-expert/ui-framework'
+import {buildPlanSignInUrl} from '../../business-logic/billing/return-path'
 import EnterpriseRequestView from '../billing/user/enterprise-request-view'
-import PricingIconView from './pricing-icons-view'
+import PlanCatalogueView from './plan-catalogue-view'
 import ComputeUnitsBlockView from './compute-units-block-view'
 import AgentsBlockView from './agents-block-view'
 
@@ -15,26 +12,16 @@ import AgentsBlockView from './agents-block-view'
  */
 export default function PlansBlockView() {
     const [period, setPeriod] = useState('month')
+    const renderAction = useCallback(plan => renderPlanAction(plan, period), [period])
 
     return <section className="subscription-block subscription-plans-block" id="plans">
         <div className="container">
-            <div className="subscription-plans-header">
-                <div>
-                    <div className="subscription-block-eyebrow">/ API plans</div>
-                    <h2>From weekend prototypes <br/>to mission-critical systems</h2>
-                </div>
-                <div className="subscription-period-switch">
-                    <span className="subscription-period-savings">Save up to {maxYearlySavings}% yearly</span>
-                    <Tabs className="subscription-period-tabs" right selectedTab={period} onChange={setPeriod}
-                          tabs={[{name: 'month', title: 'Monthly'}, {name: 'year', title: 'Yearly'}]}/>
-                </div>
-            </div>
-            <div className="subscription-plan-grid">
-                {paidPlans.map(plan => <PlanCard key={plan.key} plan={plan} period={period}/>)}
-            </div>
-            <FreePlanBar/>
+            <PlanCatalogueView period={period} onChangePeriod={setPeriod} renderAction={renderAction} header={<>
+                <div className="subscription-block-eyebrow">/ API plans</div>
+                <h2>From weekend prototypes <br/>to mission-critical systems</h2>
+            </>}/>
             <div className="subscription-plans-note">
-                Prices in USD. Pay by card or crypto through our payment processor.
+                Prices in USD, taxes included. Pay by card, PayPal, Apple Pay or Google Pay.
                 Cosmographer plans can be invoiced.
             </div>
             <ComputeUnitsBlockView/>
@@ -44,16 +31,21 @@ export default function PlansBlockView() {
 }
 
 /**
- * Published limits of a plan - a row quoting a figure highlights it, a whole phrase stands on its own
+ * What the landing offers for a plan
  * @param {ApiPlan} plan
+ * @param {'month'|'year'} period - billing period picked on the switch
  * @return {JSX.Element}
  */
-function PlanLimits({plan}) {
-    return <div className="subscription-plan-limits">
-        {describePlanLimits(plan).map(({value, label}) => <div key={label}>
-            {!!value && <span className="subscription-plan-limit-value">{value}</span>} {label}
-        </div>)}
-    </div>
+function renderPlanAction(plan, period) {
+    if (plan.custom)
+        return <EnterpriseRequestView dialogClassName="subscription-dialog"/>
+    //no account to create for the free tier
+    if (!plan.price)
+        return <div className="subscription-free-registration">No registration required</div>
+    //sign-in continues to the checkout of this plan, at once for a visitor already signed in
+    return <Button href={buildPlanSignInUrl(plan.key, period)} block>
+        Choose {plan.name}
+    </Button>
 }
 
 /**

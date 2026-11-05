@@ -3,14 +3,14 @@ import {isAwaitingCustomTariff} from '../../../business-logic/billing/account-st
 import UserCardView from './user-card-view'
 import UserListFilterView from './user-list-filter'
 
-export default function UserListView({accounts = [], onUpdate}) {
+export default function UserListView({accounts = []}) {
     const [filter, setFilter] = useState({})
 
     const matched = useMemo(() => filterAccounts(accounts, filter), [accounts, filter])
 
     return <div>
         <UserListFilterView onChange={setFilter}/>
-        {matched.map(account => <UserCardView key={account.id} account={account} onUpdate={onUpdate}/>)}
+        {matched.map(account => <UserCardView key={account.id} account={account}/>)}
         {!matched.length && <div className="double-space text-center dimmed">
             {accounts.length ? 'No users match the filter' : 'No user accounts yet'}
         </div>}

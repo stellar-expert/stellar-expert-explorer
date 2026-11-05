@@ -1,35 +1,64 @@
 import React, {useCallback, useState} from 'react'
+import cn from 'classnames'
 import {useParams} from '@stellar-expert/ui-framework'
+import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {apiRequest} from '../../../business-logic/billing/billing-api'
 import SettingsSectionView from '../layout/settings-section-view'
 import TokenListView from '../components/token-list-view'
 import UserOriginsView from '../components/user-origins-view'
-import UserSubscriptionView from './user-subscription-view'
+import SubscriptionCardView from '../components/subscription-card-view'
+import UserCreditDepositView from './user-credit-deposit-view'
+import UserAccountActionsView from './user-account-actions-view'
+import UserEmailView from './user-email-view'
 
-export default function UserSettingsView({settings, onUpdate}) {
+export default function UserSettingsView({settings, onUpdate, onReload}) {
     const [isProgress, setIsProgress] = useState(false)
     const {id} = useParams()
 
-    const saveSettings = useCallback((key, value) => {
-        const {origins, subscription} = {...settings, [key]: value}
+    //only the origins are sent - the subscription has its own routes, and re-posting it would overwrite one
+    //the payment processor manages
+    const saveOrigins = useCallback((key, origins) => {
         setIsProgress(true)
         return apiRequest(`account/${id}`, {
             method: 'POST',
-            params: {origins, subscription}
+            params: {origins}
         })
             .then(() => {
-                onUpdate(prev => ({...prev, [key]: value}))
+                onUpdate(prev => ({...prev, origins}))
                 notify({type: 'success', message: 'User settings has been updated'})
             })
             .catch(error => notify({type: 'error', message: 'Failed to save user settings. ' + error?.message}))
             .finally(() => setIsProgress(false))
-    }, [settings, id, onUpdate])
+    }, [id, onUpdate])
 
-    const {apiKeys = [], origins = []} = settings
+    const {apiKeys = [], origins = [], subscription, balance} = settings
+    //a plan bought through Paddle is the customer's to change - staff can only look at it
+    const changeTitle = !subscription ? 'Subscribe user' :
+        subscription.provider === 'paddle' ? 'Details' : 'Change'
 
     return <div>
+        <SettingsSectionView title="Email" description="The address the owner signs in with.">
+            <UserEmailView account={settings} onUpdate={onUpdate}/>
+        </SettingsSectionView>
+        <div className="space"/>
+        <hr/>
         <SettingsSectionView title="Plan" description="Tariff, limits and renewal.">
-            <UserSubscriptionView account={settings} onUpdate={onUpdate} disabled={isProgress}/>
+            <SubscriptionCardView account={settings} onUpdate={onUpdate} disabled={isProgress}
+                                  changeLink={`/admin/user/${id}/subscription`} changeTitle={changeTitle}/>
+        </SettingsSectionView>
+        <div className="space"/>
+        <hr/>
+        <SettingsSectionView title="Credits" description="Compute units left on the balance. Added credits are spent
+                             along with the monthly allowance.">
+            <div className="dual-layout">
+                <div>
+                    <div className={cn('billing-stat-value', {'color-warning': !balance})}>
+                        {formatWithAutoPrecision(balance || 0)}
+                    </div>
+                    <a href={`/admin/user/${id}/billing-history`} className="text-small">billing history →</a>
+                </div>
+                <UserCreditDepositView account={settings} onUpdate={onReload}/>
+            </div>
         </SettingsSectionView>
         <div className="space"/>
         <hr/>
@@ -42,10 +71,13 @@ export default function UserSettingsView({settings, onUpdate}) {
                 </div>
                 <div className="column column-50">
                     <div className="mobile-only micro-space"/>
-                    <UserOriginsView caption={<>ORIGINS&nbsp;·&nbsp;{origins.length}</>} origins={origins}
-                                     onUpdate={saveSettings} disabled={isProgress}/>
+                    <UserOriginsView caption={<>ASSOCIATED ORIGINS&nbsp;·&nbsp;{origins.length}</>} origins={origins}
+                                     onUpdate={saveOrigins} disabled={isProgress}/>
                 </div>
             </div>
         </SettingsSectionView>
+        <div className="space"/>
+        <hr/>
+        <UserAccountActionsView account={settings} onReload={onReload}/>
     </div>
 }

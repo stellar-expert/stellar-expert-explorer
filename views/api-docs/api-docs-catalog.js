@@ -30,17 +30,13 @@ export function sectionIcon(slug) {
 }
 
 /**
- * Introduction page chapters listed in the "Getting started" navigation block
+ * Entries of the "Getting started" navigation block - a chapter of the introduction page, or another page by `href`.
+ * The introduction page holds more chapters than are listed; it is read top to bottom
  * @type {{id: String, title: String, icon: String, href?: String}[]}
  */
 export const introChapters = [
     {id: 'introduction', title: 'Introduction', icon: 'icon-document'},
-    {id: 'authentication', title: 'Authentication', icon: 'icon-key'},
-    {id: 'pricing', title: 'Pricing & compute units', icon: 'icon-flash', href: '/pricing'},
-    {id: 'conventions', title: 'Conventions', icon: 'icon-settings'},
-    {id: 'pagination', title: 'Pagination', icon: 'icon-menu'},
-    {id: 'rate-limits', title: 'Errors & rate limits', icon: 'icon-warning-circle'},
-    {id: 'cors', title: 'CORS', icon: 'icon-embed'}
+    {id: 'pricing', title: 'Pricing', icon: 'icon-flash', href: '/pricing'}
 ]
 
 /**

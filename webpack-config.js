@@ -7,8 +7,7 @@ const {
     DIRECTORY_ADMINS,
     OAUTH_GITHUB_CLIENTID,
     TURNSTILE_KEY,
-    BILLING_API_ENDPOINT,
-    AUTH0_AUDIENCE
+    BILLING_API_ENDPOINT
 } = process.env
 
 const outputPath = path.join(__dirname, './public/')
@@ -36,11 +35,11 @@ const config = initWebpackConfig({
             DIRECTORY_ADMINS,
             OAUTH_GITHUB_CLIENTID,
             TURNSTILE_KEY,
-            BILLING_API_ENDPOINT,
-            AUTH0_AUDIENCE
+            BILLING_API_ENDPOINT
         }
     },
     devServer: {
+        allowedHosts: 'all',
         host: '0.0.0.0',
         server: {
             type: 'https'

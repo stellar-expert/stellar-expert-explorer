@@ -1,97 +1,97 @@
-import React from 'react'
-import cn from 'classnames'
-import {Button} from '@stellar-expert/ui-framework'
-import {
-    allPlans, describePlanLimits, formatPrice, resolvePlanPrice
-} from '../../../business-logic/billing/api-plans'
+import React, {useCallback} from 'react'
+import {Button, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {allPlans} from '../../../business-logic/billing/api-plans'
+import PlanCatalogueView from '../../pricing/plan-catalogue-view'
 import EnterpriseRequestView from './enterprise-request-view'
 
 /**
- * Full catalogue with the plan in force marked, laid out for switching rather than for signing up
+ * The pricing page catalogue with the plan in force marked, laid out for switching rather than for signing up
  * @param {String} [currentPlan] - key of the plan the account is on
  * @param {'month'|'year'} [currentTerm] - how that plan is billed, which is a separate thing to switch
+ * @param {Boolean} [complimentary] - the plan in force is given away for free months, so it can still be bought
  * @param {'month'|'year'} period - the term the catalogue is being priced for
- * @param {Function} onSelect - receives the chosen plan
+ * @param {Function} onChangePeriod
+ * @param {String} [highlight] - key of a plan picked before arriving here
+ * @param {{message: String, all: Boolean}} [lock] - why switching to a paid plan is not possible now; `all`
+ * rules out the cancellation as well
+ * @param {Number} [endsAt] - when the paid plan in force ends, once its renewal is off
+ * @param {Boolean} [disabled]
+ * @param {Function} onSelect - receives the chosen paid plan
+ * @param {Function} onCancel - asks to end the paid plan in force when its term runs out
+ * @param {*} [header] - left side of the catalogue header
+ * @param {*} [children] - shown between the header and the plans
  * @return {JSX.Element}
  */
-export default function PlanSelectorView({currentPlan, currentTerm, period, onSelect}) {
-    return <div className="row">
-        {allPlans.map(plan => {
-            const isCurrent = plan.key === currentPlan
-            const isCurrentTerm = isCurrent && (!plan.price || period === currentTerm)
-            const price = resolvePlanPrice(plan, period)
-            const isYearly = period === 'year'
-            return <div key={plan.key} className="column column-25">
-                <div className={cn('card billing-card billing-plan-option', {
-                    current: isCurrent,
-                    popular: !isCurrent && plan.popular
-                })}>
-                    {!!isCurrent && <div className="billing-plan-badge">active</div>}
-                    {!isCurrent && !!plan.popular && <div className="billing-plan-badge popular">popular</div>}
-                    <h3>{plan.name}</h3>
-                    <div className="dimmed text-tiny billing-plan-audience nano-space">{plan.audience}</div>
-                    <ul className="subscription-plan-limits billing-plan-limits dimmed text-tiny">
-                        {describePlanLimits(plan).map(({value, label}) => <li key={label}>
-                            <span className="billing-plan-limit-value text-small">{value}</span> {label}
-                        </li>)}
-                    </ul>
-                    <div className="billing-plan-price">
-                        {plan.custom ? <>
-                            <span className="subscription-plan-amount">Custom</span>
-                            <div className="dimmed text-tiny">Flexible</div>
-                        </> : <>
-                            {!!price.term && !!isYearly && <div className="dimmed text-tiny">
-                                <s>${formatPrice(price.full)}</s>
-                            </div>}
-                            <div>
-                                <span className="subscription-plan-amount">
-                                    {price.term ? `$${formatPrice(price.term)}` : 'Free'}
-                                </span>
-                                {!!price.term && <span className="dimmed">/{isYearly ? 'year' : 'month'}</span>}
-                            </div>
-                            <div className="dimmed text-tiny">
-                                {!price.term ? 'No card required' : isYearly ?
-                                    `$${formatPrice(price.monthly)}/month, billed yearly` :
-                                    'Billed monthly'}
-                            </div>
-                        </>}
-                    </div>
-                    <PlanActionView plan={plan} isCurrent={isCurrent} isCurrentTerm={isCurrentTerm}
-                                    currentPlan={currentPlan} period={period} onSelect={onSelect}/>
-                </div>
-            </div>
-        })}
-    </div>
+export default function PlanSelectorView({
+    currentPlan, currentTerm, complimentary, period, onChangePeriod, highlight, lock, endsAt, disabled, onSelect,
+    onCancel, header, children
+}) {
+    const markPlan = useCallback(plan => {
+        if (plan.key === currentPlan)
+            return {badge: 'current', current: true}
+        if (plan.key === highlight)
+            return {badge: 'selected', featured: true}
+        //a plan picked before arriving here takes the spotlight off the popular one
+        if (!highlight && plan.popular)
+            return {badge: 'most popular', featured: true}
+        return {}
+    }, [currentPlan, highlight])
+
+    const renderAction = plan => <PlanActionView plan={plan} currentPlan={currentPlan} currentTerm={currentTerm}
+                                                 complimentary={complimentary} period={period} lock={lock}
+                                                 endsAt={endsAt} disabled={disabled} onSelect={onSelect}
+                                                 onCancel={onCancel}/>
+
+    return <PlanCatalogueView header={header} period={period} onChangePeriod={onChangePeriod} markPlan={markPlan}
+                              renderAction={renderAction}>
+        {children}
+    </PlanCatalogueView>
 }
 
 /**
  * The one action that makes sense for this plan given the one already in force
  * @param {ApiPlan} plan
- * @param {Boolean} isCurrent - the plan the account is on, whichever way it is billed
- * @param {Boolean} isCurrentTerm - and billed the way the catalogue is currently priced
  * @param {String} [currentPlan]
+ * @param {'month'|'year'} [currentTerm]
+ * @param {Boolean} [complimentary]
  * @param {'month'|'year'} period
+ * @param {{message: String, all: Boolean}} [lock]
+ * @param {Number} [endsAt]
+ * @param {Boolean} [disabled]
  * @param {Function} onSelect
+ * @param {Function} onCancel
  * @return {JSX.Element}
  * @private
  */
-function PlanActionView({plan, isCurrent, isCurrentTerm, currentPlan, period, onSelect}) {
-    if (isCurrentTerm)
+function PlanActionView({
+    plan, currentPlan, currentTerm, complimentary, period, lock, endsAt, disabled, onSelect, onCancel
+}) {
+    //free months of a paid plan are kept by buying that very plan
+    const isCurrent = plan.key === currentPlan && !complimentary
+    //the free plan is the same whichever way the catalogue is priced
+    if (isCurrent && (!plan.price || period === currentTerm))
         return <Button block disabled>Current plan</Button>
 
-    if (isCurrent)
-        return <Button block data-plan={plan.key} onClick={() => onSelect(plan)}>
-            Switch to {period === 'year' ? 'yearly' : 'monthly'}
-        </Button>
-
     if (plan.custom)
-        return <EnterpriseRequestView/>
+        return <EnterpriseRequestView dialogClassName="subscription-dialog"/>
+
+    //moving to the free plan means letting the paid one lapse
+    if (!plan.price) {
+        if (endsAt)
+            return <Button block disabled>From <UtcTimestamp date={endsAt} dateOnly style={{overflow: 'hidden'}} /></Button>
+        return <Button block disabled={disabled || lock?.all} title={lock?.all ? lock.message : undefined}
+                       onClick={onCancel}>
+            Cancel at period end
+        </Button>
+    }
 
     const currentIndex = allPlans.findIndex(entry => entry.key === currentPlan)
     const targetIndex = allPlans.findIndex(entry => entry.key === plan.key)
-    const isDowngrade = currentIndex >= 0 && targetIndex < currentIndex
 
-    return <Button block data-plan={plan.key} onClick={() => onSelect(plan)}>
-        {isDowngrade ? 'Downgrade' : 'Choose'}
+    return <Button block data-plan={plan.key} disabled={disabled || !!lock} title={lock?.message}
+                   onClick={() => onSelect(plan)}>
+        {isCurrent ?
+            `Switch to ${period === 'year' ? 'yearly' : 'monthly'}` :
+            `Choose ${plan.name}`}
     </Button>
 }

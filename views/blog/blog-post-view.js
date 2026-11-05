@@ -65,9 +65,9 @@ export default function BlogPostView({match}) {
     }
 
     return <div>
-        <div className="row flex-row">
+        <div className="row flex-row space">
             <div className="column column-60">
-                <div className="blog-post card card-blank">
+                <div className="blog-post segment blank">
                     <div className="blog-entry"
                          style={{backgroundImage: `url(${blogStorage.resolveImagePath(postId, image, true)})`}}>
                         <h1 className="title">
@@ -81,7 +81,7 @@ export default function BlogPostView({match}) {
                 </div>
             </div>
             <div className="column column-40 desktop-only">
-                <div className="card" style={{height: 'auto'}}>
+                <div className="segment blank" style={{height: 'auto', paddingRight: '2.6em'}}>
                     <h3><a href="/blog">Recent posts</a></h3>
                     <hr/>
                     <AllPosts maxDisplayEntries={5} mini/>

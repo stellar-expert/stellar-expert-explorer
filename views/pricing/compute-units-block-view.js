@@ -11,7 +11,7 @@ export default function ComputeUnitsBlockView() {
             <h3>What a compute unit buys</h3>
             <p className="subscription-compute-units-lead">
                 Endpoints are weighted by the work a query does, so a lookup and a week of candles are not billed
-                the same. Cached responses are free.
+                the same.
             </p>
         </div>
         <div className="subscription-cost-list">

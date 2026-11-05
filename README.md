@@ -6,7 +6,7 @@ for [Stellar Network](https://stellar.org).
 #### Links
 
 - 📡 [StellarExpert explorer](https://stellar.expert)
-- 📖 [Open API documetation](https://stellar.expert/openapi.html) for
+- 📖 [API documetation](https://stellar.expert/api-docs) for
   developers (the data from Open Directory API is publicly available for
   developers and users, free of charge)
 - 📩 [Request](https://github.com/stellar-expert/stellar-expert-explorer/issues)
@@ -32,7 +32,6 @@ Available app settings ENV variables:
 - `OAUTH_GITHUB_CLIENTID`
 - `TURNSTILE_KEY`
 - `BILLING_API_ENDPOINT`
-- `AUTH0_AUDIENCE`
 
 #### Start the application in the development mode
 

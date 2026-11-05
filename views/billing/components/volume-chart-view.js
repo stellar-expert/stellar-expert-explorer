@@ -60,18 +60,18 @@ export default memo(function VolumeChartView({stats}) {
         },
         series: [
             {
-                data: failedRequests,
-                name: 'Failed requests',
-                type: 'column',
-                color: 'hsl(27,93%,66%)',
-                legendIndex: 1
-            },
-            {
                 data: successRequests,
-                name: 'Successful requests',
+                name: 'Successful API requests',
                 type: 'column',
                 color: 'var(--color-highlight)',
                 legendIndex: 0
+            },
+            {
+                data: failedRequests,
+                name: 'Failed API requests',
+                type: 'column',
+                color: 'hsl(27,93%,66%)',
+                legendIndex: 1
             }
         ]
     }

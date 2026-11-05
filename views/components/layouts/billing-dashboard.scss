@@ -23,7 +23,6 @@ $admin-accent: hsl(27, 93%, 66%);
 }
 
 .simple-page-header.dual-layout,
-.billing-subscription-actions,
 .billing-user-actions {
   .button,
   .button.small {
@@ -386,16 +385,6 @@ $stat-value-line-height: 1.2;
   }
 }
 
-.billing-subscription-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $space-nano;
-
-  .button {
-    margin: 0;
-  }
-}
-
 .billing-payment-method,
 .billing-invoices {
   padding-top: $space-standard;
@@ -417,13 +406,7 @@ $stat-value-line-height: 1.2;
   }
 
   .billing-card-brand {
-    display: inline-block;
-    width: 2.4em;
-    height: 1.5em;
-    border-radius: 0.2em;
-    background: var(--color-contrast-border);
-    text-indent: -999em;
-    overflow: hidden;
+    font-weight: bold;
   }
 }
 
@@ -485,115 +468,8 @@ $stat-value-line-height: 1.2;
   }
 }
 
-.billing-period-switch {
-  display: flex;
-  align-items: center;
-  gap: $space-micro;
-
-  .button {
-    margin-bottom: 0;
-  }
-}
-
-.billing-plan-toolbar {
-  @media all and (max-width: $responsive-mobile-browser-width) {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: $space-micro;
-
-    .billing-period-switch {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
-}
-
 .billing-current-plan > strong {
   color: var(--color-text);
-}
-
-$plan-amount-size: 3.2rem;
-$plan-amount-line-height: 1.1;
-
-.billing-plan-option {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  height: 100%;
-  padding-top: $space-standard;
-  padding-bottom: $space-standard;
-  box-shadow: none;
-
-  &.current,
-  &.popular {
-    box-shadow: 0 0.4rem 1.6rem -0.4rem var(--color-backdrop);
-  }
-
-  &:before {
-    top: 0;
-    height: 100%;
-    border-right: $accent-line-width solid var(--color-primary);
-    opacity: 0.7;
-  }
-
-  &.current {
-    border: 1px solid var(--color-highlight);
-
-    &:before {
-      border-right-color: var(--color-highlight);
-      opacity: 1;
-    }
-  }
-
-  > h3 {
-    margin: 0;
-  }
-
-  > .billing-plan-audience {
-    padding-bottom: $space-micro;
-    border-bottom: 1px solid var(--color-alt-border);
-  }
-
-  > .billing-plan-limits {
-    margin-top: $space-micro;
-    flex-grow: 1;
-
-    > li + li {
-      margin-top: $space-nano;
-    }
-  }
-
-  .billing-plan-limit-value {
-    color: var(--color-text);
-  }
-
-  > .billing-plan-price {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    min-height: $plan-amount-size * $plan-amount-line-height +
-      2 * 0.75 * $font-size-base * $font-line-height-base;
-    margin: $space-standard 0 $space-micro;
-  }
-
-  > .button, > .button-block {
-    margin-bottom: 0;
-  }
-
-  > .billing-plan-badge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 0.1em 0.6em;
-    background: var(--color-success);
-    color: var(--color-bg);
-    font-size: 1.1rem;
-
-    &.popular {
-      background: var(--color-highlight);
-    }
-  }
 }
 
 .billing-compute-units-note {
@@ -648,73 +524,34 @@ $plan-amount-line-height: 1.1;
   }
 }
 
-.billing-payment-option {
-  display: flex;
-  align-items: center;
-  gap: $space-micro;
-  margin-top: $space-micro;
-  padding: $space-micro;
-  border: 1px solid var(--color-alt-border);
-  cursor: pointer;
+.billing-notice {
+  margin-bottom: $space-micro;
+  padding: 0.6em 0.9em;
+  border-left: 2px solid var(--color-highlight);
+  background: var(--color-alt-bg);
 
-  &.selected {
-    border-color: var(--color-highlight);
+  &.warning {
+    border-left-color: var(--color-warning);
+  }
+
+  .billing-card > & {
     background: var(--color-bg);
   }
 
-  &.disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-
-  > input[type=radio] {
-    appearance: none;
-    flex-shrink: 0;
-    position: relative;
-    width: 1.6rem;
-    height: 1.6rem;
-    margin: 0;
-    border: 1px solid var(--color-dimmed);
-    border-radius: 50%;
-    filter: none;
-    cursor: inherit;
-
-    &:checked {
-      border-color: var(--color-highlight);
-
-      &:after {
-        content: '';
-        position: absolute;
-        top: 0.3rem;
-        right: 0.3rem;
-        bottom: 0.3rem;
-        left: 0.3rem;
-        background: var(--color-highlight);
-        border-radius: 50%;
-      }
-    }
-  }
-
-  > span {
-    display: flex;
-    flex-direction: column;
+  .button {
+    margin: $space-nano 0 0;
   }
 }
 
-.billing-card-fields {
-  > div + div {
-    margin-top: $space-micro;
-  }
-
-  .billing-field-placeholder {
-    padding: 0.4em 0;
-    border-bottom: 1px solid var(--color-contrast-border);
-    font-family: $font-face-mono;
-    color: var(--color-dimmed);
-  }
+.billing-checkout-frame {
+  min-height: 1px;
 }
 
-.billing-checkout-methods,
+.billing-checkout > ul > li + li {
+  margin-top: $space-nano;
+}
+
+.billing-checkout,
 .billing-order-summary {
   height: auto;
   padding-bottom: $space-standard;
@@ -1105,22 +942,6 @@ $plan-amount-line-height: 1.1;
 
     &:before {
       display: none;
-    }
-  }
-
-  .billing-password-input {
-    position: relative;
-
-    input {
-      padding-right: 3.4em;
-    }
-
-    .billing-password-toggle {
-      position: absolute;
-      right: 0.7em;
-      top: 2rem;
-      transform: translateY(-50%);
-      line-height: 1;
     }
   }
 

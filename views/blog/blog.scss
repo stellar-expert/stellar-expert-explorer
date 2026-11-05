@@ -7,8 +7,9 @@
 
   .title {
     align-self: flex-end;
+    text-align: right;
     width: 60%;
-    margin: 0 (-$space-standard) (-$space-standard) auto;
+    margin: 0 -1em -1em auto;
     background: var(--color-highlight);
     font-family: $font-face-header;
     font-weight: 500;
@@ -17,10 +18,10 @@
     line-height: 1.2;
     padding: $space-standard $space-standard $space-micro;
     transition: all 0.15s;
-    opacity: 0.9;
+    opacity: 0.94;
 
     .info {
-      margin-top: $space-standard;
+      margin-top: $space-micro;
       font-size: 1.4rem;
       font-weight: 300;
     }

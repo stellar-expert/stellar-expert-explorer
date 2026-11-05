@@ -5,7 +5,6 @@ import {useSession} from '../auth/auth-session'
 import {AuthScreenView} from '../auth/auth-form'
 import LoginFormView from '../auth/login-form-view'
 import AccountRestoreView from '../auth/account-restore-view'
-import SetPasswordView from '../auth/set-password-view'
 import SegmentLoader from '../utils/segment-loader-view'
 
 /**
@@ -23,8 +22,6 @@ export default function AuthLayout({role, children}) {
         return <LoginFormView/>
     if (!userSession.synced)
         return <SegmentLoader/>
-    if (userSession.mustSetPassword)
-        return <SetPasswordView/>
     if (userSession.inactive)
         return <AccountRestoreView/>
     if (!isAllowed)

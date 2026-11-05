@@ -22,7 +22,7 @@ export default function UserCreditDepositView({account, onUpdate}) {
             params: {amount}
         })
             .then(() => {
-                //refresh user list
+                //re-read the account with the new balance
                 onUpdate()
                 notify({type: 'success', message: 'Credits have been added to the balance'})
                 toggleDialog()

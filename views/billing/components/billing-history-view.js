@@ -28,7 +28,7 @@ export default function BillingHistoryView({account, filters}) {
 
     if (isLoading || !account)
         return <SegmentLoader inside/>
-    return <InvoiceListView invoices={selectPeriod(invoices, filters)}/>
+    return <InvoiceListView invoices={selectPeriod(invoices, filters)} accountId={account}/>
 }
 
 /**

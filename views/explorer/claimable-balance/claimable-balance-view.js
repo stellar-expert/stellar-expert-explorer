@@ -17,7 +17,7 @@ import {formatClaimableBalanceValue} from './account-claimable-balance-row-view'
 export default function ClaimableBalanceView() {
     const {params} = useRouteMatch()
     const balanceId = normalizeClaimableBalanceId(params.id)
-    let {loaded, error, data} = useExplorerApi(`claimable-balance/${balanceId}`)
+    let {loaded, error, data} = useExplorerApi(`claimable-balance/${balanceId}?value=USD`)
     if (!error && data?.error) {
         error = data.error
     }
@@ -53,7 +53,7 @@ function ClaimableBalanceSummary({balance}) {
                     <dd>
                         <Amount asset={AssetDescriptor.parse(balance.asset)} amount={balance.amount} adjust/>{' '}
                         {!!balance.value &&
-                            <span className="dimmed text-tiny condensed">({formatClaimableBalanceValue(balance.value)}$) </span>}
+                            <span className="dimmed text-tiny condensed">({formatClaimableBalanceValue(balance.value)}) </span>}
                     </dd>
                     <dt>Sender:</dt>
                     <dd>

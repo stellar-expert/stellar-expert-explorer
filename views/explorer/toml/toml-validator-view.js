@@ -1,5 +1,6 @@
 import React from 'react'
-import {useExplorerApi, Tooltip} from '@stellar-expert/ui-framework'
+import {Tooltip} from '@stellar-expert/ui-framework'
+import {useDomainMeta} from '../../../business-logic/api/domain-meta-api'
 import {TomlWarningView} from './toml-warnings-view'
 
 function scrollToTomlInfo() {
@@ -7,10 +8,10 @@ function scrollToTomlInfo() {
 }
 
 export default function TomlValidatorView({domain, asset}) {
-    const {loaded, data} = useExplorerApi('domain-meta?domain=' + encodeURIComponent(domain))
+    const {loaded, data} = useDomainMeta(domain)
     let {warnings = [], meta} = data || {}
     const assetKey = asset.toString()
-    if (!loaded) return null
+    if (!loaded || data?.error) return null
     warnings = warnings.filter(w => !w.startsWith('currency_') && !w.startsWith('image_') || w.includes('|' + assetKey))
     if (!warnings?.length && !meta)
         return <Tooltip trigger={<i className="icon icon-warning color-warning trigger" style={{verticalAlign: 'bottom'}}/>}

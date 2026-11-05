@@ -1,22 +1,24 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useEffect, useState} from 'react'
+import {Button} from '@stellar-expert/ui-framework'
 import {apiRequest} from '../../../../business-logic/billing/billing-api'
-import {isSubscriptionActive} from '../../../../business-logic/billing/account-status'
-import {describePlanShort, freePlan} from '../../../../business-logic/billing/api-plans'
+import {isPaymentOverdue} from '../../../../business-logic/billing/account-status'
 import {useSession} from '../../auth/auth-session'
-import {confirmAction} from '../../utils/confirm-action'
 import SimplePageLayout from '../../layout/simple-page-layout'
 import SegmentLoader from '../../utils/segment-loader-view'
+import NoticeView from '../../components/notice-view'
 import SubscriptionCardView from '../../components/subscription-card-view'
 import PaymentMethodView from '../../components/payment-method-view'
 import InvoiceListView from '../../components/invoice-list-view'
-import DestructiveActionsView from '../../user/destructive-actions-view'
+
+//Paddle collects the new instrument itself - and, for an overdue renewal, the payment that is due
+const paymentMethodLink = '/account/subscription/payment-method'
 
 /**
- * The plan in force, how it is paid for, and the ways to end it
+ * The plan in force and how it is paid for
  * @return {JSX.Element}
  */
 export default function SubscriptionPage() {
-    const {userId} = useSession()
+    const {userId, impersonated} = useSession()
     const [account, setAccount] = useState()
     const [invoices, setInvoices] = useState()
     const [isLoading, setIsLoading] = useState(true)
@@ -35,69 +37,37 @@ export default function SubscriptionPage() {
             .catch(() => setInvoices(undefined))
     }, [userId])
 
-    const toggleRenewal = useCallback(async () => {
-        const subscription = account?.subscription
-        const isPaused = subscription.autoRenew === false
-        if (!isPaused &&
-            !await confirmAction('Cancel automatic renewal? The subscription stays active until it expires.'))
-            return
-
-        apiRequest(`account/${userId}/subscription/renewal`, {method: 'POST', params: {autoRenew: isPaused}})
-            .then(res => {
-                setAccount(prev => ({...prev, subscription: res.subscription}))
-                notify({type: 'success', message: `Automatic renewal has been ${isPaused ? 'resumed' : 'cancelled'}`})
-            })
-            .catch(error => notify({type: 'error', message: 'Failed to update subscription. ' + error?.message}))
-    }, [account, userId])
-
     if (isLoading || !userId)
         return <SimplePageLayout title="Your subscription">
             <SegmentLoader inside/>
         </SimplePageLayout>
 
     const {subscription, paymentMethod} = account || {}
+    //the server takes what Paddle bills for from the owner only - never from staff logged in as them
+    const isOwnerAction = subscription?.provider === 'paddle' && !impersonated
 
     return <SimplePageLayout title="Your subscription">
-        {subscription ?
-            <SubscriptionCardView subscription={subscription} isActive={isSubscriptionActive(account)}
-                                  onToggleRenewal={toggleRenewal}/> :
-            <FreePlanView/>}
+        {isPaymentOverdue(account) && <NoticeView warning>
+            The last renewal payment did not go through, so requests are served at free-tier limits until it
+            does. Update the payment method to settle it.
+            {isOwnerAction && <div>
+                <Button small href={paymentMethodLink}>Update payment method</Button>
+            </div>}
+        </NoticeView>}
+        <SubscriptionCardView account={account} onUpdate={setAccount}/>
         <div className="row space">
             <div className="column column-50">
-                <PaymentMethodView method={paymentMethod}/>
+                <PaymentMethodView method={paymentMethod} changeLink={isOwnerAction ? paymentMethodLink : undefined}/>
             </div>
             <div className="column column-50">
                 <div className="card card-blank billing-card billing-invoices">
                     <div className="dual-layout">
                         <span className="dimmed text-small">RECENT INVOICES</span>
-                        <a href="/account/billing-history" className="text-small">All invoices</a>
+                        <a href="/account/billing-history" className="text-small">View and download</a>
                     </div>
-                    <InvoiceListView invoices={invoices?.slice(0, 3)} compact/>
+                    <InvoiceListView invoices={invoices?.slice(0, 3)} accountId={userId} compact/>
                 </div>
             </div>
         </div>
-        <div className="space">
-            <DestructiveActionsView/>
-        </div>
     </SimplePageLayout>
-}
-
-/**
- * Free plan card, shown while an account has no subscription
- * @return {JSX.Element}
- * @private
- */
-function FreePlanView() {
-    return <div className="card card-blank billing-card text-center billing-subscription-card">
-        <div className="space">
-            <div>
-                <strong>{freePlan.name}</strong>
-                <span className="dimmed">&nbsp;· {describePlanShort(freePlan)}</span>
-            </div>
-            <div className="dimmed text-small micro-space">{freePlan.audience}</div>
-            <div className="micro-space">
-                <a href="/account/subscription/change" className="button">Choose a plan</a>
-            </div>
-        </div>
-    </div>
 }

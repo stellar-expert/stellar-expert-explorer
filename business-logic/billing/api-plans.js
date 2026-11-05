@@ -25,6 +25,7 @@ import {formatWithAbbreviation, formatWithAutoPrecision} from '@stellar-expert/f
  * @property {PlanLimits} limits
  * @property {String} support
  * @property {Boolean} [custom] - limits are agreed per customer rather than published
+ * @property {Boolean} [originAccess] - requests from the origins of the account are served without a key
  * @property {Boolean} [popular]
  */
 
@@ -61,7 +62,7 @@ export const paidPlans = [
         audience: 'For personal use and research',
         price: 40,
         yearlyPrice: 384,
-        limits: {computeUnits: 2_500, requestsPerMinute: 60, requestsPerHour: 1800, batchSize: 100},
+        limits: {computeUnits: 800_000, requestsPerMinute: 60, requestsPerHour: 1800, batchSize: 100},
         endpoints: 'All API endpoints',
         support: 'Email'
     },
@@ -72,7 +73,7 @@ export const paidPlans = [
         audience: 'For production apps with steady traffic',
         price: 180,
         yearlyPrice: 1620,
-        limits: {computeUnits: 10_000, requestsPerMinute: 240, requestsPerHour: 7200, batchSize: 200},
+        limits: {computeUnits: 1_800_000, requestsPerMinute: 240, requestsPerHour: 7200, batchSize: 200},
         endpoints: 'All API endpoints',
         support: 'Email'
     },
@@ -83,9 +84,10 @@ export const paidPlans = [
         audience: 'For data-heavy services, indexers and apps',
         price: 340,
         yearlyPrice: 2856,
-        limits: {computeUnits: 50_000, requestsPerMinute: 480, requestsPerHour: 18000, batchSize: 1000},
+        limits: {computeUnits: 4_000_000, requestsPerMinute: 480, requestsPerHour: 18000, batchSize: 1000},
         endpoints: 'All API endpoints',
         support: 'Email',
+        originAccess: true,
         popular: true
     },
     {
@@ -98,6 +100,7 @@ export const paidPlans = [
         limits: {computeUnits: null, requestsPerMinute: null, requestsPerHour: null, batchSize: null},
         endpoints: 'All API endpoints',
         support: 'Priority',
+        originAccess: true,
         custom: true
     }
 ]
@@ -151,6 +154,18 @@ export const maxYearlySavings = Math.max(...paidPlans.map(plan => resolvePlanPri
  */
 export function formatPrice(amount) {
     return amount % 1 ? amount.toFixed(2) : formatWithAutoPrecision(amount)
+}
+
+/**
+ * An amount charged or quoted, to the cent
+ * @param {Number} amount
+ * @param {String} [currency] - ISO code; every catalogue price is in USD
+ * @return {String}
+ */
+export function formatAmount(amount, currency = 'USD') {
+    const value = Math.abs(amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})
+    const sign = amount < 0 ? '−' : ''
+    return currency === 'USD' ? `${sign}$${value}` : `${sign}${value} ${currency}`
 }
 
 /**
@@ -228,7 +243,7 @@ function describeLimit(value, custom) {
  * @return {{value?: String, label: String}[]} - a row without a `value` reads as a whole phrase
  * highlights only the figures it actually quotes
  */
-export function describePlanLimits({limits, support, endpoints, custom}) {
+export function describePlanLimits({price, limits, support, endpoints, custom, originAccess}) {
     const rows = []
     //the free tier has no allowance to quote
     if (custom || limits.computeUnits) {
@@ -237,10 +252,14 @@ export function describePlanLimits({limits, support, endpoints, custom}) {
     rows.push(
         {value: describeLimit(limits.requestsPerMinute, custom), label: 'requests / minute'},
         {value: describeLimit(limits.requestsPerHour, custom), label: 'requests / hour'},
-        {value: describeLimit(limits.batchSize, custom), label: 'max items in batch response'}
+        {value: describeLimit(limits.batchSize, custom), label: 'max records per batch'}
     )
     if (endpoints) {
         rows.push({label: endpoints})
+    }
+    //the free endpoints take neither a key nor an origin
+    if (price !== 0) {
+        rows.push({label: originAccess ? 'Access by key and origin' : 'Access by API key'})
     }
     rows.push({label: `${support} support`})
     return rows

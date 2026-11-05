@@ -1,5 +1,6 @@
 import React from 'react'
-import {Tabs, useExplorerApi, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {Tabs, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {useDomainMeta} from '../../../business-logic/api/domain-meta-api'
 import TomlTransferServerView from './toml-transfer-server-view'
 import TomlPaymentServerView from './toml-payment-server-view'
 import TomlInteropView from './toml-interop-view'
@@ -8,12 +9,12 @@ import TomlWarningsView from './toml-warnings-view'
 import TomlRawContentView from './toml-raw-content-view'
 
 export default withErrorBoundary(function TomlInfoView({homeDomain, account, assetMeta, className, showInteropInfo = true}) {
-    const {loaded: tomlInfoLoaded, data: tomlInfo} = useExplorerApi('domain-meta?domain=' + encodeURIComponent(homeDomain))
-    if (!homeDomain || !tomlInfoLoaded || !tomlInfo)
+    const {loaded: tomlInfoLoaded, data: tomlInfo} = useDomainMeta(homeDomain)
+    if (!homeDomain || !tomlInfoLoaded || !tomlInfo?.domain) //no metadata or failed request
         return null
     if (assetMeta && assetMeta.domain !== homeDomain)
         return null
-    const {meta, tomlCid, warnings, interop} = tomlInfo
+    const {meta, toml_cid: tomlCid, warnings, interop} = tomlInfo
     if (!assetMeta) {
         //check whether this account is mentioned anywhere in the TOML
         if (meta?.SIGNING_KEY !== account //either signing key

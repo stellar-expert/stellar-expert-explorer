@@ -13,9 +13,13 @@ export const requestTypeTitles = {
     'subscription-renewal-resumed': 'Renewal resumed',
     'subscription-cancelled': 'Subscription cancelled',
     'subscription-expired': 'Subscription ended',
+    'allowance-reset': 'Credits reset',
+    'allowance-adjusted': 'Credits adjusted',
+    refund: 'Refund',
     'account-provisioned': 'Account created by staff',
     'account-deleted': 'Account deleted',
-    'account-restored': 'Account restored'
+    'account-restored': 'Account restored',
+    'email-changed': 'Email changed'
 }
 
 /**
@@ -27,6 +31,7 @@ export const requestTypeStyles = {
     payment: 'log-success',
     deposit: 'log-success',
     burn: 'log-warning',
+    refund: 'log-warning',
     'subscription-renewal-cancelled': 'log-warning',
     'subscription-cancelled': 'log-warning',
     'subscription-expired': 'log-warning',

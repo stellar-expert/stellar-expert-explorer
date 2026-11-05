@@ -6,12 +6,12 @@ import ErrorNotificationBlock from '../../components/error-notification-block'
 import {AccountClaimableBalanceRowView, AccountClaimableBalanceRecordView} from './account-claimable-balance-row-view'
 
 function useClaimableBalances(account, limit) {
-    const res = useExplorerPaginatedApi(`account/${account}/claimable-balances`, {
+    const res = useExplorerPaginatedApi(`account/${account}/claimable-balance`, {
         autoReverseRecordsOrder: true,
         limit,
         autoLoad: false,
         defaultSortOrder: 'desc',
-        defaultQueryParams: {order: 'desc'}
+        defaultQueryParams: {order: 'desc', value: 'USD'}
     }, [account])
     useEffect(() => {
         res.load()

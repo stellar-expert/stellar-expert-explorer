@@ -1,30 +1,14 @@
-import React, {useCallback} from 'react'
+import React from 'react'
 import cn from 'classnames'
 import {Button, CopyToClipboard} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision, shortenString} from '@stellar-expert/formatter'
-import {apiRequest} from '../../../business-logic/billing/billing-api'
-import {startImpersonation} from '../../../business-logic/billing/impersonation'
-import {confirmAction} from '../utils/confirm-action'
 import SubscriptionSummaryView from '../components/subscription-summary-view'
 import TokenListView from '../components/token-list-view'
-import UserCreditDepositView from './user-credit-deposit-view'
 
-export default function UserCardView({account, onUpdate}) {
+//acting on the account - crediting it, logging in as its owner, deleting it - happens on its settings page
+export default function UserCardView({account}) {
     const userId = account.id
-
-    //deletion only deactivates, so the same button restores
-    const toggleAccount = useCallback(async () => {
-        const restoring = !!account.inactive
-        if (!await confirmAction(`${restoring ? 'Restore' : 'Delete'} this account?`))
-            return
-        const request = restoring ?
-            apiRequest(`account/${userId}/restore`, {method: 'POST'}) :
-            apiRequest(`account/${userId}`, {method: 'DELETE'})
-        request
-            //refresh user list
-            .then(onUpdate)
-            .catch(e => notify({type: 'warning', message: e.message}))
-    }, [userId, account.inactive, onUpdate])
+    const {apiKeys = [], origins = []} = account
 
     return <div className="space">
         <div className="card billing-card billing-user-card">
@@ -49,13 +33,13 @@ export default function UserCardView({account, onUpdate}) {
                     <div className="row">
                         <div className="column column-50">
                             <div className="mobile-only micro-space"/>
-                            <TokenListView caption={<>API KEYS&nbsp;·&nbsp;{account.apiKeys.length}</>}
-                                           tokens={account.apiKeys} shorten={16} placeholder="(No API keys)"/>
+                            <TokenListView caption={<>API KEYS&nbsp;·&nbsp;{apiKeys.length}</>}
+                                           tokens={apiKeys} shorten={16} placeholder="(No API keys)"/>
                         </div>
                         <div className="column column-50">
                             <div className="mobile-only micro-space"/>
-                            <TokenListView caption={<>ORIGINS&nbsp;·&nbsp;{account.origins.length}</>}
-                                           tokens={account.origins} placeholder="(No origins)"/>
+                            <TokenListView caption={<>ASSOCIATED ORIGINS&nbsp;·&nbsp;{origins.length}</>}
+                                           tokens={origins} placeholder="(No origins)"/>
                         </div>
                     </div>
                     <div className="row micro-space">
@@ -70,31 +54,9 @@ export default function UserCardView({account, onUpdate}) {
             <div className="dual-layout billing-user-actions">
                 <div>
                     <Button href={`/admin/user/${userId}`} stackable small>Settings</Button>
-                    <UserCreditDepositView account={account} onUpdate={onUpdate}/>
-                    <Button stackable small outline disabled={account.inactive} data-id={userId}
-                            onClick={logInAs}>Log in as</Button>
                 </div>
-                <div className="text-small">
-                    <a href="#" onClick={toggleAccount} data-id={userId}>
-                        {account.inactive ?
-                            <><i className="icon-undo-circle"/>&nbsp;Restore</> :
-                            <span className="color-danger"><i className="icon-delete-circle"/>&nbsp;Delete</span>}
-                    </a>
-                </div>
+                {account.inactive && <div className="text-small dimmed">deleted</div>}
             </div>
         </div>
     </div>
-}
-
-function logInAs(e) {
-    const userId = e.target.dataset.id
-    apiRequest(`auth/login-as`, {
-        method: 'POST',
-        params: {userId}
-    })
-        .then(res => {
-            startImpersonation(res.accessToken)
-            location.href = '/account'
-        })
-        .catch(e => notify({type: 'warning', message: e.message}))
 }

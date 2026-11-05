@@ -4,9 +4,9 @@ import {formatWithAutoPrecision} from '@stellar-expert/formatter'
 import {ClaimableBalanceStatus} from './claimable-balance-status-view'
 
 export function formatClaimableBalanceValue(value) {
-    if (value < 100000)
-        return '>$0.001'
-    return '~$' + formatWithAutoPrecision(value / 10000000)
+    if (value < 0.01)
+        return '<$0.01'
+    return '~$' + formatWithAutoPrecision(value)
 }
 
 export function AccountClaimableBalanceRowView({id, account, amount, value, asset, claimants, sponsor, created}) {

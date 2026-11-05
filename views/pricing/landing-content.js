@@ -4,13 +4,14 @@
  */
 
 /**
- * Sample endpoint weights - ordered cheapest first so the glyphs read as a ramp
+ * Sample endpoint weights, as the API charges them (the `cost` of each route in its api/routes) - ordered
+ * cheapest first so the glyphs read as a ramp
  */
 export const computeUnitCosts = [
-    {endpoint: '/tx/{hash}', units: 1, description: 'One transaction'},
-    {endpoint: '/account/{id}/history', units: 2, description: 'Account history page'},
-    {endpoint: '/asset/{id}/stats', units: 4, description: 'Aggregated asset stats'},
-    {endpoint: '/market/{pair}/candles?7d', units: 8, description: 'Seven days of candles'}
+    {endpoint: '/tx/{id}', units: 2, description: 'One transaction'},
+    {endpoint: '/account/{address}', units: 4, description: 'Account with its balances'},
+    {endpoint: '/asset/{asset}/stats-history', units: 20, description: 'Daily history of an asset'},
+    {endpoint: '/asset/{asset}/candles', units: 40, description: 'Price candles of an asset'}
 ]
 
 /**
@@ -96,8 +97,8 @@ export const faq = [
     },
     {
         question: 'What happens when compute runs out?',
-        answer: 'Nothing goes dark. Requests keep being served at free-tier limits until the next cycle, ' +
-            'so a traffic spike degrades instead of failing.'
+        answer: 'Paid endpoints respond with 402 Payment Required until the allowance resets with the next billing month. ' +
+            'Free endpoints and Testnet keep working at free-tier limits, and single requests can still be paid over x402.'
     },
     {
         question: 'Do unused compute units roll over?',
@@ -106,17 +107,36 @@ export const faq = [
     },
     {
         question: 'Can I change plan mid-cycle?',
-        answer: 'Yes. Unused time on the current plan is credited towards the upgrade, so you never pay ' +
-            'for the same period twice.'
+        answer: 'Yes. Unused time on the current plan is credited towards the new one, so you never pay ' +
+            'for the same period twice. Compute units are prorated too: the difference between the two ' +
+            'allowances is credited for what is left of the cycle.'
     },
     {
         question: 'How do I pay?',
-        answer: 'By card or crypto through our payment processor, in USD. Cosmographer plans can be ' +
+        answer: 'By card, PayPal, Apple Pay or Google Pay, in USD with taxes included. Cosmographer plans can be ' +
             'invoiced directly.'
     },
     {
+        question: 'How does the subscription renewal work?',
+        answer: 'Paid plans renew automatically: unless you cancel before the billing date, the next period is charged ' +
+            'to your payment method on file. The renewal date is on your Subscription page, where renewal can be turned ' +
+            'off any time. The plan then stays active until the end of the paid period, with no further charges. ' +
+            'A failed renewal payment drops the plan to free-tier limits until the payment method is updated.'
+    },
+    {
         question: 'Can I use it in a commercial product?',
-        answer: 'Yes, even a rival explorer. Cosmographer contracts can include licensable data. ' +
+        answer: 'Yes, on any paid plan. The free tier covers non-commercial use only. ' +
             'Check the Terms of Service for the limitations.'
+    },
+    {
+        question: 'What counts as personal or commercial use?',
+        answer: 'Personal and research use covers personal projects, academic research, education, testing and ' +
+            'development. Anything run by or for a company, client or organization is commercial: production services, ' +
+            'internal business tools, and apps that earn revenue or have paying users.'
+    },
+    {
+        question: 'Can I resell data or build competing products',
+        answer: 'Only under a license, available on the Cosmographer plan. It covers reselling API data, as is or ' +
+            'transformed, and using it in products that compete directly with our services.'
     }
 ]

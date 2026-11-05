@@ -5,7 +5,7 @@ let requestConfirmation
 
 /**
  * Ask the user to confirm a destructive action
- * @param {String} message
+ * @param {String|JSX.Element} message
  * @param {String} [confirmTitle]
  * @return {Promise<Boolean>}
  */

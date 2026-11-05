@@ -10,7 +10,7 @@ export default function ContractVersionsView() {
     const {id: address} = useParams()
     const contractVersions = useExplorerPaginatedApi(
         {
-            path: `contract/${address}/versions`
+            path: `contract/${address}/version`
         }, {
             autoReverseRecordsOrder: true,
             defaultSortOrder: 'desc',

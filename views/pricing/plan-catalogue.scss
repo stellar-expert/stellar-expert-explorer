@@ -1,0 +1,407 @@
+@import "landing-theme";
+
+$plan-grid-gap: 1.6rem;
+$plan-card-padding: 2.2rem;
+
+$plan-strike-padding: 1.8rem;
+$plan-strike-line: 1.7rem;
+$plan-strike-height: $plan-strike-padding + $plan-strike-line;
+
+.subscription-catalogue {
+  @include landing-palette;
+}
+
+.subscription-plan-amount {
+  font-family: $font-face-header;
+  font-size: 3.2rem;
+  letter-spacing: $header-letter-spacing;
+  line-height: 1.1;
+}
+
+.subscription-plan-limits {
+  margin-bottom: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    padding: 0.4em 0;
+  }
+}
+
+.subscription-plans-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2.4rem;
+
+  > div:first-child {
+    min-width: 0;
+    max-width: 64rem;
+  }
+
+  .subscription-plans-lead {
+    margin: 1.2rem 0 0;
+    color: var(--color-muted);
+    font-size: 1.6rem;
+    text-align: left;
+  }
+}
+
+.subscription-period-switch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.8rem;
+  white-space: nowrap;
+}
+
+.subscription-period-savings {
+  color: $landing-success;
+  font-size: 1.4rem;
+}
+
+.subscription-period-tabs.tabs {
+  padding-left: 0.6rem;
+
+  .tabs-header {
+    margin-top: 0;
+  }
+
+  > hr.flare {
+    display: none;
+  }
+
+  .tabs-header .tabs-item {
+    height: auto;
+    min-width: 11.2rem;
+    padding: 1.5rem 2.2rem;
+    color: var(--color-cyan-soft);
+    font-family: inherit;
+    font-size: 1.4rem;
+    line-height: 1;
+
+    &:hover {
+      color: var(--color-cyan-soft);
+    }
+
+    &:before {
+      top: 0;
+      border: 1px solid rgba($landing-cyan, 0.5);
+      background: transparent;
+      transform: skewX(-14deg);
+    }
+
+    &:hover:before {
+      background: rgba($landing-cyan, 0.12);
+    }
+
+    + .tabs-item:before {
+      border-left: 0;
+      margin-left: 0;
+    }
+
+    &.selected {
+      color: var(--color-ink);
+      cursor: default;
+
+      &:before,
+      &:hover:before {
+        background: var(--color-cyan);
+      }
+    }
+  }
+}
+
+.subscription-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
+  gap: $plan-grid-gap;
+  margin-top: 2.6rem;
+}
+
+.subscription-plan {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: $plan-card-padding $plan-card-padding 2.6rem;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-panel);
+  text-align: center;
+
+  &.featured {
+    border-color: rgba(28, 179, 228, 0.45);
+    background: var(--color-panel-active);
+  }
+
+  &.current {
+    border-color: rgba($landing-success, 0.45);
+  }
+
+  > .subscription-plan-accent {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: $landing-accent-bar;
+  }
+
+  &.featured > .subscription-plan-accent {
+    background: linear-gradient(90deg, var(--color-cyan), var(--color-accent));
+  }
+
+  &.current > .subscription-plan-accent {
+    background: $landing-success;
+  }
+
+  &.custom > .subscription-plan-accent {
+    background: var(--color-accent);
+  }
+
+  > .subscription-plan-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 4rem;
+    margin-bottom: 1.2rem;
+    color: #8bdcf7;
+  }
+
+  &.custom > .subscription-plan-icon {
+    color: var(--color-accent-soft);
+  }
+
+  > .subscription-plan-audience {
+    min-height: 5.7rem;
+  }
+
+  //the highlighted card sits on a lighter panel, so its secondary text steps up to keep contrast
+  &.featured {
+    > .subscription-plan-audience,
+    > .subscription-plan-note,
+    > .subscription-plan-amount > span {
+      color: #a9c1c7;
+    }
+
+    > .subscription-plan-strike {
+      color: var(--color-muted);
+    }
+
+    > .subscription-plan-separator {
+      background: rgba(#fff, 0.12);
+    }
+  }
+
+  > .subscription-plan-limits {
+    text-align: left;
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    > .subscription-plan-audience {
+      min-height: 0;
+    }
+  }
+}
+
+.subscription-plan-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.4rem 1rem;
+  background: rgba(28, 179, 228, 0.22);
+  color: var(--color-cyan-soft);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+
+  &.current {
+    background: rgba($landing-success, 0.22);
+    color: #9ddb9a;
+  }
+}
+
+.subscription-plan-name {
+  color: var(--color-title);
+  font-size: 1.9rem;
+}
+
+.subscription-plan-audience {
+  margin-top: 0.6rem;
+  color: var(--color-muted);
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.subscription-plan-strike {
+  margin-top: auto;
+  padding-top: $plan-strike-padding;
+  min-height: $plan-strike-height;
+  color: #6f878e;
+  font-size: 1.2rem;
+  line-height: $plan-strike-line;
+}
+
+.subscription-catalogue .subscription-plan-amount {
+  color: var(--color-title);
+  font-family: inherit;
+  font-size: 3rem;
+  font-weight: 300;
+  letter-spacing: normal;
+  line-height: 1.2;
+
+  > span {
+    color: var(--color-muted);
+    font-size: 1.3rem;
+    font-weight: 400;
+  }
+}
+
+.subscription-plan-note {
+  min-height: 1.7rem;
+  margin-top: 0.4rem;
+  color: #7f9aa1;
+  font-size: 1.15rem;
+}
+
+.subscription-plan-separator {
+  height: 1px;
+  margin-top: 2rem;
+  background: var(--color-rule);
+}
+
+.subscription-catalogue .subscription-plan-limits {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-top: 1.6rem;
+  color: var(--color-limit);
+  font-size: 1.3rem;
+  line-height: 1.4;
+}
+
+.subscription-plan-limit-value {
+  color: var(--color-title);
+}
+
+.dialog > .dialog-content > .container.subscription-dialog {
+  border: 1px solid $landing-hairline;
+  border-top: $landing-accent-bar solid $landing-accent;
+  border-radius: 0;
+  background: $landing-panel;
+
+  input:focus,
+  textarea:focus {
+    background-color: rgba($landing-cyan, 0.12) !important;
+  }
+}
+
+.subscription-free {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: center;
+  column-gap: $plan-grid-gap;
+  margin-top: $plan-grid-gap;
+  padding: 2rem 0;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-panel);
+
+  &.current {
+    border-color: rgba($landing-success, 0.45);
+  }
+
+  .subscription-free-identity {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    padding-left: $plan-card-padding;
+
+    > .subscription-free-icon {
+      display: flex;
+      align-items: center;
+      color: #7f9aa1;
+    }
+  }
+
+  .subscription-plan-audience {
+    margin-top: 0.4rem;
+  }
+
+  .subscription-plan-limits {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 2rem;
+    margin-top: 0;
+    padding-left: $plan-card-padding;
+    border-left: 1px solid var(--color-rule);
+  }
+
+  .subscription-free-price {
+    padding-right: $plan-card-padding;
+    text-align: right;
+  }
+
+  .subscription-plan-amount {
+    font-size: 2.6rem;
+  }
+
+  .subscription-free-registration {
+    margin-top: 0.3rem;
+    color: var(--color-cyan-soft);
+    font-size: 1.35rem;
+  }
+
+  @media all and (max-width: $responsive-mobile-browser-width) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: $plan-card-padding;
+
+    .subscription-free-identity {
+      display: block;
+      padding-left: 0;
+
+      > .subscription-free-icon {
+        height: 4rem;
+        margin-bottom: 1.2rem;
+      }
+    }
+
+    .subscription-plan-audience {
+      margin-top: 0.6rem;
+    }
+
+    .subscription-free-price {
+      order: 1;
+      margin-top: $plan-strike-height;
+      padding-right: 0;
+      text-align: left;
+    }
+
+    .subscription-plan-limits {
+      order: 2;
+      display: flex;
+      gap: 1.1rem;
+      margin-top: $space-standard;
+      padding: 1.6rem 0 0;
+      border-top: 1px solid var(--color-rule);
+      border-left: 0;
+    }
+  }
+}
+
+//the plan already in force, or one that cannot be switched to right now
+.subscription-catalogue .subscription-plan > .button,
+.subscription-catalogue .subscription-free-price > .button {
+  &:disabled,
+  &.disabled {
+    color: var(--color-muted);
+
+    &:before {
+      border: 1px solid rgba(#fff, 0.16);
+      background: transparent;
+    }
+  }
+}

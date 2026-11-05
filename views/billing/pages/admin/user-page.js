@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {useParams} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 import {apiRequest} from '../../../../business-logic/billing/billing-api'
@@ -11,14 +11,18 @@ export default function UserPage() {
     const [isLoading, setIsLoading] = useState(false)
     const {id} = useParams()
 
+    //re-read the account after an action the server applies on its own, like a deposit - without the loader,
+    //so the page does not blink
+    const reload = useCallback(() => apiRequest(`account/${id}`)
+        .then(setSettings)
+        .catch(error => notify({type: 'error', message: 'Failed to retrieve account data. ' + error?.message})), [id])
+
     useEffect(() => {
         if (!id)
             return null
 
         setIsLoading(true)
-        apiRequest(`account/${id}`)
-            .then(setSettings)
-            .catch(error => notify({type: 'error', message: 'Failed to retrieve account data. ' + error?.message}))
+        reload()
             .finally(() => setIsLoading(false))
     }, [id])
 
@@ -29,6 +33,8 @@ export default function UserPage() {
 
     //the header is rendered while the account loads, so moving between pages never shifts the title
     return <SimplePageLayout title="Account settings" action={action}>
-        {isLoading ? <SegmentLoader inside/> : <UserSettingsView settings={settings} onUpdate={setSettings}/>}
+        {isLoading ?
+            <SegmentLoader inside/> :
+            <UserSettingsView settings={settings} onUpdate={setSettings} onReload={reload}/>}
     </SimplePageLayout>
 }
