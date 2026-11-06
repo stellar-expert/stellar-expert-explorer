@@ -36,6 +36,15 @@ const fieldDescriptionMapping = {
         multi: false,
         flag: true,
         editor: createFlagEditor('Custom tariff required')
+    },
+    //Stargazer accounts are left out of the list until this one is added
+    stargazer: {
+        title: 'Stargazer users',
+        description: 'Include Stargazer users',
+        icon: 'star',
+        multi: false,
+        flag: true,
+        editor: createFlagEditor('Including Stargazer users')
     }
 }
 

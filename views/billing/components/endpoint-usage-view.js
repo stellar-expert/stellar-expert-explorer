@@ -4,7 +4,7 @@ import DashboardSectionView from './dashboard-section-view'
 
 /**
  * Per-endpoint breakdown of the charged allowance - shows which calls actually spend the quota
- * @param {{endpoint: String, requests: Number, credits: Number, creditsPerCall: Number}[]} [endpoints]
+ * @param {{endpoint: String, requests: Number, credits: Number}[]} [endpoints]
  * @return {JSX.Element|null}
  */
 export default function EndpointUsageView({endpoints}) {
@@ -17,17 +17,13 @@ export default function EndpointUsageView({endpoints}) {
                 <tr>
                     <th>Endpoint</th>
                     <th className="text-right collapsing">Requests</th>
-                    <th className="text-right collapsing">Units/call</th>
                     <th className="text-right collapsing">Compute units</th>
                 </tr>
             </thead>
             <tbody>
-                {endpoints.map(({endpoint, requests, credits, creditsPerCall}) => <tr key={endpoint}>
+                {endpoints.map(({endpoint, requests, credits}) => <tr key={endpoint}>
                     <td data-header="Endpoint: "><code className="billing-code">{endpoint}</code></td>
                     <td data-header="Requests: " className="text-right">{formatWithAutoPrecision(requests)}</td>
-                    <td data-header="Units/call: " className="text-right">
-                        {formatWithAutoPrecision(creditsPerCall)}
-                    </td>
                     <td data-header="Compute units: " className="text-right billing-endpoint-total">
                         {formatWithAutoPrecision(credits)}
                     </td>
