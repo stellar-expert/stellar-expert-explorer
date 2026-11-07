@@ -22,13 +22,15 @@ export default function UserListView({accounts = []}) {
 }
 
 /**
- * Accounts on the free plan are left out unless the filter asks for them - they are counted instead
+ * Accounts on the free plan are left out unless the filter asks for them - they are counted instead. Looking an
+ * account up by email, or for a custom tariff request, takes in every plan
  * @param {Account[]} accounts
  * @param {{email: String, zeroBalance: String, customTariff: String, stargazer: String}} filter
  * @return {{matched: Account[], hiddenFree: Number}}
  */
 function filterAccounts(accounts, {email, zeroBalance, customTariff, stargazer}) {
     const search = email?.trim().toLowerCase()
+    const hideFree = !stargazer && !search && !customTariff
     const matched = []
     let hiddenFree = 0
     for (const account of accounts) {
@@ -39,7 +41,7 @@ function filterAccounts(accounts, {email, zeroBalance, customTariff, stargazer})
             continue
         if (customTariff && !isAwaitingCustomTariff(account))
             continue
-        if (!stargazer && isOnFreePlan(account)) {
+        if (hideFree && isOnFreePlan(account)) {
             hiddenFree++
             continue
         }

@@ -37,7 +37,7 @@ const fieldDescriptionMapping = {
         flag: true,
         editor: createFlagEditor('Custom tariff required')
     },
-    //Stargazer accounts are left out of the list until this one is added
+    //Stargazer accounts are left out of the list until this one is added, or an email or custom tariff filter is
     stargazer: {
         title: 'Stargazer users',
         description: 'Include Stargazer users',
