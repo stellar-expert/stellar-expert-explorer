@@ -44,7 +44,7 @@ function Balance({trustline, currency}) {
 
 function BalanceAmount({trustline, decimals}) {
     if (trustline.balance !== undefined) {
-        const balanceParts = formatWithPrecision(fromStroops(trustline.balance, decimals)).split('.')
+        const balanceParts = formatWithPrecision(fromStroops(trustline.balance, decimals), Math.min(decimals, 8)).split('.')
         return <>{balanceParts[0]}{balanceParts[1] !== undefined &&
             <span className="text-small">.{balanceParts[1]}</span>}</>
     }
