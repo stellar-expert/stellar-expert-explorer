@@ -53,10 +53,7 @@ module.exports = (env, argv) => {
     webpackConfig.resolve.alias = {
         ...webpackConfig.resolve.alias,
         react: path.resolve(__dirname, './node_modules/react'),
-        'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
-        //stellar-sdk ships separate ESM and CJS builds; CommonJS dependencies (tx-meta-effects-parser) would pull the CJS
-        //copy alongside the ESM one, breaking instanceof checks (Asset, xdr types) between them - always bundle the ESM build
-        '@stellar/stellar-sdk$': path.resolve(__dirname, './node_modules/@stellar/stellar-sdk/lib/esm/index.js')
+        'react-dom': path.resolve(__dirname, './node_modules/react-dom')
     }
     //legal pages are authored as markdown and bundled as plain text
     webpackConfig.module.rules.push({test: /\.md$/, type: 'asset/source'})

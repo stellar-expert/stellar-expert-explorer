@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useMemo, useState} from 'react'
 import deepMerge from 'deepmerge'
 import {xdr} from '@stellar/stellar-sdk'
 import {
@@ -34,7 +34,8 @@ export default withErrorBoundary(function TxHistoryView({presetFilter}) {
     }, [presetFilter])
     const txHistory = useTxHistory({filters, updateLocation})
     const {data, loading} = txHistory
-    const txList = data.map(tx => {
+    //parsed txs keep lazily loaded effects, so they should survive re-renders
+    const txList = useMemo(() => data.map(tx => {
         try {
             return parseTxDetails({
                 network: appSettings.networkPassphrase,
@@ -42,8 +43,7 @@ export default withErrorBoundary(function TxHistoryView({presetFilter}) {
                 result: tx.result,
                 meta: tx.meta,
                 context: filters,
-                createdAt: tx.ts,
-                protocol: tx.protocol
+                createdAt: tx.ts
             })
         } catch (e) {
             console.error(e)
@@ -53,7 +53,7 @@ export default withErrorBoundary(function TxHistoryView({presetFilter}) {
                 error: e.message
             }
         }
-    })//.filter(tx => !!tx.operations.length)
+    }), [data, filters])//.filter(tx => !!tx.operations.length)
     return <div className="relative segment blank">
         {!!loading && data.length > 0 && <div className="loader cover"/>}
         <TxFilterView presetFilter={presetFilter} onChange={setFilters}/>

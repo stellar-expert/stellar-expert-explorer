@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useMemo} from 'react'
 import {xdr} from '@stellar/stellar-sdk'
 import {
     BlockSelect,
@@ -24,15 +24,16 @@ import TxPreconditionsView from './tx-preconditions-view'
  * @return {JSX.Element}
  */
 export default withErrorBoundary(function TxDetailsView({tx, embedded}) {
-    const parsedTx = parseTxDetails({
+    //effects are present only when the tx was loaded with `effects: true`, otherwise they load on demand
+    const parsedTx = useMemo(() => parseTxDetails({
         network: appSettings.networkPassphrase,
         txEnvelope: tx.body,
         result: tx.result,
         meta: tx.meta,
+        effects: tx.effects,
         createdAt: tx.ts,
-        context: {},
-        protocol: tx.protocol
-    })
+        context: {}
+    }), [tx])
     let feeSource
     let {tx: transaction} = parsedTx
     if (transaction.innerTransaction) {

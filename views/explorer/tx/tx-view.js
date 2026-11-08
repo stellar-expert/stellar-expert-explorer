@@ -11,7 +11,8 @@ export default function TxView({id}) {
     const txId = id || queryId
     const [txData, setTxData] = useState()
     useEffect(() => {
-        loadTransaction(txId)
+        //request effects upfront - the page displays the Soroban fee breakdown and operation details from them
+        loadTransaction(txId, {effects: true})
             .catch(err => {
                 if (err && (err.name === 'NotFoundError' || err.status === 404))
                     return {error: 'not found', txId}
