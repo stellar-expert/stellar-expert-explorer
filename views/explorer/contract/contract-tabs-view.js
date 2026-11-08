@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import {Tabs} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/ui-framework'
 import TxHistoryView from '../tx/tx-history-view'
-import {ContractInterfaceView} from './contract-interface-view'
+import {ContractInterfaceView, SacInterfaceView} from './contract-interface-view'
 import ContractUsersView from './contract-users-view'
 import ContractEventsView from './contract-events-view'
 
@@ -37,6 +37,12 @@ export default function ContractTabsView({contract}) {
             name: 'interface',
             title: 'Interface',
             render: () => <ContractInterfaceView hash={contract.wasm}/>
+        })
+    } else if (contract.asset) { //built-in SAC contract
+        tabs.push({
+            name: 'interface',
+            title: 'Interface',
+            render: () => <SacInterfaceView/>
         })
     }
     tabs.push({

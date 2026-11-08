@@ -1,6 +1,12 @@
 import {CodeBlock, generateContractSourceLink, useContractSource} from '@stellar-expert/ui-framework'
 import {parseContractMetadata} from '@stellar-expert/contract-wasm-interface-parser'
-//import SACInterface from './sac-interface.txt'
+import sacInterface from './sac-interface'
+
+const eventDataFormatType = {
+    'SingleValue': 'single-value',
+    'Vec': 'vec',
+    'Map': 'map'
+}
 
 export function ContractInterfaceView({hash}) {
     const source = useContractSource(hash)
@@ -15,6 +21,20 @@ export function ContractInterfaceView({hash}) {
         <div className="space text-small text-right">
             <a href={generateContractSourceLink(hash)} target="_blank" className="external-link">
                 <i className="icon-download-circle"/>Download contract WASM code
+            </a>
+        </div>
+    </div>
+}
+
+/**
+ * Standard interface of the built-in Stellar Asset Contract (SAC) - it has no WASM code to parse
+ */
+export function SacInterfaceView() {
+    return <div className="segment blank">
+        <CodeBlock lang="rust">{sacInterface}</CodeBlock>
+        <div className="space text-small text-right">
+            <a href="https://developers.stellar.org/docs/tokens/stellar-asset-contract" target="_blank" className="external-link">
+                Stellar Asset Contract documentation
             </a>
         </div>
     </div>
@@ -61,6 +81,20 @@ ${Object.entries(u.cases).map(([name, value]) => insertDocs(value, 1) + `${inden
         }
     }
 
+    if (meta.events) {
+        res += '// EVENTS\n\n'
+        for (const [name, e] of Object.entries(meta.events)) {
+            const attrs = []
+            if (e.prefixTopics?.length) {
+                attrs.push(`topics = [${e.prefixTopics.map(t => `"${t}"`).join(', ')}]`)
+            }
+            attrs.push(`data_format = "${formatEventDataFormat(e.dataFormat)}"`)
+            res += insertDocs(e) + `#[contractevent(${attrs.join(', ')})]\nstruct ${name} {
+${e.params.map(param => insertDocs(param, 1) + (param.location === 'topics' ? indent('#[topic]\n', 1) : '') + indent(param.name, 1) + ': ' + param.type).join(',\n')}
+}\n\n`
+        }
+    }
+
     if (meta.errors) {
         res += '// ERRORS\n\n'
         res += `#[contracterror]\nenum Errors {
@@ -68,6 +102,12 @@ ${Object.entries(meta.errors).map(([name, props]) => insertDocs(props, 1) + inde
 }\n\n`
     }
     return res
+}
+
+function formatEventDataFormat(format) {
+    //the parser returns raw XDR enum names for some formats, e.g. "scSpecEventDataFormatSingleValue"
+    const normalized = format.replace(/^scSpecEventDataFormat/, '')
+    return eventDataFormatType[normalized] || normalized
 }
 
 function insertDocs(props, level = 0, prefix = '') {
