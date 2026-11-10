@@ -1,137 +1,97 @@
-import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from 'react'
+import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react'
+import appSettings from '../../app-settings'
 
-const turnstileScript = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
-const scriptId = 'se-turnstile-script'
-const scriptLoadedCallback = 'turnstileLoaded'
+const turnstileScript = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
 
-export const appendScript = () => {
-    const src = `${turnstileScript}?onload=${scriptLoadedCallback}&render=explicit`
+let scriptLoading
 
-    if (document.getElementById(scriptId) || document.querySelector(`script[src="${src}"]`))
-        return
-
-    const tag = document.createElement('script')
-    tag.id = scriptId
-    tag.defer = true
-    tag.async = true
-    tag.src = src
-
-    document.getElementsByTagName('head')[0].appendChild(tag)
-}
-
-function useTurnstileAsyncScriptLoad() {
-    const [loaded, setLoaded] = useState(false)
-    useEffect(() => {
-        function onScriptLoaded() {
-            if (document.getElementById(scriptId)) {
-                setLoaded(true)
+/**
+ * Load the Cloudflare Turnstile script once per page
+ * @return {Promise<{}>} - resolves with the `turnstile` global
+ */
+function loadTurnstile() {
+    if (window.turnstile)
+        return Promise.resolve(window.turnstile)
+    if (!scriptLoading) {
+        scriptLoading = new Promise((resolve, reject) => {
+            const tag = document.createElement('script')
+            tag.src = turnstileScript
+            tag.async = true
+            tag.onload = () => resolve(window.turnstile)
+            tag.onerror = () => {
+                //let the next widget retry
+                scriptLoading = null
+                tag.remove()
+                reject(new Error('Failed to load Turnstile script'))
             }
-        }
-
-        const observer = new MutationObserver(onScriptLoaded)
-        observer.observe(document, {childList: true, subtree: true})
-
-        onScriptLoaded()
-
-        return () => observer.disconnect()
-    })
-    return loaded
-}
-
-
-const TurnstileCaptcha = forwardRef(({sitekey}, ref) => {
-    if (!sitekey) {
-        console.warn('sitekey is missing')
-        return null
+            document.head.appendChild(tag)
+        })
     }
-    const [instanceId, setInstanceId] = useState()
-    const [turnstileLoaded, setTurnstileLoaded] = useState(false)
-    const containerId = scriptId + '-container'
+    return scriptLoading
+}
+
+/**
+ * Cloudflare Turnstile widget. Hands out a single-use token that the server checks before acting on the form
+ * @param {String} [action] - label Cloudflare attaches to the token, shows up in Turnstile analytics
+ * @param {'always'|'interaction-only'} [appearance] - "interaction-only" keeps the widget hidden unless the visitor
+ * has to click it
+ * @param {Function} onVerify - receives a fresh token
+ * @param {Function} [onExpire] - the last token is no longer valid
+ * @param {Function} [onError] - the widget failed to load (usually blocked by a content blocker)
+ * @param {String} [className]
+ * @param {{reset: Function}} [ref] - `reset()` requests a new token once the previous one has been spent
+ */
+const TurnstileCaptcha = forwardRef(function TurnstileCaptcha({action, appearance = 'always', onVerify, onExpire, onError, className}, ref) {
     const container = useRef(null)
-    const scriptLoaded = useTurnstileAsyncScriptLoad()
+    const widgetId = useRef(null)
+    const callbacks = useRef(null)
+    callbacks.current = {onVerify, onExpire, onError}
 
-    const renderConfig = {sitekey, execution: 'execute'}
-
-    useImperativeHandle(ref, () => {
-            if (typeof window === 'undefined' || !scriptLoaded)
-                return
-
-            const {turnstile} = window
-            return {
-                getResponse() {
-                    if (!turnstile?.getResponse || !instanceId) {
-                        console.warn('Turnstile has not been loaded')
-                        return
-                    }
-
-                    return turnstile.getResponse(instanceId)
-                },
-                remove() {
-                    if (!instanceId)
-                        return
-                    setInstanceId('')
-                    turnstile.remove(instanceId)
-                },
-                render() {
-                    if (instanceId)
-                        return
-                    const id = turnstile.render(container.current, renderConfig)
-                    setInstanceId(id)
-                    return id
-                },
-                execute() {
-                    if (!turnstile?.execute || !container.current || !instanceId)
-                        return
-                    turnstile.execute(container.current, renderConfig)
-                }
+    useImperativeHandle(ref, () => ({
+        reset() {
+            if (widgetId.current !== null) {
+                window.turnstile?.reset(widgetId.current)
             }
-        },
-        [scriptLoaded, instanceId, container.current])
+        }
+    }), [])
 
     useEffect(() => {
-        window[scriptLoadedCallback] = function () {
-            setTurnstileLoaded(true)
-        }
-
-        if (!turnstileLoaded) {
-            appendScript({
-                onLoadCallbackName: scriptLoadedCallback
+        let disposed = false
+        loadTurnstile()
+            .then(turnstile => {
+                if (disposed || !container.current)
+                    return
+                widgetId.current = turnstile.render(container.current, {
+                    sitekey: appSettings.turnstileKey,
+                    action,
+                    appearance,
+                    size: 'flexible',
+                    callback: token => callbacks.current.onVerify?.(token),
+                    'expired-callback': () => callbacks.current.onExpire?.(),
+                    'timeout-callback': () => callbacks.current.onExpire?.(),
+                    'error-callback': () => callbacks.current.onExpire?.()
+                })
             })
-        }
-        return () => {
-            delete window[scriptLoadedCallback]
-        }
-    }, [])
-
-    /* Set the turnstile as loaded, in case the onload callback never runs. (e.g., when manually injecting the script without specifying the `onload` param) */
-    /*useEffect(() => {
-        if (scriptLoaded && !turnstileLoaded && window.turnstile) {
-            setTurnstileLoaded(true)
-        }
-    }, [turnstileLoaded, scriptLoaded])*/
-
-    useEffect(() => {
-        if (!scriptLoaded || !container.current || !turnstileLoaded)
-            return
-
-        const id = window.turnstile?.render(container.current, renderConfig)
-        setInstanceId(id)
-    }, [scriptLoaded, turnstileLoaded, container.current])
-
-    useEffect(() => {
-        if (!instanceId)
-            return
-
-        return () => {
-            try {
-                window.turnstile?.remove(instanceId)
-            } catch (e) {
+            .catch(e => {
                 console.error(e)
+                if (!disposed) {
+                    callbacks.current.onError?.(e)
+                }
+            })
+        return () => {
+            disposed = true
+            if (widgetId.current !== null) {
+                try {
+                    window.turnstile?.remove(widgetId.current)
+                } catch (e) {
+                    console.error(e)
+                }
+                widgetId.current = null
             }
         }
-    }, [instanceId])
+    }, [action, appearance])
 
-    return <div ref={container} id={containerId} style={{width: 0, height: 0, overflow: 'hidden'}}/>
+    return <div ref={container} className={className}/>
 })
 
 export default TurnstileCaptcha

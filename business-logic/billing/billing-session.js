@@ -108,11 +108,12 @@ function unwrap(res) {
 /**
  * Mail a sign-in link. The same for a new address and a registered one - following the link creates
  * the account
- * @param {{email: String, returnTo: String}} params - returnTo: dashboard page to open once signed in
+ * @param {{email: String, returnTo: String, turnstileToken: String}} params - returnTo: dashboard page to open once
+ * signed in; turnstileToken: anti-bot token, single-use
  * @return {Promise<void>}
  */
-export async function requestSignInLink({email, returnTo}) {
-    unwrap(await performApiCall('auth/link', {method: 'POST', auth: false, params: {email, returnTo}}))
+export async function requestSignInLink({email, returnTo, turnstileToken}) {
+    unwrap(await performApiCall('auth/link', {method: 'POST', auth: false, params: {email, returnTo, turnstileToken}}))
 }
 
 /**

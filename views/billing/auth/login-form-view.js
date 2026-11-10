@@ -1,9 +1,10 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {Button, navigation, parseQuery} from '@stellar-expert/ui-framework'
 import {completeSignIn, getRoles, isSignedIn, onSignInElsewhere, requestSignInLink}
     from '../../../business-logic/billing/billing-session'
 import {isValidEmail} from '../../../business-logic/billing/email'
 import {resolveReturnPath} from '../../../business-logic/billing/return-path'
+import TurnstileCaptcha from '../../components/turnstile-captcha'
 import SegmentLoader from '../utils/segment-loader-view'
 import {useSession} from './session-context'
 import {AuthScreenView, fail} from './auth-form'
@@ -33,6 +34,12 @@ export default function LoginFormView() {
     const [isProgress, setIsProgress] = useState(false)
     //when the last link went out - "Send again" waits out the cooldown from then
     const [sentAt, setSentAt] = useState(0)
+    //every link request spends one anti-bot token - the widget stays mounted to hand out the next one
+    const [turnstileToken, setTurnstileToken] = useState('')
+    const [turnstileFailed, setTurnstileFailed] = useState(false)
+    const turnstile = useRef(null)
+    const clearTurnstileToken = useCallback(() => setTurnstileToken(''), [])
+    const markTurnstileFailed = useCallback(() => setTurnstileFailed(true), [])
 
     const proceed = useCallback(session => {
         if (reload) {
@@ -51,7 +58,7 @@ export default function LoginFormView() {
             const returnTo = reload ?
                 window.location.pathname + window.location.search :
                 resolveReturnPath(undefined)
-            await requestSignInLink({email, returnTo})
+            await requestSignInLink({email, returnTo, turnstileToken})
             setSentAt(Date.now())
             //the first request answers with a screen, a repeat with a toast
             if (screen === 'sent') {
@@ -62,9 +69,11 @@ export default function LoginFormView() {
         } catch (e) {
             fail(e.message || 'Something went wrong. Please try again.')
         } finally {
+            setTurnstileToken('')
+            turnstile.current?.reset()
             setIsProgress(false)
         }
-    }, [email, screen, reload])
+    }, [email, screen, reload, turnstileToken])
 
     const submit = useCallback(e => {
         e?.preventDefault()
@@ -115,9 +124,10 @@ export default function LoginFormView() {
         return null
 
     const {title, textFirst} = screens[screen]
+    const awaitsTurnstile = !turnstileToken
     return <AuthScreenView title={title} textFirst={textFirst}>
         {screen === 'sent' ?
-            <InboxView email={email} disabled={isProgress} resendAt={sentAt + resendCooldown} onResend={sendLink}
+            <InboxView email={email} disabled={isProgress || awaitsTurnstile} resendAt={sentAt + resendCooldown} onResend={sendLink}
                        onBack={switchTo('form')}/> :
             <>
                 {screen === 'failed' ? <p className="dimmed text-small">
@@ -131,7 +141,7 @@ export default function LoginFormView() {
                                disabled={isProgress} onChange={e => setEmail(e.target.value.trim())}/>
                     </label>
                     <div className="space">
-                        <Button type="submit" disabled={isProgress} block>Send me a sign-in link</Button>
+                        <Button type="submit" disabled={isProgress || awaitsTurnstile} block>Send me a sign-in link</Button>
                     </div>
                     <div className="billing-login-footer text-tiny">
                         <div className="dimmed">
@@ -143,6 +153,11 @@ export default function LoginFormView() {
                     </div>
                 </form>
             </>}
+        <TurnstileCaptcha ref={turnstile} action="sign-in-link" appearance="interaction-only" className="space"
+                          onVerify={setTurnstileToken} onExpire={clearTurnstileToken} onError={markTurnstileFailed}/>
+        {!!turnstileFailed && <div className="micro-space color-warning text-small">
+            Failed to load the anti-bot check. Please disable content blockers for this page and try again.
+        </div>}
     </AuthScreenView>
 }
 

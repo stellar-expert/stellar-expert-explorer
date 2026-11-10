@@ -1,10 +1,11 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useRef, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
 import {apiRequest} from '../../../business-logic/billing/billing-api'
 import {isValidEmail} from '../../../business-logic/billing/email'
 import {useSession} from '../auth/auth-session'
 import {useDialogToggle} from '../utils/dialog-hooks'
 import ActionDialogView from '../utils/action-dialog-view'
+import TurnstileCaptcha from '../../components/turnstile-captcha'
 
 const emptyRequest = {email: '', company: '', monthlyRequests: '', details: ''}
 
@@ -18,11 +19,19 @@ export default function EnterpriseRequestView({dialogClassName}) {
     const [isOpen, toggleDialog] = useDialogToggle()
     const [request, setRequest] = useState(emptyRequest)
     const [isProgress, setIsProgress] = useState(false)
+    const [turnstileToken, setTurnstileToken] = useState('')
+    const [turnstileFailed, setTurnstileFailed] = useState(false)
+    const turnstile = useRef(null)
 
     const openDialog = useCallback(() => {
         setRequest(prev => ({...prev, email: prev.email || email || ''}))
+        setTurnstileToken('')
+        setTurnstileFailed(false)
         toggleDialog()
     }, [email, toggleDialog])
+
+    const clearTurnstileToken = useCallback(() => setTurnstileToken(''), [])
+    const markTurnstileFailed = useCallback(() => setTurnstileFailed(true), [])
 
     const changeField = useCallback(e => {
         const {name, value} = e.target
@@ -31,17 +40,22 @@ export default function EnterpriseRequestView({dialogClassName}) {
 
     const submitRequest = useCallback(() => {
         setIsProgress(true)
-        apiRequest('enterprise-request', {method: 'POST', auth: false, params: request})
+        apiRequest('enterprise-request', {method: 'POST', auth: false, params: {...request, turnstileToken}})
             .then(() => {
                 notify({type: 'success', message: 'Request sent. We will get back to you shortly'})
                 setRequest(emptyRequest)
                 toggleDialog()
             })
-            .catch(error => notify({type: 'error', message: 'Failed to send the request. ' + error?.message}))
+            .catch(error => {
+                notify({type: 'error', message: 'Failed to send the request. ' + error?.message})
+                //tokens are single-use - get a fresh one for the retry
+                setTurnstileToken('')
+                turnstile.current?.reset()
+            })
             .finally(() => setIsProgress(false))
-    }, [request, toggleDialog])
+    }, [request, turnstileToken, toggleDialog])
 
-    const isValid = isValidEmail(request.email)
+    const isValid = isValidEmail(request.email) && !!turnstileToken
 
     return <>
         <Button block outline onClick={openDialog}>Contact us</Button>
@@ -69,6 +83,12 @@ export default function EnterpriseRequestView({dialogClassName}) {
                 <label className="dimmed text-small">Additional information</label>
                 <textarea name="details" value={request.details} onChange={changeField} rows={4}/>
             </div>
+            <TurnstileCaptcha ref={turnstile} action="enterprise-request" className="space"
+                              onVerify={setTurnstileToken} onExpire={clearTurnstileToken}
+                              onError={markTurnstileFailed}/>
+            {!!turnstileFailed && <div className="micro-space color-warning text-small">
+                Failed to load the anti-bot check. Please disable content blockers for this page and try again.
+            </div>}
         </ActionDialogView>}
     </>
 }
