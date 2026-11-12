@@ -99,7 +99,7 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
             loadCallbackRef.current = null
         }
         const from = trimTimestamp5m(min) / 1000
-        const to = trimTimestamp5m(max) / 1000
+        const to = trimTimestamp5m(Math.min(max, new Date().getTime() + 5 * 60 * 1000)) / 1000 //do not allow to scale in the future
         setFrom(from)
         setTo(to)
     }, [])
@@ -176,7 +176,16 @@ export default Chart.withErrorBoundary(function OhlcvtChartView({baseEndpoint, t
                 minRange: 3600 * 1000,
                 range: 30 * 24 * 60 * 60 * 1000,
                 events: {
-                    afterSetExtremes: e => loadScaledData(e.target.chart, e.min, e.max)
+                    afterSetExtremes: e => {
+                        const axis = e.target
+                        const now = new Date().getTime()
+                        if (axis.userMax > now) {
+                            const min = axis.userMin === undefined ? undefined : Math.min(axis.userMin, now - 3600 * 1000)
+                            axis.setExtremes(min, now)
+                            return
+                        }
+                        loadScaledData(axis.chart, e.min, e.max)
+                    }
                 }
             },
             series: []
