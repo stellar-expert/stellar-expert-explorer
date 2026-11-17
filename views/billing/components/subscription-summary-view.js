@@ -21,14 +21,38 @@ const providerStatusStyles = {
  * Read-only summary of an account subscription - the plan and what it allows, how much of the paid term
  * is spent, and when it runs out
  * @param {{subscription: {}, enterpriseRequest: {}}} [account]
+ * @param {Boolean} [compact] - a couple of lines without the term progress, for a list row
  */
-export default function SubscriptionSummaryView({account}) {
+export default function SubscriptionSummaryView({account, compact}) {
     const {subscription, enterpriseRequest} = account || {}
     const badge = isAwaitingCustomTariff(account) ? <CustomTariffBadgeView request={enterpriseRequest}/> : null
     //no stored subscription means the free plan, which has no term and never expires
     const catalogue = resolveAccountPlan(account)
     const {from, to} = subscription || {}
     const limits = subscription ? describeSubscriptionLimits(subscription) : describePlanShort(catalogue)
+    const badges = <>
+        {badge}{!!badge && !!subscription?.paddle && ' '}<ProviderBadgeView subscription={subscription}/>
+        {!!subscription?.complimentary && <code className="text-tiny nowrap billing-badge"
+                                                title="Given away by staff - ends with its term, nobody is billed">
+            free months
+        </code>}
+    </>
+    const expiry = subscription ? <><UtcTimestamp date={to} dateOnly/>&nbsp;· {describeTerm(to)}</> : 'no expiry'
+
+    if (compact)
+        return <div className="billing-subscription-compact">
+            <div>
+                <strong className="nowrap">{catalogue?.name || subscription?.plan}</strong>&nbsp;
+                {/*a list row is narrow - the limits wrap rather than run past the card*/}
+                <span className="dimmed text-small">
+                    {limits || (catalogue?.custom ? 'Custom options' : null)}
+                </span>
+            </div>
+            <div>
+                {badges} <span className="dimmed text-tiny nowrap">{expiry}</span>
+            </div>
+        </div>
+
     return <div className="card card-blank billing-card billing-subscription micro-space">
         <div className="dual-layout">
             <strong className="nowrap">{catalogue?.name || subscription?.plan}</strong>
@@ -38,16 +62,8 @@ export default function SubscriptionSummaryView({account}) {
         </div>
         <SubscriptionTermView from={from} to={to}/>
         <div className="dual-layout">
-            <div>
-                {badge}{!!badge && !!subscription?.paddle && ' '}<ProviderBadgeView subscription={subscription}/>
-                {!!subscription?.complimentary && <code className="text-tiny nowrap billing-badge"
-                                                        title="Given away by staff - ends with its term, nobody is billed">
-                    free months
-                </code>}
-            </div>
-            <span className="dimmed text-tiny text-right">
-                {subscription ? <><UtcTimestamp date={to} dateOnly/>&nbsp;· {describeTerm(to)}</> : 'no expiry'}
-            </span>
+            <div>{badges}</div>
+            <span className="dimmed text-tiny text-right">{expiry}</span>
         </div>
     </div>
 }

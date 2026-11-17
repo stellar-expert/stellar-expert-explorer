@@ -14,14 +14,21 @@ export function useUsageStats(accountId, allAccounts) {
         if (!allAccounts && !accountId)
             return
 
+        //switching away from a tab unmounts the panels before the stats arrive
+        let cancelled = false
         const scope = allAccounts ? '' : `/${accountId}`
         Promise.all([apiRequest(`stats${scope}`), apiRequest(`usage${scope}`)])
-            .then(([summary, usage]) => setState({summary, usage}))
+            .then(([summary, usage]) => !cancelled && setState({summary, usage}))
             .catch(error => {
+                if (cancelled)
+                    return
                 notify({type: 'error', message: 'Failed to retrieve usage stats. ' + error?.message})
                 //the chart zero-fills its window, so an empty series still renders the same 30 days
                 setState({usage: []})
             })
+        return () => {
+            cancelled = true
+        }
     }, [accountId, allAccounts])
 
     return state

@@ -11,6 +11,11 @@ import TokenListView from './token-list-view'
  */
 export const maxApiKeys = 5
 
+/**
+ * The server counts the requests of each key over the last 30 days
+ */
+const usageWindow = 30 * 24 * 60 * 60 * 1000
+
 const relativeTime = new Intl.RelativeTimeFormat('en', {numeric: 'auto', style: 'short'})
 const relativeUnits = [
     ['second', 60],
@@ -35,6 +40,16 @@ function formatRelative(value) {
         amount /= span
     }
     return relativeTime.format(-Math.round(amount), 'year')
+}
+
+/**
+ * Whether a key was issued within the 30 days the server reports its usage for
+ * @param {String|Number|Date|null} created
+ * @return {Boolean}
+ * @private
+ */
+function isRecent(created) {
+    return !!created && Date.now() - new Date(created).getTime() < usageWindow
 }
 
 /**
@@ -76,10 +91,14 @@ export default function UserApiKeysView({apiKeys = [], updateApiKeys, details}) 
             </span>
             {detail.lastUsed ?
                 //the request count stays out of the line and answers "how much" only on hover
-                <span className="nowrap" title={`${formatWithAutoPrecision(detail.requests)} requests served`}>
+                <span className="nowrap"
+                      title={`${formatWithAutoPrecision(detail.requests)} requests served in the last 30 days`}>
                     last used {formatRelative(detail.lastUsed)}
                 </span> :
-                <span className="nowrap">never used</span>}
+                //usage is only looked up over the last 30 days, so an older key may have served requests before
+                <span className="nowrap">
+                    {isRecent(detail.created) ? 'never used' : 'not used in the last 30 days'}
+                </span>}
         </div>
     }, [details])
 

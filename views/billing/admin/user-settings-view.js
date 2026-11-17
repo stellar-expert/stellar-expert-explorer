@@ -55,7 +55,7 @@ export default function UserSettingsView({settings, onUpdate, onReload}) {
                     <div className={cn('billing-stat-value', {'color-warning': !balance})}>
                         {formatWithAutoPrecision(balance || 0)}
                     </div>
-                    <a href={`/admin/user/${id}/billing-history`} className="text-small">billing history →</a>
+                    <a href={`/admin/user/${id}?tab=billing-history`} className="text-small">billing history →</a>
                 </div>
                 <UserCreditDepositView account={settings} onUpdate={onReload}/>
             </div>

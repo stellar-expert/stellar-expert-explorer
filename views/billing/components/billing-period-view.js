@@ -97,13 +97,17 @@ function describeAllowanceReset(subscription, units, end) {
     return `credits reset to ${formatWithAutoPrecision(units)} on ${dayMonth.format(end)}`
 }
 
+const customerPlanAction = {href: '/account/subscription', title: 'Upgrade plan'}
+
 /**
  * Allowance consumed so far this period, with the limits it is measured against
  * @param {{subscription: {}, allowance: {from: Number, to: Number, units: Number}, balance: Number}} [account]
  * @param {{ts: Number, credits: Number}[]} [usage] - daily charged totals
+ * @param {{href: String, title: String}} [planAction] - where the plan button leads; the customer's own plan page
+ * unless staff look at the account
  * @return {JSX.Element|null}
  */
-export default function BillingPeriodView({account, usage}) {
+export default function BillingPeriodView({account, usage, planAction = customerPlanAction}) {
     const subscription = account?.subscription
     if (!subscription)
         return null
@@ -174,7 +178,7 @@ export default function BillingPeriodView({account, usage}) {
                     <div className="mobile-only space"/>
                 </div>
                 <div className="column column-25 billing-period-action">
-                    <Button href="/account/subscription" block>Upgrade plan</Button>
+                    <Button href={planAction.href} block>{planAction.title}</Button>
                 </div>
             </div>
         </div>

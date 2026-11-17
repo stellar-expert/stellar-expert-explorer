@@ -700,6 +700,26 @@ $stat-value-line-height: 1.2;
   }
 }
 
+//a row of the admin user list - the whole card opens the account page
+.billing-user-card.compact {
+  padding-top: $space-micro;
+  padding-bottom: $space-micro;
+  cursor: pointer;
+
+  &:hover {
+    outline: 1px solid var(--color-alt-border);
+  }
+
+  > .row {
+    align-items: center;
+  }
+
+  .billing-user-balance-value {
+    font-size: 1.2em;
+    line-height: 1.2;
+  }
+}
+
 .billing-user-card {
   padding-top: $space-standard;
   padding-bottom: $space-standard;

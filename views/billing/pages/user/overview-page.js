@@ -1,12 +1,8 @@
 import React, {useEffect, useState} from 'react'
 import {apiRequest} from '../../../../business-logic/billing/billing-api'
 import {useSession} from '../../auth/auth-session'
-import {useUsageStats} from '../../utils/usage-hooks'
 import SimplePageLayout from '../../layout/simple-page-layout'
-import StatisticsView from '../../components/statistics-view'
-import BillingPeriodView from '../../components/billing-period-view'
-import VolumeChartView from '../../components/volume-chart-view'
-import EndpointUsageView from '../../components/endpoint-usage-view'
+import AccountOverviewView from '../../components/account-overview-view'
 import DestructiveActionsView from '../../user/destructive-actions-view'
 
 /**
@@ -16,7 +12,6 @@ import DestructiveActionsView from '../../user/destructive-actions-view'
  */
 export default function OverviewPage() {
     const {userId} = useSession()
-    const {summary, usage} = useUsageStats(userId)
     const [account, setAccount] = useState()
 
     useEffect(() => {
@@ -31,10 +26,7 @@ export default function OverviewPage() {
     const action = <a href="/api-docs" target="_blank" className="text-small">API documentation&nbsp;→</a>
 
     return <SimplePageLayout title="Overview" action={action}>
-        <StatisticsView summary={summary}/>
-        <BillingPeriodView account={account} usage={usage}/>
-        <VolumeChartView stats={usage}/>
-        <EndpointUsageView endpoints={summary?.month?.endpoints}/>
+        <AccountOverviewView accountId={userId} account={account}/>
         <div className="space">
             <DestructiveActionsView/>
         </div>

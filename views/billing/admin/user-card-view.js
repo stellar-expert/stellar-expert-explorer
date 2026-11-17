@@ -1,61 +1,49 @@
-import React from 'react'
+import React, {useCallback} from 'react'
 import cn from 'classnames'
-import {Button, CopyToClipboard} from '@stellar-expert/ui-framework'
+import {CopyToClipboard, navigation} from '@stellar-expert/ui-framework'
 import {formatWithAutoPrecision, shortenString} from '@stellar-expert/formatter'
 import SubscriptionSummaryView from '../components/subscription-summary-view'
-import TokenListView from '../components/token-list-view'
 
-//acting on the account - crediting it, logging in as its owner, deleting it - happens on its settings page
+/**
+ * One row of the admin user list - who the customer is, the credits left and the plan. Clicking it opens the
+ * account page, where its settings, usage and billing history are
+ * @param {Account} account
+ * @return {JSX.Element}
+ */
 export default function UserCardView({account}) {
     const userId = account.id
-    const {apiKeys = [], origins = []} = account
+    const href = `/admin/user/${userId}`
 
-    return <div className="space">
-        <div className="card billing-card billing-user-card">
+    const open = useCallback(e => {
+        //the account link and the copy icon act on their own
+        if (e.target.closest('a, button'))
+            return
+        if (e.ctrlKey || e.metaKey) {
+            window.open(href, '_blank')
+            return
+        }
+        navigation.navigate(href)
+    }, [href])
+
+    return <div className="micro-space">
+        <div className="card billing-card billing-user-card compact" onClick={open}>
             <div className="row">
-                <div className="column column-33 billing-user-identity">
+                <div className="column column-40 billing-user-identity">
                     <div>
-                        <strong>{account.email || <>#{shortenString(userId)}</>}</strong>&nbsp;
+                        <a href={href}><strong>{account.email || <>#{shortenString(userId)}</>}</strong></a>&nbsp;
                         <CopyToClipboard text={account.email || userId}/>
                     </div>
-                    <div className="micro-space">
-                        <a href={`/admin/user/${userId}/billing-history`} className="text-small">
-                            billing history →</a>
-                    </div>
-                    <div className="billing-user-balance">
-                        <div className={cn('billing-stat-value', {'color-warning': !account.balance})}>
-                            {formatWithAutoPrecision(account.balance)}
-                        </div>
-                        <div className="dimmed text-small">CREDIT BALANCE</div>
-                    </div>
+                    {account.inactive && <div className="text-tiny dimmed">deleted</div>}
                 </div>
-                <div className="column column-66 billing-user-details">
-                    <div className="row">
-                        <div className="column column-50">
-                            <div className="mobile-only micro-space"/>
-                            <TokenListView caption={<>API KEYS&nbsp;·&nbsp;{apiKeys.length}</>}
-                                           tokens={apiKeys} shorten={16} placeholder="(No API keys)"/>
-                        </div>
-                        <div className="column column-50">
-                            <div className="mobile-only micro-space"/>
-                            <TokenListView caption={<>ASSOCIATED ORIGINS&nbsp;·&nbsp;{origins.length}</>}
-                                           tokens={origins} placeholder="(No origins)"/>
-                        </div>
+                <div className="column column-20">
+                    <div className={cn('billing-user-balance-value', {'color-warning': !account.balance})}>
+                        {formatWithAutoPrecision(account.balance)}
                     </div>
-                    <div className="row micro-space">
-                        <div className="column">
-                            <div className="dimmed text-small">SUBSCRIPTION</div>
-                            <SubscriptionSummaryView account={account}/>
-                        </div>
-                    </div>
+                    <div className="dimmed text-tiny">CREDITS</div>
                 </div>
-            </div>
-            <hr/>
-            <div className="dual-layout billing-user-actions">
-                <div>
-                    <Button href={`/admin/user/${userId}`} stackable small>Settings</Button>
+                <div className="column column-40">
+                    <SubscriptionSummaryView account={account} compact/>
                 </div>
-                {account.inactive && <div className="text-small dimmed">deleted</div>}
             </div>
         </div>
     </div>
